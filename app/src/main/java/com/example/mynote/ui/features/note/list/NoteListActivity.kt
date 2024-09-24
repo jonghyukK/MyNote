@@ -11,10 +11,12 @@ import com.example.mynote.databinding.ActivityMainBinding
 import com.example.mynote.ui.base.BaseActivity
 import com.example.mynote.ui.features.note.make.MakeNoteActivity
 import com.example.mynote.utils.extensions.setOnThrottleClickListener
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class NoteListActivity : BaseActivity<ActivityMainBinding>({ ActivityMainBinding.inflate(it) }) {
 
     private val viewModel: NoteListViewModel by viewModels()
