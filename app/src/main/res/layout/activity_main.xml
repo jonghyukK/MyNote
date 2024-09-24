@@ -7,13 +7,22 @@
     android:layout_height="match_parent"
     tools:context=".ui.features.note.list.NoteListActivity">
 
+    <com.example.mynote.ui.common.components.MyToolBar
+        android:id="@+id/tb_toolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:leftTitle="@string/app_name"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_note_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:overScrollMode="never"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tb_toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
