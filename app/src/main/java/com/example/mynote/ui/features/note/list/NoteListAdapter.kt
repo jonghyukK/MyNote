@@ -26,7 +26,7 @@ class NoteListAdapter: ListAdapter<NoteItemUiState, NoteListItemViewHolder>(UI_M
             override fun areItemsTheSame(
                 oldItem: NoteItemUiState,
                 newItem: NoteItemUiState
-            ): Boolean = oldItem.contents == newItem.contents
+            ): Boolean = oldItem.noteId == newItem.noteId
 
             override fun areContentsTheSame(
                 oldItem: NoteItemUiState,

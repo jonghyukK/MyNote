@@ -1,6 +1,7 @@
 package com.example.mynote.ui.features.note.list
 
 import android.content.Intent
+import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
@@ -50,7 +51,15 @@ class NoteListActivity : BaseActivity<ActivityMainBinding>({ ActivityMainBinding
 
                 launch {
                     viewModel.uiState
+                        .map { it.isEmpty }
+                        .distinctUntilChanged()
+                        .collect { isEmpty -> binding.tvEmpty.isVisible = isEmpty }
+                }
+
+                launch {
+                    viewModel.uiState
                         .map { it.noteItems }
+                        .distinctUntilChanged()
                         .collect { noteItems ->
                             noteListAdapter.submitList(noteItems)
                         }
