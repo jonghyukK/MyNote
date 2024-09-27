@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.model.Result
 import com.example.data.repository.NoteRepository
+import com.example.mynote.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -15,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MakeNoteViewModel @Inject constructor(
     private val noteRepository: NoteRepository
-): ViewModel() {
+): BaseViewModel() {
 
     private val _isSavedNote = MutableSharedFlow<Boolean>()
     val isSavedNote = _isSavedNote.asSharedFlow()

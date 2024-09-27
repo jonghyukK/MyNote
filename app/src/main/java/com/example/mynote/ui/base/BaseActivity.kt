@@ -2,11 +2,17 @@ package com.example.mynote.ui.base
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewbinding.ViewBinding
+import com.example.mynote.utils.extensions.showToast
+import kotlinx.coroutines.launch
 
 abstract class BaseActivity<B: ViewBinding>(
     private val bindingFactory: (LayoutInflater) -> B
@@ -30,6 +36,27 @@ abstract class BaseActivity<B: ViewBinding>(
 
         onInitView()
         onInitUiData()
+
+        setupGlobalErrorHandler()
+    }
+
+    open fun getViewModel(): BaseViewModel? {
+        return null
+    }
+
+    private fun setupGlobalErrorHandler() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                getViewModel()?.errorEvent?.collect { error ->
+                    error?.let { showToast(it) }
+                }
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 
     abstract fun onInitView()
