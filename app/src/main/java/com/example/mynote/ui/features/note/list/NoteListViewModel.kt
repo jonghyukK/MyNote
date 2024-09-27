@@ -1,8 +1,8 @@
 package com.example.mynote.ui.features.note.list
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.repository.NoteRepository
+import com.example.mynote.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +24,7 @@ data class NoteItemUiState(
 @HiltViewModel
 class NoteListViewModel @Inject constructor(
     private val noteRepository: NoteRepository
-): ViewModel() {
+): BaseViewModel() {
 
     private val _uiState = MutableStateFlow<NoteListUiState>(NoteListUiState())
     val uiState = _uiState.asStateFlow()

@@ -23,6 +23,9 @@ interface NoteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(note: NoteEntity): Long
 
-    @Query("DELETE FROM note")
-    suspend fun deleteAll()
+    @Query("SELECT * FROM note WHERE id = :noteId")
+    suspend fun getNoteById(noteId: Int): NoteEntity?
+
+//    @Query("DELETE FROM note")
+//    suspend fun deleteAll()
 }

@@ -1,6 +1,5 @@
 package com.example.data.repository
 
-import android.util.Log
 import com.example.data.db.entity.NoteEntity
 import com.example.data.db.entity.toExternal
 import com.example.data.model.NoteModel
@@ -30,8 +29,20 @@ class NoteRepository @Inject constructor(
         emit(Result.Loading)
 
         try {
-            val insertedNoteId = noteLocalDataSource.insert(NoteEntity(contents = contents))
-            emit(Result.Success(insertedNoteId))
+            val newNoteId = noteLocalDataSource.insert(NoteEntity(contents = contents))
+            emit(Result.Success(newNoteId))
+        } catch (e: Exception) {
+            emit(Result.Error(e.message))
+        }
+    }
+
+    suspend fun getNoteById(noteId: Int): Flow<Result<NoteModel>> = flow {
+        emit(Result.Loading)
+
+        try {
+            noteLocalDataSource.getNoteById(noteId)?.let { noteEntity ->
+                emit(Result.Success(noteEntity.toExternal()))
+            } ?: emit(Result.Error("Not Found Note by this Id: $noteId"))
         } catch (e: Exception) {
             emit(Result.Error(e.message))
         }

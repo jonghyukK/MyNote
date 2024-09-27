@@ -7,13 +7,15 @@ import androidx.recyclerview.widget.ListAdapter
 import com.example.mynote.databinding.VhNoteItemBinding
 
 
-class NoteListAdapter: ListAdapter<NoteItemUiState, NoteListItemViewHolder>(UI_MODEL_COMPARATOR) {
+class NoteListAdapter(
+    private val noteClickAction: (Int) -> Unit
+): ListAdapter<NoteItemUiState, NoteListItemViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         NoteListItemViewHolder(
             VhNoteItemBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false
-            )
+            ), noteClickAction
         )
 
     override fun onBindViewHolder(holder: NoteListItemViewHolder, position: Int) {

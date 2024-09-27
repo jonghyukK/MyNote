@@ -1,7 +1,6 @@
 package com.example.mynote.ui.features.note.list
 
 import android.content.Intent
-import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
@@ -10,7 +9,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.mynote.databinding.ActivityMainBinding
 import com.example.mynote.ui.base.BaseActivity
+import com.example.mynote.ui.features.note.detail.NoteDetailActivity
 import com.example.mynote.ui.features.note.make.MakeNoteActivity
+import com.example.mynote.utils.constants.AppConstants
 import com.example.mynote.utils.extensions.setOnThrottleClickListener
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -23,7 +24,7 @@ class NoteListActivity : BaseActivity<ActivityMainBinding>({ ActivityMainBinding
     private val viewModel: NoteListViewModel by viewModels()
 
     private val noteListAdapter: NoteListAdapter by lazy {
-        NoteListAdapter()
+        NoteListAdapter(noteClickAction)
     }
 
     override fun onInitView() = with (binding) {
@@ -70,6 +71,13 @@ class NoteListActivity : BaseActivity<ActivityMainBinding>({ ActivityMainBinding
 
     private val addNoteClickListener = View.OnClickListener {
         val intent = Intent(this, MakeNoteActivity::class.java)
+        startActivity(intent)
+    }
+
+    private val noteClickAction: (Int) -> Unit = { noteId ->
+        val intent = Intent(this, NoteDetailActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_NOTE_ID, noteId)
+        }
         startActivity(intent)
     }
 }

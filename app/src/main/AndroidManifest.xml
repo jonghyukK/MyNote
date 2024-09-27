@@ -24,6 +24,8 @@
         </activity>
 
         <activity android:name=".ui.features.note.make.MakeNoteActivity" />
+
+        <activity android:name=".ui.features.note.detail.NoteDetailActivity" />
     </application>
 
 </manifest>
