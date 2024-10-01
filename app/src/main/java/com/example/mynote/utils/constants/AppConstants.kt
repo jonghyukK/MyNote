@@ -9,4 +9,6 @@ package com.example.mynote.utils.constants
 object AppConstants {
 
     const val INTENT_NOTE_ID = "INTENT_NOTE_ID"
+
+    const val MAX_SELECTABLE_IMAGE_COUNT = 10
 }

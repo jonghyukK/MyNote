@@ -1,5 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">MyNote</string>
     <string name="make_note">노트 작성</string>
     <string name="save">저장</string>
+    <string name="empty">내용이 없어요</string>
+    <string name="product_title">물건명</string>
 </resources>
