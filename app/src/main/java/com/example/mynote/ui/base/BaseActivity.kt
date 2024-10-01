@@ -45,10 +45,12 @@ abstract class BaseActivity<B: ViewBinding>(
     }
 
     private fun setupGlobalErrorHandler() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                getViewModel()?.errorEvent?.collect { error ->
-                    error?.let { showToast(it) }
+        getViewModel()?.let { viewModel ->
+            lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.errorEvent.collect { error ->
+                        error?.let { showToast(it) }
+                    }
                 }
             }
         }
