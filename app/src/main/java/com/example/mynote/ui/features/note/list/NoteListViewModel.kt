@@ -1,5 +1,6 @@
 package com.example.mynote.ui.features.note.list
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.data.repository.NoteRepository
 import com.example.mynote.ui.base.BaseViewModel
@@ -32,18 +33,19 @@ class NoteListViewModel @Inject constructor(
     fun fetchNoteItems() {
         viewModelScope.launch {
             noteRepository.observeAll().collect { notes ->
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        isEmpty = notes.isEmpty(),
-                        noteItems = notes.map { note ->
-                            NoteItemUiState(
-                                noteId = note.id,
-                                contents = note.contents
-                            )
-                        }
-                    )
-                }
+                Log.e("Test123", "$notes")
+//                _uiState.update {
+//                    it.copy(
+//                        isLoading = false,
+//                        isEmpty = notes.isEmpty(),
+//                        noteItems = notes.map { note ->
+//                            NoteItemUiState(
+//                                noteId = note.id,
+//                                contents = note.contents
+//                            )
+//                        }
+//                    )
+//                }
             }
         }
     }

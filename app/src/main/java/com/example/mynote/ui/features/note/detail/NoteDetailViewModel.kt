@@ -32,31 +32,31 @@ class NoteDetailViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     fun getNoteById(noteId: Int) {
-        viewModelScope.launch {
-            noteRepository.getNoteById(noteId).collect { result ->
-                when (result) {
-                    Result.Loading -> {
-                        _uiState.value = NoteDetailUiState(isLoading = true)
-                    }
-                    is Result.Success -> {
-                        result.data?.let { data ->
-                            _uiState.update {
-                                it.copy(
-                                    isLoading = false,
-                                    noteItem = NoteItemUiState(
-                                        noteId = data.id,
-                                        contents = data.contents
-                                    )
-                                )
-                            }
-                        }
-                    }
-                    is Result.Error -> {
-                        emitError(result.msg ?: "Occur Unknown Error")
-                        _uiState.value = NoteDetailUiState(isLoading = false)
-                    }
-                }
-            }
-        }
+//        viewModelScope.launch {
+//            noteRepository.getNoteById(noteId).collect { result ->
+//                when (result) {
+//                    Result.Loading -> {
+//                        _uiState.value = NoteDetailUiState(isLoading = true)
+//                    }
+//                    is Result.Success -> {
+//                        result.data?.let { data ->
+//                            _uiState.update {
+//                                it.copy(
+//                                    isLoading = false,
+//                                    noteItem = NoteItemUiState(
+//                                        noteId = data.id,
+//                                        contents = data.contents
+//                                    )
+//                                )
+//                            }
+//                        }
+//                    }
+//                    is Result.Error -> {
+//                        emitError(result.msg ?: "Occur Unknown Error")
+//                        _uiState.value = NoteDetailUiState(isLoading = false)
+//                    }
+//                }
+//            }
+//        }
     }
 }

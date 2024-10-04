@@ -8,12 +8,15 @@ import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.mynote.R
 import com.example.mynote.databinding.ActivityMakeNoteBinding
 import com.example.mynote.ui.base.BaseActivity
 import com.example.mynote.utils.constants.AppConstants
 import com.example.mynote.utils.extensions.setOnThrottleClickListener
 import com.example.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -36,24 +39,25 @@ class MakeNoteActivity: BaseActivity<ActivityMakeNoteBinding>({ ActivityMakeNote
 
         tbToolbar.setBackButtonClickListener(backBtnClickListener)
         btnSave.setOnThrottleClickListener(saveBtnClickListener)
-        ivAttach.setOnThrottleClickListener(photoAttachClickListener)
+        clAttachImages.setOnThrottleClickListener(photoAttachClickListener)
     }
 
     override fun onInitUiData() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.isSavedNote.collect { isSaved ->
-                        if (isSaved) {
-                            finish()
-                        }
-                    }
-                }
+                    viewModel.uiState
+                        .map { it.tempImageUris }
+                        .distinctUntilChanged()
+                        .collect { tempImages ->
+                            binding.tvImageCount.text = getString(
+                                R.string.format_slash,
+                                tempImages.size,
+                                AppConstants.MAX_SELECTABLE_IMAGE_COUNT
+                            )
 
-                launch {
-                    viewModel.uiState.collect { uiState ->
-                        tempImageListAdapter.submitList(uiState.tempImageUris)
-                    }
+                            tempImageListAdapter.submitList(tempImages)
+                        }
                 }
             }
         }
@@ -78,7 +82,7 @@ class MakeNoteActivity: BaseActivity<ActivityMakeNoteBinding>({ ActivityMakeNote
     }
 
     private val saveBtnClickListener = View.OnClickListener {
-        showToast("저장!")
+        viewModel.savePlaceNote()
     }
 
     private val photoAttachClickListener = View.OnClickListener {

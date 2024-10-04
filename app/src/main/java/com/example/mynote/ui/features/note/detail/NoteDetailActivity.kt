@@ -6,6 +6,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.bumptech.glide.Glide
 import com.example.mynote.databinding.ActivityNoteDetailBinding
 import com.example.mynote.ui.base.BaseActivity
 import com.example.mynote.ui.base.BaseViewModel
@@ -35,6 +36,10 @@ class NoteDetailActivity: BaseActivity<ActivityNoteDetailBinding>({ ActivityNote
     override fun onInitView() {
         with (binding) {
             tbToolbar.setBackButtonClickListener(backBtnClickListener)
+
+            Glide.with(this@NoteDetailActivity)
+                .load("https://science.nasa.gov/wp-content/uploads/2023/09/Milky_Way_illustration-1.jpeg?w=800")
+                .into(ivImage)
         }
     }
 
