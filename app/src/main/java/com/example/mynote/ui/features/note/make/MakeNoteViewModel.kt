@@ -1,10 +1,9 @@
 package com.example.mynote.ui.features.note.make
 
 import android.net.Uri
-import androidx.lifecycle.viewModelScope
-import com.example.data.model.Result
 import com.example.data.repository.NoteRepository
 import com.example.mynote.ui.base.BaseViewModel
+import com.example.mynote.utils.constants.AppConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +11,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class MakeNoteUiState(
@@ -30,32 +28,13 @@ class MakeNoteViewModel @Inject constructor(
     private val _isSavedNote = MutableSharedFlow<Boolean>()
     val isSavedNote = _isSavedNote.asSharedFlow()
 
-    fun saveNote(contents: String) {
-        viewModelScope.launch {
-            noteRepository.create(contents).collect { result ->
-                when (result) {
-                    Result.Loading -> {
-
-                    }
-                    is Result.Success -> {
-                        _isSavedNote.emit(true)
-                    }
-                    is Result.Error -> {}
-                }
-            }
-        }
-    }
-
     fun setTempImageUris(uris: List<Uri>) {
         if (uris.isEmpty()) return
 
-        _uiState.getAndUpdate { uiState ->
-            val currentTempImageUris = uiState.tempImageUris
-            val newTempImageUris = uris.filter { newUri ->
-                newUri !in currentTempImageUris
-            }
-
-            uiState.copy(tempImageUris = currentTempImageUris + newTempImageUris)
+        _uiState.update { uiState ->
+            uiState.copy(
+                tempImageUris = getValidTempImageUris(uiState.tempImageUris, uris)
+            )
         }
     }
 
@@ -68,6 +47,24 @@ class MakeNoteViewModel @Inject constructor(
                     uri != targetUri
                 }
             )
+        }
+    }
+
+    private fun getValidTempImageUris(
+        currentTempUris: List<Uri>,
+        newTempUris: List<Uri>
+    ): List<Uri> {
+        val maxImageCount = AppConstants.MAX_SELECTABLE_IMAGE_COUNT
+        val deduplicatedNewTempUris = newTempUris.filter { newUri ->
+            newUri !in currentTempUris
+        }
+
+        val isOverMaxCount = (currentTempUris.size + deduplicatedNewTempUris.size) > maxImageCount
+        if (isOverMaxCount) {
+            val remainCount = maxImageCount - currentTempUris.size
+            return currentTempUris + deduplicatedNewTempUris.subList(0, remainCount)
+        } else {
+            return currentTempUris + deduplicatedNewTempUris
         }
     }
 }
