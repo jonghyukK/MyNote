@@ -1,10 +1,10 @@
 package com.example.data.repository
 
-import com.example.data.db.entity.NoteEntity
+import com.example.data.db.entity.PlaceNoteEntity
 import com.example.data.db.entity.toExternal
-import com.example.data.model.NoteModel
+import com.example.data.model.PlaceNoteModel
 import com.example.data.model.Result
-import com.example.data.source.NoteDao
+import com.example.data.source.PlaceNoteDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -17,32 +17,32 @@ import javax.inject.Inject
  */
 
 class NoteRepository @Inject constructor(
-    private val noteLocalDataSource: NoteDao
+    private val noteLocalDataSource: PlaceNoteDao
 ) {
 
-    fun observeAll(): Flow<List<NoteModel>> =
+    fun observeAll(): Flow<List<PlaceNoteModel>> =
         noteLocalDataSource.observeAll().map { noteEntities ->
             noteEntities.toExternal()
         }
 
-    suspend fun create(contents: String): Flow<Result<Long>> = flow {
+    suspend fun create(placeNoteModel: PlaceNoteModel): Flow<Result<Long>> = flow {
         emit(Result.Loading)
 
         try {
-            val newNoteId = noteLocalDataSource.insert(NoteEntity(contents = contents))
+            val placeNoteEntity = PlaceNoteEntity(
+                id = placeNoteModel.id,
+                placeImages = placeNoteModel.placeImages,
+                description = placeNoteModel.description,
+                placeName = placeNoteModel.placeName,
+                placeAddress = placeNoteModel.placeAddress,
+                x = placeNoteModel.x,
+                y = placeNoteModel.y,
+                startDate = placeNoteModel.startDate,
+                endDate = placeNoteModel.endDate
+            )
+
+            val newNoteId = noteLocalDataSource.insert(placeNoteEntity)
             emit(Result.Success(newNoteId))
-        } catch (e: Exception) {
-            emit(Result.Error(e.message))
-        }
-    }
-
-    suspend fun getNoteById(noteId: Int): Flow<Result<NoteModel>> = flow {
-        emit(Result.Loading)
-
-        try {
-            noteLocalDataSource.getNoteById(noteId)?.let { noteEntity ->
-                emit(Result.Success(noteEntity.toExternal()))
-            } ?: emit(Result.Error("Not Found Note by this Id: $noteId"))
         } catch (e: Exception) {
             emit(Result.Error(e.message))
         }

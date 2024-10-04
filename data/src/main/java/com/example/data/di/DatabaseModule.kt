@@ -2,8 +2,8 @@ package com.example.data.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.data.source.NoteDao
 import com.example.data.db.NoteDataBase
+import com.example.data.source.PlaceNoteDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -32,5 +32,5 @@ object DatabaseModule {
     }
 
     @Provides
-    fun provideNoteDao(dataBase: NoteDataBase): NoteDao = dataBase.noteDao()
+    fun providePlaceNoteDao(dataBase: NoteDataBase): PlaceNoteDao = dataBase.placeNoteDao()
 }
