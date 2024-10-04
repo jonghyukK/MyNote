@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".ui.features.note.list.NoteListActivity">
 
-    <com.example.mynote.ui.common.components.MyToolBar
+    <com.kjh.mynote.ui.common.components.MyToolBar
         android:id="@+id/tb_toolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

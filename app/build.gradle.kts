@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.mynote"
+    namespace = "com.kjh.mynote"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.mynote"
+        applicationId = "com.kjh.mynote"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
