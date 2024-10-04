@@ -64,4 +64,10 @@ dependencies {
 
     // Glide..
     implementation(libs.glide)
+
+    // Timber
+    implementation(libs.timber)
+
+    // KakaoMap
+    implementation(libs.kakaoMap)
 }

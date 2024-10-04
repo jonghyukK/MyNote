@@ -18,6 +18,10 @@ roomRuntime = "2.6.1"
 roomCompiler = "2.6.1"
 roomKtx = "2.6.1"
 glide = "4.16.0"
+retrofit = "2.9.0"
+okhttp = "4.12.0"
+timber = "5.0.1"
+kakaoMap = "2.11.9"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -38,6 +42,13 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
 
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+kakaoMap = { group = "com.kakao.maps.open", name = "android", version.ref = "kakaoMap" }
+
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp-bom", version.ref = "okhttp" }
+okhttp-loging = { group  = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
