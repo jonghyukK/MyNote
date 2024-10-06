@@ -1,4 +1,4 @@
-package com.kjh.data
+package com.kjh.data.db
 
 import androidx.room.TypeConverter
 

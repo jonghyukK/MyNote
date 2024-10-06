@@ -3,7 +3,7 @@ package com.kjh.data.di
 import android.content.Context
 import androidx.room.Room
 import com.kjh.data.db.NoteDataBase
-import com.kjh.data.source.PlaceNoteDao
+import com.kjh.data.source.local.PlaceNoteDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

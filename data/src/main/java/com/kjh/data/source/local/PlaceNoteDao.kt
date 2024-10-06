@@ -1,4 +1,4 @@
-package com.kjh.data.source
+package com.kjh.data.source.local
 
 import androidx.room.Dao
 import androidx.room.Insert

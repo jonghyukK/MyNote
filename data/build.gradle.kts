@@ -50,4 +50,15 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
+
+    // retrofit
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+
+    // Okhttp3
+    implementation(platform(libs.okhttp))
+    implementation(libs.okhttp.loging)
+
+    // Timber
+    implementation(libs.timber)
 }

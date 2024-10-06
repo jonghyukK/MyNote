@@ -4,7 +4,7 @@ import com.kjh.data.db.entity.PlaceNoteEntity
 import com.kjh.data.db.entity.toExternal
 import com.kjh.data.model.PlaceNoteModel
 import com.kjh.data.model.Result
-import com.kjh.data.source.PlaceNoteDao
+import com.kjh.data.source.local.PlaceNoteDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
