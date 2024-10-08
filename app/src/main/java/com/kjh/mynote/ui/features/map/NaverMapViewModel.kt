@@ -1,6 +1,7 @@
 package com.kjh.mynote.ui.features.map
 
 import androidx.lifecycle.viewModelScope
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.kjh.data.model.KakaoPlaceModel
 import com.kjh.data.model.Result
 import com.kjh.data.repository.KakaoMapRepository
@@ -12,7 +13,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -35,8 +35,8 @@ class NaverMapViewModel @Inject constructor(
     private val _placeItems = MutableStateFlow<List<KakaoPlaceModel>>(emptyList())
     val placeItems = _placeItems.asStateFlow()
 
-    private val _naverMapSearchState = MutableSharedFlow<NaverMapSearchState>()
-    val naverMapSearchState = _naverMapSearchState.asSharedFlow()
+    private val _naverMapSearchEvent = MutableSharedFlow<NaverMapSearchState>()
+    val naverMapSearchEvent = _naverMapSearchEvent.asSharedFlow()
 
     private val _selectPlaceItemEvent = MutableSharedFlow<KakaoPlaceModel>()
     val selectPlaceItemEvent = _selectPlaceItemEvent.asSharedFlow()
@@ -47,7 +47,7 @@ class NaverMapViewModel @Inject constructor(
                 .collect { apiResult ->
                     when (apiResult) {
                         Result.Loading -> {
-                            _naverMapSearchState.emit(NaverMapSearchState.Searching)
+                            _naverMapSearchEvent.emit(NaverMapSearchState.Searching)
                         }
                         is Result.Success -> {
                             delay(700)
@@ -56,11 +56,11 @@ class NaverMapViewModel @Inject constructor(
                             _placeItems.value = placeList
 
                             if (placeList.isEmpty()) {
-                                _naverMapSearchState.emit(NaverMapSearchState.Nothing)
+                                _naverMapSearchEvent.emit(NaverMapSearchState.Nothing)
                                 return@collect
                             }
 
-                            _naverMapSearchState.emit(NaverMapSearchState.Founded)
+                            _naverMapSearchEvent.emit(NaverMapSearchState.Founded)
                             _selectPlaceItemEvent.emit(placeList[0])
                         }
                         is Result.Error -> {
@@ -76,4 +76,6 @@ class NaverMapViewModel @Inject constructor(
             _selectPlaceItemEvent.emit(placeItem)
         }
     }
+
+    fun isEmptyPlaceItems() = _placeItems.value.isEmpty()
 }
