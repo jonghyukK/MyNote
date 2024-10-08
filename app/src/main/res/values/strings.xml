@@ -5,4 +5,9 @@
     <string name="empty">내용이 없어요</string>
     <string name="product_title">물건명</string>
     <string name="format_slash">%1$d/%2$d</string>
+    <string name="select_location">장소 검색</string>
+    <string name="search_place">장소 검색</string>
+    <string name="hint_input_place_or_address">장소명 혹은 주소 입력</string>
+    <string name="show_list">목록보기</string>
+    <string name="nothing_result">검색 결과가 없어요</string>
 </resources>

@@ -34,7 +34,8 @@
 
         <activity android:name=".ui.features.note.detail.NoteDetailActivity" />
 
-        <activity android:name=".ui.features.map.KakaoMapActivity" />
+        <activity android:name=".ui.features.map.NaverMapActivity"
+            android:windowSoftInputMode="adjustNothing" />
     </application>
 
 </manifest>

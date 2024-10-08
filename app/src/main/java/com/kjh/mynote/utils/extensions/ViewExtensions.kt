@@ -1,6 +1,9 @@
 package com.kjh.mynote.utils.extensions
 
+import android.content.Context
 import android.view.View
+import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.widget.AppCompatEditText
 import com.kjh.mynote.ui.common.listener.OnThrottleClickListener
 
 /**
@@ -16,4 +19,9 @@ fun View.onThrottleClick(action: (v: View) -> Unit) {
 
 fun View.setOnThrottleClickListener(listener: View.OnClickListener) {
     setOnClickListener(OnThrottleClickListener(listener))
+}
+
+fun AppCompatEditText.hideKeyboard() {
+    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.hideSoftInputFromWindow(windowToken, 0)
 }

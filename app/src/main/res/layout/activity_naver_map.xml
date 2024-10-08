@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.kjh.mynote.ui.common.components.MyToolBar
+            android:id="@+id/tb_toolbar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:isShowBackButton="true"
+            app:leftTitle="@string/search_place"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fcv_map_container"
+            android:name="com.naver.maps.map.MapFragment"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tb_toolbar" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/et_query"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="8dp"
+            android:paddingVertical="12dp"
+            android:paddingHorizontal="10dp"
+            android:background="@drawable/shape_s_white_c_8_l_purple"
+            android:textSize="12sp"
+            android:inputType="text"
+            android:imeOptions="actionSearch"
+            android:hint="@string/hint_input_place_or_address"
+            app:layout_constraintTop_toBottomOf="@+id/tb_toolbar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/ib_search" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/ib_search"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="15dp"
+            android:background="@drawable/shape_s_purple_c_8"
+            app:srcCompat="@drawable/ic_search_24_white"
+            app:layout_constraintTop_toTopOf="@+id/et_query"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/et_query"
+            app:layout_constraintBottom_toBottomOf="@+id/et_query" />
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/cpi_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@+id/tb_toolbar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_show_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:background="@drawable/shape_s_white_c_8_l_purple"
+            android:textSize="13sp"
+            android:textColor="@color/purple"
+            android:text="@string/show_list"
+            android:visibility="gone"
+            android:paddingVertical="8dp"
+            android:paddingHorizontal="12dp"
+            android:elevation="0dp"
+            android:layout_marginBottom="25dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/include"
+        layout="@layout/bsd_place_search_result_dialog" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

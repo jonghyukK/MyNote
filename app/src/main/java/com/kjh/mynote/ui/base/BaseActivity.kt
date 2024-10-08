@@ -22,7 +22,7 @@ abstract class BaseActivity<B: ViewBinding>(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+//        enableEdgeToEdge()
 
         _binding = bindingFactory(layoutInflater)
         setContentView(binding.root)
