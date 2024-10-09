@@ -13,7 +13,8 @@ import com.kjh.mynote.databinding.VhNaverMapSearchResultItemBinding
  * Description:
  */
 class NaverMapSearchResultListAdapter(
-    private val onPlaceClickAction: (KakaoPlaceModel) -> Unit
+    private val onPlaceClickAction: (KakaoPlaceModel) -> Unit,
+    private val onSelectClickAction: (KakaoPlaceModel) -> Unit
 ): ListAdapter<KakaoPlaceModel, NaverMapSearchResultItemViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(
@@ -22,7 +23,7 @@ class NaverMapSearchResultListAdapter(
     ) = NaverMapSearchResultItemViewHolder(
         VhNaverMapSearchResultItemBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
-        ), onPlaceClickAction
+        ), onPlaceClickAction, onSelectClickAction
     )
 
     override fun onBindViewHolder(holder: NaverMapSearchResultItemViewHolder, position: Int) {

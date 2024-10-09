@@ -1,6 +1,8 @@
 package com.kjh.data.model
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
 /**
  * Created by kangjonghyuk.
@@ -8,6 +10,7 @@ import com.google.gson.annotations.SerializedName
  * Description:
  */
 
+@Parcelize
 data class KakaoPlaceModel(
 
     @SerializedName("id")
@@ -27,4 +30,4 @@ data class KakaoPlaceModel(
 
     @SerializedName("y")
     val y: String,
-)
+): Parcelable

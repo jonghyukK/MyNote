@@ -1,5 +1,6 @@
 package com.kjh.mynote.ui.features.map
 
+import android.content.Intent
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.inputmethod.EditorInfo
@@ -17,18 +18,21 @@ import com.kjh.data.model.KakaoPlaceModel
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityNaverMapBinding
 import com.kjh.mynote.ui.base.BaseNaverMapActivity
+import com.kjh.mynote.utils.constants.AppConstants
+import com.kjh.mynote.utils.constants.AppConstants.DEFAULT_ZOOM_LEVEL
 import com.kjh.mynote.utils.extensions.hideKeyboard
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraAnimation
 import com.naver.maps.map.CameraUpdate
-import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.MarkerIcons
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.
@@ -46,14 +50,13 @@ class NaverMapActivity
     private lateinit var sheetBehavior: BottomSheetBehavior<ConstraintLayout>
 
     private val searchResultListAdapter: NaverMapSearchResultListAdapter by lazy {
-        NaverMapSearchResultListAdapter(onPlaceClickAction)
+        NaverMapSearchResultListAdapter(onPlaceClickAction, onSelectClickAction)
     }
 
     override fun onInitView() {
         with(binding) {
             sheetBehavior = BottomSheetBehavior.from(binding.include.bottomSheet).apply {
                 peekHeight = resources.getDimensionPixelSize(R.dimen.peek_height)
-                state = BottomSheetBehavior.STATE_HIDDEN
                 addBottomSheetCallback(bottomSheetCallBack)
             }
 
@@ -68,27 +71,64 @@ class NaverMapActivity
     }
 
     override fun onInitUiData() {
+        viewModel.checkInitData()
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.naverMapSearchEvent.collect { searchState ->
-                        with(binding.include) {
-                            flLoading.isVisible = searchState is NaverMapSearchState.Searching
-                            tvEmpty.isVisible = searchState is NaverMapSearchState.Nothing
+                    viewModel.uiState
+                        .map { it.isLoading }
+                        .distinctUntilChanged()
+                        .collect { isLoading ->
+                            binding.cpiLoading.isVisible = isLoading
                         }
-
-                        setSheetBehaviorCollapsed()
-                    }
                 }
 
                 launch {
-                    viewModel.placeItems.collect { placeItems ->
-                        searchResultListAdapter.submitList(placeItems)
-                    }
+                    viewModel.uiState
+                        .map { it.isEmpty }
+                        .distinctUntilChanged()
+                        .collect { isResultEmpty ->
+                            if (isResultEmpty) {
+                                showToast("검색 결과가 없습니다.")
+                                viewModel.shownEmptyToast()
+                            }
+                        }
                 }
 
                 launch {
-                    viewModel.selectPlaceItemEvent.collect(::updateCameraAndMakeMarker)
+                    viewModel.uiState
+                        .map { it.sheetBehavior }
+                        .distinctUntilChanged()
+                        .collect { sheetState ->
+                            sheetBehavior.state = sheetState
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.placeItems }
+                        .distinctUntilChanged()
+                        .collect { placeItems ->
+                            searchResultListAdapter.submitList(placeItems)
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.movingCameraPlaceItem }
+                        .distinctUntilChanged()
+                        .filterNotNull()
+                        .collect {
+                            updateCamera(it)
+                        }
+                }
+
+                launch {
+                    viewModel.showOpenButtonFlow
+                        .collect { isShow ->
+                            binding.btnShowList.isVisible = isShow
+                        }
                 }
             }
         }
@@ -99,28 +139,37 @@ class NaverMapActivity
         super.onDestroy()
     }
 
-    private fun updateCameraAndMakeMarker(placeItem: KakaoPlaceModel) {
-        marker?.let { it.map = null }
+    private fun updateCamera(placeItem: KakaoPlaceModel) {
+        clearPrevMarker()
 
         val targetLatLng = LatLng(placeItem.y.toDouble(), placeItem.x.toDouble())
-        val cameraUpdate = CameraUpdate.scrollAndZoomTo(targetLatLng, 14.0)
+        val cameraUpdate = CameraUpdate.scrollAndZoomTo(targetLatLng, DEFAULT_ZOOM_LEVEL)
             .animate(CameraAnimation.None)
-            .finishCallback {
-                marker = Marker().apply {
-                    position = targetLatLng
-                    width = 60
-                    height = 80
-                    icon = MarkerIcons.BLACK
-                    iconTintColor = ContextCompat.getColor(this@NaverMapActivity, R.color.purple)
-                    captionText = placeItem.placeName
-                    captionColor = ContextCompat.getColor(this@NaverMapActivity, R.color.purple)
-                    map = naverMap
-                }
 
-                setSheetBehaviorCollapsed()
-            }
-
+        marker = getMarker(placeItem, targetLatLng)
         naverMap.moveCamera(cameraUpdate)
+
+        binding.root.post {
+            viewModel.clearMovingCameraPlaceItemWithStateCollapsed()
+        }
+    }
+
+    private fun getMarker(
+        placeItem: KakaoPlaceModel,
+        latLng: LatLng
+    ): Marker = Marker().apply {
+        position = latLng
+        width = 60
+        height = 80
+        icon = MarkerIcons.BLACK
+        iconTintColor = ContextCompat.getColor(this@NaverMapActivity, R.color.purple)
+        captionText = placeItem.placeName
+        captionColor = ContextCompat.getColor(this@NaverMapActivity, R.color.purple)
+        map = naverMap
+    }
+
+    private fun clearPrevMarker() {
+        marker?.let { it.map = null }
     }
 
     private fun checkValidQuery(query: String) {
@@ -134,21 +183,9 @@ class NaverMapActivity
         }
     }
 
-    private fun setSheetBehaviorCollapsed() {
-        if (sheetBehavior.state != BottomSheetBehavior.STATE_COLLAPSED) {
-            sheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            showOpenResultListButton(false)
-        }
-    }
-
-    private fun showOpenResultListButton(show: Boolean) {
-        binding.btnShowList.isVisible = show && !viewModel.isEmptyPlaceItems()
-    }
-
     override fun onCameraChange(reason: Int, p1: Boolean) {
-        if (reason == -1 && sheetBehavior.state != BottomSheetBehavior.STATE_HIDDEN) {
-            sheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-            showOpenResultListButton(true)
+        if (reason == -1) {
+            viewModel.setSheetBehaviorTo(BottomSheetBehavior.STATE_HIDDEN)
         }
     }
 
@@ -156,14 +193,26 @@ class NaverMapActivity
         override fun onSlide(bottomSheet: View, slideOffset: Float) {}
         override fun onStateChanged(bottomSheet: View, newState: Int) {
             when (newState) {
-               BottomSheetBehavior.STATE_COLLAPSED -> showOpenResultListButton(false)
-               BottomSheetBehavior.STATE_HIDDEN -> showOpenResultListButton(true)
+                BottomSheetBehavior.STATE_COLLAPSED ->
+                    viewModel.setSheetBehaviorTo(BottomSheetBehavior.STATE_COLLAPSED)
+                BottomSheetBehavior.STATE_EXPANDED ->
+                    viewModel.setSheetBehaviorTo(BottomSheetBehavior.STATE_EXPANDED)
+                BottomSheetBehavior.STATE_HIDDEN ->
+                    viewModel.setSheetBehaviorTo(BottomSheetBehavior.STATE_HIDDEN)
             }
         }
     }
 
     private val onPlaceClickAction: (KakaoPlaceModel) -> Unit = { item ->
-        viewModel.setSelectPlace(item)
+        viewModel.setMovingCameraPlaceItem(item)
+    }
+
+    private val onSelectClickAction: (KakaoPlaceModel) -> Unit = { item ->
+        Intent().apply {
+            putExtra(AppConstants.INTENT_TEMP_PLACE_ITEM, item)
+            setResult(RESULT_OK, this)
+            finish()
+        }
     }
 
     private val searchEditorActionListener = OnEditorActionListener { view, actionId, _ ->
@@ -180,6 +229,6 @@ class NaverMapActivity
     }
 
     private val showResultListButtonClickListener = OnClickListener {
-        setSheetBehaviorCollapsed()
+        viewModel.setSheetBehaviorTo(BottomSheetBehavior.STATE_COLLAPSED)
     }
 }

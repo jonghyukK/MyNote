@@ -13,12 +13,17 @@ import com.kjh.mynote.utils.extensions.onThrottleClick
 
 class NaverMapSearchResultItemViewHolder(
     private val binding: VhNaverMapSearchResultItemBinding,
-    private val onPlaceClickAction: (KakaoPlaceModel) -> Unit
+    private val onPlaceClickAction: (KakaoPlaceModel) -> Unit,
+    private val onSelectClickAction: (KakaoPlaceModel) -> Unit
 ): BaseViewHolder<KakaoPlaceModel>(binding.root) {
 
     init {
         itemView.onThrottleClick {
             bindItem?.let { item -> onPlaceClickAction.invoke(item) }
+        }
+
+        binding.btnSelect.onThrottleClick {
+            bindItem?.let { item -> onSelectClickAction.invoke(item) }
         }
     }
 

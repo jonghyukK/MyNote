@@ -14,6 +14,7 @@ import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMap.OnCameraChangeListener
 import com.naver.maps.map.OnMapReadyCallback
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.

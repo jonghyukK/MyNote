@@ -10,4 +10,5 @@
     <string name="hint_input_place_or_address">장소명 혹은 주소 입력</string>
     <string name="show_list">목록보기</string>
     <string name="nothing_result">검색 결과가 없어요</string>
+    <string name="select">선택</string>
 </resources>
