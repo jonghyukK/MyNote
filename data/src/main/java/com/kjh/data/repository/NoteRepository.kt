@@ -1,6 +1,6 @@
 package com.kjh.data.repository
 
-import com.kjh.data.db.entity.PlaceNoteEntity
+import com.kjh.data.db.entity.toEntity
 import com.kjh.data.db.entity.toExternal
 import com.kjh.data.model.PlaceNoteModel
 import com.kjh.data.model.Result
@@ -29,19 +29,9 @@ class NoteRepository @Inject constructor(
         emit(Result.Loading)
 
         try {
-            val placeNoteEntity = PlaceNoteEntity(
-                id = placeNoteModel.id,
-                placeImages = placeNoteModel.placeImages,
-                description = placeNoteModel.description,
-                placeName = placeNoteModel.placeName,
-                placeAddress = placeNoteModel.placeAddress,
-                x = placeNoteModel.x,
-                y = placeNoteModel.y,
-                startDate = placeNoteModel.startDate,
-                endDate = placeNoteModel.endDate
-            )
-
+            val placeNoteEntity = placeNoteModel.toEntity()
             val newNoteId = noteLocalDataSource.insert(placeNoteEntity)
+
             emit(Result.Success(newNoteId))
         } catch (e: Exception) {
             emit(Result.Error(e.message))

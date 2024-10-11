@@ -15,25 +15,39 @@ data class PlaceNoteEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val placeImages: List<String>,
-    val description: String,
     val placeName: String,
     val placeAddress: String,
-    val x: Long,
-    val y: Long,
-    val startDate: Long,
-    val endDate: Long
+    val placeRoadAddress: String? = null,
+    val x: String,
+    val y: String,
+    val visitDate: Long,
+    val noteTitle: String,
+    val noteContents: String,
 )
 
 fun PlaceNoteEntity.toExternal() = PlaceNoteModel(
     id = id,
     placeImages = placeImages,
-    description = description,
     placeName = placeName,
     placeAddress = placeAddress,
+    placeRoadAddress = placeRoadAddress,
     x = x,
     y = y,
-    startDate = startDate,
-    endDate = endDate
+    visitDate = visitDate,
+    noteTitle = noteTitle,
+    noteContents = noteContents
 )
 
 fun List<PlaceNoteEntity>.toExternal() = map(PlaceNoteEntity::toExternal)
+
+fun PlaceNoteModel.toEntity() = PlaceNoteEntity(
+    placeImages = placeImages,
+    placeName = placeName,
+    placeAddress = placeAddress,
+    placeRoadAddress = placeRoadAddress,
+    x = x,
+    y = y,
+    visitDate = visitDate,
+    noteTitle = noteTitle,
+    noteContents = noteContents
+)

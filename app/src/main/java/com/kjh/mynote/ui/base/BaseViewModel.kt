@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.
@@ -19,7 +20,10 @@ open class BaseViewModel: ViewModel() {
 
     fun emitError(errorMsg: String?) {
         viewModelScope.launch {
-            errorMsg?.let { _errorEvent.emit(errorMsg) }
+            errorMsg?.let {
+                Timber.tag("abc123").e("emitError .. ")
+                _errorEvent.emit(errorMsg)
+            }
         }
     }
 }

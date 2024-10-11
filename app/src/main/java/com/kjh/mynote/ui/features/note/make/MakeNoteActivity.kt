@@ -1,17 +1,29 @@
 package com.kjh.mynote.ui.features.note.make
 
+import android.content.Intent
 import android.net.Uri
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
+import android.view.View.OnClickListener
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.datepicker.MaterialDatePicker
+import com.kjh.data.model.KakaoPlaceModel
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityMakeNoteBinding
 import com.kjh.mynote.ui.base.BaseActivity
+import com.kjh.mynote.ui.base.BaseViewModel
+import com.kjh.mynote.model.UiState
+import com.kjh.mynote.ui.features.map.NaverMapActivity
+import com.kjh.mynote.utils.DatePickerManager
 import com.kjh.mynote.utils.constants.AppConstants
+import com.kjh.mynote.utils.extensions.parcelable
+import com.kjh.mynote.utils.extensions.registerStartActivityResultLauncher
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,6 +35,10 @@ import kotlinx.coroutines.launch
 class MakeNoteActivity: BaseActivity<ActivityMakeNoteBinding>({ ActivityMakeNoteBinding.inflate(it) }) {
 
     private val viewModel: MakeNoteViewModel by viewModels()
+
+    override fun getViewModel(): BaseViewModel {
+        return viewModel
+    }
 
     private val tempImageListAdapter: TempImageListAdapter by lazy {
         TempImageListAdapter(
@@ -38,8 +54,12 @@ class MakeNoteActivity: BaseActivity<ActivityMakeNoteBinding>({ ActivityMakeNote
         }
 
         tbToolbar.setBackButtonClickListener(backBtnClickListener)
-        btnSave.setOnThrottleClickListener(saveBtnClickListener)
         clAttachImages.setOnThrottleClickListener(photoAttachClickListener)
+        clVisitPlaceContainer.setOnThrottleClickListener(searchMapClickListener)
+        clVisitDateContainer.setOnThrottleClickListener(visitDateClickListener)
+        etNoteTitle.addTextChangedListener(titleTextWatcher)
+        etNoteContents.addTextChangedListener(contentsTextWatcher)
+        btnSave.setOnThrottleClickListener(saveBtnClickListener)
     }
 
     override fun onInitUiData() {
@@ -55,11 +75,87 @@ class MakeNoteActivity: BaseActivity<ActivityMakeNoteBinding>({ ActivityMakeNote
                                 tempImages.size,
                                 AppConstants.MAX_SELECTABLE_IMAGE_COUNT
                             )
-
                             tempImageListAdapter.submitList(tempImages)
                         }
                 }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.tempPlaceItem }
+                        .distinctUntilChanged()
+                        .collect { tempPlaceItem ->
+                            if (tempPlaceItem == null) {
+                                binding.tvVisitPlace.text = getString(R.string.search_visit_place)
+                                binding.tvVisitPlace.setTextColor(getColor(R.color.black_500))
+                            } else {
+                                binding.tvVisitPlace.text = tempPlaceItem.placeName
+                                binding.tvVisitPlace.setTextColor(getColor(R.color.black_900))
+                            }
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.visitDateText }
+                        .distinctUntilChanged()
+                        .collect { visitDateText ->
+                            if (visitDateText.isBlank()) {
+                                binding.tvVisitDate.text = getString(R.string.select_visit_date)
+                                binding.tvVisitDate.setTextColor(getColor(R.color.black_500))
+                            } else {
+                                binding.tvVisitDate.text = visitDateText
+                                binding.tvVisitDate.setTextColor(getColor(R.color.black_900))
+                            }
+                        }
+                }
+
+                launch {
+                    viewModel.isSavedNoteEvent.collect { saveResult ->
+                        binding.btnSave.isLoading = saveResult is UiState.Loading
+
+                        if (saveResult is UiState.Success) {
+                            showToast(getString(R.string.msg_created_place_note))
+                            finish()
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.saveValidateFlow.collect { isValid ->
+                        binding.btnSave.isEnable = isValid
+                    }
+                }
             }
+        }
+    }
+
+    private fun showDatePicker(positiveBtnClickAction: (Long) -> Unit) {
+        val selection = if (viewModel.getVisitDateTimeMills() > 0) {
+            viewModel.getVisitDateTimeMills()
+        } else {
+            MaterialDatePicker.todayInUtcMilliseconds()
+        }
+
+        DatePickerManager.build(
+            title = getString(R.string.select_visit_date),
+            selection = selection,
+            positiveButtonClickAction = positiveBtnClickAction
+        ).show(supportFragmentManager, "DATE_PICKER")
+    }
+
+    private val titleTextWatcher = object: TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        override fun afterTextChanged(s: Editable?) {
+            viewModel.setTitle(s.toString())
+        }
+    }
+
+    private val contentsTextWatcher = object: TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        override fun afterTextChanged(s: Editable?) {
+            viewModel.setContents(s.toString())
         }
     }
 
@@ -69,20 +165,46 @@ class MakeNoteActivity: BaseActivity<ActivityMakeNoteBinding>({ ActivityMakeNote
         viewModel.setTempImageUris(uris)
     }
 
+    private val searchPlaceResultLauncher =
+        registerStartActivityResultLauncher(resultOkBlock = { result ->
+            val placeItem =
+                result.data?.parcelable<KakaoPlaceModel>(AppConstants.INTENT_TEMP_PLACE_ITEM)
+                    ?: return@registerStartActivityResultLauncher
+
+            viewModel.setTempPlaceItem(placeItem)
+        })
+
     private val deleteTempImageClickAction: (Uri) -> Unit = { uri ->
         viewModel.deleteTempImageByUri(uri)
     }
 
     private val tempImageClickAction: (Uri) -> Unit = {
-        showToast("Expanded!")
+        showToast("개발 예정..")
     }
 
     private val backBtnClickListener = View.OnClickListener {
         finish()
     }
 
+    private val searchMapClickListener = View.OnClickListener {
+        val intent = Intent(this@MakeNoteActivity, NaverMapActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_TEMP_PLACE_ITEM, viewModel.getTempPlaceItem())
+        }
+        searchPlaceResultLauncher.launch(intent)
+    }
+
+    private val visitDateClickListener = OnClickListener {
+        showDatePicker(positiveBtnClickAction = datePickerPositiveBtnClickAction)
+    }
+
+    private val datePickerPositiveBtnClickAction: (Long) -> Unit = { long ->
+        viewModel.setVisitDate(long)
+    }
+
     private val saveBtnClickListener = View.OnClickListener {
-        viewModel.savePlaceNote()
+        if (binding.btnSave.isEnable) {
+            viewModel.savePlaceNote()
+        }
     }
 
     private val photoAttachClickListener = View.OnClickListener {

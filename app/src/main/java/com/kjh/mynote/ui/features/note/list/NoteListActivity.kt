@@ -28,6 +28,7 @@ class NoteListActivity : BaseActivity<ActivityMainBinding>({ ActivityMainBinding
     }
 
     override fun onInitView() = with (binding) {
+
         rvNoteList.apply {
             setHasFixedSize(true)
             adapter = noteListAdapter
@@ -37,7 +38,10 @@ class NoteListActivity : BaseActivity<ActivityMainBinding>({ ActivityMainBinding
     }
 
     override fun onInitUiData() {
+//        viewModel.queryNaverPlace()
         viewModel.fetchNoteItems()
+
+//        startActivity(Intent(this@NoteListActivity, KakaoMapActivtiy::class.java))
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

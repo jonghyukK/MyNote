@@ -4,4 +4,10 @@
         <attr name="isShowBackButton" format="boolean" />
         <attr name="leftTitle" format="reference|string" />
     </declare-styleable>
+
+    <declare-styleable name="MyBottomButton">
+        <attr name="btnTitle" format="reference|string" />
+        <attr name="isEnable" format="boolean" />
+        <attr name="isLoading" format="boolean" />
+    </declare-styleable>
 </resources>

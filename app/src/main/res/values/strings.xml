@@ -11,4 +11,13 @@
     <string name="show_list">목록보기</string>
     <string name="nothing_result">검색 결과가 없어요</string>
     <string name="select">선택</string>
+    <string name="visit_place">방문 장소</string>
+    <string name="search_visit_place">방문 장소 검색</string>
+    <string name="visit_date">방문 날짜</string>
+    <string name="select_visit_date">방문 날짜 선택</string>
+
+    <string name="format_full_date">%1$s (%2$s)</string>
+    <string name="input_title">제목 입력하기</string>
+    <string name="input_contents">내용 입력하기</string>
+    <string name="msg_created_place_note">장소 노트 작성이 완료되었어요!</string>
 </resources>
