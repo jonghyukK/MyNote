@@ -1,6 +1,5 @@
 package com.kjh.mynote.ui.features.note.make
 
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -14,9 +13,9 @@ import com.kjh.mynote.databinding.VhTempImageItemBinding
  */
 
 class TempImageListAdapter(
-    private val deleteImageClickAction: (Uri) -> Unit,
-    private val tempImageClickAction: (Uri) -> Unit
-): ListAdapter<Uri, TempImageItemViewHolder>(UI_MODEL_COMPARATOR) {
+    private val deleteImageClickAction: (String) -> Unit,
+    private val tempImageClickAction: (String) -> Unit
+): ListAdapter<String, TempImageItemViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -32,15 +31,15 @@ class TempImageListAdapter(
     }
 
     companion object {
-        private val UI_MODEL_COMPARATOR = object : DiffUtil.ItemCallback<Uri>() {
+        private val UI_MODEL_COMPARATOR = object : DiffUtil.ItemCallback<String>() {
             override fun areItemsTheSame(
-                oldItem: Uri,
-                newItem: Uri
+                oldItem: String,
+                newItem: String
             ): Boolean = oldItem == newItem
 
             override fun areContentsTheSame(
-                oldItem: Uri,
-                newItem: Uri
+                oldItem: String,
+                newItem: String
             ): Boolean = oldItem == newItem
         }
     }

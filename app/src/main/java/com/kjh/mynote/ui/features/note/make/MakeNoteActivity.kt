@@ -1,12 +1,10 @@
 package com.kjh.mynote.ui.features.note.make
 
 import android.content.Intent
-import android.net.Uri
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.View.OnClickListener
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
@@ -67,7 +65,7 @@ class MakeNoteActivity: BaseActivity<ActivityMakeNoteBinding>({ ActivityMakeNote
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.uiState
-                        .map { it.tempImageUris }
+                        .map { it.tempImageUrls }
                         .distinctUntilChanged()
                         .collect { tempImages ->
                             binding.tvImageCount.text = getString(
@@ -129,6 +127,14 @@ class MakeNoteActivity: BaseActivity<ActivityMakeNoteBinding>({ ActivityMakeNote
         }
     }
 
+    override fun onDestroy() {
+        with (binding) {
+            etNoteTitle.removeTextChangedListener(titleTextWatcher)
+            etNoteContents.removeTextChangedListener(contentsTextWatcher)
+        }
+        super.onDestroy()
+    }
+
     private fun showDatePicker(positiveBtnClickAction: (Long) -> Unit) {
         val selection = if (viewModel.getVisitDateTimeMills() > 0) {
             viewModel.getVisitDateTimeMills()
@@ -160,9 +166,27 @@ class MakeNoteActivity: BaseActivity<ActivityMakeNoteBinding>({ ActivityMakeNote
     }
 
     private val multiPhotoPickerLauncher = registerForActivityResult(
-        ActivityResultContracts.PickMultipleVisualMedia(AppConstants.MAX_SELECTABLE_IMAGE_COUNT)
-    ) { uris ->
-        viewModel.setTempImageUris(uris)
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode != RESULT_OK) {
+            return@registerForActivityResult
+        }
+
+        result.data?.clipData?.let { clipData ->
+            val tempImages: MutableList<String> = mutableListOf()
+            for (i in 0 until clipData.itemCount) {
+                val imageUri = clipData.getItemAt(i).uri
+
+                contentResolver.takePersistableUriPermission(
+                    imageUri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+
+                tempImages.add(imageUri.toString())
+            }
+
+            viewModel.setTempImages(tempImages)
+        }
     }
 
     private val searchPlaceResultLauncher =
@@ -174,11 +198,11 @@ class MakeNoteActivity: BaseActivity<ActivityMakeNoteBinding>({ ActivityMakeNote
             viewModel.setTempPlaceItem(placeItem)
         })
 
-    private val deleteTempImageClickAction: (Uri) -> Unit = { uri ->
-        viewModel.deleteTempImageByUri(uri)
+    private val deleteTempImageClickAction: (String) -> Unit = { uri ->
+        viewModel.deleteTempImageByUrl(uri)
     }
 
-    private val tempImageClickAction: (Uri) -> Unit = {
+    private val tempImageClickAction: (String) -> Unit = {
         showToast("개발 예정..")
     }
 
@@ -208,9 +232,10 @@ class MakeNoteActivity: BaseActivity<ActivityMakeNoteBinding>({ ActivityMakeNote
     }
 
     private val photoAttachClickListener = View.OnClickListener {
-        multiPhotoPickerLauncher.launch(
-            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-        )
+        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "image/*"
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+        }
+        multiPhotoPickerLauncher.launch(intent)
     }
-
 }

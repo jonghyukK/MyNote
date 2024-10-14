@@ -1,6 +1,5 @@
 package com.kjh.mynote.ui.features.note.make
 
-import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.kjh.data.model.KakaoPlaceModel
 import com.kjh.data.model.PlaceNoteModel
@@ -23,7 +22,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class MakeNoteUiState(
-    val tempImageUris: List<Uri> = emptyList(),
+    val tempImageUrls: List<String> = emptyList(),
     val tempPlaceItem: KakaoPlaceModel? = null,
     val visitDate: Long = -1,
     val visitDateText: String = "",
@@ -43,7 +42,7 @@ class MakeNoteViewModel @Inject constructor(
     val isSavedNoteEvent = _isSavedNoteEvent.asSharedFlow()
 
     val saveValidateFlow = _uiState.map {
-        it.tempImageUris.isNotEmpty()
+        it.tempImageUrls.isNotEmpty()
                 && it.tempPlaceItem != null
                 && it.visitDate > 0
                 && it.title.isNotBlank()
@@ -64,12 +63,8 @@ class MakeNoteViewModel @Inject constructor(
                         _isSavedNoteEvent.emit(UiState.Loading)
                     }
                     is Result.Success -> {
-                        result.data?.let { noteId ->
-                            if (noteId > 0) {
-                                _isSavedNoteEvent.emit(UiState.Success(Unit))
-                            } else {
-                                _isSavedNoteEvent.emit(UiState.Error("장소 노트 저장이 실패하였습니다."))
-                            }
+                        result.data?.let {
+                            _isSavedNoteEvent.emit(UiState.Success(Unit))
                         }
                     }
                     is Result.Error -> {
@@ -80,23 +75,23 @@ class MakeNoteViewModel @Inject constructor(
         }
     }
 
-    fun setTempImageUris(uris: List<Uri>) {
-        if (uris.isEmpty()) return
+    fun setTempImages(imageUrls: List<String>) {
+        if (imageUrls.isEmpty()) return
 
         _uiState.update { uiState ->
             uiState.copy(
-                tempImageUris = getValidTempImageUris(uiState.tempImageUris, uris)
+                tempImageUrls = getValidTempImageUris(uiState.tempImageUrls, imageUrls)
             )
         }
     }
 
-    fun deleteTempImageByUri(targetUri: Uri?) {
-        if (targetUri == null) return
+    fun deleteTempImageByUrl(targetUrl: String?) {
+        if (targetUrl == null) return
 
         _uiState.update { uiState ->
             uiState.copy(
-                tempImageUris = uiState.tempImageUris.filter { uri ->
-                    uri != targetUri
+                tempImageUrls = uiState.tempImageUrls.filter { url ->
+                    url != targetUrl
                 }
             )
         }
@@ -138,7 +133,7 @@ class MakeNoteViewModel @Inject constructor(
 
     private fun convertUiStateToPlaceNoteModel() = with(_uiState.value) {
         PlaceNoteModel(
-            placeImages = tempImageUris.map { it.toString() },
+            placeImages = tempImageUrls,
             placeName = tempPlaceItem?.placeName ?: "",
             placeAddress = tempPlaceItem?.addressName ?: "",
             placeRoadAddress = tempPlaceItem?.roadAddressName ?: "",
@@ -151,9 +146,9 @@ class MakeNoteViewModel @Inject constructor(
     }
 
     private fun getValidTempImageUris(
-        currentTempUris: List<Uri>,
-        newTempUris: List<Uri>
-    ): List<Uri> {
+        currentTempUris: List<String>,
+        newTempUris: List<String>
+    ): List<String> {
         val maxImageCount = AppConstants.MAX_SELECTABLE_IMAGE_COUNT
         val deduplicatedNewTempUris = newTempUris.filter { newUri ->
             newUri !in currentTempUris

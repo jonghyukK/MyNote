@@ -1,6 +1,5 @@
 package com.kjh.mynote.ui.features.note.make
 
-import android.net.Uri
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
@@ -17,9 +16,9 @@ import com.kjh.mynote.utils.extensions.onThrottleClick
 
 class TempImageItemViewHolder(
     private val binding: VhTempImageItemBinding,
-    private val deleteImageClickAction: (Uri) -> Unit,
-    private val tempImageClickAction: (Uri) -> Unit
-): BaseViewHolder<Uri>(binding.root) {
+    private val deleteImageClickAction: (String) -> Unit,
+    private val tempImageClickAction: (String) -> Unit
+): BaseViewHolder<String>(binding.root) {
 
     init {
         binding.ivDelete.onThrottleClick {
@@ -31,7 +30,7 @@ class TempImageItemViewHolder(
         }
     }
 
-    override fun bind(item: Uri) {
+    override fun bind(item: String) {
         super.bind(item)
 
         Glide.with(context)
