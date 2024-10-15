@@ -38,7 +38,7 @@ class MakeNoteViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(MakeNoteUiState())
     val uiState = _uiState.asStateFlow()
 
-    private val _isSavedNoteEvent = MutableSharedFlow<UiState<Unit>>()
+    private val _isSavedNoteEvent = MutableSharedFlow<UiState<Long>>()
     val isSavedNoteEvent = _isSavedNoteEvent.asSharedFlow()
 
     val saveValidateFlow = _uiState.map {
@@ -64,7 +64,8 @@ class MakeNoteViewModel @Inject constructor(
                     }
                     is Result.Success -> {
                         result.data?.let {
-                            _isSavedNoteEvent.emit(UiState.Success(Unit))
+                            val savedItemDate = _uiState.value.visitDate
+                            _isSavedNoteEvent.emit(UiState.Success(savedItemDate))
                         }
                     }
                     is Result.Error -> {

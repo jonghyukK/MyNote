@@ -21,4 +21,10 @@ interface PlaceNoteDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(placeNoteEntity: PlaceNoteEntity): Long
+
+    @Query("SELECT * FROM places ORDER BY visitDate DESC LIMIT 1")
+    suspend fun getRecentVisitPlace(): PlaceNoteEntity?
+
+    @Query("SELECT * FROM places WHERE visitDate BETWEEN :startDate AND :endDate")
+    suspend fun getPlacesInDateRange(startDate: Long, endDate: Long): List<PlaceNoteEntity>
 }

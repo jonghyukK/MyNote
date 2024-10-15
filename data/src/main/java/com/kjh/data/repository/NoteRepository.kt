@@ -32,7 +32,37 @@ class NoteRepository @Inject constructor(
             val placeNoteEntity = placeNoteModel.toEntity()
             val newNoteId = noteLocalDataSource.insert(placeNoteEntity)
 
-            emit(Result.Success(newNoteId))
+            if (newNoteId > 0) {
+                emit(Result.Success(newNoteId))
+            } else {
+                throw Exception("Filed Insert PlaceNoteItem")
+            }
+
+        } catch (e: Exception) {
+            emit(Result.Error(e.message))
+        }
+    }
+
+    suspend fun getRecentVisitPlace(): Flow<Result<PlaceNoteModel>> = flow {
+        emit(Result.Loading)
+
+        try {
+            val recentPlaceModel = noteLocalDataSource.getRecentVisitPlace()?.toExternal()
+            emit(Result.Success(recentPlaceModel))
+        } catch (e: Exception) {
+            emit(Result.Error(e.message))
+        }
+    }
+
+    suspend fun getPlacesInDateRange(
+        startDate: Long,
+        endDate: Long
+    ): Flow<Result<List<PlaceNoteModel>>> = flow {
+        emit(Result.Loading)
+
+        try {
+            val places = noteLocalDataSource.getPlacesInDateRange(startDate, endDate).toExternal()
+            emit(Result.Success(places))
         } catch (e: Exception) {
             emit(Result.Error(e.message))
         }

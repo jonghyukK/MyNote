@@ -20,4 +20,7 @@
     <string name="input_title">제목 입력하기</string>
     <string name="input_contents">내용 입력하기</string>
     <string name="msg_created_place_note">장소 노트 작성이 완료되었어요!</string>
+    <string name="empty_my_places_will_you_add">등록된 내 장소가 없어요.\n장소를 추가해보세요!</string>
+    <string name="make_place_note">장소노트 작성</string>
+    <string name="my_product">내 물건</string>
 </resources>

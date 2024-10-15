@@ -113,7 +113,11 @@ class MakeNoteActivity: BaseActivity<ActivityMakeNoteBinding>({ ActivityMakeNote
 
                         if (saveResult is UiState.Success) {
                             showToast(getString(R.string.msg_created_place_note))
-                            finish()
+                            Intent().apply {
+                                putExtra(AppConstants.INTENT_PLACE_VISIT_DATE, saveResult.data)
+                                setResult(RESULT_OK, this)
+                                finish()
+                            }
                         }
                     }
                 }

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_day_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="월"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_date_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:padding="4dp"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:background="@drawable/shape_s_black_900_c_999"
+        app:layout_constraintTop_toBottomOf="@+id/tv_day_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="31" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/tv_has"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:background="@drawable/shape_s_red_500_c_999"
+        android:layout_marginTop="6dp"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@+id/tv_date_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
