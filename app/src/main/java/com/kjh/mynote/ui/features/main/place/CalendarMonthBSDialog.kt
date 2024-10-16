@@ -12,6 +12,7 @@ import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.daysOfWeek
+import com.kizitonwose.calendar.core.yearMonth
 import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
 import com.kizitonwose.calendar.view.ViewContainer
@@ -26,6 +27,8 @@ import com.kjh.mynote.utils.extensions.getDrawableCompat
 import com.kjh.mynote.utils.extensions.makeInVisible
 import com.kjh.mynote.utils.extensions.makeVisible
 import com.kjh.mynote.utils.extensions.setTextColorRes
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.DayOfWeek
@@ -44,9 +47,10 @@ import java.util.Locale
 class CalendarMonthBSDialog
     : BaseBottomSheetDialogFragment<BsdCalendarMonthBinding>({ BsdCalendarMonthBinding.inflate(it) }) {
 
-        private val parentViewModel: MyPlaceViewModel by viewModels({ requireParentFragment()} )
+    private val parentViewModel: MyPlaceViewModel by viewModels({ requireParentFragment()} )
 
     override fun onInitView() {
+        setYearMonthTitle(parentViewModel.getSelectedDate().yearMonth)
         onInitCalendarMonthView()
     }
 
@@ -54,40 +58,40 @@ class CalendarMonthBSDialog
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-
+                    parentViewModel.wholePlaceMap.collect { map ->
+                        map.keys.forEach {
+                            binding.calendarMonthView.notifyDateChanged(it)
+                        }
+                    }
                 }
             }
         }
     }
 
     private fun onInitCalendarMonthView() {
-        val initCurrentDate = parentViewModel.getSelectedDate()
-
-        binding.tvCurrentYearMonth.text = localDateToStringWithPattern(
-            initCurrentDate, "yyyy년 MM월"
-        )
-
         val daysOfWeek = daysOfWeek()
-        val currentMonth = YearMonth.from(initCurrentDate)
+        val currentMonth = parentViewModel.getSelectedDate().yearMonth
         val startMonth = currentMonth.minusMonths(50)
         val endMonth = currentMonth.plusMonths(50)
 
         configureBinders(daysOfWeek)
         binding.calendarMonthView.setup(startMonth, endMonth,daysOfWeek.first())
         binding.calendarMonthView.scrollToMonth(currentMonth)
-
         binding.calendarMonthView.monthScrollListener = {
-            binding.tvCurrentYearMonth.text = yearMonthToStringWithPattern(
-                it.yearMonth, "yyyy년 MM월"
-            )
-
-            parentViewModel.getPlacesInMonth(it.yearMonth.atDay(1))
+            setYearMonthTitle(it.yearMonth)
+            parentViewModel.getPlacesByMonth(it.yearMonth.atDay(1))
         }
     }
 
+    private fun setYearMonthTitle(yearMonth: YearMonth) = with (binding) {
+        tvCurrentYearMonth.text = localDateToStringWithPattern(
+            yearMonth.atDay(1), "yyyy년 MM월"
+        )
+    }
+
     private fun selectDate(date: LocalDate) {
-        parentViewModel.changeSelectedDate(date)
-        dialog?.hide()
+        parentViewModel.changeSelectedDay(date)
+        dialog?.dismiss()
     }
 
     private fun configureBinders(daysOfWeek: List<DayOfWeek>) {
@@ -115,7 +119,7 @@ class CalendarMonthBSDialog
                     if (data.position == DayPosition.MonthDate) {
                         tvDateText.makeVisible()
 
-                        tvHas.visibility = if (parentViewModel.checkHasNoteInDay(data.date))
+                        tvHas.visibility = if (parentViewModel.checkNoteInDay(data.date))
                             View.VISIBLE else View.INVISIBLE
 
                         when (data.date) {

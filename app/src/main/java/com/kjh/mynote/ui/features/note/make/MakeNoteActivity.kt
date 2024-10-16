@@ -61,6 +61,11 @@ class MakeNoteActivity: BaseActivity<ActivityMakeNoteBinding>({ ActivityMakeNote
     }
 
     override fun onInitUiData() {
+        val tempVisitDate = intent.getLongExtra(AppConstants.INTENT_PLACE_VISIT_DATE, -1)
+        if (tempVisitDate > 0) {
+            viewModel.setVisitDate(tempVisitDate)
+        }
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {

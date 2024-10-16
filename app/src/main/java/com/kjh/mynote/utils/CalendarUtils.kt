@@ -34,6 +34,13 @@ object CalendarUtils {
             .toLocalDate() // LocalDate로 변환
     }
 
+    fun localDateToMillis(localDate: LocalDate): Long {
+        return localDate
+            .atStartOfDay(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli()
+    }
+
     fun getStartAndEndOfMonth(year: Int, month: Int): Pair<Long, Long> {
         val startOfMonth = LocalDate.of(year, month, 1) // 해당 월의 첫 번째 날
         val endOfMonth = startOfMonth.withDayOfMonth(startOfMonth.lengthOfMonth()) // 해당 월의 마지막 날
