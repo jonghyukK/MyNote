@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.note.make
+package com.kjh.mynote.ui.features.place.make
 
 import android.content.Intent
 import android.text.Editable
@@ -13,10 +13,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.kjh.data.model.KakaoPlaceModel
 import com.kjh.mynote.R
-import com.kjh.mynote.databinding.ActivityMakeNoteBinding
+import com.kjh.mynote.databinding.ActivityMakePlaceNoteBinding
+import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.base.BaseViewModel
-import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.features.map.NaverMapActivity
 import com.kjh.mynote.utils.DatePickerManager
 import com.kjh.mynote.utils.constants.AppConstants
@@ -30,9 +30,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class MakeNoteActivity: BaseActivity<ActivityMakeNoteBinding>({ ActivityMakeNoteBinding.inflate(it) }) {
+class MakePlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>({ ActivityMakePlaceNoteBinding.inflate(it) }) {
 
-    private val viewModel: MakeNoteViewModel by viewModels()
+    private val viewModel: MakePlaceNoteViewModel by viewModels()
 
     override fun getViewModel(): BaseViewModel {
         return viewModel
@@ -220,7 +220,7 @@ class MakeNoteActivity: BaseActivity<ActivityMakeNoteBinding>({ ActivityMakeNote
     }
 
     private val searchMapClickListener = View.OnClickListener {
-        val intent = Intent(this@MakeNoteActivity, NaverMapActivity::class.java).apply {
+        val intent = Intent(this@MakePlaceNoteActivity, NaverMapActivity::class.java).apply {
             putExtra(AppConstants.INTENT_TEMP_PLACE_ITEM, viewModel.getTempPlaceItem())
         }
         searchPlaceResultLauncher.launch(intent)

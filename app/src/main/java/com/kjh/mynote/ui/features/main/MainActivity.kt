@@ -1,15 +1,12 @@
 package com.kjh.mynote.ui.features.main
 
-import android.content.Intent
 import androidx.fragment.app.commit
 import com.google.android.material.navigation.NavigationBarView.OnItemSelectedListener
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityMainBinding
 import com.kjh.mynote.ui.base.BaseActivity
-import com.kjh.mynote.ui.features.main.place.MyPlaceFragment
+import com.kjh.mynote.ui.features.place.calendar.CalendarWithPlacesFragment
 import com.kjh.mynote.ui.features.main.product.MyProductFragment
-import com.kjh.mynote.ui.features.note.make.MakeNoteActivity
-import com.kjh.mynote.utils.extensions.onThrottleClick
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -52,14 +49,14 @@ class MainActivity: BaseActivity<ActivityMainBinding>({ ActivityMainBinding.infl
     }
 
     private fun getFragmentBy(tag: String) = when (tag) {
-        MyPlaceFragment.TAG -> MyPlaceFragment.newInstance()
+        CalendarWithPlacesFragment.TAG -> CalendarWithPlacesFragment.newInstance()
         MyProductFragment.TAG -> MyProductFragment.newInstance()
         else -> throw Exception("Wrong Fragment Tag")
     }
 
     private val bnvOnItemSelectedListener = OnItemSelectedListener { item ->
         val tag = when (item.itemId) {
-            R.id.nav_place -> MainFragments.MY_PLACE_FRAGMENT.tag
+            R.id.nav_place -> MainFragments.CALENDAR_WITH_PLACES_FRAGMENT.tag
             R.id.nav_product -> MainFragments.MY_PRODUCT_FRAGMENT.tag
             else -> throw Exception("Wrong MenuItem Id")
         }
@@ -70,7 +67,7 @@ class MainActivity: BaseActivity<ActivityMainBinding>({ ActivityMainBinding.infl
 
     companion object {
         enum class MainFragments(val tag: String) {
-            MY_PLACE_FRAGMENT(MyPlaceFragment.TAG),
+            CALENDAR_WITH_PLACES_FRAGMENT(CalendarWithPlacesFragment.TAG),
             MY_PRODUCT_FRAGMENT(MyProductFragment.TAG)
         }
     }

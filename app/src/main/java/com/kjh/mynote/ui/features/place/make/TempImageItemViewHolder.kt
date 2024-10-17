@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.note.make
+package com.kjh.mynote.ui.features.place.make
 
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop

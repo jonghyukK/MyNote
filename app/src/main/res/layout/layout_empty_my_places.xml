@@ -23,7 +23,7 @@
         android:id="@+id/btn_make_place"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/ripple_shape_s_purple_c_8"
+        android:background="@drawable/ripple_shape_s_black_600_c_8"
         android:text="@string/make_place_note"
         android:textColor="@color/white"
         android:textStyle="bold"

@@ -1,9 +1,9 @@
-package com.kjh.mynote.ui.features.main.place
+package com.kjh.mynote.ui.features.place.calendar
 
 import android.view.View
+import android.view.View.OnClickListener
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.children
-import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -15,6 +15,7 @@ import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.yearMonth
 import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
+import com.kizitonwose.calendar.view.MonthScrollListener
 import com.kizitonwose.calendar.view.ViewContainer
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.BsdCalendarMonthBinding
@@ -22,19 +23,14 @@ import com.kjh.mynote.databinding.CalendarDayBinding
 import com.kjh.mynote.databinding.CalendarHeaderBinding
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
 import com.kjh.mynote.utils.CalendarUtils.localDateToStringWithPattern
-import com.kjh.mynote.utils.CalendarUtils.yearMonthToStringWithPattern
 import com.kjh.mynote.utils.extensions.getDrawableCompat
 import com.kjh.mynote.utils.extensions.makeInVisible
 import com.kjh.mynote.utils.extensions.makeVisible
+import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.setTextColorRes
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.YearMonth
-import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -47,21 +43,26 @@ import java.util.Locale
 class CalendarMonthBSDialog
     : BaseBottomSheetDialogFragment<BsdCalendarMonthBinding>({ BsdCalendarMonthBinding.inflate(it) }) {
 
-    private val parentViewModel: MyPlaceViewModel by viewModels({ requireParentFragment()} )
+    private val parentViewModel: CalendarWithPlacesViewModel by viewModels({ requireParentFragment()} )
+
+    private lateinit var currentYearMonth: LocalDate
 
     override fun onInitView() {
-        setYearMonthTitle(parentViewModel.getSelectedDate().yearMonth)
         onInitCalendarMonthView()
+        setYearMonthTitle(parentViewModel.getSelectedDate())
+
+        with (binding) {
+            ivArrowLeft.setOnThrottleClickListener(onLeftArrowClickListener)
+            ivArrowRight.setOnThrottleClickListener(onRightArrowClickListener)
+        }
     }
 
     override fun onInitData() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    parentViewModel.wholePlaceMap.collect { map ->
-                        map.keys.forEach {
-                            binding.calendarMonthView.notifyDateChanged(it)
-                        }
+                parentViewModel.wholePlaceMap.collect { map ->
+                    map.keys.forEach {
+                        binding.calendarMonthView.notifyDateChanged(it)
                     }
                 }
             }
@@ -75,17 +76,18 @@ class CalendarMonthBSDialog
         val endMonth = currentMonth.plusMonths(50)
 
         configureBinders(daysOfWeek)
-        binding.calendarMonthView.setup(startMonth, endMonth,daysOfWeek.first())
-        binding.calendarMonthView.scrollToMonth(currentMonth)
-        binding.calendarMonthView.monthScrollListener = {
-            setYearMonthTitle(it.yearMonth)
-            parentViewModel.getPlacesByMonth(it.yearMonth.atDay(1))
+
+        with (binding.calendarMonthView) {
+            setup(startMonth, endMonth,daysOfWeek.first())
+            monthScrollListener = monthViewScrollListener
+            scrollToMonth(currentMonth)
         }
     }
 
-    private fun setYearMonthTitle(yearMonth: YearMonth) = with (binding) {
+    private fun setYearMonthTitle(date: LocalDate) = with (binding) {
+        currentYearMonth = date
         tvCurrentYearMonth.text = localDateToStringWithPattern(
-            yearMonth.atDay(1), "yyyy년 MM월"
+            date, "yyyy년 MM월"
         )
     }
 
@@ -113,31 +115,26 @@ class CalendarMonthBSDialog
             override fun bind(container: DayViewContainer, data: CalendarDay) {
                 container.day = data
 
-                with (container.binding) {
-                    tvDateText.text = data.date.dayOfMonth.toString()
+                // 일 View..
+                val dayText = data.date.dayOfMonth.toString()
+                val isSelectedDate = data.date == parentViewModel.getSelectedDate()
+                val isDayInThisMonth = data.position == DayPosition.MonthDate
 
-                    if (data.position == DayPosition.MonthDate) {
-                        tvDateText.makeVisible()
+                val dayTextColor = if (isSelectedDate) R.color.white else R.color.black_900
+                val dayBgColor = if (isSelectedDate) R.drawable.shape_s_black_900_c_999 else R.drawable.ripple_white
 
-                        tvHas.visibility = if (parentViewModel.checkNoteInDay(data.date))
-                            View.VISIBLE else View.INVISIBLE
+                with (container.binding.tvDateText) {
+                    if (isDayInThisMonth) makeVisible() else makeInVisible()
+                    text = dayText
+                    setTextColorRes(dayTextColor)
+                    background = context.getDrawableCompat(dayBgColor)
+                }
 
-                        when (data.date) {
-                            parentViewModel.getSelectedDate() -> {
-                                tvDateText.setTextColorRes(R.color.white)
-                                tvDateText.background =
-                                    requireContext().getDrawableCompat(R.drawable.shape_s_black_900_c_999)
-                            }
-                            else -> {
-                                tvDateText.setTextColorRes(R.color.black_900)
-                                tvDateText.background =
-                                    requireContext().getDrawableCompat(R.drawable.ripple_white)
-                            }
-                        }
-                    } else {
-                        tvDateText.makeInVisible()
-                        tvHas.makeInVisible()
-                    }
+                // 해당 일의 이벤트 존재 여부..
+                val hasEventThisDay = parentViewModel.checkNoteInDay(data.date)
+
+                with (container.binding.tvHas) {
+                    if (isDayInThisMonth && hasEventThisDay) makeVisible() else makeInVisible()
                 }
             }
         }
@@ -154,18 +151,38 @@ class CalendarMonthBSDialog
                         container.legendLayout.tag = true
                         container.legendLayout.children.map { it as AppCompatTextView }
                             .forEachIndexed { index, tv ->
-                                tv.text = daysOfWeek[index].getDisplayName(
-                                    TextStyle.SHORT, Locale.KOREAN
-                                ).also {
-                                    if (it == "일") {
-                                        tv.setTextColorRes(R.color.red_500)
-                                    } else {
-                                        tv.setTextColorRes(R.color.black_800)
+                                tv.text = daysOfWeek[index]
+                                    .getDisplayName(TextStyle.SHORT, Locale.KOREAN).also {
+                                        if (it == "일") {
+                                            tv.setTextColorRes(R.color.red_500)
+                                        } else {
+                                            tv.setTextColorRes(R.color.black_800)
+                                        }
                                     }
-                                }
                             }
                     }
                 }
             }
+    }
+
+    private val monthViewScrollListener: MonthScrollListener = { date ->
+        parentViewModel.getPlacesByMonth(date.yearMonth.atDay(1))
+
+        setYearMonthTitle(date.yearMonth.atDay(1))
+    }
+
+    private val onLeftArrowClickListener = OnClickListener {
+        binding.calendarMonthView.smoothScrollToMonth(
+            currentYearMonth.minusMonths(1).yearMonth)
+    }
+
+    private val onRightArrowClickListener = OnClickListener {
+        binding.calendarMonthView.smoothScrollToMonth(
+            currentYearMonth.plusMonths(1).yearMonth)
+    }
+
+    companion object {
+        const val TAG = "CalendarMonthBSDialog"
+        fun newInstance() = CalendarMonthBSDialog()
     }
 }

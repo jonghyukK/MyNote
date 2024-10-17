@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.note.make
+package com.kjh.mynote.ui.features.place.make
 
 import androidx.lifecycle.viewModelScope
 import com.kjh.data.model.KakaoPlaceModel
@@ -31,7 +31,7 @@ data class MakeNoteUiState(
 )
 
 @HiltViewModel
-class MakeNoteViewModel @Inject constructor(
+class MakePlaceNoteViewModel @Inject constructor(
     private val noteRepository: NoteRepository
 ): BaseViewModel() {
 

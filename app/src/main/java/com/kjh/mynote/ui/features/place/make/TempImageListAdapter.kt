@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.note.make
+package com.kjh.mynote.ui.features.place.make
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

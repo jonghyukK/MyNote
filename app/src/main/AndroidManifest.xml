@@ -30,7 +30,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.features.note.make.MakeNoteActivity" />
+        <activity android:name=".ui.features.place.make.MakePlaceNoteActivity" />
 
         <activity android:name=".ui.features.map.NaverMapActivity"
             android:windowSoftInputMode="adjustNothing" />

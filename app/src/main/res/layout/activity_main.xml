@@ -20,8 +20,11 @@
         android:id="@+id/bnv_main"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:backgroundTint="@color/white"
+        app:elevation="10dp"
         app:menu="@menu/menu_main_bottom_nav"
         app:labelVisibilityMode="labeled"
+        app:itemActiveIndicatorStyle="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

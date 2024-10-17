@@ -11,7 +11,7 @@ import android.view.View
 
 class OnThrottleClickListener(
     private val clickListener: View.OnClickListener,
-    private val interval: Long = 600,
+    private val interval: Long = 500,
 ) : View.OnClickListener {
 
     private var clickable = true
