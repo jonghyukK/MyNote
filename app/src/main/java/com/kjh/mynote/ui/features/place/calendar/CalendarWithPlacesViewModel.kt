@@ -47,6 +47,22 @@ sealed class CalendarUiEvent {
     ): CalendarUiEvent()
 }
 
+sealed class CalendarPlaceNoteUiState {
+
+    data class OnePicturePlaceNoteItem(val item: PlaceNoteModel): CalendarPlaceNoteUiState()
+
+    data class TwoPicturePlaceNoteItem(val item: PlaceNoteModel): CalendarPlaceNoteUiState()
+
+    data class ThreePicturePlaceNoteItem(val item: PlaceNoteModel): CalendarPlaceNoteUiState()
+
+    data class FourPicturePlaceNoteItem(val item: PlaceNoteModel): CalendarPlaceNoteUiState()
+
+    data class OverPicturePlaceNoteItem(
+        val item: PlaceNoteModel,
+        val remainImgCount: Int
+    ): CalendarPlaceNoteUiState()
+}
+
 @HiltViewModel
 class CalendarWithPlacesViewModel @Inject constructor(
     private val noteRepository: NoteRepository
@@ -64,7 +80,9 @@ class CalendarWithPlacesViewModel @Inject constructor(
     val placeNotesByDayFlow = combine(
         _uiState, _wholePlacesMap
     ) { uiState, wholePlaceMap ->
-        wholePlaceMap[uiState.selectedDay] ?: emptyList()
+        wholePlaceMap[uiState.selectedDay]?.map {
+            makeCalendarPlaceNoteUiItem(it)
+        } ?: emptyList()
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(),
@@ -132,6 +150,41 @@ class CalendarWithPlacesViewModel @Inject constructor(
 
     fun checkNoteInDay(day: LocalDate): Boolean {
         return !_wholePlacesMap.value[day].isNullOrEmpty()
+    }
+
+    private fun makeCalendarPlaceNoteUiItem(placeNoteItem: PlaceNoteModel): CalendarPlaceNoteUiState {
+        return when (placeNoteItem.placeImages.size) {
+            1 -> CalendarPlaceNoteUiState.OnePicturePlaceNoteItem(
+                placeNoteItem.copy(
+                    placeAddress = addressToBigRegion(placeNoteItem.placeAddress)))
+
+            2 -> CalendarPlaceNoteUiState.TwoPicturePlaceNoteItem(
+                placeNoteItem.copy(
+                    placeAddress = addressToBigRegion(placeNoteItem.placeAddress)))
+
+            3 -> CalendarPlaceNoteUiState.ThreePicturePlaceNoteItem(
+                placeNoteItem.copy(
+                    placeAddress = addressToBigRegion(placeNoteItem.placeAddress)))
+
+            4 -> CalendarPlaceNoteUiState.FourPicturePlaceNoteItem(
+                placeNoteItem.copy(
+                    placeAddress = addressToBigRegion(placeNoteItem.placeAddress)))
+
+            else -> CalendarPlaceNoteUiState.OverPicturePlaceNoteItem(
+                item = placeNoteItem.copy(
+                    placeAddress = addressToBigRegion(placeNoteItem.placeAddress)
+                ),
+                remainImgCount = placeNoteItem.placeImages.size - 5
+            )
+        }
+    }
+
+    private fun addressToBigRegion(address: String): String {
+        if (address.isBlank()) return ""
+
+        return address.split(" ").run {
+            "${this[0]}, ${this[1]}"
+        }
     }
 }
 

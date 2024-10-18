@@ -8,4 +8,9 @@
     </style>
 
     <style name="Theme.MyNote" parent="Base.Theme.MyNote" />
+
+    <style name="StatusBarBlack" parent="Theme.MyNote">
+        <item name="android:statusBarColor">@color/black_900</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
 </resources>

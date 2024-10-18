@@ -6,7 +6,11 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.kjh.mynote.R
 import com.kjh.mynote.ui.common.listener.OnThrottleClickListener
 
 /**
@@ -43,3 +47,11 @@ fun AppCompatEditText.hideKeyboard() {
 
 internal fun AppCompatTextView.setTextColorRes(@ColorRes color: Int) =
     setTextColor(context.getColorCompat(color))
+
+fun AppCompatImageView.loadImage(url: String) {
+    Glide.with(this.context)
+        .load(url)
+        .error(R.drawable.ic_launcher_foreground)
+        .transition(DrawableTransitionOptions.withCrossFade())
+        .into(this)
+}

@@ -4,7 +4,6 @@
     <string name="save">저장</string>
     <string name="empty">내용이 없어요</string>
     <string name="product_title">물건명</string>
-    <string name="format_slash">%1$d/%2$d</string>
     <string name="select_location">장소 검색</string>
     <string name="search_place">장소 검색</string>
     <string name="hint_input_place_or_address">장소명 혹은 주소 입력</string>
@@ -17,6 +16,10 @@
     <string name="select_visit_date">방문 날짜 선택</string>
 
     <string name="format_full_date">%1$s (%2$s)</string>
+    <string name="format_plus_value">+%1$d</string>
+    <string name="format_slash">%1$d/%2$d</string>
+    <string name="format_slash_with_space">%1$d / %2$d</string>
+
     <string name="input_title">제목 입력하기</string>
     <string name="input_contents">내용 입력하기</string>
     <string name="msg_created_place_note">장소 노트 작성이 완료되었어요!</string>

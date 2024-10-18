@@ -3,6 +3,7 @@ package com.kjh.mynote.ui.features.place.calendar
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.view.View.OnClickListener
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -11,9 +12,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.databinding.FragmentCalendarWithPlacesBinding
+import com.kjh.mynote.databinding.VhPlaceNoteInCalendarOnePictureItemBinding
 import com.kjh.mynote.ui.base.BaseFragment
 import com.kjh.mynote.ui.features.place.make.MakePlaceNoteActivity
+import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity
 import com.kjh.mynote.utils.CalendarUtils
+import com.kjh.mynote.utils.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,6 +26,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalDate
+import java.util.ArrayList
 
 
 @AndroidEntryPoint
@@ -31,14 +36,17 @@ class CalendarWithPlacesFragment
     private val viewModel: CalendarWithPlacesViewModel by viewModels()
 
     private val listAdapter: CalendarPlaceListAdapter by lazy {
-        CalendarPlaceListAdapter(placeItemClickAction)
+        CalendarPlaceListAdapter(placeItemClickAction, placeImageClickAction)
     }
+
+    private val spacingItemDecoration = SpacingItemDecoration(20)
 
     override fun onInitView() {
         with (binding) {
             rvNotes.apply {
                 setHasFixedSize(true)
                 itemAnimator = null
+                addItemDecoration(spacingItemDecoration)
                 adapter = listAdapter
             }
 
@@ -105,6 +113,11 @@ class CalendarWithPlacesFragment
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding.rvNotes.removeItemDecoration(spacingItemDecoration)
+    }
+
     private val makeNoteResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -130,7 +143,15 @@ class CalendarWithPlacesFragment
     }
 
     private val placeItemClickAction: (PlaceNoteModel) -> Unit = { placeItem ->
-        Timber.tag("abc123").e("clicked: $placeItem")
+        Toast.makeText(requireContext(), placeItem.placeName, Toast.LENGTH_SHORT).show()
+    }
+
+    private val placeImageClickAction: (List<String>, String) -> Unit = { images, clickedImage ->
+        Intent(requireContext(), ImagesViewerActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_IMAGE_LIST, ArrayList(images))
+            putExtra(AppConstants.INTENT_URL, clickedImage)
+            startActivity(this)
+        }
     }
 
     private val currentYearMonthClickListener = OnClickListener {

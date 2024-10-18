@@ -34,6 +34,9 @@
 
         <activity android:name=".ui.features.map.NaverMapActivity"
             android:windowSoftInputMode="adjustNothing" />
+
+        <activity android:name=".ui.features.viewer.ImagesViewerActivity"
+            android:theme="@style/StatusBarBlack" />
     </application>
 
 </manifest>
