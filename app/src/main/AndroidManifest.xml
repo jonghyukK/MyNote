@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".MyNoteApplication"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -13,8 +14,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyNote"
-        android:name=".MyNoteApplication"
         tools:targetApi="31">
+        <activity
+            android:name=".ui.features.place.detail.PlaceNoteDetailActivity"
+            android:exported="false" />
 
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
@@ -29,13 +32,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".ui.features.place.make.MakePlaceNoteActivity" />
-
-        <activity android:name=".ui.features.map.NaverMapActivity"
+        <activity
+            android:name=".ui.features.map.NaverMapActivity"
             android:windowSoftInputMode="adjustNothing" />
-
-        <activity android:name=".ui.features.viewer.ImagesViewerActivity"
+        <activity
+            android:name=".ui.features.viewer.ImagesViewerActivity"
             android:theme="@style/StatusBarBlack" />
     </application>
 

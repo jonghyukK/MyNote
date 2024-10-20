@@ -26,4 +26,5 @@
     <string name="empty_my_places_will_you_add">등록된 내 장소가 없어요.\n장소를 추가해보세요!</string>
     <string name="make_place_note">장소노트 작성</string>
     <string name="my_product">내 물건</string>
+    <string name="view_all">전체보기</string>
 </resources>

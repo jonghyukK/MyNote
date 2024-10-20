@@ -14,6 +14,7 @@ import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.databinding.FragmentCalendarWithPlacesBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarOnePictureItemBinding
 import com.kjh.mynote.ui.base.BaseFragment
+import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
 import com.kjh.mynote.ui.features.place.make.MakePlaceNoteActivity
 import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity
 import com.kjh.mynote.utils.CalendarUtils
@@ -143,7 +144,10 @@ class CalendarWithPlacesFragment
     }
 
     private val placeItemClickAction: (PlaceNoteModel) -> Unit = { placeItem ->
-        Toast.makeText(requireContext(), placeItem.placeName, Toast.LENGTH_SHORT).show()
+        Intent(requireContext(), PlaceNoteDetailActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_NOTE_ID, placeItem.id)
+            startActivity(this)
+        }
     }
 
     private val placeImageClickAction: (List<String>, String) -> Unit = { images, clickedImage ->

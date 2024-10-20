@@ -67,4 +67,15 @@ class NoteRepository @Inject constructor(
             emit(Result.Error(e.message))
         }
     }
+
+    suspend fun getPlaceNoteById(noteId: Int): Flow<Result<PlaceNoteModel>> = flow {
+        emit(Result.Loading)
+
+        try {
+            val placeNote = noteLocalDataSource.getPlaceNoteById(noteId).toExternal()
+            emit(Result.Success(placeNote))
+        } catch (e: Exception) {
+            emit(Result.Error(e.message))
+        }
+    }
 }

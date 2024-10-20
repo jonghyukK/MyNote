@@ -27,4 +27,7 @@ interface PlaceNoteDao {
 
     @Query("SELECT * FROM places WHERE visitDate BETWEEN :startDate AND :endDate")
     suspend fun getPlacesInDateRange(startDate: Long, endDate: Long): List<PlaceNoteEntity>
+
+    @Query("SELECT * FROM places WHERE id = :id")
+    suspend fun getPlaceNoteById(id: Int): PlaceNoteEntity
 }
