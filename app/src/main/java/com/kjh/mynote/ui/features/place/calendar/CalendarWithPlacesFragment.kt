@@ -13,18 +13,19 @@ import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.databinding.FragmentCalendarWithPlacesBinding
 import com.kjh.mynote.ui.base.BaseFragment
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
-import com.kjh.mynote.ui.features.place.make.MakePlaceNoteActivity
+import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
 import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity
-import com.kjh.mynote.utils.CalendarUtils
 import com.kjh.mynote.utils.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
+import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
+import com.kjh.mynote.utils.extensions.toLocalDate
+import com.kjh.mynote.utils.extensions.toMillis
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.util.ArrayList
 
 
 @AndroidEntryPoint
@@ -123,13 +124,12 @@ class CalendarWithPlacesFragment
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK) {
-            val insertDate = result.data?.getLongExtra(
-                AppConstants.INTENT_PLACE_VISIT_DATE, -1
+            val insertedPlaceNoteItem = result.data?.parcelable<PlaceNoteModel>(
+                AppConstants.INTENT_PLACE_NOTE_ITEM
             ) ?: return@registerForActivityResult
 
-            val convertedLocalDate = CalendarUtils.millisToLocalDate(insertDate)
             viewModel.getPlacesByMonth(
-                localDate = convertedLocalDate,
+                localDate = insertedPlaceNoteItem.visitDate.toLocalDate(),
                 withSelectedDayUpdate = true
             )
         }
@@ -139,11 +139,15 @@ class CalendarWithPlacesFragment
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK) {
-            val deletedNoteId = result.data?.getIntExtra(
-                AppConstants.INTENT_NOTE_ID, -1
-            ) ?: return@registerForActivityResult
+            val updatedItem = result.data?.parcelable<PlaceNoteModel>(AppConstants.INTENT_PLACE_NOTE_ITEM)
+            updatedItem?.let {
+                viewModel.updateWholePlaceMap(it)
+            }
 
-            viewModel.deleteAndUpdateWholePlaceMap(deletedNoteId)
+            val deletedNoteId = result.data?.getIntExtra(AppConstants.INTENT_NOTE_ID, -1) ?: -1
+            if (deletedNoteId > 0) {
+                viewModel.deleteAndUpdateWholePlaceMap(deletedNoteId)
+            }
         }
     }
 
@@ -176,16 +180,16 @@ class CalendarWithPlacesFragment
     }
 
     private val makeNoteButtonClickListener = OnClickListener {
-        val selectedDay = CalendarUtils.localDateToMillis(viewModel.getSelectedDate())
+        val selectedDay = viewModel.getSelectedDate().toMillis()
 
-        Intent(requireContext(), MakePlaceNoteActivity::class.java).apply {
+        Intent(requireContext(), MakeOrModifyPlaceNoteActivity::class.java).apply {
             putExtra(AppConstants.INTENT_PLACE_VISIT_DATE, selectedDay)
             makeNoteResultLauncher.launch(this)
         }
     }
 
     private val fabButtonClickListener = OnClickListener {
-        Intent(requireContext(), MakePlaceNoteActivity::class.java).apply {
+        Intent(requireContext(), MakeOrModifyPlaceNoteActivity::class.java).apply {
             makeNoteResultLauncher.launch(this)
         }
     }

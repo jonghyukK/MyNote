@@ -13,6 +13,7 @@ object AppConstants {
     const val INTENT_PLACE_VISIT_DATE = "INTENT_PLACE_VISIT_DATE"
     const val INTENT_IMAGE_LIST = "INTENT_IMAGE_LIST"
     const val INTENT_URL = "INTENT_URL"
+    const val INTENT_PLACE_NOTE_ITEM = "INTENT_PLACE_NOTE_ITEM"
 
     const val DEFAULT_ZOOM_LEVEL = 13.0
     const val MAX_SELECTABLE_IMAGE_COUNT = 10

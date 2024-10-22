@@ -5,10 +5,11 @@ import android.graphics.PorterDuff
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
-import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.CommonLayoutMyToolBarBinding
+import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 
 class MyToolBar @JvmOverloads constructor(
@@ -74,14 +75,11 @@ class MyToolBar @JvmOverloads constructor(
         isShowMoreButton = typedArray.getBoolean(R.styleable.MyToolBar_isShowMoreButton, false)
         moreButtonTint = typedArray.getInteger(R.styleable.MyToolBar_moreButtonTint, R.color.white)
 
-        typedArray.recycle()
-    }
+        if (context is AppCompatActivity && !binding.ivBack.hasOnClickListeners()) {
+            binding.ivBack.onThrottleClick { context.onBackPressed() }
+        }
 
-    /**
-     *  Left Back Button ClickListener.
-     */
-    fun setBackButtonClickListener(listener: OnClickListener) {
-        binding.ivBack.setOnThrottleClickListener(listener)
+        typedArray.recycle()
     }
 
     /**

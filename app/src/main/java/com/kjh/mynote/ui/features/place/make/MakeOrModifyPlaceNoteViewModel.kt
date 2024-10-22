@@ -4,11 +4,12 @@ import androidx.lifecycle.viewModelScope
 import com.kjh.data.model.KakaoPlaceModel
 import com.kjh.data.model.PlaceNoteModel
 import com.kjh.data.model.Result
+import com.kjh.data.model.mapToKakaoPlaceModel
 import com.kjh.data.repository.NoteRepository
-import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.model.UiState
-import com.kjh.mynote.utils.CalendarUtils
+import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.utils.constants.AppConstants
+import com.kjh.mynote.utils.extensions.toStringWithFormat
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +22,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class MakeNoteUiState(
+data class MakeOrModifyNoteUiState(
+    val noteId: Int = -1,
     val tempImageUrls: List<String> = emptyList(),
     val tempPlaceItem: KakaoPlaceModel? = null,
     val visitDate: Long = -1,
@@ -31,15 +33,15 @@ data class MakeNoteUiState(
 )
 
 @HiltViewModel
-class MakePlaceNoteViewModel @Inject constructor(
+class MakeOrModifyPlaceNoteViewModel @Inject constructor(
     private val noteRepository: NoteRepository
 ): BaseViewModel() {
 
-    private val _uiState = MutableStateFlow(MakeNoteUiState())
+    private val _uiState = MutableStateFlow(MakeOrModifyNoteUiState())
     val uiState = _uiState.asStateFlow()
 
-    private val _isSavedNoteEvent = MutableSharedFlow<UiState<Long>>()
-    val isSavedNoteEvent = _isSavedNoteEvent.asSharedFlow()
+    private val _upsertPlaceNoteEvent = MutableSharedFlow<UiState<PlaceNoteModel>>()
+    val upsertPlaceNoteEvent = _upsertPlaceNoteEvent.asSharedFlow()
 
     val saveValidateFlow = _uiState.map {
         it.tempImageUrls.isNotEmpty()
@@ -53,19 +55,20 @@ class MakePlaceNoteViewModel @Inject constructor(
         initialValue = false
     )
 
-    fun savePlaceNote() {
+    fun upsertPlaceNote() {
         viewModelScope.launch {
-            noteRepository.create(
-                placeNoteModel = convertUiStateToPlaceNoteModel()
+            noteRepository.upsertPlaceNote(
+                placeNoteModel = convertUiStateToPlaceNoteModel(),
+                noteId = _uiState.value.noteId
             ).collect { result ->
                 when (result) {
-                    Result.Loading -> {
-                        _isSavedNoteEvent.emit(UiState.Loading)
+                    is Result.Loading -> {
+                        _upsertPlaceNoteEvent.emit(UiState.Loading)
                     }
                     is Result.Success -> {
-                        result.data?.let {
-                            val savedItemDate = _uiState.value.visitDate
-                            _isSavedNoteEvent.emit(UiState.Success(savedItemDate))
+                        val upsertPlaceNote = result.data
+                        upsertPlaceNote?.let {
+                            _upsertPlaceNoteEvent.emit(UiState.Success(it))
                         }
                     }
                     is Result.Error -> {
@@ -110,10 +113,7 @@ class MakePlaceNoteViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 visitDate = timeInMills,
-                visitDateText = CalendarUtils.convertLongToDateFormat(
-                    timeInMills,
-                    "yyyy-MM-dd (E)"
-                )
+                visitDateText = timeInMills.toStringWithFormat("yyyy-MM-dd (E)")
             )
         }
     }
@@ -144,6 +144,20 @@ class MakePlaceNoteViewModel @Inject constructor(
             noteTitle = title,
             noteContents = contents
         )
+    }
+
+    fun setPlaceNoteItemForModifying(placeNoteModel: PlaceNoteModel) {
+        _uiState.update {
+            it.copy(
+                noteId = placeNoteModel.id,
+                tempImageUrls = placeNoteModel.placeImages,
+                tempPlaceItem = placeNoteModel.mapToKakaoPlaceModel(),
+                visitDate = placeNoteModel.visitDate,
+                visitDateText = placeNoteModel.visitDate.toStringWithFormat("yyyy-MM-dd (E)"),
+                title = placeNoteModel.noteTitle,
+                contents = placeNoteModel.noteContents,
+            )
+        }
     }
 
     private fun getValidTempImageUris(

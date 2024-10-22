@@ -24,11 +24,11 @@ import javax.inject.Inject
 
 data class PlaceNoteDetailUiState(
     val isLoading: Boolean = true,
+    val placeNoteItem: PlaceNoteModel? = null,
     val placeNoteDetailUis: List<PlaceNoteDetailUi> = emptyList()
 )
 
 sealed class PlaceNoteDetailUi {
-
     data class PlaceNoteDetailItem(
         val placeNoteItem: PlaceNoteModel
     ): PlaceNoteDetailUi()
@@ -40,8 +40,7 @@ class PlaceNoteDetailViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ): BaseViewModel() {
 
-    private val noteId =
-        savedStateHandle.get<Int>(AppConstants.INTENT_NOTE_ID) ?: -1
+    val noteId = savedStateHandle.get<Int>(AppConstants.INTENT_NOTE_ID) ?: -1
 
     private val _uiState = MutableStateFlow(PlaceNoteDetailUiState())
     val uiState = _uiState.asStateFlow()
@@ -54,12 +53,12 @@ class PlaceNoteDetailViewModel @Inject constructor(
             noteRepository.getPlaceNoteById(noteId = noteId)
                 .collect { result ->
                     when (result) {
-                        Result.Loading -> {}
+                        is Result.Loading -> {}
                         is Result.Success -> {
                             result.data?.let { data ->
-
                                 _uiState.value = PlaceNoteDetailUiState(
                                     isLoading = false,
+                                    placeNoteItem = data,
                                     placeNoteDetailUis = listOf(
                                         PlaceNoteDetailUi.PlaceNoteDetailItem(data))
                                 )

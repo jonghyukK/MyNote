@@ -25,19 +25,22 @@ class NoteRepository @Inject constructor(
             noteEntities.toExternal()
         }
 
-    suspend fun create(placeNoteModel: PlaceNoteModel): Flow<Result<Long>> = flow {
+    suspend fun upsertPlaceNote(
+        placeNoteModel: PlaceNoteModel,
+        noteId: Int = -1,
+    ): Flow<Result<PlaceNoteModel>> = flow {
         emit(Result.Loading)
 
         try {
-            val placeNoteEntity = placeNoteModel.toEntity()
-            val newNoteId = noteLocalDataSource.insert(placeNoteEntity)
-
-            if (newNoteId > 0) {
-                emit(Result.Success(newNoteId))
-            } else {
-                throw Exception("Filed Insert PlaceNoteItem")
+            var placeNoteEntity = placeNoteModel.toEntity()
+            if (noteId > 0) {
+                placeNoteEntity = placeNoteEntity.copy(id = noteId)
             }
 
+            val newNoteId = noteLocalDataSource.insert(placeNoteEntity)
+            val newPlaceNote = noteLocalDataSource.getPlaceNoteById(newNoteId.toInt()).toExternal()
+
+            emit(Result.Success(newPlaceNote))
         } catch (e: Exception) {
             emit(Result.Error(e.message))
         }

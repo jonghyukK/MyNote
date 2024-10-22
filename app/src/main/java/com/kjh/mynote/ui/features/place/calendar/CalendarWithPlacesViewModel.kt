@@ -6,8 +6,8 @@ import com.kjh.data.model.Result
 import com.kjh.data.repository.NoteRepository
 import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.utils.CalendarUtils.getStartAndEndOfMonth
-import com.kjh.mynote.utils.CalendarUtils.localDateToStringWithPattern
-import com.kjh.mynote.utils.CalendarUtils.millisToLocalDate
+import com.kjh.mynote.utils.extensions.toLocalDate
+import com.kjh.mynote.utils.extensions.toStringWithPattern
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +29,7 @@ import javax.inject.Inject
 
 data class CalendarUiState(
     val selectedDay: LocalDate = LocalDate.now(),
-    val currentYearMonthText: String = localDateToStringWithPattern(LocalDate.now(), "yyyy년 MM월")
+    val currentYearMonthText: String = LocalDate.now().toStringWithPattern("yyyy년 MM월")
 )
 
 sealed class CalendarUiEvent {
@@ -111,7 +111,7 @@ class CalendarWithPlacesViewModel @Inject constructor(
                     is Result.Loading -> {}
                     is Result.Success -> {
                         val placesInMonth = result.data ?: emptyList()
-                        val map = placesInMonth.distinct().groupBy { millisToLocalDate(it.visitDate) }
+                        val map = placesInMonth.distinct().groupBy { it.visitDate.toLocalDate() }
 
                         _wholePlacesMap.update {
                             it + map
@@ -134,7 +134,7 @@ class CalendarWithPlacesViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 selectedDay = newDay,
-                currentYearMonthText = localDateToStringWithPattern(newDay, "yyyy년 MM월")
+                currentYearMonthText = newDay.toStringWithPattern("yyyy년 MM월")
             )
         }
 
@@ -169,6 +169,16 @@ class CalendarWithPlacesViewModel @Inject constructor(
         }
 
         _wholePlacesMap.value = filteredWholePlaceMap.filterValues { it.isNotEmpty() }
+    }
+
+    fun updateWholePlaceMap(placeItem: PlaceNoteModel) {
+        val filteredWholePlaceMap = _wholePlacesMap.value.mapValues { entry ->
+            entry.value.filter { it.id != placeItem.id }
+        }.filterValues { it.isNotEmpty() }
+
+        _wholePlacesMap.value = filteredWholePlaceMap
+
+        getPlacesByMonth(placeItem.visitDate.toLocalDate(), withSelectedDayUpdate = true)
     }
 
     private fun makeCalendarPlaceNoteUiItem(placeNoteItem: PlaceNoteModel): CalendarPlaceNoteUiState {

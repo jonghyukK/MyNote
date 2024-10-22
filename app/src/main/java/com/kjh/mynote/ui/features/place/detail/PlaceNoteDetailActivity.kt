@@ -11,15 +11,18 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
+import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityPlaceNoteDetailBinding
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.common.components.MyDefaultDialog
+import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
 import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity
 import com.kjh.mynote.utils.constants.AppConstants
+import com.kjh.mynote.utils.extensions.parcelable
+import com.kjh.mynote.utils.extensions.registerStartActivityResultLauncher
 import com.kjh.mynote.utils.extensions.setDarkStatusBar
 import com.kjh.mynote.utils.extensions.setLightStatusBar
-import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -98,6 +101,20 @@ class PlaceNoteDetailActivity
         ).show(supportFragmentManager, PlaceNoteDetailMenuBSDialog.TAG)
     }
 
+    private val modifyResultLauncher = registerStartActivityResultLauncher(
+        resultOkBlock = { result ->
+            val updatedNoteItem = result.data?.parcelable<PlaceNoteModel>(AppConstants.INTENT_PLACE_NOTE_ITEM)
+            updatedNoteItem?.let {
+                viewModel.getPlaceNote()
+
+                Intent().apply {
+                    putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, updatedNoteItem)
+                    setResult(RESULT_OK, this)
+                }
+            }
+        }
+    )
+
     private val onScrollListener = object: RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
@@ -136,7 +153,13 @@ class PlaceNoteDetailActivity
     }
 
     private val noteModifyAction: () -> Unit = {
-        showToast("수정하기")
+        val noteItem = viewModel.uiState.value.placeNoteItem
+        noteItem?.let {
+            Intent(this@PlaceNoteDetailActivity, MakeOrModifyPlaceNoteActivity::class.java).apply {
+                putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, it)
+                modifyResultLauncher.launch(this)
+            }
+        }
     }
 
     private val toolbarMoreButtonClickListener = OnClickListener {

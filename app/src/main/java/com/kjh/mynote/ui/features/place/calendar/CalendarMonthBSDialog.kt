@@ -22,12 +22,12 @@ import com.kjh.mynote.databinding.BsdCalendarMonthBinding
 import com.kjh.mynote.databinding.CalendarDayBinding
 import com.kjh.mynote.databinding.CalendarHeaderBinding
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
-import com.kjh.mynote.utils.CalendarUtils.localDateToStringWithPattern
 import com.kjh.mynote.utils.extensions.getDrawableCompat
 import com.kjh.mynote.utils.extensions.makeInVisible
 import com.kjh.mynote.utils.extensions.makeVisible
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.setTextColorRes
+import com.kjh.mynote.utils.extensions.toStringWithPattern
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -86,9 +86,7 @@ class CalendarMonthBSDialog
 
     private fun setYearMonthTitle(date: LocalDate) = with (binding) {
         currentYearMonth = date
-        tvCurrentYearMonth.text = localDateToStringWithPattern(
-            date, "yyyy년 MM월"
-        )
+        tvCurrentYearMonth.text = date.toStringWithPattern("yyyy년 MM월")
     }
 
     private fun selectDate(date: LocalDate) {

@@ -5,13 +5,13 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.View.OnClickListener
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.kjh.data.model.KakaoPlaceModel
+import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityMakePlaceNoteBinding
 import com.kjh.mynote.model.UiState
@@ -24,15 +24,17 @@ import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.registerStartActivityResultLauncher
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
+import com.kjh.mynote.utils.extensions.toLocalDate
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.time.ZoneOffset
 
 @AndroidEntryPoint
-class MakePlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>({ ActivityMakePlaceNoteBinding.inflate(it) }) {
+class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>({ ActivityMakePlaceNoteBinding.inflate(it) }) {
 
-    private val viewModel: MakePlaceNoteViewModel by viewModels()
+    private val viewModel: MakeOrModifyPlaceNoteViewModel by viewModels()
 
     override fun getViewModel(): BaseViewModel {
         return viewModel
@@ -47,11 +49,9 @@ class MakePlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>({ Activi
 
     override fun onInitView() = with (binding) {
         rvTempImages.apply {
-            setHasFixedSize(true)
             adapter = tempImageListAdapter
         }
 
-        tbToolbar.setBackButtonClickListener(backBtnClickListener)
         clAttachImages.setOnThrottleClickListener(photoAttachClickListener)
         clVisitPlaceContainer.setOnThrottleClickListener(searchMapClickListener)
         clVisitDateContainer.setOnThrottleClickListener(visitDateClickListener)
@@ -66,8 +66,23 @@ class MakePlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>({ Activi
             viewModel.setVisitDate(tempVisitDate)
         }
 
+        val placeNoteItem = intent.parcelable<PlaceNoteModel>(AppConstants.INTENT_PLACE_NOTE_ITEM)
+        placeNoteItem?.let {
+            viewModel.setPlaceNoteItemForModifying(it)
+        }
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.uiState
+                        .map { it.noteId }
+                        .distinctUntilChanged()
+                        .collect { noteId ->
+                            binding.btnSave.btnTitle =
+                                if (noteId > 0) getString(R.string.do_modify) else getString(R.string.do_save)
+                        }
+                }
+
                 launch {
                     viewModel.uiState
                         .map { it.tempImageUrls }
@@ -113,13 +128,34 @@ class MakePlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>({ Activi
                 }
 
                 launch {
-                    viewModel.isSavedNoteEvent.collect { saveResult ->
-                        binding.btnSave.isLoading = saveResult is UiState.Loading
+                    viewModel.uiState
+                        .map { it.title }
+                        .distinctUntilChanged()
+                        .collect { title ->
+                            if (title != binding.etNoteTitle.text.toString()) {
+                                binding.etNoteTitle.setText(title)
+                            }
+                        }
+                }
 
-                        if (saveResult is UiState.Success) {
-                            showToast(getString(R.string.msg_created_place_note))
+                launch {
+                    viewModel.uiState
+                        .map { it.contents }
+                        .distinctUntilChanged()
+                        .collect { contents ->
+                            if (contents != binding.etNoteContents.text.toString()) {
+                                binding.etNoteContents.setText(contents)
+                            }
+                        }
+                }
+
+                launch {
+                    viewModel.upsertPlaceNoteEvent.collect { upsertResult ->
+                        binding.btnSave.isLoading = upsertResult is UiState.Loading
+
+                        if (upsertResult is UiState.Success) {
                             Intent().apply {
-                                putExtra(AppConstants.INTENT_PLACE_VISIT_DATE, saveResult.data)
+                                putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, upsertResult.data)
                                 setResult(RESULT_OK, this)
                                 finish()
                             }
@@ -146,7 +182,10 @@ class MakePlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>({ Activi
 
     private fun showDatePicker(positiveBtnClickAction: (Long) -> Unit) {
         val selection = if (viewModel.getVisitDateTimeMills() > 0) {
-            viewModel.getVisitDateTimeMills()
+            viewModel.getVisitDateTimeMills().toLocalDate()
+                .atStartOfDay(ZoneOffset.UTC)
+                .toInstant()
+                .toEpochMilli()
         } else {
             MaterialDatePicker.todayInUtcMilliseconds()
         }
@@ -174,32 +213,28 @@ class MakePlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>({ Activi
         }
     }
 
-    private val multiPhotoPickerLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode != RESULT_OK) {
-            return@registerForActivityResult
-        }
+    private val multiPhotoPickerLauncher = registerStartActivityResultLauncher(
+        resultOkBlock = { result ->
+            result.data?.clipData?.let { clipData ->
+                val tempImages: MutableList<String> = mutableListOf()
+                for (i in 0 until clipData.itemCount) {
+                    val imageUri = clipData.getItemAt(i).uri
 
-        result.data?.clipData?.let { clipData ->
-            val tempImages: MutableList<String> = mutableListOf()
-            for (i in 0 until clipData.itemCount) {
-                val imageUri = clipData.getItemAt(i).uri
+                    contentResolver.takePersistableUriPermission(
+                        imageUri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
 
-                contentResolver.takePersistableUriPermission(
-                    imageUri,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION
-                )
+                    tempImages.add(imageUri.toString())
+                }
 
-                tempImages.add(imageUri.toString())
+                viewModel.setTempImages(tempImages)
             }
-
-            viewModel.setTempImages(tempImages)
         }
-    }
+    )
 
-    private val searchPlaceResultLauncher =
-        registerStartActivityResultLauncher(resultOkBlock = { result ->
+    private val searchPlaceResultLauncher = registerStartActivityResultLauncher(
+        resultOkBlock = { result ->
             val placeItem =
                 result.data?.parcelable<KakaoPlaceModel>(AppConstants.INTENT_TEMP_PLACE_ITEM)
                     ?: return@registerStartActivityResultLauncher
@@ -215,12 +250,8 @@ class MakePlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>({ Activi
         showToast("개발 예정..")
     }
 
-    private val backBtnClickListener = View.OnClickListener {
-        finish()
-    }
-
     private val searchMapClickListener = View.OnClickListener {
-        val intent = Intent(this@MakePlaceNoteActivity, NaverMapActivity::class.java).apply {
+        val intent = Intent(this@MakeOrModifyPlaceNoteActivity, NaverMapActivity::class.java).apply {
             putExtra(AppConstants.INTENT_TEMP_PLACE_ITEM, viewModel.getTempPlaceItem())
         }
         searchPlaceResultLauncher.launch(intent)
@@ -236,7 +267,7 @@ class MakePlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>({ Activi
 
     private val saveBtnClickListener = View.OnClickListener {
         if (binding.btnSave.isEnable) {
-            viewModel.savePlaceNote()
+            viewModel.upsertPlaceNote()
         }
     }
 

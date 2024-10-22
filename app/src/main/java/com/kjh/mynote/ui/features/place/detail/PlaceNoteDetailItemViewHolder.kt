@@ -6,8 +6,8 @@ import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhPlaceNoteDetailItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.ui.common.listener.OnNestedHorizontalTouchListener
-import com.kjh.mynote.utils.CalendarUtils
 import com.kjh.mynote.utils.extensions.onThrottleClick
+import com.kjh.mynote.utils.extensions.toStringWithFormat
 
 /**
  * Created by kangjonghyuk.
@@ -58,10 +58,7 @@ class PlaceNoteDetailItemViewHolder(
             tvPlaceName.text = item.placeNoteItem.placeName
             tvAddress.text = item.placeNoteItem.placeAddress
             tvNoteContents.text = item.placeNoteItem.noteContents
-            tvVisitDate.text = CalendarUtils.convertLongToDateFormat(
-                timeInMillis = item.placeNoteItem.visitDate,
-                format = "yyyy년 MM월 dd일 방문"
-            )
+            tvVisitDate.text = item.placeNoteItem.visitDate.toStringWithFormat("yyyy년 MM월 dd일 방문")
 
             makeIndicator(vpPlaceImages.currentItem, item.placeNoteItem.placeImages.size)
         }
