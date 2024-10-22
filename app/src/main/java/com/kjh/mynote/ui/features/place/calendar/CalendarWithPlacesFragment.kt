@@ -3,7 +3,6 @@ package com.kjh.mynote.ui.features.place.calendar
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.view.View.OnClickListener
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -12,7 +11,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.databinding.FragmentCalendarWithPlacesBinding
-import com.kjh.mynote.databinding.VhPlaceNoteInCalendarOnePictureItemBinding
 import com.kjh.mynote.ui.base.BaseFragment
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
 import com.kjh.mynote.ui.features.place.make.MakePlaceNoteActivity
@@ -25,7 +23,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.time.LocalDate
 import java.util.ArrayList
 
@@ -87,6 +84,9 @@ class CalendarWithPlacesFragment
                 launch {
                     viewModel.calendarUiEvent.collect { event ->
                         when (event) {
+                            is CalendarUiEvent.UpdateDayInDay -> {
+                                binding.myWeekCalendar.notifyDateChanged(event.currentDate)
+                            }
                             is CalendarUiEvent.UpdateDayToDay -> {
                                 with (binding.myWeekCalendar) {
                                     updateSelectedDate(event.newDate)
@@ -135,6 +135,18 @@ class CalendarWithPlacesFragment
         }
     }
 
+    private val noteDetailResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val deletedNoteId = result.data?.getIntExtra(
+                AppConstants.INTENT_NOTE_ID, -1
+            ) ?: return@registerForActivityResult
+
+            viewModel.deleteAndUpdateWholePlaceMap(deletedNoteId)
+        }
+    }
+
     private val weekDayClickAction: (LocalDate) -> Unit = { localDate ->
         viewModel.changeSelectedDay(localDate)
     }
@@ -146,7 +158,7 @@ class CalendarWithPlacesFragment
     private val placeItemClickAction: (PlaceNoteModel) -> Unit = { placeItem ->
         Intent(requireContext(), PlaceNoteDetailActivity::class.java).apply {
             putExtra(AppConstants.INTENT_NOTE_ID, placeItem.id)
-            startActivity(this)
+            noteDetailResultLauncher.launch(this)
         }
     }
 

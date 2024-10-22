@@ -37,6 +37,10 @@ sealed class CalendarUiEvent {
         val hasNoteDaysMap: Map<LocalDate, List<PlaceNoteModel>>
     ): CalendarUiEvent()
 
+    data class UpdateDayInDay(
+        val currentDate: LocalDate
+    ): CalendarUiEvent()
+
     data class UpdateDayToDay(
         val oldDate: LocalDate,
         val newDate: LocalDate
@@ -152,38 +156,31 @@ class CalendarWithPlacesViewModel @Inject constructor(
         return !_wholePlacesMap.value[day].isNullOrEmpty()
     }
 
-    private fun makeCalendarPlaceNoteUiItem(placeNoteItem: PlaceNoteModel): CalendarPlaceNoteUiState {
-        return when (placeNoteItem.placeImages.size) {
-            1 -> CalendarPlaceNoteUiState.OnePicturePlaceNoteItem(
-                placeNoteItem.copy(
-                    placeAddress = addressToBigRegion(placeNoteItem.placeAddress)))
-
-            2 -> CalendarPlaceNoteUiState.TwoPicturePlaceNoteItem(
-                placeNoteItem.copy(
-                    placeAddress = addressToBigRegion(placeNoteItem.placeAddress)))
-
-            3 -> CalendarPlaceNoteUiState.ThreePicturePlaceNoteItem(
-                placeNoteItem.copy(
-                    placeAddress = addressToBigRegion(placeNoteItem.placeAddress)))
-
-            4 -> CalendarPlaceNoteUiState.FourPicturePlaceNoteItem(
-                placeNoteItem.copy(
-                    placeAddress = addressToBigRegion(placeNoteItem.placeAddress)))
-
-            else -> CalendarPlaceNoteUiState.OverPicturePlaceNoteItem(
-                item = placeNoteItem.copy(
-                    placeAddress = addressToBigRegion(placeNoteItem.placeAddress)
-                ),
-                remainImgCount = placeNoteItem.placeImages.size - 5
-            )
+    fun deleteAndUpdateWholePlaceMap(deletedNoteId: Int) {
+        val filteredWholePlaceMap = _wholePlacesMap.value.mapValues { entry ->
+            entry.value.filter { it.id != deletedNoteId }
         }
+
+        val deletedMapKey = filteredWholePlaceMap.filterValues { it.isEmpty() }.keys
+        if (deletedMapKey.isNotEmpty()) {
+            viewModelScope.launch {
+                _calendarUiEvent.emit(CalendarUiEvent.UpdateDayInDay(deletedMapKey.first()))
+            }
+        }
+
+        _wholePlacesMap.value = filteredWholePlaceMap.filterValues { it.isNotEmpty() }
     }
 
-    private fun addressToBigRegion(address: String): String {
-        if (address.isBlank()) return ""
-
-        return address.split(" ").run {
-            "${this[0]}, ${this[1]}"
+    private fun makeCalendarPlaceNoteUiItem(placeNoteItem: PlaceNoteModel): CalendarPlaceNoteUiState {
+        return when (placeNoteItem.placeImages.size) {
+            1 -> CalendarPlaceNoteUiState.OnePicturePlaceNoteItem(placeNoteItem)
+            2 -> CalendarPlaceNoteUiState.TwoPicturePlaceNoteItem(placeNoteItem)
+            3 -> CalendarPlaceNoteUiState.ThreePicturePlaceNoteItem(placeNoteItem)
+            4 -> CalendarPlaceNoteUiState.FourPicturePlaceNoteItem(placeNoteItem)
+            else -> CalendarPlaceNoteUiState.OverPicturePlaceNoteItem(
+                item = placeNoteItem,
+                remainImgCount = placeNoteItem.placeImages.size - 5
+            )
         }
     }
 }

@@ -51,7 +51,7 @@ class CalendarPlaceNoteOnePictureItemViewHolder(
             ivImage1.loadImage(item.item.placeImages[0])
 
             layoutPlaceContents.tvPlaceName.text = item.item.placeName
-            layoutPlaceContents.tvPlaceArea.text = item.item.placeAddress
+            layoutPlaceContents.tvPlaceArea.text = item.item.placeRegion
             layoutPlaceContents.tvContents.text = item.item.noteContents
         }
     }
@@ -87,7 +87,7 @@ class CalendarPlaceNoteTwoPictureItemViewHolder(
             ivImage2.loadImage(item.item.placeImages[1])
 
             layoutPlaceContents.tvPlaceName.text = item.item.placeName
-            layoutPlaceContents.tvPlaceArea.text = item.item.placeAddress
+            layoutPlaceContents.tvPlaceArea.text = item.item.placeRegion
             layoutPlaceContents.tvContents.text = item.item.noteContents
         }
     }
@@ -129,7 +129,7 @@ class CalendarPlaceNoteThreePictureItemViewHolder(
             ivImage3.loadImage(item.item.placeImages[2])
 
             layoutPlaceContents.tvPlaceName.text = item.item.placeName
-            layoutPlaceContents.tvPlaceArea.text = item.item.placeAddress
+            layoutPlaceContents.tvPlaceArea.text = item.item.placeRegion
             layoutPlaceContents.tvContents.text = item.item.noteContents
         }
     }
@@ -177,7 +177,7 @@ class CalendarPlaceNoteFourPictureItemViewHolder(
             ivImage4.loadImage(item.item.placeImages[3])
 
             layoutPlaceContents.tvPlaceName.text = item.item.placeName
-            layoutPlaceContents.tvPlaceArea.text = item.item.placeAddress
+            layoutPlaceContents.tvPlaceArea.text = item.item.placeRegion
             layoutPlaceContents.tvContents.text = item.item.noteContents
         }
     }
@@ -232,7 +232,7 @@ class CalendarPlaceNoteOverPictureItemViewHolder(
             ivImage5.loadImage(item.item.placeImages[4])
 
             layoutPlaceContents.tvPlaceName.text = item.item.placeName
-            layoutPlaceContents.tvPlaceArea.text = item.item.placeAddress
+            layoutPlaceContents.tvPlaceArea.text = item.item.placeRegion
             layoutPlaceContents.tvContents.text = item.item.noteContents
 
             groupOver.isVisible = item.remainImgCount > 0
