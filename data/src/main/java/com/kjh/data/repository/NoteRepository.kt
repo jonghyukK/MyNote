@@ -78,4 +78,15 @@ class NoteRepository @Inject constructor(
             emit(Result.Error(e.message))
         }
     }
+
+    suspend fun deletePlaceNoteById(noteId: Int): Flow<Result<Int>> = flow {
+        emit(Result.Loading)
+
+        try {
+            noteLocalDataSource.deletePlaceNoteById(noteId)
+            emit(Result.Success(noteId))
+        } catch (e: Exception) {
+            emit(Result.Error(e.message))
+        }
+    }
 }

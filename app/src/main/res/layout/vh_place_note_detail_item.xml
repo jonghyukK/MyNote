@@ -8,7 +8,7 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/vp_place_images"
         android:layout_width="0dp"
-        android:layout_height="400dp"
+        android:layout_height="@dimen/place_detail_pager_height"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:orientation="horizontal"
         android:overScrollMode="never"

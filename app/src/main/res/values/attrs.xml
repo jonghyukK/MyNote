@@ -3,6 +3,9 @@
     <declare-styleable name="MyToolBar">
         <attr name="isShowBackButton" format="boolean" />
         <attr name="leftTitle" format="reference|string" />
+        <attr name="backButtonTint" format="reference|integer" />
+        <attr name="isShowMoreButton" format="boolean" />
+        <attr name="moreButtonTint" format="reference|integer" />
     </declare-styleable>
 
     <declare-styleable name="MyBottomButton">

@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cl_toolbar_container"
     android:layout_width="match_parent"
-    android:layout_height="?attr/actionBarSize"
-    android:background="@color/white">
+    android:layout_height="?attr/actionBarSize">
 
     <!-- Left Back Button -->
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/iv_back"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
+        android:layout_width="@dimen/toolbar_icon"
+        android:layout_height="@dimen/toolbar_icon"
         android:padding="5dp"
         android:background="?attr/selectableItemBackground"
         android:layout_marginStart="5dp"
+        android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -34,5 +35,20 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/iv_back" />
+
+    <!-- Right More Button -->
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_more"
+        android:layout_width="@dimen/toolbar_icon"
+        android:layout_height="@dimen/toolbar_icon"
+        android:background="@drawable/ripple_white"
+        app:srcCompat="@drawable/ic_more_vertical_24"
+        android:padding="8dp"
+        android:layout_marginEnd="2dp"
+        app:tint="@color/black_800"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

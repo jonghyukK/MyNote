@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="peek_height">200dp</dimen>
+    <dimen name="place_detail_pager_height">400dp</dimen>
+    <dimen name="toolbar_icon">44dp</dimen>
+    <dimen name="dialog_side_space">80dp</dimen>
 </resources>

@@ -16,4 +16,8 @@ data class PlaceNoteModel(
     val visitDate: Long,
     val noteTitle: String,
     val noteContents: String,
-)
+) {
+   val placeRegion = placeAddress.split(" ").run {
+        "${this[0]}, ${this[1]}"
+    }
+}

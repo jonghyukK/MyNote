@@ -1,0 +1,42 @@
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ConstraintSet android:id="@+id/start">
+        <Constraint
+            android:id="@id/tb_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <CustomAttribute
+                app:attributeName="backgroundColor"
+                app:customColorValue="@color/transparent" />
+            <CustomAttribute
+                app:attributeName="backButtonTint"
+                app:customColorValue="@color/white" />
+            <CustomAttribute
+                app:attributeName="moreButtonTint"
+                app:customColorValue="@color/white" />
+        </Constraint>
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/end">
+        <Constraint
+            android:id="@id/tb_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <CustomAttribute
+                app:attributeName="backgroundColor"
+                app:customColorValue="@color/white" />
+            <CustomAttribute
+                app:attributeName="backButtonTint"
+                app:customColorValue="@color/black_900" />
+            <CustomAttribute
+                app:attributeName="moreButtonTint"
+                app:customColorValue="@color/black_900" />
+        </Constraint>
+    </ConstraintSet>
+
+    <Transition
+        app:constraintSetEnd="@id/end"
+        app:constraintSetStart="@id/start"
+        app:duration="300" />
+</MotionScene>

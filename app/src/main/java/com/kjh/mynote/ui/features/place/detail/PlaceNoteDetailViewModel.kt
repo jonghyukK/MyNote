@@ -8,7 +8,9 @@ import com.kjh.data.repository.NoteRepository
 import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.utils.constants.AppConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -44,6 +46,9 @@ class PlaceNoteDetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(PlaceNoteDetailUiState())
     val uiState = _uiState.asStateFlow()
 
+    private val _deleteEvent = MutableSharedFlow<Int>()
+    val deleteEvent = _deleteEvent.asSharedFlow()
+
     fun getPlaceNote() {
         viewModelScope.launch {
             noteRepository.getPlaceNoteById(noteId = noteId)
@@ -63,6 +68,22 @@ class PlaceNoteDetailViewModel @Inject constructor(
                         is Result.Error -> {}
                     }
                 }
+        }
+    }
+
+    fun deletePlaceNote() {
+        viewModelScope.launch {
+            noteRepository.deletePlaceNoteById(noteId).collect { result ->
+                when (result) {
+                    Result.Loading -> {}
+                    is Result.Success -> {
+                        result.data?.let { deletedNoteId ->
+                            _deleteEvent.emit(result.data ?: deletedNoteId)
+                        }
+                    }
+                    is Result.Error -> {}
+                }
+            }
         }
     }
 }
