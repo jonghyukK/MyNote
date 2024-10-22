@@ -23,11 +23,6 @@ abstract class BaseBottomSheetDialogFragment<B: ViewBinding>(
     protected val binding: B
         get() = _binding!!
 
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        setStyle(DialogFragment.STYLE_NORMAL, R.style.AppBottomSheetDialogTheme)
-//    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = bindingFactory(layoutInflater)
         return binding.root
@@ -40,9 +35,9 @@ abstract class BaseBottomSheetDialogFragment<B: ViewBinding>(
         onInitData()
     }
 
-    override fun onDestroy() {
+    override fun onDestroyView() {
+        super.onDestroyView()
         _binding = null
-        super.onDestroy()
     }
 
     protected abstract fun onInitView()
