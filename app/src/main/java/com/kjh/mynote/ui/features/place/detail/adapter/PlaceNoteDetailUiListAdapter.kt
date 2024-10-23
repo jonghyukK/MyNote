@@ -1,12 +1,14 @@
-package com.kjh.mynote.ui.features.place.detail
+package com.kjh.mynote.ui.features.place.detail.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhPlaceNoteDetailItemBinding
+import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailUi
 
 /**
  * Created by kangjonghyuk.
@@ -14,7 +16,8 @@ import com.kjh.mynote.databinding.VhPlaceNoteDetailItemBinding
  * Description:
  */
 class PlaceNoteDetailUiListAdapter(
-    private val imageViewerClickAction: (List<String>, String) -> Unit
+    private val imageViewerClickAction: (List<String>, String) -> Unit,
+    private val addressClickAction: (PlaceNoteModel) -> Unit
 ) : ListAdapter<PlaceNoteDetailUi, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
@@ -22,7 +25,7 @@ class PlaceNoteDetailUiListAdapter(
             PlaceNoteDetailItemViewHolder(
                 VhPlaceNoteDetailItemBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
-                ), imageViewerClickAction
+                ), imageViewerClickAction, addressClickAction
             )
         }
         else -> throw Exception("Wrong viewType: $viewType")

@@ -16,7 +16,9 @@ import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityPlaceNoteDetailBinding
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.common.components.MyDefaultDialog
+import com.kjh.mynote.ui.features.place.detail.adapter.PlaceNoteDetailUiListAdapter
 import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
+import com.kjh.mynote.ui.features.place.map.PlaceMapActivity
 import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.parcelable
@@ -36,7 +38,7 @@ class PlaceNoteDetailActivity
     private val viewModel: PlaceNoteDetailViewModel by viewModels()
 
     private val uiListAdapter: PlaceNoteDetailUiListAdapter by lazy {
-        PlaceNoteDetailUiListAdapter(imageViewerClickAction)
+        PlaceNoteDetailUiListAdapter(imageViewerClickAction, addressClickAction)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -137,6 +139,13 @@ class PlaceNoteDetailActivity
         Intent(this@PlaceNoteDetailActivity, ImagesViewerActivity::class.java).apply {
             putExtra(AppConstants.INTENT_IMAGE_LIST, ArrayList(images))
             putExtra(AppConstants.INTENT_URL, clickedImage)
+            startActivity(this)
+        }
+    }
+
+    private val addressClickAction: (PlaceNoteModel) -> Unit = { item ->
+        Intent(this@PlaceNoteDetailActivity, PlaceMapActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, item)
             startActivity(this)
         }
     }

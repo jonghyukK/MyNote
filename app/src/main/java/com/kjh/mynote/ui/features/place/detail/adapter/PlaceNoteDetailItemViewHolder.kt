@@ -1,11 +1,13 @@
-package com.kjh.mynote.ui.features.place.detail
+package com.kjh.mynote.ui.features.place.detail.adapter
 
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhPlaceNoteDetailItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.ui.common.listener.OnNestedHorizontalTouchListener
+import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailUi
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.toStringWithFormat
 
@@ -16,7 +18,8 @@ import com.kjh.mynote.utils.extensions.toStringWithFormat
  */
 class PlaceNoteDetailItemViewHolder(
     private val binding: VhPlaceNoteDetailItemBinding,
-    private val imageViewerClickAction: (List<String>, String) -> Unit
+    private val imageViewerClickAction: (List<String>, String) -> Unit,
+    private val addressClickAction: (PlaceNoteModel) -> Unit
 ): BaseViewHolder<PlaceNoteDetailUi.PlaceNoteDetailItem>(binding.root) {
 
     private var imagePagerAdapter = PlaceNoteDetailPagerAdapter(imageClickAction = {
@@ -49,6 +52,12 @@ class PlaceNoteDetailItemViewHolder(
                 )
             }
         }
+
+        binding.clLocation.onThrottleClick {
+            bindItem?.let { item ->
+                addressClickAction.invoke(item.placeNoteItem)
+            }
+        }
     }
 
     override fun bind(item: PlaceNoteDetailUi.PlaceNoteDetailItem) {
@@ -58,7 +67,7 @@ class PlaceNoteDetailItemViewHolder(
             tvPlaceName.text = item.placeNoteItem.placeName
             tvAddress.text = item.placeNoteItem.placeAddress
             tvNoteContents.text = item.placeNoteItem.noteContents
-            tvVisitDate.text = item.placeNoteItem.visitDate.toStringWithFormat("yyyy년 MM월 dd일 방문")
+            tvVisitDate.text = item.placeNoteItem.visitDate.toStringWithFormat("yyyy년 MM월 dd일 (E)")
 
             makeIndicator(vpPlaceImages.currentItem, item.placeNoteItem.placeImages.size)
         }

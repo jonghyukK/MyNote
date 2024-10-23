@@ -18,7 +18,9 @@
         <activity
             android:name=".ui.features.place.detail.PlaceNoteDetailActivity"
             android:exported="false" />
-
+        <activity
+            android:name=".ui.features.place.map.PlaceMapActivity"
+            android:exported="false" />
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="aon1a380of" />

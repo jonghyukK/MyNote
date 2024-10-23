@@ -11,6 +11,7 @@ import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.toStringWithFormat
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -66,6 +67,7 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
                         _upsertPlaceNoteEvent.emit(UiState.Loading)
                     }
                     is Result.Success -> {
+                        delay(700)
                         val upsertPlaceNote = result.data
                         upsertPlaceNote?.let {
                             _upsertPlaceNoteEvent.emit(UiState.Success(it))

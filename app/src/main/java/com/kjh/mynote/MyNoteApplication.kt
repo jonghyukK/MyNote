@@ -1,6 +1,7 @@
 package com.kjh.mynote
 
 import android.app.Application
+import com.kakao.sdk.common.KakaoSdk
 import com.kakao.vectormap.KakaoMapSdk
 import com.kjh.data.DataConstants
 import dagger.hilt.android.HiltAndroidApp
@@ -27,6 +28,6 @@ class MyNoteApplication: Application() {
     }
 
     private fun initKakaoSDK() {
-        KakaoMapSdk.init(this, DataConstants.KAKAO_NATIVE_APP_KEY)
+        KakaoSdk.init(this, DataConstants.KAKAO_NATIVE_APP_KEY)
     }
 }
