@@ -76,6 +76,9 @@ dependencies {
     // KakaoMap
     implementation(libs.kakaoMap)
 
+    // KakaoNavi
+    implementation(libs.kakaoNavi)
+
     // NaverMap
     implementation(libs.naverMap)
 
