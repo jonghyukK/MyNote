@@ -41,6 +41,8 @@ class PlaceNoteDetailActivity
         PlaceNoteDetailUiListAdapter(imageViewerClickAction, addressClickAction)
     }
 
+    private var isAppliedInset = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -49,8 +51,12 @@ class PlaceNoteDetailActivity
     override fun onInitView() {
         with (binding) {
             ViewCompat.setOnApplyWindowInsetsListener(tbToolbar) { v, insets ->
-                val systemBarsTop = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
-                v.setPadding(v.left, systemBarsTop, v.right, v.bottom)
+                if (!isAppliedInset) {
+                    val systemBarsTop = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
+                    v.setPadding(v.left, systemBarsTop, v.right, v.bottom)
+                }
+
+                isAppliedInset = true
                 insets
             }
 
@@ -65,13 +71,13 @@ class PlaceNoteDetailActivity
     }
 
     override fun onInitUiData() {
-        viewModel.getPlaceNote()
+        viewModel.getPlaceNoteDetail()
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.uiState
-                        .map { it.placeNoteDetailUis }
+                        .map { it.placeNoteDetailUiItems }
                         .distinctUntilChanged()
                         .collect { uis ->
                             uiListAdapter.submitList(uis)
@@ -107,7 +113,7 @@ class PlaceNoteDetailActivity
         resultOkBlock = { result ->
             val updatedNoteItem = result.data?.parcelable<PlaceNoteModel>(AppConstants.INTENT_PLACE_NOTE_ITEM)
             updatedNoteItem?.let {
-                viewModel.getPlaceNote()
+                viewModel.getPlaceNoteDetail()
 
                 Intent().apply {
                     putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, updatedNoteItem)
