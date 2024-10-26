@@ -8,7 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhPlaceNoteDetailItemBinding
+import com.kjh.mynote.databinding.VhPlaceNoteDetailSamePlacesSectionItemBinding
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailUi
+import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.
@@ -17,7 +19,8 @@ import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailUi
  */
 class PlaceNoteDetailUiListAdapter(
     private val imageViewerClickAction: (List<String>, String) -> Unit,
-    private val addressClickAction: (PlaceNoteModel) -> Unit
+    private val addressClickAction: (PlaceNoteModel) -> Unit,
+    private val samePlaceItemClickAction: (PlaceNoteModel) -> Unit,
 ) : ListAdapter<PlaceNoteDetailUi, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
@@ -28,19 +31,28 @@ class PlaceNoteDetailUiListAdapter(
                 ), imageViewerClickAction, addressClickAction
             )
         }
+        R.layout.vh_place_note_detail_same_places_section_item -> {
+            PlaceNoteDetailSamePlaceSectionItemViewHolder(
+                VhPlaceNoteDetailSamePlacesSectionItemBinding.inflate(
+                    LayoutInflater.from(parent.context), parent, false
+                ), samePlaceItemClickAction
+            )
+        }
         else -> throw Exception("Wrong viewType: $viewType")
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val item = getItem(position)
-        when (item) {
-            is PlaceNoteDetailUi.PlaceNoteDetailItem ->
+        when (val item = getItem(position)) {
+            is PlaceNoteDetailUi.DetailItem ->
                 (holder as PlaceNoteDetailItemViewHolder).bind(item)
+            is PlaceNoteDetailUi.SamePlaceNameItem ->
+                (holder as PlaceNoteDetailSamePlaceSectionItemViewHolder).bind(item)
         }
     }
 
     override fun getItemViewType(position: Int) = when (getItem(position)) {
-        is PlaceNoteDetailUi.PlaceNoteDetailItem -> R.layout.vh_place_note_detail_item
+        is PlaceNoteDetailUi.DetailItem -> R.layout.vh_place_note_detail_item
+        is PlaceNoteDetailUi.SamePlaceNameItem -> R.layout.vh_place_note_detail_same_places_section_item
         else -> -1
     }
 
@@ -49,12 +61,15 @@ class PlaceNoteDetailUiListAdapter(
             override fun areItemsTheSame(
                 oldItem: PlaceNoteDetailUi,
                 newItem: PlaceNoteDetailUi
-            ): Boolean =
-                if (oldItem is PlaceNoteDetailUi.PlaceNoteDetailItem && newItem is PlaceNoteDetailUi.PlaceNoteDetailItem) {
+            ): Boolean = when {
+                oldItem is PlaceNoteDetailUi.DetailItem && newItem is PlaceNoteDetailUi.DetailItem -> {
                     oldItem.placeNoteItem.id == newItem.placeNoteItem.id
-                } else {
-                    false
                 }
+                oldItem is PlaceNoteDetailUi.SamePlaceNameItem && newItem is PlaceNoteDetailUi.SamePlaceNameItem -> {
+                    oldItem.placeNoteItems == newItem.placeNoteItems
+                }
+                else -> false
+            }
 
             override fun areContentsTheSame(
                 oldItem: PlaceNoteDetailUi,

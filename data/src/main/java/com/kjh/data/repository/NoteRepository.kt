@@ -3,6 +3,7 @@ package com.kjh.data.repository
 import com.kjh.data.db.entity.toEntity
 import com.kjh.data.db.entity.toExternal
 import com.kjh.data.model.PlaceNoteModel
+import com.kjh.data.model.PlaceNoteWithSamePlacesModel
 import com.kjh.data.model.Result
 import com.kjh.data.source.local.PlaceNoteDao
 import kotlinx.coroutines.flow.Flow
@@ -71,6 +72,17 @@ class NoteRepository @Inject constructor(
         }
     }
 
+    suspend fun deletePlaceNoteById(noteId: Int): Flow<Result<Int>> = flow {
+        emit(Result.Loading)
+
+        try {
+            noteLocalDataSource.deletePlaceNoteById(noteId)
+            emit(Result.Success(noteId))
+        } catch (e: Exception) {
+            emit(Result.Error(e.message))
+        }
+    }
+
     suspend fun getPlaceNoteById(noteId: Int): Flow<Result<PlaceNoteModel>> = flow {
         emit(Result.Loading)
 
@@ -82,12 +94,31 @@ class NoteRepository @Inject constructor(
         }
     }
 
-    suspend fun deletePlaceNoteById(noteId: Int): Flow<Result<Int>> = flow {
+    suspend fun getPlaceNotesByPlaceName(placeName: String): Flow<Result<List<PlaceNoteModel>>> = flow {
         emit(Result.Loading)
 
         try {
-            noteLocalDataSource.deletePlaceNoteById(noteId)
-            emit(Result.Success(noteId))
+            val placeNotes = noteLocalDataSource.getPlaceNotesByPlaceName(placeName).toExternal()
+            emit(Result.Success(placeNotes))
+        } catch (e: Exception) {
+            emit(Result.Error(e.message))
+        }
+    }
+
+    suspend fun getPlaceNoteWithSamePlaceNameNotes(noteId: Int): Flow<Result<PlaceNoteWithSamePlacesModel>> = flow {
+        emit(Result.Loading)
+
+        try {
+            val placeNote = noteLocalDataSource.getPlaceNoteById(noteId)
+            val samePlaceNameNotes = noteLocalDataSource.getPlaceNotesByPlaceName(placeNote.placeName)
+                .filter { it.id != noteId }
+
+            val model = PlaceNoteWithSamePlacesModel(
+                placeNoteModel = placeNote.toExternal(),
+                samePlaceNameNoteModels = samePlaceNameNotes.toExternal()
+            )
+
+            emit(Result.Success(model))
         } catch (e: Exception) {
             emit(Result.Error(e.message))
         }

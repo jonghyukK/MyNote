@@ -1,7 +1,9 @@
 package com.kjh.data.model
 
 import android.os.Parcelable
+import com.kjh.data.utils.toLocalDate
 import kotlinx.parcelize.Parcelize
+import java.time.LocalDate
 
 /**
  * Created by kangjonghyuk.
@@ -20,11 +22,13 @@ data class PlaceNoteModel(
     val y: String,
     val visitDate: Long,
     val noteTitle: String,
-    val noteContents: String,
+    val noteContents: String
 ): Parcelable {
    val placeRegion = placeAddress.split(" ").run {
         "${this[0]}, ${this[1]}"
     }
+
+    val localDate: LocalDate = visitDate.toLocalDate()
 }
 
 fun PlaceNoteModel.mapToKakaoPlaceModel() = KakaoPlaceModel(

@@ -60,7 +60,7 @@ class CalendarMonthBSDialog
     override fun onInitData() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                parentViewModel.wholePlaceMap.collect { map ->
+                parentViewModel.allPlaceNotesFlow.collect { map ->
                     map.keys.forEach {
                         binding.calendarMonthView.notifyDateChanged(it)
                     }
@@ -90,7 +90,7 @@ class CalendarMonthBSDialog
     }
 
     private fun selectDate(date: LocalDate) {
-        parentViewModel.changeSelectedDay(date)
+        parentViewModel.selectDay(date)
         dialog?.dismiss()
     }
 
@@ -129,7 +129,7 @@ class CalendarMonthBSDialog
                 }
 
                 // 해당 일의 이벤트 존재 여부..
-                val hasEventThisDay = parentViewModel.checkNoteInDay(data.date)
+                val hasEventThisDay = parentViewModel.allPlaceNotesFlow.value.keys.contains(data.date)
 
                 with (container.binding.tvHas) {
                     if (isDayInThisMonth && hasEventThisDay) makeVisible() else makeInVisible()
@@ -164,8 +164,6 @@ class CalendarMonthBSDialog
     }
 
     private val monthViewScrollListener: MonthScrollListener = { date ->
-        parentViewModel.getPlacesByMonth(date.yearMonth.atDay(1))
-
         setYearMonthTitle(date.yearMonth.atDay(1))
     }
 

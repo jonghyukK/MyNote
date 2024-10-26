@@ -52,6 +52,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- Week CalendarView -->
     <com.kjh.mynote.ui.common.components.MyWeekCalendarView
         android:id="@+id/my_week_calendar"
         android:layout_width="0dp"
@@ -71,7 +72,6 @@
         android:paddingBottom="20dp"
         android:paddingHorizontal="20dp"
         android:clipToPadding="false"
-
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@+id/my_week_calendar"
         app:layout_constraintStart_toStartOf="parent"

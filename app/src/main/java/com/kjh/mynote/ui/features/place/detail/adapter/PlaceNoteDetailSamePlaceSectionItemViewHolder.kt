@@ -36,7 +36,7 @@ class PlaceNoteDetailSamePlaceSectionItemViewHolder(
     override fun bind(item: PlaceNoteDetailUi.SamePlaceNameItem) {
         super.bind(item)
 
-        binding.tvSectionTitle.text = item.title
+        binding.tvSectionTitle.text = item.sectionTitle
         listAdapter.submitList(null)
         listAdapter.submitList(item.placeNoteItems)
     }

@@ -19,7 +19,6 @@ import com.kjh.mynote.utils.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
-import com.kjh.mynote.utils.extensions.toLocalDate
 import com.kjh.mynote.utils.extensions.toMillis
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -38,7 +37,7 @@ class CalendarWithPlacesFragment
         CalendarPlaceListAdapter(placeItemClickAction, placeImageClickAction)
     }
 
-    private val spacingItemDecoration = SpacingItemDecoration(20)
+    private val spacingItemDecoration = SpacingItemDecoration(top = 20)
 
     override fun onInitView() {
         with (binding) {
@@ -49,10 +48,7 @@ class CalendarWithPlacesFragment
                 adapter = listAdapter
             }
 
-            myWeekCalendar.apply {
-                setDayClickAction(weekDayClickAction)
-                setDayHasEventChecker(weekDayHasEventChecker)
-            }
+            myWeekCalendar.setDayClickAction(weekDayClickAction)
 
             clYearMonth.setOnThrottleClickListener(currentYearMonthClickListener)
             emptyView.btnMakePlace.setOnThrottleClickListener(makeNoteButtonClickListener)
@@ -61,16 +57,20 @@ class CalendarWithPlacesFragment
     }
 
     override fun onInitData() {
-        viewModel.getPlacesByMonth(LocalDate.now(), true)
-
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.placeNotesByDayFlow
+                    viewModel.selectedDayPlaceNotesFlow
                         .collect { placeItems ->
                             binding.emptyView.root.isVisible = placeItems.isEmpty()
                             listAdapter.submitList(placeItems)
                         }
+                }
+
+                launch {
+                    viewModel.thisMonthDatesWithNotesFlow.collect {
+                        binding.myWeekCalendar.updateSelectDayWithEventDates(it)
+                    }
                 }
 
                 launch {
@@ -80,36 +80,6 @@ class CalendarWithPlacesFragment
                         .collect { yearMonthText ->
                             binding.tvCurrentYearMonth.text = yearMonthText
                         }
-                }
-
-                launch {
-                    viewModel.calendarUiEvent.collect { event ->
-                        when (event) {
-                            is CalendarUiEvent.UpdateDayInDay -> {
-                                binding.myWeekCalendar.notifyDateChanged(event.currentDate)
-                            }
-                            is CalendarUiEvent.UpdateDayToDay -> {
-                                with (binding.myWeekCalendar) {
-                                    updateSelectedDate(event.newDate)
-                                    notifyDateChanged(event.oldDate)
-                                    notifyDateChanged(event.newDate)
-                                    scrollToWeek(event.newDate)
-                                }
-                            }
-                            is CalendarUiEvent.UpdateMonthToMonth -> {
-                                with (binding.myWeekCalendar) {
-                                    updateSelectedDate(event.newDate)
-                                    updateWeekData(event.newDate)
-                                }
-                            }
-
-                            is CalendarUiEvent.Initialize -> {
-                                event.hasNoteDaysMap.keys.forEach {
-                                    binding.myWeekCalendar.notifyDateChanged(it)
-                                }
-                            }
-                        }
-                    }
                 }
             }
         }
@@ -128,41 +98,18 @@ class CalendarWithPlacesFragment
                 AppConstants.INTENT_PLACE_NOTE_ITEM
             ) ?: return@registerForActivityResult
 
-            viewModel.getPlacesByMonth(
-                localDate = insertedPlaceNoteItem.visitDate.toLocalDate(),
-                withSelectedDayUpdate = true
-            )
-        }
-    }
-
-    private val noteDetailResultLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            val updatedItem = result.data?.parcelable<PlaceNoteModel>(AppConstants.INTENT_PLACE_NOTE_ITEM)
-            updatedItem?.let {
-                viewModel.updateWholePlaceMap(it)
-            }
-
-            val deletedNoteId = result.data?.getIntExtra(AppConstants.INTENT_NOTE_ID, -1) ?: -1
-            if (deletedNoteId > 0) {
-                viewModel.deleteAndUpdateWholePlaceMap(deletedNoteId)
-            }
+            viewModel.selectDay(insertedPlaceNoteItem.localDate)
         }
     }
 
     private val weekDayClickAction: (LocalDate) -> Unit = { localDate ->
-        viewModel.changeSelectedDay(localDate)
-    }
-
-    private val weekDayHasEventChecker: (LocalDate) -> Boolean = {
-        viewModel.checkNoteInDay(it)
+        viewModel.selectDay(localDate)
     }
 
     private val placeItemClickAction: (PlaceNoteModel) -> Unit = { placeItem ->
         Intent(requireContext(), PlaceNoteDetailActivity::class.java).apply {
             putExtra(AppConstants.INTENT_NOTE_ID, placeItem.id)
-            noteDetailResultLauncher.launch(this)
+            startActivity(this)
         }
     }
 

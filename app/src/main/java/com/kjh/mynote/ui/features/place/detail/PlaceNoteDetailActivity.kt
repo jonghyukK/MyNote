@@ -7,15 +7,22 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import com.kjh.data.model.PlaceNoteModel
+import com.kjh.data.repository.PlaceUpdateNotifier
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityPlaceNoteDetailBinding
+import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
+import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.ui.common.components.MyDefaultDialog
+import com.kjh.mynote.ui.features.place.calendar.CalendarWithPlacesViewModel
 import com.kjh.mynote.ui.features.place.detail.adapter.PlaceNoteDetailUiListAdapter
 import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
 import com.kjh.mynote.ui.features.place.map.PlaceMapActivity
@@ -25,10 +32,13 @@ import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.registerStartActivityResultLauncher
 import com.kjh.mynote.utils.extensions.setDarkStatusBar
 import com.kjh.mynote.utils.extensions.setLightStatusBar
+import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 
 @AndroidEntryPoint
@@ -38,7 +48,11 @@ class PlaceNoteDetailActivity
     private val viewModel: PlaceNoteDetailViewModel by viewModels()
 
     private val uiListAdapter: PlaceNoteDetailUiListAdapter by lazy {
-        PlaceNoteDetailUiListAdapter(imageViewerClickAction, addressClickAction)
+        PlaceNoteDetailUiListAdapter(
+            imageViewerClickAction = imageViewerClickAction,
+            addressClickAction = addressClickAction,
+            samePlaceItemClickAction = samePlaceItemClickAction
+        )
     }
 
     private var isAppliedInset = false
@@ -79,17 +93,31 @@ class PlaceNoteDetailActivity
                     viewModel.uiState
                         .map { it.placeNoteDetailUiItems }
                         .distinctUntilChanged()
-                        .collect { uis ->
-                            uiListAdapter.submitList(uis)
+                        .collect { uiItems ->
+                            uiListAdapter.submitList(uiItems)
                         }
                 }
 
                 launch {
-                    viewModel.deleteEvent.collect { deleteNoteId ->
-                        Intent().apply {
-                            putExtra(AppConstants.INTENT_NOTE_ID, deleteNoteId)
-                            setResult(RESULT_OK, this)
-                            finish()
+                    viewModel.deleteEvent.collect { state ->
+                        when (state) {
+                            is UiState.Error -> {
+                                showToast(state.errorMsg)
+                            }
+                            is UiState.Success -> {
+                                finish()
+                            }
+                            else -> {}
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.itemNotExistEvent.collect {
+                        with (binding) {
+                            motionLayout.progress = 1f
+                            tbToolbar.isShowMoreButton = false
+                            tvDeletedNotes.isVisible = true
                         }
                     }
                 }
@@ -111,14 +139,10 @@ class PlaceNoteDetailActivity
 
     private val modifyResultLauncher = registerStartActivityResultLauncher(
         resultOkBlock = { result ->
-            val updatedNoteItem = result.data?.parcelable<PlaceNoteModel>(AppConstants.INTENT_PLACE_NOTE_ITEM)
+            val updatedNoteItem =
+                result.data?.parcelable<PlaceNoteModel>(AppConstants.INTENT_PLACE_NOTE_ITEM)
             updatedNoteItem?.let {
                 viewModel.getPlaceNoteDetail()
-
-                Intent().apply {
-                    putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, updatedNoteItem)
-                    setResult(RESULT_OK, this)
-                }
             }
         }
     )
@@ -152,6 +176,13 @@ class PlaceNoteDetailActivity
     private val addressClickAction: (PlaceNoteModel) -> Unit = { item ->
         Intent(this@PlaceNoteDetailActivity, PlaceMapActivity::class.java).apply {
             putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, item)
+            startActivity(this)
+        }
+    }
+
+    private val samePlaceItemClickAction: (PlaceNoteModel) -> Unit = { item ->
+        Intent(this@PlaceNoteDetailActivity, PlaceNoteDetailActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_NOTE_ID, item.id)
             startActivity(this)
         }
     }

@@ -12,7 +12,10 @@ import com.kjh.mynote.utils.extensions.dpToPx
  * Description:
  */
 class SpacingItemDecoration(
-    private val spacing: Int
+    private val left: Int = 0,
+    private val top: Int = 0,
+    private val right: Int = 0,
+    private val bottom: Int = 0,
 ): RecyclerView.ItemDecoration() {
 
     override fun getItemOffsets(
@@ -25,7 +28,22 @@ class SpacingItemDecoration(
 
         val position = parent.layoutManager?.getPosition(view) ?: NO_POSITION
         if (position != 0) {
-            outRect.top = spacing.dpToPx()
+
+            if (left > 0) {
+                outRect.left = left.dpToPx()
+            }
+
+            if (right > 0) {
+                outRect.right = right.dpToPx()
+            }
+
+            if (top > 0) {
+                outRect.top = top.dpToPx()
+            }
+
+            if (bottom > 0) {
+                outRect.bottom = bottom.dpToPx()
+            }
         }
     }
 }

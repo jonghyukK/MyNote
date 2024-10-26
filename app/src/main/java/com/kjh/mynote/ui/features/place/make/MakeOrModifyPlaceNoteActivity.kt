@@ -20,6 +20,7 @@ import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.ui.features.map.NaverMapActivity
 import com.kjh.mynote.utils.DatePickerManager
 import com.kjh.mynote.utils.constants.AppConstants
+import com.kjh.mynote.utils.extensions.hideKeyboard
 import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.registerStartActivityResultLauncher
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
@@ -152,6 +153,7 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
                 launch {
                     viewModel.upsertPlaceNoteEvent.collect { upsertResult ->
                         binding.btnSave.isLoading = upsertResult is UiState.Loading
+                        binding.etNoteContents.hideKeyboard()
 
                         if (upsertResult is UiState.Success) {
                             Intent().apply {

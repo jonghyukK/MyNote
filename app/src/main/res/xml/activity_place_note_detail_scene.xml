@@ -15,6 +15,18 @@
             <CustomAttribute
                 app:attributeName="moreButtonTint"
                 app:customColorValue="@color/white" />
+            <PropertySet app:visibilityMode="ignore" />
+        </Constraint>
+
+        <Constraint
+            android:id="@+id/tv_deleted_notes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/tb_toolbar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+            <PropertySet app:visibilityMode="ignore" />
         </Constraint>
     </ConstraintSet>
 
@@ -32,6 +44,17 @@
             <CustomAttribute
                 app:attributeName="moreButtonTint"
                 app:customColorValue="@color/black_900" />
+            <PropertySet app:visibilityMode="ignore" />
+        </Constraint>
+        <Constraint
+            android:id="@+id/tv_deleted_notes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tb_toolbar">
+            <PropertySet app:visibilityMode="ignore" />
         </Constraint>
     </ConstraintSet>
 

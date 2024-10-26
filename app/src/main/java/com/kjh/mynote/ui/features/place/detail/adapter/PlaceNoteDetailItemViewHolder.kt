@@ -10,6 +10,7 @@ import com.kjh.mynote.ui.common.listener.OnNestedHorizontalTouchListener
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailUi
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.toStringWithFormat
+import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.
@@ -20,17 +21,14 @@ class PlaceNoteDetailItemViewHolder(
     private val binding: VhPlaceNoteDetailItemBinding,
     private val imageViewerClickAction: (List<String>, String) -> Unit,
     private val addressClickAction: (PlaceNoteModel) -> Unit
-): BaseViewHolder<PlaceNoteDetailUi.PlaceNoteDetailItem>(binding.root) {
+): BaseViewHolder<PlaceNoteDetailUi.DetailItem>(binding.root) {
 
-    private var imagePagerAdapter = PlaceNoteDetailPagerAdapter(imageClickAction = {
-        bindItem?.let { item ->
-            imageViewerClickAction.invoke(item.placeNoteItem.placeImages, it)
-        }
-    })
+    private var imagePagerAdapter: PlaceNoteDetailPagerAdapter? = null
 
     private var pageChangeCallback: OnPageChangeCallback = object: OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
+
             bindItem?.let { item ->
                 makeIndicator(position, item.placeNoteItem.placeImages.size)
             }
@@ -38,6 +36,12 @@ class PlaceNoteDetailItemViewHolder(
     }
 
     init {
+        imagePagerAdapter = PlaceNoteDetailPagerAdapter(imageClickAction = {
+            bindItem?.let { item ->
+                imageViewerClickAction.invoke(item.placeNoteItem.placeImages, it)
+            }
+        })
+
         binding.vpPlaceImages.apply {
             adapter = imagePagerAdapter
             (getChildAt(0) as RecyclerView)
@@ -60,19 +64,21 @@ class PlaceNoteDetailItemViewHolder(
         }
     }
 
-    override fun bind(item: PlaceNoteDetailUi.PlaceNoteDetailItem) {
+    override fun bind(item: PlaceNoteDetailUi.DetailItem) {
         super.bind(item)
 
+        imagePagerAdapter?.submitList(item.placeNoteItem.placeImages)
+
         with (binding) {
+            vpPlaceImages.setCurrentItem(0, false)
+
             tvPlaceName.text = item.placeNoteItem.placeName
             tvAddress.text = item.placeNoteItem.placeAddress
             tvNoteContents.text = item.placeNoteItem.noteContents
             tvVisitDate.text = item.placeNoteItem.visitDate.toStringWithFormat("yyyy년 MM월 dd일 (E)")
 
-            makeIndicator(vpPlaceImages.currentItem, item.placeNoteItem.placeImages.size)
+            makeIndicator(0, item.placeNoteItem.placeImages.size)
         }
-
-        imagePagerAdapter.submitList(item.placeNoteItem.placeImages)
     }
 
     private fun makeIndicator(currentPos: Int, totalCount: Int) {

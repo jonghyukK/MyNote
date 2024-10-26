@@ -38,46 +38,13 @@ class MyWeekCalendarView @JvmOverloads constructor(
 
     private val binding = CommonLayoutMyWeekCalendarBinding.inflate(LayoutInflater.from(context), this, true)
 
+    private var isInit = false
     private var selectedDate: LocalDate = LocalDate.now()
-
+    private var thisMonthEventList: List<LocalDate> = emptyList()
     private var dayClickAction: (LocalDate) -> Unit = {}
-
-    private var checkEventThisDay: (LocalDate) -> Boolean = { false }
 
     init {
         initWeekView()
-    }
-
-    fun updateWeekData(newDate: LocalDate) = with (binding.calendarView) {
-        val currentMonth = YearMonth.of(newDate.year, newDate.month)
-        updateWeekData(
-            currentMonth.minusMonths(0).atStartOfMonth(),
-            currentMonth.plusMonths(0).atEndOfMonth(),
-            firstDayOfWeekFromLocale(Locale.KOREAN)
-        )
-
-        notifyCalendarChanged()
-        scrollToWeek(newDate)
-    }
-
-    fun notifyDateChanged(date: LocalDate) {
-        binding.root.notifyDateChanged(date)
-    }
-
-    fun scrollToWeek(date: LocalDate) {
-        binding.root.scrollToWeek(date)
-    }
-
-    fun updateSelectedDate(newDate: LocalDate) {
-        selectedDate = newDate
-    }
-
-    fun setDayClickAction(action: (LocalDate) -> Unit) {
-        dayClickAction = action
-    }
-
-    fun setDayHasEventChecker(checker: (LocalDate) -> Boolean) {
-        checkEventThisDay = checker
     }
 
     private fun initWeekView() {
@@ -103,7 +70,7 @@ class MyWeekCalendarView @JvmOverloads constructor(
                     dayBinding = container.dayBinding,
                     data = data,
                     selectedDate = selectedDate,
-                    hasNoteItem = checkEventThisDay.invoke(data.date)
+                    hasNoteItem = thisMonthEventList.contains(data.date)
                 )
             }
         }
@@ -119,6 +86,18 @@ class MyWeekCalendarView @JvmOverloads constructor(
             firstDayOfWeekFromLocale(Locale.KOREAN)
         )
         scrollToDate(LocalDate.now())
+    }
+
+    private fun updateWeekData(newDate: LocalDate) = with (binding.calendarView) {
+        val currentMonth = YearMonth.of(newDate.year, newDate.month)
+        updateWeekData(
+            currentMonth.minusMonths(0).atStartOfMonth(),
+            currentMonth.plusMonths(0).atEndOfMonth(),
+            firstDayOfWeekFromLocale(Locale.KOREAN)
+        )
+
+        notifyCalendarChanged()
+        scrollToWeek(newDate)
     }
 
     private fun bindDay(
@@ -157,6 +136,48 @@ class MyWeekCalendarView @JvmOverloads constructor(
         with (dayBinding.tvHas) {
             if (isDayInThisMonth && hasNoteItem) makeVisible() else makeInVisible()
         }
+    }
+
+    fun updateSelectDayWithEventDates(selectedDateAndEventDates: Pair<LocalDate, List<LocalDate>>) {
+        val (newDay, eventList) = selectedDateAndEventDates
+        if (newDay == selectedDate && eventList == thisMonthEventList) {
+            return
+        }
+
+        val isYearOrMonthDifferent =
+            selectedDate.year != newDay.year || selectedDate.month != newDay.month
+        val isSameDateDifferentEvents =
+            newDay == selectedDate && thisMonthEventList != eventList
+
+        when {
+            !isInit -> {
+                selectedDate = newDay
+                thisMonthEventList = eventList
+                binding.root.notifyCalendarChanged()
+                isInit = true
+            }
+            isYearOrMonthDifferent -> {
+                selectedDate = newDay
+                thisMonthEventList = eventList
+                updateWeekData(newDay)
+            }
+            isSameDateDifferentEvents -> {
+                selectedDate = newDay
+                thisMonthEventList = eventList
+                binding.root.notifyCalendarChanged()
+            }
+            else -> {
+                thisMonthEventList = eventList
+                binding.root.notifyDateChanged(selectedDate)
+                binding.root.notifyDateChanged(newDay)
+                binding.root.scrollToWeek(newDay)
+                selectedDate = newDay
+            }
+        }
+    }
+
+    fun setDayClickAction(action: (LocalDate) -> Unit) {
+        dayClickAction = action
     }
 
     companion object {
