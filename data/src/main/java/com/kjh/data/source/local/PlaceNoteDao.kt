@@ -33,4 +33,7 @@ interface PlaceNoteDao {
 
     @Query("DELETE FROM places WHERE id = :id")
     suspend fun deletePlaceNoteById(id: Int)
+
+    @Query("SELECT * FROM places WHERE placeName = :placeName ORDER BY visitDate DESC")
+    suspend fun getPlaceNotesByPlaceName(placeName: String): List<PlaceNoteEntity>
 }
