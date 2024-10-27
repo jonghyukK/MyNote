@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.viewer
+package com.kjh.mynote.ui.features.viewer.adapter
 
 import com.kjh.mynote.databinding.VhImagesViewerItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder

@@ -12,6 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.databinding.FragmentCalendarWithPlacesBinding
 import com.kjh.mynote.ui.base.BaseFragment
+import com.kjh.mynote.ui.features.place.calendar.adapter.CalendarPlaceListAdapter
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
 import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
 import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity

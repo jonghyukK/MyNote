@@ -8,21 +8,16 @@ import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import com.kjh.data.model.PlaceNoteModel
-import com.kjh.data.repository.PlaceUpdateNotifier
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityPlaceNoteDetailBinding
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
-import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.ui.common.components.MyDefaultDialog
-import com.kjh.mynote.ui.features.place.calendar.CalendarWithPlacesViewModel
 import com.kjh.mynote.ui.features.place.detail.adapter.PlaceNoteDetailUiListAdapter
 import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
 import com.kjh.mynote.ui.features.place.map.PlaceMapActivity
@@ -34,11 +29,9 @@ import com.kjh.mynote.utils.extensions.setDarkStatusBar
 import com.kjh.mynote.utils.extensions.setLightStatusBar
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 
 @AndroidEntryPoint

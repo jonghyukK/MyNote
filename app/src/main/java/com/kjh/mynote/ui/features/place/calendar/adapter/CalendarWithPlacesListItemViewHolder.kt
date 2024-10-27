@@ -1,12 +1,9 @@
-package com.kjh.mynote.ui.features.place.calendar
+package com.kjh.mynote.ui.features.place.calendar.adapter
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import androidx.core.view.isVisible
-import com.bumptech.glide.Glide
 import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarFourPictureItemBinding
@@ -15,9 +12,8 @@ import com.kjh.mynote.databinding.VhPlaceNoteInCalendarOverPictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarThreePictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarTwoPictureItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
+import com.kjh.mynote.ui.features.place.calendar.CalendarPlaceNoteUiState
 import com.kjh.mynote.utils.extensions.loadImage
-import com.kjh.mynote.utils.extensions.makeGone
-import com.kjh.mynote.utils.extensions.makeVisible
 import com.kjh.mynote.utils.extensions.onThrottleClick
 
 /**

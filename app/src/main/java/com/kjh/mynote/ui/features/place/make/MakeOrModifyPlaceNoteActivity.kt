@@ -18,6 +18,7 @@ import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.ui.features.map.NaverMapActivity
+import com.kjh.mynote.ui.features.place.make.adapter.TempImageListAdapter
 import com.kjh.mynote.utils.DatePickerManager
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.hideKeyboard

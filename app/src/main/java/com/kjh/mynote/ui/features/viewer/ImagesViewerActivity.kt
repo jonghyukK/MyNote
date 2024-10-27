@@ -5,10 +5,10 @@ import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityImagesViewerBinding
 import com.kjh.mynote.ui.base.BaseActivity
+import com.kjh.mynote.ui.features.viewer.adapter.ImagesViewerPagerAdapter
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.

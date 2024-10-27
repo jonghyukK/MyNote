@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.place.calendar
+package com.kjh.mynote.ui.features.place.calendar.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -12,6 +12,7 @@ import com.kjh.mynote.databinding.VhPlaceNoteInCalendarOnePictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarOverPictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarThreePictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarTwoPictureItemBinding
+import com.kjh.mynote.ui.features.place.calendar.CalendarPlaceNoteUiState
 
 /**
  * Created by kangjonghyuk.
