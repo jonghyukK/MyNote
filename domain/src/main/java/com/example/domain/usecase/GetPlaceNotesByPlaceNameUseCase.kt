@@ -15,7 +15,9 @@ import javax.inject.Singleton
  */
 
 @Singleton
-class GetPlaceNotesByPlaceNameUseCase @Inject constructor(private val placeNoteRepository: PlaceNoteRepository) {
+class GetPlaceNotesByPlaceNameUseCase @Inject constructor(
+    private val placeNoteRepository: PlaceNoteRepository
+) {
 
     suspend operator fun invoke(placeName: String): Flow<Result<List<PlaceNote>>> = flow {
         emit(Result.Loading)

@@ -14,7 +14,9 @@ import javax.inject.Singleton
  * Description:
  */
 @Singleton
-class UpsertAndGetPlaceNoteUseCase @Inject constructor(private val placeNoteRepository: PlaceNoteRepository) {
+class UpsertAndGetPlaceNoteUseCase @Inject constructor(
+    private val placeNoteRepository: PlaceNoteRepository
+) {
 
     suspend operator fun invoke(
         placeNote: PlaceNote,

@@ -15,7 +15,8 @@ import javax.inject.Singleton
 
 @Singleton
 class DeletePlaceNoteByIdUseCase @Inject constructor(
-    private val placeNoteRepository: PlaceNoteRepository) {
+    private val placeNoteRepository: PlaceNoteRepository
+) {
 
     suspend operator fun invoke(id: Int): Flow<Result<Int>> = flow {
         emit(Result.Loading)

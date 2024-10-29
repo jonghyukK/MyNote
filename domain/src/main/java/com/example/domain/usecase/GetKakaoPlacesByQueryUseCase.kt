@@ -14,7 +14,9 @@ import javax.inject.Singleton
  * Description:
  */
 @Singleton
-class GetKakaoPlacesByQueryUseCase @Inject constructor(private val kakaoMapRepository: KakaoMapRepository) {
+class GetKakaoPlacesByQueryUseCase @Inject constructor(
+    private val kakaoMapRepository: KakaoMapRepository
+) {
 
     suspend operator fun invoke(query: String): Flow<Result<List<KakaoPlace>>> = flow {
         emit(Result.Loading)
