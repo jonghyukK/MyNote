@@ -2,7 +2,9 @@ package com.kjh.data.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.domain.repository.PlaceNoteRepository
 import com.kjh.data.db.NoteDataBase
+import com.kjh.data.repository.PlaceNoteRepositoryImpl
 import com.kjh.data.source.local.PlaceNoteDao
 import dagger.Module
 import dagger.Provides
@@ -32,5 +34,6 @@ object DatabaseModule {
     }
 
     @Provides
+    @Singleton
     fun providePlaceNoteDao(dataBase: NoteDataBase): PlaceNoteDao = dataBase.placeNoteDao()
 }

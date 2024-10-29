@@ -3,7 +3,7 @@ package com.kjh.data.db
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.kjh.data.db.entity.PlaceNoteEntity
+import com.kjh.data.model.entity.PlaceNoteEntity
 import com.kjh.data.source.local.PlaceNoteDao
 
 /**

@@ -1,6 +1,6 @@
 package com.kjh.data.source.remote
 
-import com.kjh.data.model.KakaoMapResponse
+import com.kjh.data.model.dto.KakaoMapQueryResultDto
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -18,5 +18,5 @@ interface KakaoApiService {
         @Query("query") query: String,
         @Query("page") page: Int = 1,
         @Query("size") size: Int = 15
-    ): Response<KakaoMapResponse>
+    ): Response<KakaoMapQueryResultDto>
 }
