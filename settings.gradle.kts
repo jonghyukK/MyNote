@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 rootProject.name = "MyNote"
 include(":app")
 include(":data")
+include(":domain")
