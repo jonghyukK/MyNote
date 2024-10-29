@@ -9,11 +9,11 @@ import com.kakao.sdk.navi.NaviClient
 import com.kakao.sdk.navi.model.CoordType
 import com.kakao.sdk.navi.model.Location
 import com.kakao.sdk.navi.model.NaviOption
-import com.kjh.data.model.KakaoPlaceModel
-import com.kjh.data.model.PlaceNoteModel
-import com.kjh.data.model.mapToKakaoPlaceModel
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityPlaceMapBinding
+import com.kjh.mynote.model.KakaoPlaceUiModel
+import com.kjh.mynote.model.PlaceNoteUiModel
+import com.kjh.mynote.model.toKakaoPlaceUiModel
 import com.kjh.mynote.ui.base.BaseNaverMapActivity
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.constants.AppConstants.DEFAULT_ZOOM_LEVEL
@@ -36,14 +36,14 @@ import dagger.hilt.android.AndroidEntryPoint
 class PlaceMapActivity: BaseNaverMapActivity<ActivityPlaceMapBinding>({ ActivityPlaceMapBinding.inflate(it) }) {
 
     private var marker: Marker? = null
-    private var placeNoteItem: PlaceNoteModel? = null
+    private var placeNoteItem: PlaceNoteUiModel? = null
 
     override fun onInitView() {
         binding.btnFindRoad.setOnThrottleClickListener(findRoadClickListener)
     }
 
     override fun onInitUiData() {
-        placeNoteItem = intent.parcelable<PlaceNoteModel>(AppConstants.INTENT_PLACE_NOTE_ITEM) ?: run {
+        placeNoteItem = intent.parcelable<PlaceNoteUiModel>(AppConstants.INTENT_PLACE_NOTE_ITEM) ?: run {
             finish()
             return
         }
@@ -52,11 +52,11 @@ class PlaceMapActivity: BaseNaverMapActivity<ActivityPlaceMapBinding>({ Activity
             binding.tvAddress.text = it.placeAddress
             binding.btnFindRoad.isEnable = true
 
-            moveToCamera(it.mapToKakaoPlaceModel())
+            moveToCamera(it.toKakaoPlaceUiModel())
         }
     }
 
-    private fun moveToCamera(placeItem: KakaoPlaceModel) {
+    private fun moveToCamera(placeItem: KakaoPlaceUiModel) {
         val targetLatLng = LatLng(placeItem.y.toDouble(), placeItem.x.toDouble())
         val cameraUpdate = CameraUpdate.scrollAndZoomTo(targetLatLng, DEFAULT_ZOOM_LEVEL)
             .animate(CameraAnimation.None)
@@ -66,7 +66,7 @@ class PlaceMapActivity: BaseNaverMapActivity<ActivityPlaceMapBinding>({ Activity
     }
 
     private fun getMarker(
-        placeItem: KakaoPlaceModel,
+        placeItem: KakaoPlaceUiModel,
         latLng: LatLng
     ): Marker = Marker().apply {
         position = latLng

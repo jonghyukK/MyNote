@@ -1,12 +1,11 @@
 package com.kjh.mynote.ui.features.place.detail.adapter
 
 import androidx.recyclerview.widget.PagerSnapHelper
-import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.databinding.VhPlaceNoteDetailSamePlacesSectionItemBinding
+import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailUi
 import com.kjh.mynote.utils.SpacingItemDecoration
-import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.
@@ -15,7 +14,7 @@ import timber.log.Timber
  */
 class PlaceNoteDetailSamePlaceSectionItemViewHolder(
     private val binding: VhPlaceNoteDetailSamePlacesSectionItemBinding,
-    private val samePlaceItemClickAction: (PlaceNoteModel) -> Unit
+    private val samePlaceItemClickAction: (PlaceNoteUiModel) -> Unit
 ): BaseViewHolder<PlaceNoteDetailUi.SamePlaceNameItem>(binding.root) {
 
     private val listAdapter = PlaceNoteDetailSamePlaceListAdapter(samePlaceItemClickAction)

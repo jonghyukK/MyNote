@@ -5,12 +5,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhPlaceNoteDetailItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteDetailSamePlacesSectionItemBinding
+import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailUi
-import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.
@@ -19,8 +18,8 @@ import timber.log.Timber
  */
 class PlaceNoteDetailUiListAdapter(
     private val imageViewerClickAction: (List<String>, String) -> Unit,
-    private val addressClickAction: (PlaceNoteModel) -> Unit,
-    private val samePlaceItemClickAction: (PlaceNoteModel) -> Unit,
+    private val addressClickAction: (PlaceNoteUiModel) -> Unit,
+    private val samePlaceItemClickAction: (PlaceNoteUiModel) -> Unit,
 ) : ListAdapter<PlaceNoteDetailUi, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {

@@ -2,23 +2,21 @@ package com.kjh.mynote.ui.features.place.detail
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.kjh.data.model.PlaceNoteModel
-import com.kjh.data.model.Result
-import com.kjh.data.repository.NoteRepository
+import com.example.domain.model.Result
+import com.example.domain.usecase.DeletePlaceNoteByIdUseCase
+import com.example.domain.usecase.GetPlaceNoteWithSamePlaceNameNotesUseCase
+import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.model.UiState
+import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.utils.constants.AppConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -29,25 +27,26 @@ import javax.inject.Inject
 
 data class PlaceNoteDetailUiState(
     val isLoading: Boolean = true,
-    val placeNoteItem: PlaceNoteModel? = null,
+    val placeNoteItem: PlaceNoteUiModel? = null,
     val placeNoteDetailUiItems: List<PlaceNoteDetailUi> = emptyList()
 )
 
 sealed class PlaceNoteDetailUi {
 
     data class DetailItem(
-        val placeNoteItem: PlaceNoteModel
+        val placeNoteItem: PlaceNoteUiModel
     ): PlaceNoteDetailUi()
 
     data class SamePlaceNameItem(
         val sectionTitle: String,
-        val placeNoteItems: List<PlaceNoteModel>
+        val placeNoteItems: List<PlaceNoteUiModel>
     ): PlaceNoteDetailUi()
 }
 
 @HiltViewModel
 class PlaceNoteDetailViewModel @Inject constructor(
-    private val noteRepository: NoteRepository,
+    private val getPlaceNoteWithSamePlaceNameNotesUseCase: GetPlaceNoteWithSamePlaceNameNotesUseCase,
+    private val deletePlaceNoteByIdUseCase: DeletePlaceNoteByIdUseCase,
     private val savedStateHandle: SavedStateHandle
 ): BaseViewModel() {
 
@@ -64,7 +63,7 @@ class PlaceNoteDetailViewModel @Inject constructor(
 
     fun getPlaceNoteDetail() {
         viewModelScope.launch {
-            noteRepository.getPlaceNoteWithSamePlaceNameNotes(noteId).collect { result ->
+            getPlaceNoteWithSamePlaceNameNotesUseCase(noteId).collect { result ->
                 when (result) {
                     is Result.Loading -> {
                         _uiState.value = PlaceNoteDetailUiState(isLoading = true)
@@ -77,13 +76,13 @@ class PlaceNoteDetailViewModel @Inject constructor(
                             val (placeNoteItem, samePlaceNameNoteItems) = data
 
                             val uiItems: MutableList<PlaceNoteDetailUi> = mutableListOf()
-                            uiItems.add(PlaceNoteDetailUi.DetailItem(placeNoteItem))
+                            uiItems.add(PlaceNoteDetailUi.DetailItem(placeNoteItem.toUiModel()))
 
                             if (samePlaceNameNoteItems.isNotEmpty()) {
                                 uiItems.add(
                                     PlaceNoteDetailUi.SamePlaceNameItem(
                                         sectionTitle = "다른 날에도 방문했어요!",
-                                        placeNoteItems = samePlaceNameNoteItems
+                                        placeNoteItems = samePlaceNameNoteItems.toUiModel()
                                     )
                                 )
                             }
@@ -91,7 +90,7 @@ class PlaceNoteDetailViewModel @Inject constructor(
                             _uiState.update {
                                 it.copy(
                                     isLoading = false,
-                                    placeNoteItem = placeNoteItem,
+                                    placeNoteItem = placeNoteItem.toUiModel(),
                                     placeNoteDetailUiItems = uiItems
                                 )
                             }
@@ -104,7 +103,7 @@ class PlaceNoteDetailViewModel @Inject constructor(
 
     fun deletePlaceNote() {
         viewModelScope.launch {
-            noteRepository.deletePlaceNoteById(noteId).collect { result ->
+            deletePlaceNoteByIdUseCase(noteId).collect { result ->
                 when (result) {
                     is Result.Loading -> {
                         _deleteEvent.emit(UiState.Loading)

@@ -4,13 +4,13 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.view.View
 import androidx.core.view.isVisible
-import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarFourPictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarOnePictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarOverPictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarThreePictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarTwoPictureItemBinding
+import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.ui.features.place.calendar.CalendarPlaceNoteUiState
 import com.kjh.mynote.utils.extensions.loadImage
@@ -25,7 +25,7 @@ import com.kjh.mynote.utils.extensions.onThrottleClick
 
 class CalendarPlaceNoteOnePictureItemViewHolder(
     private val binding: VhPlaceNoteInCalendarOnePictureItemBinding,
-    private val placeClickAction: (PlaceNoteModel) -> Unit,
+    private val placeClickAction: (PlaceNoteUiModel) -> Unit,
     private val imageClickAction: (List<String>, String) -> Unit
 ): BaseViewHolder<CalendarPlaceNoteUiState.OnePicturePlaceNoteItem>(binding.root) {
 
@@ -55,7 +55,7 @@ class CalendarPlaceNoteOnePictureItemViewHolder(
 
 class CalendarPlaceNoteTwoPictureItemViewHolder(
     private val binding: VhPlaceNoteInCalendarTwoPictureItemBinding,
-    private val placeClickAction: (PlaceNoteModel) -> Unit,
+    private val placeClickAction: (PlaceNoteUiModel) -> Unit,
     private val imageClickAction: (List<String>, String) -> Unit
 ): BaseViewHolder<CalendarPlaceNoteUiState.TwoPicturePlaceNoteItem>(binding.root) {
 
@@ -91,7 +91,7 @@ class CalendarPlaceNoteTwoPictureItemViewHolder(
 
 class CalendarPlaceNoteThreePictureItemViewHolder(
     private val binding: VhPlaceNoteInCalendarThreePictureItemBinding,
-    private val placeClickAction: (PlaceNoteModel) -> Unit,
+    private val placeClickAction: (PlaceNoteUiModel) -> Unit,
     private val imageClickAction: (List<String>, String) -> Unit
 ): BaseViewHolder<CalendarPlaceNoteUiState.ThreePicturePlaceNoteItem>(binding.root) {
 
@@ -133,7 +133,7 @@ class CalendarPlaceNoteThreePictureItemViewHolder(
 
 class CalendarPlaceNoteFourPictureItemViewHolder(
     private val binding: VhPlaceNoteInCalendarFourPictureItemBinding,
-    private val placeClickAction: (PlaceNoteModel) -> Unit,
+    private val placeClickAction: (PlaceNoteUiModel) -> Unit,
     private val imageClickAction: (List<String>, String) -> Unit
 ): BaseViewHolder<CalendarPlaceNoteUiState.FourPicturePlaceNoteItem>(binding.root) {
 
@@ -182,7 +182,7 @@ class CalendarPlaceNoteFourPictureItemViewHolder(
 
 class CalendarPlaceNoteOverPictureItemViewHolder(
     private val binding: VhPlaceNoteInCalendarOverPictureItemBinding,
-    private val placeClickAction: (PlaceNoteModel) -> Unit,
+    private val placeClickAction: (PlaceNoteUiModel) -> Unit,
     private val imageClickAction: (List<String>, String) -> Unit
 ): BaseViewHolder<CalendarPlaceNoteUiState.OverPicturePlaceNoteItem>(binding.root) {
 

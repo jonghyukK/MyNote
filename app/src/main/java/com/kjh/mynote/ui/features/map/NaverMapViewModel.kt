@@ -2,10 +2,11 @@ package com.kjh.mynote.ui.features.map
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.example.domain.model.Result
+import com.example.domain.usecase.GetKakaoPlacesByQueryUseCase
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.kjh.data.model.KakaoPlaceModel
-import com.kjh.data.model.Result
-import com.kjh.data.repository.KakaoMapRepository
+import com.kjh.mynote.model.KakaoPlaceUiModel
+import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.utils.constants.AppConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,19 +29,19 @@ import javax.inject.Inject
 data class NaverMapUiState(
     val isLoading: Boolean = false,
     val isEmpty: Boolean = false,
-    val placeItems: List<KakaoPlaceModel> = emptyList(),
+    val placeItems: List<KakaoPlaceUiModel> = emptyList(),
     val sheetBehavior: Int = BottomSheetBehavior.STATE_HIDDEN,
-    val movingCameraPlaceItem: KakaoPlaceModel? = null
+    val movingCameraPlaceItem: KakaoPlaceUiModel? = null
 )
 
 @HiltViewModel
 class NaverMapViewModel @Inject constructor(
-    private val kakaoMapRepository: KakaoMapRepository,
+    private val getKakaoPlacesByQueryUseCase: GetKakaoPlacesByQueryUseCase,
     private val savedStateHandle: SavedStateHandle
 ): BaseViewModel() {
 
     private val prevAttachedPlaceItem =
-        savedStateHandle.get<KakaoPlaceModel>(AppConstants.INTENT_TEMP_PLACE_ITEM)
+        savedStateHandle.get<KakaoPlaceUiModel>(AppConstants.INTENT_TEMP_PLACE_ITEM)
 
     private val _uiState = MutableStateFlow(NaverMapUiState())
     val uiState = _uiState.asStateFlow()
@@ -67,16 +68,16 @@ class NaverMapViewModel @Inject constructor(
 
     fun getPlacesByQuery(query: String) {
         viewModelScope.launch {
-            kakaoMapRepository.getPlacesByQuery(query)
+            getKakaoPlacesByQueryUseCase(query)
                 .collect { apiResult ->
                     when (apiResult) {
-                        Result.Loading -> {
+                        is Result.Loading -> {
                             _uiState.value = NaverMapUiState(isLoading = true)
                         }
                         is Result.Success -> {
                             delay(500)
 
-                            val placeList = apiResult.data?.documents ?: emptyList()
+                            val placeList = apiResult.data?.toUiModel() ?: emptyList()
                             if (placeList.isNotEmpty()) {
                                 _uiState.update {
                                     it.copy(
@@ -115,7 +116,7 @@ class NaverMapViewModel @Inject constructor(
         }
     }
 
-    fun setMovingCameraPlaceItem(placeItem: KakaoPlaceModel) {
+    fun setMovingCameraPlaceItem(placeItem: KakaoPlaceUiModel) {
         _uiState.update {
             it.copy(movingCameraPlaceItem = placeItem)
         }

@@ -24,6 +24,7 @@ class GetPlaceNoteWithSamePlaceNameNotesUseCase @Inject constructor(
         try {
             val placeNote = placeNoteRepository.getPlaceNoteById(noteId)
             val samePlaceNameNotes = placeNoteRepository.getPlaceNotesByPlaceName(placeNote.placeName)
+                .filter { it.id != noteId }
 
             emit(Result.Success(
                 PlaceNoteWithSamePlaceNameNotes(

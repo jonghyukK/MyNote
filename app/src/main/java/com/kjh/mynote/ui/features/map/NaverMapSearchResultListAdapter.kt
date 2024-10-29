@@ -4,8 +4,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import com.kjh.data.model.KakaoPlaceModel
 import com.kjh.mynote.databinding.VhNaverMapSearchResultItemBinding
+import com.kjh.mynote.model.KakaoPlaceUiModel
 
 /**
  * Created by kangjonghyuk.
@@ -13,9 +13,9 @@ import com.kjh.mynote.databinding.VhNaverMapSearchResultItemBinding
  * Description:
  */
 class NaverMapSearchResultListAdapter(
-    private val onPlaceClickAction: (KakaoPlaceModel) -> Unit,
-    private val onSelectClickAction: (KakaoPlaceModel) -> Unit
-): ListAdapter<KakaoPlaceModel, NaverMapSearchResultItemViewHolder>(UI_MODEL_COMPARATOR) {
+    private val onPlaceClickAction: (KakaoPlaceUiModel) -> Unit,
+    private val onSelectClickAction: (KakaoPlaceUiModel) -> Unit
+): ListAdapter<KakaoPlaceUiModel, NaverMapSearchResultItemViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -32,15 +32,15 @@ class NaverMapSearchResultListAdapter(
     }
 
     companion object {
-        private val UI_MODEL_COMPARATOR = object : DiffUtil.ItemCallback<KakaoPlaceModel>() {
+        private val UI_MODEL_COMPARATOR = object : DiffUtil.ItemCallback<KakaoPlaceUiModel>() {
             override fun areItemsTheSame(
-                oldItem: KakaoPlaceModel,
-                newItem: KakaoPlaceModel
+                oldItem: KakaoPlaceUiModel,
+                newItem: KakaoPlaceUiModel
             ): Boolean = oldItem.id == newItem.id
 
             override fun areContentsTheSame(
-                oldItem: KakaoPlaceModel,
-                newItem: KakaoPlaceModel
+                oldItem: KakaoPlaceUiModel,
+                newItem: KakaoPlaceUiModel
             ): Boolean = oldItem == newItem
         }
     }

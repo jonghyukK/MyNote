@@ -9,8 +9,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.databinding.FragmentCalendarWithPlacesBinding
+import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseFragment
 import com.kjh.mynote.ui.features.place.calendar.adapter.CalendarPlaceListAdapter
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
@@ -61,25 +61,28 @@ class CalendarWithPlacesFragment
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.selectedDayPlaceNotesFlow
-                        .collect { placeItems ->
-                            binding.emptyView.root.isVisible = placeItems.isEmpty()
-                            listAdapter.submitList(placeItems)
+                    viewModel.uiState
+                        .map { it.selectedDayPlaceNoteItems }
+                        .distinctUntilChanged()
+                        .collect { placeNoteItems ->
+                            binding.emptyView.root.isVisible = placeNoteItems.isEmpty()
+                            listAdapter.submitList(placeNoteItems)
                         }
                 }
 
                 launch {
-                    viewModel.thisMonthDatesWithNotesFlow.collect {
-                        binding.myWeekCalendar.updateSelectDayWithEventDates(it)
-                    }
+                    viewModel.uiState
+                        .map { it.selectedDateUiText }
+                        .distinctUntilChanged()
+                        .collect { binding.tvCurrentYearMonth.text = it }
                 }
 
                 launch {
                     viewModel.uiState
-                        .map { it.currentYearMonthText }
+                        .map { it.selectedDay to it.selectedMonthEventDays }
                         .distinctUntilChanged()
-                        .collect { yearMonthText ->
-                            binding.tvCurrentYearMonth.text = yearMonthText
+                        .collect {
+                            binding.myWeekCalendar.updateSelectDayWithEventDates(it)
                         }
                 }
             }
@@ -95,7 +98,7 @@ class CalendarWithPlacesFragment
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK) {
-            val insertedPlaceNoteItem = result.data?.parcelable<PlaceNoteModel>(
+            val insertedPlaceNoteItem = result.data?.parcelable<PlaceNoteUiModel>(
                 AppConstants.INTENT_PLACE_NOTE_ITEM
             ) ?: return@registerForActivityResult
 
@@ -107,7 +110,7 @@ class CalendarWithPlacesFragment
         viewModel.selectDay(localDate)
     }
 
-    private val placeItemClickAction: (PlaceNoteModel) -> Unit = { placeItem ->
+    private val placeItemClickAction: (PlaceNoteUiModel) -> Unit = { placeItem ->
         Intent(requireContext(), PlaceNoteDetailActivity::class.java).apply {
             putExtra(AppConstants.INTENT_NOTE_ID, placeItem.id)
             startActivity(this)

@@ -4,9 +4,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.databinding.VhPlaceNoteDetailSamePlaceItemBinding
-import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailUi
+import com.kjh.mynote.model.PlaceNoteUiModel
 
 /**
  * Created by kangjonghyuk.
@@ -14,8 +13,8 @@ import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailUi
  * Description:
  */
 class PlaceNoteDetailSamePlaceListAdapter(
-    private val samePlaceItemClickAction: (PlaceNoteModel) -> Unit
-) : ListAdapter<PlaceNoteModel, PlaceNoteDetailSamePlaceItemViewHolder>(UI_MODEL_COMPARATOR) {
+    private val samePlaceItemClickAction: (PlaceNoteUiModel) -> Unit
+) : ListAdapter<PlaceNoteUiModel, PlaceNoteDetailSamePlaceItemViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -31,15 +30,15 @@ class PlaceNoteDetailSamePlaceListAdapter(
     }
 
     companion object {
-        private val UI_MODEL_COMPARATOR = object : DiffUtil.ItemCallback<PlaceNoteModel>() {
+        private val UI_MODEL_COMPARATOR = object : DiffUtil.ItemCallback<PlaceNoteUiModel>() {
             override fun areItemsTheSame(
-                oldItem: PlaceNoteModel,
-                newItem: PlaceNoteModel
+                oldItem: PlaceNoteUiModel,
+                newItem: PlaceNoteUiModel
             ): Boolean = oldItem.id == newItem.id
 
             override fun areContentsTheSame(
-                oldItem: PlaceNoteModel,
-                newItem: PlaceNoteModel
+                oldItem: PlaceNoteUiModel,
+                newItem: PlaceNoteUiModel
             ): Boolean = oldItem == newItem
         }
     }

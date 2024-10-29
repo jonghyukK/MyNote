@@ -1,12 +1,14 @@
 package com.kjh.mynote.ui.features.place.make
 
 import androidx.lifecycle.viewModelScope
-import com.kjh.data.model.KakaoPlaceModel
-import com.kjh.data.model.PlaceNoteModel
-import com.kjh.data.model.Result
-import com.kjh.data.model.mapToKakaoPlaceModel
-import com.kjh.data.repository.NoteRepository
+import com.example.domain.model.PlaceNote
+import com.example.domain.model.Result
+import com.example.domain.usecase.UpsertAndGetPlaceNoteUseCase
+import com.kjh.mynote.model.KakaoPlaceUiModel
+import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.model.UiState
+import com.kjh.mynote.model.toKakaoPlaceUiModel
+import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.toStringWithFormat
@@ -26,7 +28,7 @@ import javax.inject.Inject
 data class MakeOrModifyNoteUiState(
     val noteId: Int = -1,
     val tempImageUrls: List<String> = emptyList(),
-    val tempPlaceItem: KakaoPlaceModel? = null,
+    val tempPlaceItem: KakaoPlaceUiModel? = null,
     val visitDate: Long = -1,
     val visitDateText: String = "",
     val title: String = "",
@@ -35,13 +37,13 @@ data class MakeOrModifyNoteUiState(
 
 @HiltViewModel
 class MakeOrModifyPlaceNoteViewModel @Inject constructor(
-    private val noteRepository: NoteRepository
+    private val upsertAndGetPlaceNoteUseCase: UpsertAndGetPlaceNoteUseCase
 ): BaseViewModel() {
 
     private val _uiState = MutableStateFlow(MakeOrModifyNoteUiState())
     val uiState = _uiState.asStateFlow()
 
-    private val _upsertPlaceNoteEvent = MutableSharedFlow<UiState<PlaceNoteModel>>()
+    private val _upsertPlaceNoteEvent = MutableSharedFlow<UiState<PlaceNoteUiModel>>()
     val upsertPlaceNoteEvent = _upsertPlaceNoteEvent.asSharedFlow()
 
     val saveValidateFlow = _uiState.map {
@@ -58,8 +60,8 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
 
     fun upsertPlaceNote() {
         viewModelScope.launch {
-            noteRepository.upsertPlaceNote(
-                placeNoteModel = convertUiStateToPlaceNoteModel(),
+            upsertAndGetPlaceNoteUseCase(
+                placeNote = convertUiStateToPlaceNoteModel(),
                 noteId = _uiState.value.noteId
             ).collect { result ->
                 when (result) {
@@ -68,7 +70,8 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
                     }
                     is Result.Success -> {
                         delay(700)
-                        val upsertPlaceNote = result.data
+
+                        val upsertPlaceNote = result.data?.toUiModel()
                         upsertPlaceNote?.let {
                             _upsertPlaceNoteEvent.emit(UiState.Success(it))
                         }
@@ -103,7 +106,7 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
         }
     }
 
-    fun setTempPlaceItem(placeItem: KakaoPlaceModel) {
+    fun setTempPlaceItem(placeItem: KakaoPlaceUiModel) {
         _uiState.update {
             it.copy(tempPlaceItem = placeItem)
         }
@@ -135,7 +138,7 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
     }
 
     private fun convertUiStateToPlaceNoteModel() = with(_uiState.value) {
-        PlaceNoteModel(
+        PlaceNote(
             placeImages = tempImageUrls,
             placeName = tempPlaceItem?.placeName ?: "",
             placeAddress = tempPlaceItem?.addressName ?: "",
@@ -148,12 +151,12 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
         )
     }
 
-    fun setPlaceNoteItemForModifying(placeNoteModel: PlaceNoteModel) {
+    fun setPlaceNoteItemForModifying(placeNoteModel: PlaceNoteUiModel) {
         _uiState.update {
             it.copy(
                 noteId = placeNoteModel.id,
                 tempImageUrls = placeNoteModel.placeImages,
-                tempPlaceItem = placeNoteModel.mapToKakaoPlaceModel(),
+                tempPlaceItem = placeNoteModel.toKakaoPlaceUiModel(),
                 visitDate = placeNoteModel.visitDate,
                 visitDateText = placeNoteModel.visitDate.toStringWithFormat("yyyy-MM-dd (E)"),
                 title = placeNoteModel.noteTitle,

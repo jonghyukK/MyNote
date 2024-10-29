@@ -2,15 +2,14 @@ package com.kjh.mynote.ui.features.place.detail.adapter
 
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
-import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhPlaceNoteDetailItemBinding
+import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.ui.common.listener.OnNestedHorizontalTouchListener
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailUi
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.toStringWithFormat
-import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.
@@ -20,7 +19,7 @@ import timber.log.Timber
 class PlaceNoteDetailItemViewHolder(
     private val binding: VhPlaceNoteDetailItemBinding,
     private val imageViewerClickAction: (List<String>, String) -> Unit,
-    private val addressClickAction: (PlaceNoteModel) -> Unit
+    private val addressClickAction: (PlaceNoteUiModel) -> Unit
 ): BaseViewHolder<PlaceNoteDetailUi.DetailItem>(binding.root) {
 
     private var imagePagerAdapter: PlaceNoteDetailPagerAdapter? = null

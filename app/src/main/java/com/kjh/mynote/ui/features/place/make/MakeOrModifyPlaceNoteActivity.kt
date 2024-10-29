@@ -10,10 +10,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.datepicker.MaterialDatePicker
-import com.kjh.data.model.KakaoPlaceModel
-import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityMakePlaceNoteBinding
+import com.kjh.mynote.model.KakaoPlaceUiModel
+import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.base.BaseViewModel
@@ -68,7 +68,7 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
             viewModel.setVisitDate(tempVisitDate)
         }
 
-        val placeNoteItem = intent.parcelable<PlaceNoteModel>(AppConstants.INTENT_PLACE_NOTE_ITEM)
+        val placeNoteItem = intent.parcelable<PlaceNoteUiModel>(AppConstants.INTENT_PLACE_NOTE_ITEM)
         placeNoteItem?.let {
             viewModel.setPlaceNoteItemForModifying(it)
         }
@@ -239,7 +239,7 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
     private val searchPlaceResultLauncher = registerStartActivityResultLauncher(
         resultOkBlock = { result ->
             val placeItem =
-                result.data?.parcelable<KakaoPlaceModel>(AppConstants.INTENT_TEMP_PLACE_ITEM)
+                result.data?.parcelable<KakaoPlaceUiModel>(AppConstants.INTENT_TEMP_PLACE_ITEM)
                     ?: return@registerStartActivityResultLauncher
 
             viewModel.setTempPlaceItem(placeItem)

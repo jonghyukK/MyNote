@@ -5,13 +5,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarFourPictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarOnePictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarOverPictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarThreePictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarTwoPictureItemBinding
+import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.features.place.calendar.CalendarPlaceNoteUiState
 
 /**
@@ -20,7 +20,7 @@ import com.kjh.mynote.ui.features.place.calendar.CalendarPlaceNoteUiState
  * Description:
  */
 class CalendarPlaceListAdapter(
-    private val placeClickAction: (PlaceNoteModel) -> Unit,
+    private val placeClickAction: (PlaceNoteUiModel) -> Unit,
     private val imageClickAction: (List<String>, String) -> Unit
 ): ListAdapter<CalendarPlaceNoteUiState, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
 

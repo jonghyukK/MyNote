@@ -12,9 +12,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
-import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityPlaceNoteDetailBinding
+import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.common.components.MyDefaultDialog
@@ -133,7 +133,7 @@ class PlaceNoteDetailActivity
     private val modifyResultLauncher = registerStartActivityResultLauncher(
         resultOkBlock = { result ->
             val updatedNoteItem =
-                result.data?.parcelable<PlaceNoteModel>(AppConstants.INTENT_PLACE_NOTE_ITEM)
+                result.data?.parcelable<PlaceNoteUiModel>(AppConstants.INTENT_PLACE_NOTE_ITEM)
             updatedNoteItem?.let {
                 viewModel.getPlaceNoteDetail()
             }
@@ -166,14 +166,14 @@ class PlaceNoteDetailActivity
         }
     }
 
-    private val addressClickAction: (PlaceNoteModel) -> Unit = { item ->
+    private val addressClickAction: (PlaceNoteUiModel) -> Unit = { item ->
         Intent(this@PlaceNoteDetailActivity, PlaceMapActivity::class.java).apply {
             putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, item)
             startActivity(this)
         }
     }
 
-    private val samePlaceItemClickAction: (PlaceNoteModel) -> Unit = { item ->
+    private val samePlaceItemClickAction: (PlaceNoteUiModel) -> Unit = { item ->
         Intent(this@PlaceNoteDetailActivity, PlaceNoteDetailActivity::class.java).apply {
             putExtra(AppConstants.INTENT_NOTE_ID, item.id)
             startActivity(this)

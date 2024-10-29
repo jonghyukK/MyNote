@@ -1,7 +1,7 @@
 package com.kjh.mynote.ui.features.place.detail.adapter
 
-import com.kjh.data.model.PlaceNoteModel
 import com.kjh.mynote.databinding.VhPlaceNoteDetailSamePlaceItemBinding
+import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.utils.extensions.loadImage
 import com.kjh.mynote.utils.extensions.onThrottleClick
@@ -14,8 +14,8 @@ import com.kjh.mynote.utils.extensions.toStringWithFormat
  */
 class PlaceNoteDetailSamePlaceItemViewHolder(
     private val binding: VhPlaceNoteDetailSamePlaceItemBinding,
-    private val samePlaceItemClickAction: (PlaceNoteModel) -> Unit
-): BaseViewHolder<PlaceNoteModel>(binding.root) {
+    private val samePlaceItemClickAction: (PlaceNoteUiModel) -> Unit
+): BaseViewHolder<PlaceNoteUiModel>(binding.root) {
 
     init {
         itemView.onThrottleClick {
@@ -23,7 +23,7 @@ class PlaceNoteDetailSamePlaceItemViewHolder(
         }
     }
 
-    override fun bind(item: PlaceNoteModel) {
+    override fun bind(item: PlaceNoteUiModel) {
         super.bind(item)
 
         with (binding) {

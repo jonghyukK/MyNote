@@ -8,6 +8,8 @@ package com.kjh.mynote.utils.constants
 
 object AppConstants {
 
+    const val KAKAO_NATIVE_APP_KEY = "79e88727c7586d935f2b1f62a6a13e68"
+
     const val INTENT_NOTE_ID = "INTENT_NOTE_ID"
     const val INTENT_TEMP_PLACE_ITEM = "INTENT_TEMP_PLACE_ITEM"
     const val INTENT_PLACE_VISIT_DATE = "INTENT_PLACE_VISIT_DATE"

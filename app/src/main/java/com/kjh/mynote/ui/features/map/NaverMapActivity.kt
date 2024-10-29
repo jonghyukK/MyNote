@@ -14,9 +14,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
-import com.kjh.data.model.KakaoPlaceModel
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityNaverMapBinding
+import com.kjh.mynote.model.KakaoPlaceUiModel
 import com.kjh.mynote.ui.base.BaseNaverMapActivity
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.constants.AppConstants.DEFAULT_ZOOM_LEVEL
@@ -139,7 +139,7 @@ class NaverMapActivity
         super.onDestroy()
     }
 
-    private fun updateCamera(placeItem: KakaoPlaceModel) {
+    private fun updateCamera(placeItem: KakaoPlaceUiModel) {
         clearPrevMarker()
 
         val targetLatLng = LatLng(placeItem.y.toDouble(), placeItem.x.toDouble())
@@ -155,7 +155,7 @@ class NaverMapActivity
     }
 
     private fun getMarker(
-        placeItem: KakaoPlaceModel,
+        placeItem: KakaoPlaceUiModel,
         latLng: LatLng
     ): Marker = Marker().apply {
         position = latLng
@@ -203,11 +203,11 @@ class NaverMapActivity
         }
     }
 
-    private val onPlaceClickAction: (KakaoPlaceModel) -> Unit = { item ->
+    private val onPlaceClickAction: (KakaoPlaceUiModel) -> Unit = { item ->
         viewModel.setMovingCameraPlaceItem(item)
     }
 
-    private val onSelectClickAction: (KakaoPlaceModel) -> Unit = { item ->
+    private val onSelectClickAction: (KakaoPlaceUiModel) -> Unit = { item ->
         Intent().apply {
             putExtra(AppConstants.INTENT_TEMP_PLACE_ITEM, item)
             setResult(RESULT_OK, this)
