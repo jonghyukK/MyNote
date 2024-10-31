@@ -47,23 +47,4 @@ class PlaceNoteRepositoryImpl @Inject constructor(
 
     override suspend fun getPlaceNotesByPlaceName(placeName: String): List<PlaceNote> =
         noteLocalDataSource.getPlaceNotesByPlaceName(placeName).toDomainModel()
-
-//    suspend fun getPlaceNoteWithSamePlaceNameNotes(noteId: Int): Flow<Result<PlaceNoteWithSamePlacesModel>> = flow {
-//        emit(Result.Loading)
-//
-//        try {
-//            val placeNote = noteLocalDataSource.getPlaceNoteById(noteId)
-//            val samePlaceNameNotes = noteLocalDataSource.getPlaceNotesByPlaceName(placeNote.placeName)
-//                .filter { it.id != noteId }
-//
-//            val model = PlaceNoteWithSamePlacesModel(
-//                placeNoteModel = placeNote.toDomainModel(),
-//                samePlaceNameNoteModels = samePlaceNameNotes.toDomainModel()
-//            )
-//
-//            emit(Result.Success(model))
-//        } catch (e: Exception) {
-//            emit(Result.Error(e.message))
-//        }
-//    }
 }
