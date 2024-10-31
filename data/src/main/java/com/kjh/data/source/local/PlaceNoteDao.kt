@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface PlaceNoteDao {
 
-    @Query("SELECT * FROM places")
+    @Query("SELECT * FROM places ORDER BY visitDate DESC")
     fun observeAll(): Flow<List<PlaceNoteEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
