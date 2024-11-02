@@ -41,7 +41,11 @@ class PlaceNoteWeekViewTypeFragment
     private val viewModel: PlaceNoteWeekViewTypeViewModel by viewModels()
 
     private val listAdapter: PlaceNoteWeekViewTypeListAdapter by lazy {
-        PlaceNoteWeekViewTypeListAdapter(placeItemClickAction, placeImageClickAction)
+        PlaceNoteWeekViewTypeListAdapter(
+            placeClickAction = placeItemClickAction,
+            imageClickAction = placeImageClickAction,
+            makeNoteClickAction = makeNoteClickAction
+        )
     }
 
     private val spacingItemDecoration = SpacingItemDecoration(top = 20)
@@ -58,7 +62,6 @@ class PlaceNoteWeekViewTypeFragment
             myWeekCalendar.setDayClickAction(weekDayClickAction)
 
             clYearMonth.setOnThrottleClickListener(currentYearMonthClickListener)
-            emptyView.btnMakePlace.setOnThrottleClickListener(makeNoteButtonClickListener)
         }
     }
 
@@ -67,7 +70,6 @@ class PlaceNoteWeekViewTypeFragment
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     parentViewModel.selectedDay.collect {
-                        Timber.tag("abc123 PlaceNoteWeekViewTypeFragment").e("parent selectedDay : $it")
                         viewModel.setSelectedDay(it)
                     }
                 }
@@ -77,7 +79,6 @@ class PlaceNoteWeekViewTypeFragment
                         .map { it.selectedDayPlaceNoteItems }
                         .distinctUntilChanged()
                         .collect { placeNoteItems ->
-                            binding.emptyView.root.isVisible = placeNoteItems.isEmpty()
                             listAdapter.submitList(placeNoteItems)
                         }
                 }
@@ -124,6 +125,15 @@ class PlaceNoteWeekViewTypeFragment
         }
     }
 
+    private val makeNoteClickAction: () -> Unit = {
+        val selectedDay = parentViewModel.getSelectedDate().toMillis()
+
+        Intent(requireContext(), MakeOrModifyPlaceNoteActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_PLACE_VISIT_DATE, selectedDay)
+            makeNoteResultLauncher.launch(this)
+        }
+    }
+
     private val placeImageClickAction: (List<String>, String) -> Unit = { images, clickedImage ->
         Intent(requireContext(), ImagesViewerActivity::class.java).apply {
             putExtra(AppConstants.INTENT_IMAGE_LIST, ArrayList(images))
@@ -135,15 +145,6 @@ class PlaceNoteWeekViewTypeFragment
     private val currentYearMonthClickListener = OnClickListener {
         CalendarMonthBSDialog.newInstance()
             .show(parentFragmentManager, CalendarMonthBSDialog.TAG)
-    }
-
-    private val makeNoteButtonClickListener = OnClickListener {
-        val selectedDay = parentViewModel.getSelectedDate().toMillis()
-
-        Intent(requireContext(), MakeOrModifyPlaceNoteActivity::class.java).apply {
-            putExtra(AppConstants.INTENT_PLACE_VISIT_DATE, selectedDay)
-            makeNoteResultLauncher.launch(this)
-        }
     }
 
     companion object {

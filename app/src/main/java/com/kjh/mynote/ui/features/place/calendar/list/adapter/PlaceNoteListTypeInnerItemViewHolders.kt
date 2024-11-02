@@ -1,6 +1,5 @@
 package com.kjh.mynote.ui.features.place.calendar.list.adapter
 
-import com.kjh.mynote.databinding.LayoutEmptyMyPlacesBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarHeaderBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarListTypePlaceItemBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
@@ -23,7 +22,7 @@ class PlaceNoteListTypeInnerHeaderItemViewHolder(
     override fun bind(item: ListTypeCalendarPlaceNoteUI.HeaderItem) {
         super.bind(item)
 
-        binding.tvDay.text = item.localDate.toStringWithPattern("d일")
+        binding.tvDay.text = item.localDate.toStringWithPattern("d일 (E)")
     }
 }
 
@@ -41,21 +40,12 @@ class PlaceNoteListTypeInnerContentsItemViewHolder(
     override fun bind(item: ListTypeCalendarPlaceNoteUI.PlaceNoteItem) {
         super.bind(item)
 
-        binding.ivImage.loadImage(item.item.placeImages[0])
-        binding.tvPlaceName.text = item.item.placeName
-        binding.tvPlaceArea.text = item.item.placeRegion
-    }
-}
-
-
-class PlaceNoteListTypeInnerEmptyItemViewHolder(
-    private val binding: LayoutEmptyMyPlacesBinding,
-    private val makeNoteClickAction: () -> Unit
-): BaseViewHolder<Unit>(binding.root) {
-
-    init {
-        binding.btnMakePlace.onThrottleClick {
-            makeNoteClickAction.invoke()
+        with (binding) {
+            ivImage.loadImage(item.item.placeImages[0])
+            tvPlaceName.text = item.item.placeName
+            tvPlaceArea.text = item.item.placeRegion
         }
     }
 }
+
+

@@ -6,12 +6,14 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.kjh.mynote.R
+import com.kjh.mynote.databinding.LayoutEmptyMyPlacesBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarFourPictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarOnePictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarOverPictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarThreePictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarTwoPictureItemBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
+import com.kjh.mynote.ui.common.components.vh.CommonPlaceNotesEmptyItemViewHolder
 import com.kjh.mynote.ui.features.place.calendar.weekview.WeekViewTypeCalendarPlaceNoteUI
 
 /**
@@ -21,13 +23,22 @@ import com.kjh.mynote.ui.features.place.calendar.weekview.WeekViewTypeCalendarPl
  */
 class PlaceNoteWeekViewTypeListAdapter(
     private val placeClickAction: (PlaceNoteUiModel) -> Unit,
-    private val imageClickAction: (List<String>, String) -> Unit
+    private val imageClickAction: (List<String>, String) -> Unit,
+    private val makeNoteClickAction: () -> Unit
 ): ListAdapter<WeekViewTypeCalendarPlaceNoteUI, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
     ) = when (viewType) {
+        R.layout.layout_empty_my_places -> {
+            CommonPlaceNotesEmptyItemViewHolder(
+                LayoutEmptyMyPlacesBinding.inflate(
+                    LayoutInflater.from(parent.context), parent, false
+                ), makeNoteClickAction
+            )
+        }
+
         R.layout.vh_place_note_in_calendar_one_picture_item -> {
             CalendarPlaceNoteOnePictureItemViewHolder(
                 VhPlaceNoteInCalendarOnePictureItemBinding.inflate(
@@ -72,6 +83,9 @@ class PlaceNoteWeekViewTypeListAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = getItem(position)) {
+            is WeekViewTypeCalendarPlaceNoteUI.EmptyItem ->
+                (holder as CommonPlaceNotesEmptyItemViewHolder).bind(Unit)
+
             is WeekViewTypeCalendarPlaceNoteUI.OnePicturePlaceNoteItem ->
                 (holder as CalendarPlaceNoteOnePictureItemViewHolder).bind(item)
 
@@ -90,6 +104,9 @@ class PlaceNoteWeekViewTypeListAdapter(
     }
 
     override fun getItemViewType(position: Int) = when (getItem(position)) {
+        is WeekViewTypeCalendarPlaceNoteUI.EmptyItem ->
+            R.layout.layout_empty_my_places
+
         is WeekViewTypeCalendarPlaceNoteUI.OnePicturePlaceNoteItem ->
             R.layout.vh_place_note_in_calendar_one_picture_item
 

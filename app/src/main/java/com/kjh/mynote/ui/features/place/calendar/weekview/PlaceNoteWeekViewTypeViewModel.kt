@@ -44,6 +44,8 @@ sealed class WeekViewTypeCalendarPlaceNoteUI {
         val item: PlaceNoteUiModel,
         val remainImgCount: Int
     ) : WeekViewTypeCalendarPlaceNoteUI()
+
+    object EmptyItem: WeekViewTypeCalendarPlaceNoteUI()
 }
 
 @HiltViewModel
@@ -70,7 +72,7 @@ class PlaceNoteWeekViewTypeViewModel @Inject constructor(
 
         WeekViewTypeUiState(
             selectedDay = selectedDay,
-            selectedDayPlaceNoteItems = notesInDay.map { makeWeekViewTypePlaceNoteItems(it) },
+            selectedDayPlaceNoteItems = makeWeekViewTypePlaceNoteItems(notesInDay),
             selectedMonthEventDays = eventDatesInMonth
         )
     }.stateIn(
@@ -93,16 +95,22 @@ class PlaceNoteWeekViewTypeViewModel @Inject constructor(
         return dates.filter { date -> date.year == selectedDay.year && date.month == selectedDay.month }
     }
 
-    private fun makeWeekViewTypePlaceNoteItems(placeNoteItem: PlaceNoteUiModel): WeekViewTypeCalendarPlaceNoteUI {
-        return when (placeNoteItem.placeImages.size) {
-            1 -> WeekViewTypeCalendarPlaceNoteUI.OnePicturePlaceNoteItem(placeNoteItem)
-            2 -> WeekViewTypeCalendarPlaceNoteUI.TwoPicturePlaceNoteItem(placeNoteItem)
-            3 -> WeekViewTypeCalendarPlaceNoteUI.ThreePicturePlaceNoteItem(placeNoteItem)
-            4 -> WeekViewTypeCalendarPlaceNoteUI.FourPicturePlaceNoteItem(placeNoteItem)
-            else -> WeekViewTypeCalendarPlaceNoteUI.OverPicturePlaceNoteItem(
-                item = placeNoteItem,
-                remainImgCount = placeNoteItem.placeImages.size - 5
-            )
+    private fun makeWeekViewTypePlaceNoteItems(placeNotes: List<PlaceNoteUiModel>): List<WeekViewTypeCalendarPlaceNoteUI> {
+        if (placeNotes.isEmpty()) {
+            return listOf(WeekViewTypeCalendarPlaceNoteUI.EmptyItem)
+        }
+
+        return placeNotes.map { note ->
+            when (note.placeImages.size) {
+                1 -> WeekViewTypeCalendarPlaceNoteUI.OnePicturePlaceNoteItem(note)
+                2 -> WeekViewTypeCalendarPlaceNoteUI.TwoPicturePlaceNoteItem(note)
+                3 -> WeekViewTypeCalendarPlaceNoteUI.ThreePicturePlaceNoteItem(note)
+                4 -> WeekViewTypeCalendarPlaceNoteUI.FourPicturePlaceNoteItem(note)
+                else -> WeekViewTypeCalendarPlaceNoteUI.OverPicturePlaceNoteItem(
+                    item = note,
+                    remainImgCount = note.placeImages.size - 5
+                )
+            }
         }
     }
 }

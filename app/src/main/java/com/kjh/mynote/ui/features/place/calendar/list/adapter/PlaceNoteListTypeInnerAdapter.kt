@@ -10,6 +10,7 @@ import com.kjh.mynote.databinding.LayoutEmptyMyPlacesBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarHeaderBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarListTypePlaceItemBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
+import com.kjh.mynote.ui.common.components.vh.CommonPlaceNotesEmptyItemViewHolder
 import com.kjh.mynote.ui.features.place.calendar.list.ListTypeCalendarPlaceNoteUI
 
 /**
@@ -39,7 +40,7 @@ class PlaceNoteListTypeInnerAdapter(
             )
         }
         R.layout.layout_empty_my_places -> {
-            PlaceNoteListTypeInnerEmptyItemViewHolder(
+            CommonPlaceNotesEmptyItemViewHolder(
                 LayoutEmptyMyPlacesBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
                 ), makeNoteClickAction
@@ -57,15 +58,20 @@ class PlaceNoteListTypeInnerAdapter(
                 (holder as PlaceNoteListTypeInnerContentsItemViewHolder).bind(item)
             }
             is ListTypeCalendarPlaceNoteUI.EmptyItem -> {
-                (holder as PlaceNoteListTypeInnerEmptyItemViewHolder).bind(Unit)
+                (holder as CommonPlaceNotesEmptyItemViewHolder).bind(Unit)
             }
         }
     }
 
     override fun getItemViewType(position: Int) = when (getItem(position)) {
-        is ListTypeCalendarPlaceNoteUI.HeaderItem -> R.layout.vh_place_note_in_calendar_header
-        is ListTypeCalendarPlaceNoteUI.PlaceNoteItem -> R.layout.vh_place_note_in_calendar_list_type_place_item
-        is ListTypeCalendarPlaceNoteUI.EmptyItem -> R.layout.layout_empty_my_places
+        is ListTypeCalendarPlaceNoteUI.HeaderItem ->
+            R.layout.vh_place_note_in_calendar_header
+
+        is ListTypeCalendarPlaceNoteUI.PlaceNoteItem ->
+            R.layout.vh_place_note_in_calendar_list_type_place_item
+
+        is ListTypeCalendarPlaceNoteUI.EmptyItem ->
+            R.layout.layout_empty_my_places
     }
 
     companion object {
