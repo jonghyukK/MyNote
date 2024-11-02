@@ -69,7 +69,7 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
                         _upsertPlaceNoteEvent.emit(UiState.Loading)
                     }
                     is Result.Success -> {
-                        delay(700)
+                        delay(500)
 
                         val upsertPlaceNote = result.data?.toUiModel()
                         upsertPlaceNote?.let {
@@ -77,7 +77,7 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
                         }
                     }
                     is Result.Error -> {
-                        emitError("장소 노트 저장이 실패하였습니다.")
+                        _upsertPlaceNoteEvent.emit(UiState.Error("장소 노트 저장이 실패하였습니다."))
                     }
                 }
             }

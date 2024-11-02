@@ -9,6 +9,7 @@ import com.kizitonwose.calendar.core.WeekDay
 import com.kizitonwose.calendar.core.WeekDayPosition
 import com.kizitonwose.calendar.core.atStartOfMonth
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
+import com.kizitonwose.calendar.core.yearMonth
 import com.kizitonwose.calendar.view.ViewContainer
 import com.kizitonwose.calendar.view.WeekDayBinder
 import com.kjh.mynote.R
@@ -18,6 +19,7 @@ import com.kjh.mynote.utils.extensions.getDrawableCompat
 import com.kjh.mynote.utils.extensions.makeInVisible
 import com.kjh.mynote.utils.extensions.makeVisible
 import com.kjh.mynote.utils.extensions.setTextColorRes
+import timber.log.Timber
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -79,7 +81,8 @@ class MyWeekCalendarView @JvmOverloads constructor(
     }
 
     private fun setupWeekData() = with(binding.calendarView) {
-        val currentMonth = YearMonth.now()
+
+        val currentMonth = selectedDate.yearMonth
         setup(
             currentMonth.minusMonths(0).atStartOfMonth(),
             currentMonth.plusMonths(0).atEndOfMonth(),
@@ -140,9 +143,10 @@ class MyWeekCalendarView @JvmOverloads constructor(
 
     fun updateSelectDayWithEventDates(selectedDateAndEventDates: Pair<LocalDate, List<LocalDate>>) {
         val (newDay, eventList) = selectedDateAndEventDates
-        if (newDay == selectedDate && eventList == thisMonthEventList) {
-            return
-        }
+//        if (newDay == selectedDate && eventList == thisMonthEventList) {
+//            Timber.tag("abc123").e("updateSelectDayWithEventDates : return ..")
+//            return
+//        }
 
         val isYearOrMonthDifferent =
             selectedDate.year != newDay.year || selectedDate.month != newDay.month
@@ -153,7 +157,13 @@ class MyWeekCalendarView @JvmOverloads constructor(
             !isInit -> {
                 selectedDate = newDay
                 thisMonthEventList = eventList
-                binding.root.notifyCalendarChanged()
+
+                if (isYearOrMonthDifferent) {
+                    updateWeekData(selectedDate)
+                } else {
+                    binding.root.notifyCalendarChanged()
+                }
+
                 isInit = true
             }
             isYearOrMonthDifferent -> {

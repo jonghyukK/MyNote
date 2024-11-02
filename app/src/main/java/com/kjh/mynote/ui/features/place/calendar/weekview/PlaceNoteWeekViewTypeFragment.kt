@@ -1,10 +1,11 @@
-package com.kjh.mynote.ui.features.place.calendar
+package com.kjh.mynote.ui.features.place.calendar.weekview
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.view.View.OnClickListener
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -12,7 +13,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.mynote.databinding.FragmentCalendarWithPlacesBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseFragment
-import com.kjh.mynote.ui.features.place.calendar.adapter.CalendarPlaceListAdapter
+import com.kjh.mynote.ui.features.place.calendar.dialog.CalendarMonthBSDialog
+import com.kjh.mynote.ui.features.place.calendar.PlaceNoteCalendarHomeViewModel
+import com.kjh.mynote.ui.features.place.calendar.weekview.adapter.PlaceNoteWeekViewTypeListAdapter
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
 import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
 import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity
@@ -21,21 +24,24 @@ import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.toMillis
+import com.kjh.mynote.utils.extensions.toStringWithPattern
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.LocalDate
 
 
 @AndroidEntryPoint
-class CalendarWithPlacesFragment
+class PlaceNoteWeekViewTypeFragment
     : BaseFragment<FragmentCalendarWithPlacesBinding>({ FragmentCalendarWithPlacesBinding.inflate(it) }) {
 
-    private val viewModel: CalendarWithPlacesViewModel by viewModels()
+    private val parentViewModel: PlaceNoteCalendarHomeViewModel by activityViewModels()
+    private val viewModel: PlaceNoteWeekViewTypeViewModel by viewModels()
 
-    private val listAdapter: CalendarPlaceListAdapter by lazy {
-        CalendarPlaceListAdapter(placeItemClickAction, placeImageClickAction)
+    private val listAdapter: PlaceNoteWeekViewTypeListAdapter by lazy {
+        PlaceNoteWeekViewTypeListAdapter(placeItemClickAction, placeImageClickAction)
     }
 
     private val spacingItemDecoration = SpacingItemDecoration(top = 20)
@@ -53,13 +59,19 @@ class CalendarWithPlacesFragment
 
             clYearMonth.setOnThrottleClickListener(currentYearMonthClickListener)
             emptyView.btnMakePlace.setOnThrottleClickListener(makeNoteButtonClickListener)
-            fabMakeNote.setOnThrottleClickListener(fabButtonClickListener)
         }
     }
 
     override fun onInitData() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    parentViewModel.selectedDay.collect {
+                        Timber.tag("abc123 PlaceNoteWeekViewTypeFragment").e("parent selectedDay : $it")
+                        viewModel.setSelectedDay(it)
+                    }
+                }
+
                 launch {
                     viewModel.uiState
                         .map { it.selectedDayPlaceNoteItems }
@@ -72,16 +84,10 @@ class CalendarWithPlacesFragment
 
                 launch {
                     viewModel.uiState
-                        .map { it.selectedDateUiText }
-                        .distinctUntilChanged()
-                        .collect { binding.tvCurrentYearMonth.text = it }
-                }
-
-                launch {
-                    viewModel.uiState
                         .map { it.selectedDay to it.selectedMonthEventDays }
                         .distinctUntilChanged()
                         .collect {
+                            binding.tvCurrentYearMonth.text = it.first.toStringWithPattern("yyyy년 MM월")
                             binding.myWeekCalendar.updateSelectDayWithEventDates(it)
                         }
                 }
@@ -90,8 +96,9 @@ class CalendarWithPlacesFragment
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
         binding.rvNotes.removeItemDecoration(spacingItemDecoration)
+        binding.rvNotes.adapter = null
+        super.onDestroyView()
     }
 
     private val makeNoteResultLauncher = registerForActivityResult(
@@ -102,12 +109,12 @@ class CalendarWithPlacesFragment
                 AppConstants.INTENT_PLACE_NOTE_ITEM
             ) ?: return@registerForActivityResult
 
-            viewModel.selectDay(insertedPlaceNoteItem.localDate)
+            parentViewModel.selectDay(insertedPlaceNoteItem.localDate)
         }
     }
 
     private val weekDayClickAction: (LocalDate) -> Unit = { localDate ->
-        viewModel.selectDay(localDate)
+        parentViewModel.selectDay(localDate)
     }
 
     private val placeItemClickAction: (PlaceNoteUiModel) -> Unit = { placeItem ->
@@ -127,11 +134,11 @@ class CalendarWithPlacesFragment
 
     private val currentYearMonthClickListener = OnClickListener {
         CalendarMonthBSDialog.newInstance()
-            .show(childFragmentManager, CalendarMonthBSDialog.TAG)
+            .show(parentFragmentManager, CalendarMonthBSDialog.TAG)
     }
 
     private val makeNoteButtonClickListener = OnClickListener {
-        val selectedDay = viewModel.getSelectedDate().toMillis()
+        val selectedDay = parentViewModel.getSelectedDate().toMillis()
 
         Intent(requireContext(), MakeOrModifyPlaceNoteActivity::class.java).apply {
             putExtra(AppConstants.INTENT_PLACE_VISIT_DATE, selectedDay)
@@ -139,14 +146,8 @@ class CalendarWithPlacesFragment
         }
     }
 
-    private val fabButtonClickListener = OnClickListener {
-        Intent(requireContext(), MakeOrModifyPlaceNoteActivity::class.java).apply {
-            makeNoteResultLauncher.launch(this)
-        }
-    }
-
     companion object {
         const val TAG = "MyPlaceFragment"
-        fun newInstance() = CalendarWithPlacesFragment()
+        fun newInstance() = PlaceNoteWeekViewTypeFragment()
     }
 }

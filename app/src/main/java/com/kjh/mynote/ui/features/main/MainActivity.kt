@@ -5,8 +5,8 @@ import com.google.android.material.navigation.NavigationBarView.OnItemSelectedLi
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityMainBinding
 import com.kjh.mynote.ui.base.BaseActivity
-import com.kjh.mynote.ui.features.place.calendar.CalendarWithPlacesFragment
 import com.kjh.mynote.ui.features.main.product.MyProductFragment
+import com.kjh.mynote.ui.features.place.calendar.PlaceNoteCalendarHomeFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -49,7 +49,7 @@ class MainActivity: BaseActivity<ActivityMainBinding>({ ActivityMainBinding.infl
     }
 
     private fun getFragmentBy(tag: String) = when (tag) {
-        CalendarWithPlacesFragment.TAG -> CalendarWithPlacesFragment.newInstance()
+        PlaceNoteCalendarHomeFragment.TAG -> PlaceNoteCalendarHomeFragment.newInstance()
         MyProductFragment.TAG -> MyProductFragment.newInstance()
         else -> throw Exception("Wrong Fragment Tag")
     }
@@ -67,7 +67,7 @@ class MainActivity: BaseActivity<ActivityMainBinding>({ ActivityMainBinding.infl
 
     companion object {
         enum class MainFragments(val tag: String) {
-            CALENDAR_WITH_PLACES_FRAGMENT(CalendarWithPlacesFragment.TAG),
+            CALENDAR_WITH_PLACES_FRAGMENT(PlaceNoteCalendarHomeFragment.TAG),
             MY_PRODUCT_FRAGMENT(MyProductFragment.TAG)
         }
     }

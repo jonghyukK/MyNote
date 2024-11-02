@@ -1,9 +1,10 @@
-package com.kjh.mynote.ui.features.place.calendar
+package com.kjh.mynote.ui.features.place.calendar.dialog
 
 import android.view.View
 import android.view.View.OnClickListener
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.children
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -22,6 +23,8 @@ import com.kjh.mynote.databinding.BsdCalendarMonthBinding
 import com.kjh.mynote.databinding.CalendarDayBinding
 import com.kjh.mynote.databinding.CalendarHeaderBinding
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
+import com.kjh.mynote.ui.features.place.calendar.PlaceNoteCalendarHomeViewModel
+import com.kjh.mynote.ui.features.place.calendar.weekview.PlaceNoteWeekViewTypeViewModel
 import com.kjh.mynote.utils.extensions.getDrawableCompat
 import com.kjh.mynote.utils.extensions.makeInVisible
 import com.kjh.mynote.utils.extensions.makeVisible
@@ -43,7 +46,8 @@ import java.util.Locale
 class CalendarMonthBSDialog
     : BaseBottomSheetDialogFragment<BsdCalendarMonthBinding>({ BsdCalendarMonthBinding.inflate(it) }) {
 
-    private val parentViewModel: CalendarWithPlacesViewModel by viewModels({ requireParentFragment()} )
+        private val mainViewModel: PlaceNoteCalendarHomeViewModel by activityViewModels()
+    private val parentViewModel: PlaceNoteWeekViewTypeViewModel by viewModels({ requireParentFragment()} )
 
     private lateinit var currentYearMonth: LocalDate
 
@@ -60,7 +64,7 @@ class CalendarMonthBSDialog
     override fun onInitData() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                parentViewModel.allPlaceNotesFlow.collect { map ->
+                parentViewModel.groupedNotesByDateFlow.collect { map ->
                     map.keys.forEach {
                         binding.calendarMonthView.notifyDateChanged(it)
                     }
@@ -71,7 +75,7 @@ class CalendarMonthBSDialog
 
     private fun onInitCalendarMonthView() {
         val daysOfWeek = daysOfWeek()
-        val currentMonth = parentViewModel.getSelectedDate().yearMonth
+        val currentMonth = mainViewModel.getSelectedDate().yearMonth
         val startMonth = currentMonth.minusMonths(50)
         val endMonth = currentMonth.plusMonths(50)
 
@@ -90,7 +94,7 @@ class CalendarMonthBSDialog
     }
 
     private fun selectDate(date: LocalDate) {
-        parentViewModel.selectDay(date)
+        mainViewModel.selectDay(date)
         dialog?.dismiss()
     }
 
@@ -129,7 +133,7 @@ class CalendarMonthBSDialog
                 }
 
                 // 해당 일의 이벤트 존재 여부..
-                val hasEventThisDay = parentViewModel.allPlaceNotesFlow.value.keys.contains(data.date)
+                val hasEventThisDay = parentViewModel.groupedNotesByDateFlow.value.keys.contains(data.date)
 
                 with (container.binding.tvHas) {
                     if (isDayInThisMonth && hasEventThisDay) makeVisible() else makeInVisible()

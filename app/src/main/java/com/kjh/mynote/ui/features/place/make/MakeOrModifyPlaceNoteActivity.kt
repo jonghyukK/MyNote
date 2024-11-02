@@ -153,15 +153,24 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
 
                 launch {
                     viewModel.upsertPlaceNoteEvent.collect { upsertResult ->
-                        binding.btnSave.isLoading = upsertResult is UiState.Loading
-                        binding.etNoteContents.hideKeyboard()
-
-                        if (upsertResult is UiState.Success) {
-                            Intent().apply {
-                                putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, upsertResult.data)
-                                setResult(RESULT_OK, this)
-                                finish()
+                        when (upsertResult) {
+                            is UiState.Loading -> {
+                                binding.btnSave.isLoading = true
+                                binding.etNoteContents.hideKeyboard()
                             }
+                            is UiState.Error -> {
+                                binding.btnSave.isLoading = false
+                                showToast(upsertResult.errorMsg)
+                            }
+                            is UiState.Success -> {
+                                binding.btnSave.isLoading = false
+                                Intent().apply {
+                                    putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, upsertResult.data)
+                                    setResult(RESULT_OK, this)
+                                    finish()
+                                }
+                            }
+                            else -> {}
                         }
                     }
                 }
