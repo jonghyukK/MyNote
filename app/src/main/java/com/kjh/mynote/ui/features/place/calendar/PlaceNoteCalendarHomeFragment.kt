@@ -21,6 +21,8 @@ import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /**
@@ -44,39 +46,59 @@ class PlaceNoteCalendarHomeFragment: BaseFragment<FragmentPlaceNoteCalendarBindi
     override fun onInitData() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    viewModel.displayType.collect { viewType ->
-                        when (viewType) {
-                            DisplayType.WEEK_VIEW -> {
-                                binding.fabChangeViewType.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_list_24))
-                                replaceFragmentBy(PlaceNoteWeekViewTypeFragment.TAG)
-                            }
-                            DisplayType.LIST -> {
-                                binding.fabChangeViewType.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_calendar_24_purple))
-                                replaceFragmentBy(PlaceNoteListTypeFragment.TAG)
-                            }
-                        }
+                viewModel.uiState
+                    .map { it.displayType }
+                    .distinctUntilChanged()
+                    .collect { viewType ->
+                        changeFragmentBy(viewType)
+                        changeToggleDisplayTypeFabIcon(viewType)
                     }
-                }
             }
         }
     }
 
-    private fun replaceFragmentBy(tag: String) {
-        var targetFragment = childFragmentManager.findFragmentByTag(tag)
+    private fun changeFragmentBy(viewType: DisplayType) {
+        val targetFragmentType = when (viewType) {
+            DisplayType.WEEK_VIEW -> CalendarChildFragments.WEEK_VIEW_TYPE_FRAGMENT
+            DisplayType.LIST -> CalendarChildFragments.LIST_TYPE_FRAGMENT
+        }
+
+        var targetFragment = childFragmentManager.findFragmentByTag(targetFragmentType.tag)
 
         childFragmentManager.commit {
             if (targetFragment == null) {
-                targetFragment = getFragmentBy(tag)
+                targetFragment = getFragmentBy(targetFragmentType)
+                add(R.id.fcv_container, targetFragment!!, targetFragmentType.tag)
             }
-            replace(R.id.fcv_container, targetFragment!!, tag)
+
+            targetFragment?.let { show(it) }
+
+            CalendarChildFragments.entries
+                .filterNot { it == targetFragmentType }
+                .forEach { type ->
+                    childFragmentManager.findFragmentByTag(type.tag)?.let { hide(it) }
+                }
         }
     }
 
-    private fun getFragmentBy(tag: String) = when (tag) {
-        PlaceNoteWeekViewTypeFragment.TAG -> PlaceNoteWeekViewTypeFragment.newInstance()
-        PlaceNoteListTypeFragment.TAG -> PlaceNoteListTypeFragment.newInstance()
-        else -> throw Exception("Wrong Fragment Tag")
+    private fun getFragmentBy(type: CalendarChildFragments) = when (type) {
+        CalendarChildFragments.WEEK_VIEW_TYPE_FRAGMENT -> {
+            PlaceNoteWeekViewTypeFragment.newInstance()
+        }
+        CalendarChildFragments.LIST_TYPE_FRAGMENT -> {
+            PlaceNoteListTypeFragment.newInstance()
+        }
+    }
+
+    private fun changeToggleDisplayTypeFabIcon(viewType: DisplayType) {
+        val icon = when (viewType) {
+            DisplayType.WEEK_VIEW ->
+                ContextCompat.getDrawable(requireContext(), R.drawable.ic_list_24)
+            DisplayType.LIST ->
+                ContextCompat.getDrawable(requireContext(), R.drawable.ic_calendar_24_purple)
+        }
+
+        binding.fabChangeViewType.setImageDrawable(icon)
     }
 
     private val makeNoteResultLauncher = registerForActivityResult(
@@ -103,6 +125,11 @@ class PlaceNoteCalendarHomeFragment: BaseFragment<FragmentPlaceNoteCalendarBindi
 
     companion object {
         const val TAG = "PlaceNoteCalendarHomeFragment"
+
+        enum class CalendarChildFragments(val tag: String) {
+            LIST_TYPE_FRAGMENT(PlaceNoteListTypeFragment.TAG),
+            WEEK_VIEW_TYPE_FRAGMENT(PlaceNoteWeekViewTypeFragment.TAG)
+        }
 
         fun newInstance(): PlaceNoteCalendarHomeFragment {
             return PlaceNoteCalendarHomeFragment()
