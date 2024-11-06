@@ -11,7 +11,7 @@ import com.kjh.mynote.databinding.VhPlaceNoteInCalendarHeaderBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarListTypePlaceItemBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.common.components.vh.CommonPlaceNotesEmptyItemViewHolder
-import com.kjh.mynote.ui.features.place.calendar.list.ListTypeCalendarPlaceNoteUI
+import com.kjh.mynote.ui.features.place.calendar.ListTypeCalendarPlaceNoteUI
 
 /**
  * Created by kangjonghyuk.
@@ -85,6 +85,9 @@ class PlaceNoteListTypeInnerAdapter(
             } else if (oldItem is ListTypeCalendarPlaceNoteUI.PlaceNoteItem
                 && newItem is ListTypeCalendarPlaceNoteUI.PlaceNoteItem) {
                 oldItem.item.id == newItem.item.id
+            } else if (oldItem is ListTypeCalendarPlaceNoteUI.EmptyItem
+                && newItem is ListTypeCalendarPlaceNoteUI.EmptyItem) {
+              true
             } else {
                 false
             }

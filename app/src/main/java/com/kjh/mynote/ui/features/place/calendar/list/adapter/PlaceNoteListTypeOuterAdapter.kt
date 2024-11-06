@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarListTypeBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
-import com.kjh.mynote.ui.features.place.calendar.list.MonthWithPlaceNotesItem
+import com.kjh.mynote.ui.features.place.calendar.MonthWithPlaceNotesItem
 
 /**
  * Created by kangjonghyuk.

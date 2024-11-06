@@ -1,10 +1,9 @@
 package com.kjh.mynote.ui.features.place.calendar.list.adapter
 
-import androidx.core.view.isVisible
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarListTypeBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.place.calendar.list.MonthWithPlaceNotesItem
+import com.kjh.mynote.ui.features.place.calendar.MonthWithPlaceNotesItem
 
 /**
  * Created by kangjonghyuk.
@@ -22,15 +21,13 @@ class PlaceNoteListTypeOuterItemViewHolder(
 
     init {
         binding.rvList.apply {
+            itemAnimator = null
             adapter = innerListAdapter
         }
     }
 
     override fun bind(item: MonthWithPlaceNotesItem) {
         super.bind(item)
-
         innerListAdapter.submitList(item.placeNoteItems)
-
-        binding.str.clEmptyView.isVisible = item.placeNoteItems.isEmpty()
     }
 }

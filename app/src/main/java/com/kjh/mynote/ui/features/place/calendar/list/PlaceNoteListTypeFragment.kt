@@ -1,14 +1,14 @@
 package com.kjh.mynote.ui.features.place.calendar.list
 
-import android.app.Activity.RESULT_OK
 import android.content.Intent
-import androidx.activity.result.contract.ActivityResultContracts
+import android.view.View.OnClickListener
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import com.kjh.mynote.R
 import com.kjh.mynote.databinding.FragmentPlaceNoteListTypeBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseFragment
@@ -17,10 +17,11 @@ import com.kjh.mynote.ui.features.place.calendar.list.adapter.PlaceNoteListTypeO
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
 import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
 import com.kjh.mynote.utils.constants.AppConstants
-import com.kjh.mynote.utils.extensions.parcelable
+import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.toMillis
 import com.kjh.mynote.utils.extensions.toStringWithPattern
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -34,8 +35,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class PlaceNoteListTypeFragment: BaseFragment<FragmentPlaceNoteListTypeBinding>({ FragmentPlaceNoteListTypeBinding.inflate(it) }) {
 
-    private val parentViewModel: PlaceNoteCalendarHomeViewModel by activityViewModels()
-    private val viewModel: PlaceNoteListTypeViewModel by viewModels()
+    private val viewModel: PlaceNoteCalendarHomeViewModel by activityViewModels()
 
     private val listAdapter: PlaceNoteListTypeOuterAdapter by lazy {
         PlaceNoteListTypeOuterAdapter(placeItemClickAction, makeNoteClickAction)
@@ -44,15 +44,21 @@ class PlaceNoteListTypeFragment: BaseFragment<FragmentPlaceNoteListTypeBinding>(
     private var currentPos = 0
 
     override fun onInitView() {
-        binding.vpPager.apply {
-            adapter = listAdapter
-            registerOnPageChangeCallback(object: OnPageChangeCallback() {
-                override fun onPageSelected(position: Int) {
-                    super.onPageSelected(position)
-                    currentPos = position
-                    parentViewModel.selectDay(viewModel.findDateUsingPagerPosition(position))
-                }
-            })
+        with (binding) {
+            ivArrowLeft.setOnThrottleClickListener(prevPageClickListener)
+            ivArrowRight.setOnThrottleClickListener(nextPageClickListener)
+
+            vpPager.apply {
+                adapter = listAdapter
+                offscreenPageLimit = 3
+                registerOnPageChangeCallback(object: OnPageChangeCallback() {
+                    override fun onPageSelected(position: Int) {
+                        super.onPageSelected(position)
+                        currentPos = position
+                        viewModel.setSelectedMonth(position)
+                    }
+                })
+            }
         }
     }
 
@@ -60,7 +66,7 @@ class PlaceNoteListTypeFragment: BaseFragment<FragmentPlaceNoteListTypeBinding>(
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.uiState
+                    viewModel.listUiState
                         .map { it.currentMonth }
                         .distinctUntilChanged()
                         .collect {
@@ -69,12 +75,12 @@ class PlaceNoteListTypeFragment: BaseFragment<FragmentPlaceNoteListTypeBinding>(
                 }
 
                 launch {
-                    viewModel.uiState
+                    viewModel.listUiState
                         .map { it.currentPagePos to it.monthsWithInMonthPlaceNoteItems }
                         .distinctUntilChanged()
-                        .collect { (pagerPos, list) ->
+                        .collectLatest { (pagerPos, list) ->
                             listAdapter.submitList(list) {
-                                if (currentPos != pagerPos) {
+                                if (currentPos != pagerPos && pagerPos > -1) {
                                     binding.vpPager.setCurrentItem(pagerPos, false)
                                 }
                             }
@@ -82,9 +88,15 @@ class PlaceNoteListTypeFragment: BaseFragment<FragmentPlaceNoteListTypeBinding>(
                 }
 
                 launch {
-                    parentViewModel.selectedDay.collect { date ->
-                        viewModel.setTargetDate(date.withDayOfMonth(1))
-                    }
+                    viewModel.listUiState
+                        .map { it.isLastPage }
+                        .distinctUntilChanged()
+                        .collect { isLastPage ->
+                            with (binding.ivArrowRight) {
+                                isClickable = !isLastPage
+                                setColorFilter(getNextMonthButtonColorRes(isLastPage))
+                            }
+                        }
                 }
             }
         }
@@ -95,17 +107,12 @@ class PlaceNoteListTypeFragment: BaseFragment<FragmentPlaceNoteListTypeBinding>(
         super.onDestroyView()
     }
 
-    private val makeNoteResultLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            val insertedPlaceNoteItem = result.data?.parcelable<PlaceNoteUiModel>(
-                AppConstants.INTENT_PLACE_NOTE_ITEM
-            ) ?: return@registerForActivityResult
-
-            parentViewModel.selectDay(insertedPlaceNoteItem.localDate)
+    private fun getNextMonthButtonColorRes(isLastPage: Boolean) =
+        if (isLastPage) {
+            ContextCompat.getColor(requireContext(), R.color.black_400)
+        } else {
+            ContextCompat.getColor(requireContext(), R.color.black_800)
         }
-    }
 
     private val placeItemClickAction: (PlaceNoteUiModel) -> Unit = { placeItem ->
         Intent(requireContext(), PlaceNoteDetailActivity::class.java).apply {
@@ -115,12 +122,20 @@ class PlaceNoteListTypeFragment: BaseFragment<FragmentPlaceNoteListTypeBinding>(
     }
 
     private val makeNoteClickAction: () -> Unit = {
-        val selectedDay = viewModel.uiState.value.currentMonth.toMillis()
+        val selectedDay = viewModel.listUiState.value.currentMonth.toMillis()
 
         Intent(requireContext(), MakeOrModifyPlaceNoteActivity::class.java).apply {
             putExtra(AppConstants.INTENT_PLACE_VISIT_DATE, selectedDay)
-            makeNoteResultLauncher.launch(this)
+            startActivity(this)
         }
+    }
+
+    private val prevPageClickListener = OnClickListener {
+        viewModel.moveToPrevMonth()
+    }
+
+    private val nextPageClickListener = OnClickListener {
+        viewModel.moveToNextMonth()
     }
 
     companion object {

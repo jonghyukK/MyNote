@@ -14,7 +14,4 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
-    <include
-        android:id="@+id/str"
-        layout="@layout/layout_empty_my_places" />
 </androidx.constraintlayout.widget.ConstraintLayout>

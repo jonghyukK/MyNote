@@ -4,7 +4,7 @@ import com.kjh.mynote.databinding.VhPlaceNoteInCalendarHeaderBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarListTypePlaceItemBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.place.calendar.list.ListTypeCalendarPlaceNoteUI
+import com.kjh.mynote.ui.features.place.calendar.ListTypeCalendarPlaceNoteUI
 import com.kjh.mynote.utils.extensions.loadImage
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.toStringWithPattern
