@@ -46,13 +46,10 @@ class PlaceNoteCalendarHomeFragment: BaseFragment<FragmentPlaceNoteCalendarBindi
     override fun onInitData() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState
-                    .map { it.displayType }
-                    .distinctUntilChanged()
-                    .collect { viewType ->
-                        changeFragmentBy(viewType)
-                        changeToggleDisplayTypeFabIcon(viewType)
-                    }
+                viewModel.displayType.collect { viewType ->
+                    changeFragmentBy(viewType)
+                    changeToggleDisplayTypeFabIcon(viewType)
+                }
             }
         }
     }
@@ -109,7 +106,7 @@ class PlaceNoteCalendarHomeFragment: BaseFragment<FragmentPlaceNoteCalendarBindi
                 AppConstants.INTENT_PLACE_NOTE_ITEM
             ) ?: return@registerForActivityResult
 
-            viewModel.selectDay(insertedPlaceNoteItem.localDate)
+            viewModel.setSelectedDate(insertedPlaceNoteItem.localDate)
         }
     }
 

@@ -14,7 +14,7 @@ import com.kjh.mynote.databinding.VhPlaceNoteInCalendarThreePictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarTwoPictureItemBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.common.components.vh.CommonPlaceNotesEmptyItemViewHolder
-import com.kjh.mynote.ui.features.place.calendar.weekview.WeekViewTypeCalendarPlaceNoteUI
+import com.kjh.mynote.ui.features.place.calendar.WeekViewTypeCalendarPlaceNoteUI
 
 /**
  * Created by kangjonghyuk.

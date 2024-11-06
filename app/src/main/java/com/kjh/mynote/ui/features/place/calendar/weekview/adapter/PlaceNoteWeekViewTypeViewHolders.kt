@@ -12,7 +12,7 @@ import com.kjh.mynote.databinding.VhPlaceNoteInCalendarThreePictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarTwoPictureItemBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.place.calendar.weekview.WeekViewTypeCalendarPlaceNoteUI
+import com.kjh.mynote.ui.features.place.calendar.WeekViewTypeCalendarPlaceNoteUI
 import com.kjh.mynote.utils.extensions.loadImage
 import com.kjh.mynote.utils.extensions.onThrottleClick
 
