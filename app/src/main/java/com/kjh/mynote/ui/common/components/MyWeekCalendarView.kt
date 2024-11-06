@@ -1,6 +1,7 @@
 package com.kjh.mynote.ui.common.components
 
 import android.content.Context
+import android.icu.util.LocaleData
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -68,6 +69,8 @@ class MyWeekCalendarView @JvmOverloads constructor(
             override fun create(view: View) = DayViewContainer(view)
             override fun bind(container: DayViewContainer, data: WeekDay) {
                 container.day = data
+                container.view.isClickable = !data.date.isAfter(LocalDate.now())
+
                 bindDay(
                     dayBinding = container.dayBinding,
                     data = data,
@@ -123,9 +126,25 @@ class MyWeekCalendarView @JvmOverloads constructor(
         // 일 Layouts..
         val isSelectedDate = data.date == selectedDate
         val isDayInThisMonth = data.position == WeekDayPosition.RangeDate
+        val isAfterDayFromToday = data.date.isAfter(LocalDate.now())
+        val isToday = data.date == LocalDate.now()
 
-        val dayTextColor = if (isSelectedDate) selectedDayTextColor else unselectedDayTextColor
-        val dayBgColor = if (isSelectedDate) selectedDayBgColor else unselectedDayBgColor
+        val dayTextColor = if (isAfterDayFromToday) {
+            afterDayTextColor
+        } else if (isSelectedDate) {
+            selectedDayTextColor
+        } else {
+            unselectedDayTextColor
+        }
+
+        val dayBgColor = if (isSelectedDate) {
+            selectedDayBgColor
+        } else if (isToday) {
+            todayBgBgColor
+        } else {
+            unselectedDayBgColor
+        }
+
         val dayText = DateTimeFormatter.ofPattern("d").format(data.date)
 
         with (dayBinding.tvDateText) {
@@ -143,10 +162,6 @@ class MyWeekCalendarView @JvmOverloads constructor(
 
     fun updateSelectDayWithEventDates(selectedDateAndEventDates: Pair<LocalDate, List<LocalDate>>) {
         val (newDay, eventList) = selectedDateAndEventDates
-//        if (newDay == selectedDate && eventList == thisMonthEventList) {
-//            Timber.tag("abc123").e("updateSelectDayWithEventDates : return ..")
-//            return
-//        }
 
         val isYearOrMonthDifferent =
             selectedDate.year != newDay.year || selectedDate.month != newDay.month
@@ -199,5 +214,9 @@ class MyWeekCalendarView @JvmOverloads constructor(
 
         private val selectedDayBgColor = R.drawable.shape_s_black_900_c_999
         private val unselectedDayBgColor = R.drawable.ripple_white
+        private val todayBgBgColor = R.drawable.shape_c_999_l_purple
+
+        private val afterDayTextColor = R.color.black_500
+
     }
 }

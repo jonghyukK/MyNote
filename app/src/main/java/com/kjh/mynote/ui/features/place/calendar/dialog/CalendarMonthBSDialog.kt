@@ -24,7 +24,6 @@ import com.kjh.mynote.databinding.CalendarDayBinding
 import com.kjh.mynote.databinding.CalendarHeaderBinding
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
 import com.kjh.mynote.ui.features.place.calendar.PlaceNoteCalendarHomeViewModel
-import com.kjh.mynote.ui.features.place.calendar.weekview.PlaceNoteWeekViewTypeViewModel
 import com.kjh.mynote.utils.extensions.getDrawableCompat
 import com.kjh.mynote.utils.extensions.makeInVisible
 import com.kjh.mynote.utils.extensions.makeVisible
@@ -46,14 +45,14 @@ import java.util.Locale
 class CalendarMonthBSDialog
     : BaseBottomSheetDialogFragment<BsdCalendarMonthBinding>({ BsdCalendarMonthBinding.inflate(it) }) {
 
-        private val mainViewModel: PlaceNoteCalendarHomeViewModel by activityViewModels()
-    private val parentViewModel: PlaceNoteWeekViewTypeViewModel by viewModels({ requireParentFragment()} )
+    private val viewModel: PlaceNoteCalendarHomeViewModel by activityViewModels()
 
+    private var todayDate = LocalDate.now()
     private lateinit var currentYearMonth: LocalDate
 
     override fun onInitView() {
         onInitCalendarMonthView()
-        setYearMonthTitle(parentViewModel.getSelectedDate())
+        setYearMonthTitle(viewModel.getSelectedDate())
 
         with (binding) {
             ivArrowLeft.setOnThrottleClickListener(onLeftArrowClickListener)
@@ -64,8 +63,8 @@ class CalendarMonthBSDialog
     override fun onInitData() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                parentViewModel.groupedNotesByDateFlow.collect { map ->
-                    map.keys.forEach {
+                viewModel.groupedNotesByLocalDateFlow.collect { eventLists ->
+                    eventLists.keys.forEach {
                         binding.calendarMonthView.notifyDateChanged(it)
                     }
                 }
@@ -75,14 +74,14 @@ class CalendarMonthBSDialog
 
     private fun onInitCalendarMonthView() {
         val daysOfWeek = daysOfWeek()
-        val currentMonth = mainViewModel.getSelectedDate().yearMonth
+        val currentMonth = viewModel.getSelectedDate().yearMonth
         val startMonth = currentMonth.minusMonths(50)
         val endMonth = currentMonth.plusMonths(50)
 
         configureBinders(daysOfWeek)
 
         with (binding.calendarMonthView) {
-            setup(startMonth, endMonth,daysOfWeek.first())
+            setup(startMonth, endMonth, daysOfWeek.first())
             monthScrollListener = monthViewScrollListener
             scrollToMonth(currentMonth)
         }
@@ -94,7 +93,7 @@ class CalendarMonthBSDialog
     }
 
     private fun selectDate(date: LocalDate) {
-        mainViewModel.selectDay(date)
+        viewModel.setSelectedDate(date)
         dialog?.dismiss()
     }
 
@@ -116,24 +115,23 @@ class CalendarMonthBSDialog
             override fun create(view: View) = DayViewContainer(view)
             override fun bind(container: DayViewContainer, data: CalendarDay) {
                 container.day = data
+                container.view.isClickable = !data.date.isAfter(todayDate)
 
                 // 일 View..
-                val dayText = data.date.dayOfMonth.toString()
-                val isSelectedDate = data.date == parentViewModel.getSelectedDate()
+                val isSelectedDate = data.date == viewModel.getSelectedDate()
                 val isDayInThisMonth = data.position == DayPosition.MonthDate
-
-                val dayTextColor = if (isSelectedDate) R.color.white else R.color.black_900
-                val dayBgColor = if (isSelectedDate) R.drawable.shape_s_black_900_c_999 else R.drawable.ripple_white
+                val isAfterDayFromToday = data.date.isAfter(todayDate)
+                val isToday = data.date == todayDate
 
                 with (container.binding.tvDateText) {
                     if (isDayInThisMonth) makeVisible() else makeInVisible()
-                    text = dayText
-                    setTextColorRes(dayTextColor)
-                    background = context.getDrawableCompat(dayBgColor)
+                    text = data.date.dayOfMonth.toString()
+                    background = context.getDrawableCompat(getDayBgColorRes(isSelectedDate, isToday))
+                    setTextColorRes(getDayTextColorRes(isSelectedDate, isAfterDayFromToday))
                 }
 
                 // 해당 일의 이벤트 존재 여부..
-                val hasEventThisDay = parentViewModel.groupedNotesByDateFlow.value.keys.contains(data.date)
+                val hasEventThisDay = viewModel.groupedNotesByLocalDateFlow.value.keys.contains(data.date)
 
                 with (container.binding.tvHas) {
                     if (isDayInThisMonth && hasEventThisDay) makeVisible() else makeInVisible()
@@ -165,6 +163,18 @@ class CalendarMonthBSDialog
                     }
                 }
             }
+    }
+
+    private fun getDayTextColorRes(isSelectedDay: Boolean, isAfterDayFromToday: Boolean) = when {
+        isSelectedDay -> R.color.white
+        isAfterDayFromToday -> R.color.black_500
+        else -> R.color.black_900
+    }
+
+    private fun getDayBgColorRes(isSelectedDay: Boolean, isToday: Boolean) = when {
+        isSelectedDay -> R.drawable.shape_s_black_900_c_999
+        isToday -> R.drawable.shape_c_999_l_purple
+        else -> R.drawable.ripple_white
     }
 
     private val monthViewScrollListener: MonthScrollListener = { date ->
