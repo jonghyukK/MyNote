@@ -1,6 +1,9 @@
 package com.kjh.mynote.utils.extensions
 
 import android.content.Context
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
@@ -41,6 +44,7 @@ fun View.setOnThrottleClickListener(listener: View.OnClickListener) {
 }
 
 fun AppCompatEditText.hideKeyboard() {
+    this.clearFocus()
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.hideSoftInputFromWindow(windowToken, 0)
 }
@@ -54,4 +58,21 @@ fun AppCompatImageView.loadImage(url: String) {
         .error(R.drawable.ic_launcher_foreground)
         .transition(DrawableTransitionOptions.withCrossFade())
         .into(this)
+}
+
+fun AppCompatTextView.highlightText(fullText: String, wordToHighlight: String) {
+    val spannableString = SpannableString(fullText)
+    val startIndex = fullText.indexOf(wordToHighlight, ignoreCase = true)
+
+    if (startIndex != -1) {
+        // 특정 단어의 시작 위치를 찾았을 때 색상을 변경
+        spannableString.setSpan(
+            ForegroundColorSpan(context.getColorCompat(R.color.purple)),
+            startIndex,
+            startIndex + wordToHighlight.length,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+    }
+
+    text = spannableString
 }

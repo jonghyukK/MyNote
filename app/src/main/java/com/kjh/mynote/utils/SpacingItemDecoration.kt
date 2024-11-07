@@ -16,6 +16,7 @@ class SpacingItemDecoration(
     private val top: Int = 0,
     private val right: Int = 0,
     private val bottom: Int = 0,
+    private val exceptFirstItem: Boolean = true
 ): RecyclerView.ItemDecoration() {
 
     override fun getItemOffsets(
@@ -27,23 +28,25 @@ class SpacingItemDecoration(
         super.getItemOffsets(outRect, view, parent, state)
 
         val position = parent.layoutManager?.getPosition(view) ?: NO_POSITION
-        if (position != 0) {
 
-            if (left > 0) {
-                outRect.left = left.dpToPx()
-            }
+        if (exceptFirstItem && position == 0) {
+            return
+        }
 
-            if (right > 0) {
-                outRect.right = right.dpToPx()
-            }
+        if (left > 0) {
+            outRect.left = left.dpToPx()
+        }
 
-            if (top > 0) {
-                outRect.top = top.dpToPx()
-            }
+        if (right > 0) {
+            outRect.right = right.dpToPx()
+        }
 
-            if (bottom > 0) {
-                outRect.bottom = bottom.dpToPx()
-            }
+        if (top > 0) {
+            outRect.top = top.dpToPx()
+        }
+
+        if (bottom > 0) {
+            outRect.bottom = bottom.dpToPx()
         }
     }
 }

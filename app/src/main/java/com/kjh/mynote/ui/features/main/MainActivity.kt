@@ -5,8 +5,8 @@ import com.google.android.material.navigation.NavigationBarView.OnItemSelectedLi
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityMainBinding
 import com.kjh.mynote.ui.base.BaseActivity
-import com.kjh.mynote.ui.features.main.product.MyProductFragment
 import com.kjh.mynote.ui.features.place.calendar.PlaceNoteCalendarHomeFragment
+import com.kjh.mynote.ui.features.search.SearchFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -50,14 +50,14 @@ class MainActivity: BaseActivity<ActivityMainBinding>({ ActivityMainBinding.infl
 
     private fun getFragmentBy(tag: String) = when (tag) {
         PlaceNoteCalendarHomeFragment.TAG -> PlaceNoteCalendarHomeFragment.newInstance()
-        MyProductFragment.TAG -> MyProductFragment.newInstance()
+        SearchFragment.TAG -> SearchFragment.newInstance()
         else -> throw Exception("Wrong Fragment Tag")
     }
 
     private val bnvOnItemSelectedListener = OnItemSelectedListener { item ->
         val tag = when (item.itemId) {
             R.id.nav_place -> MainFragments.CALENDAR_WITH_PLACES_FRAGMENT.tag
-            R.id.nav_product -> MainFragments.MY_PRODUCT_FRAGMENT.tag
+            R.id.nav_search -> MainFragments.SEARCH_FRAGMENT.tag
             else -> throw Exception("Wrong MenuItem Id")
         }
 
@@ -68,7 +68,7 @@ class MainActivity: BaseActivity<ActivityMainBinding>({ ActivityMainBinding.infl
     companion object {
         enum class MainFragments(val tag: String) {
             CALENDAR_WITH_PLACES_FRAGMENT(PlaceNoteCalendarHomeFragment.TAG),
-            MY_PRODUCT_FRAGMENT(MyProductFragment.TAG)
+            SEARCH_FRAGMENT(SearchFragment.TAG)
         }
     }
 }

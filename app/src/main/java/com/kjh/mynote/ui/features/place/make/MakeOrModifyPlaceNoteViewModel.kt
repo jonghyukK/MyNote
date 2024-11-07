@@ -142,7 +142,7 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
             placeImages = tempImageUrls,
             placeName = tempPlaceItem?.placeName ?: "",
             placeAddress = tempPlaceItem?.addressName ?: "",
-            placeRoadAddress = tempPlaceItem?.roadAddressName ?: "",
+            placeRoadAddress = tempPlaceItem?.roadAddressName,
             x = tempPlaceItem?.x ?: "",
             y = tempPlaceItem?.y ?: "",
             visitDate = visitDate,

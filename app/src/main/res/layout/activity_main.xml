@@ -19,12 +19,14 @@
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bnv_main"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="63dp"
         app:backgroundTint="@color/white"
         app:elevation="10dp"
         app:menu="@menu/menu_main_bottom_nav"
         app:labelVisibilityMode="labeled"
         app:itemActiveIndicatorStyle="@null"
+        app:itemPaddingTop="10dp"
+        app:itemPaddingBottom="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

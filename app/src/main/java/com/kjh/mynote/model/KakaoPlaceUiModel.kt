@@ -15,7 +15,7 @@ data class KakaoPlaceUiModel(
     val id: String,
     val placeName: String,
     val addressName: String,
-    val roadAddressName: String? = "",
+    val roadAddressName: String? = null,
     val x: String,
     val y: String
 ): Parcelable
