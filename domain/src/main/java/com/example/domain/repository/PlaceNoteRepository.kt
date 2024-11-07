@@ -1,6 +1,7 @@
 package com.example.domain.repository
 
 import com.example.domain.model.PlaceNote
+import com.example.domain.model.SearchPlaceNoteWithCount
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -22,4 +23,6 @@ interface PlaceNoteRepository {
     suspend fun getPlaceNoteById(noteId: Int): PlaceNote
 
     suspend fun getPlaceNotesByPlaceName(placeName: String): List<PlaceNote>
+
+    suspend fun searchByQueryFlow(query: String): List<SearchPlaceNoteWithCount>
 }
