@@ -85,6 +85,10 @@ class SearchViewModel @Inject constructor(
     fun setSearchQuery(text: String) {
         _searchQuery.value = text
     }
+
+    fun clearSearchQuery() {
+        _searchQuery.value = ""
+    }
 }
 
 sealed class SearchUiState {

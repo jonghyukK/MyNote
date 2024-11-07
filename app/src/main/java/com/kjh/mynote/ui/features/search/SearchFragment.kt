@@ -3,6 +3,7 @@ package com.kjh.mynote.ui.features.search
 import android.content.Intent
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View.OnClickListener
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -16,7 +17,9 @@ import com.kjh.mynote.ui.features.search.adapter.SearchResultListAdapter
 import com.kjh.mynote.utils.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.hideKeyboard
+import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
@@ -43,6 +46,7 @@ class SearchFragment: BaseFragment<FragmentSearchBinding>({ FragmentSearchBindin
             }
 
             etSearch.addTextChangedListener(searchTextWatcher)
+            ivClear.setOnThrottleClickListener(textClearButtonClickListener)
         }
     }
 
@@ -53,30 +57,46 @@ class SearchFragment: BaseFragment<FragmentSearchBinding>({ FragmentSearchBindin
                     viewModel.uiState.collect { uiState ->
                         when (uiState) {
                             is SearchUiState.Empty -> {
-                                binding.tvEmptyResults.isVisible = true
-                                binding.layoutLoading.clLoading.isVisible = false
-                                listAdapter.submitList(null)
+                                setResultEmptyUi()
                             }
                             is SearchUiState.Error -> {
-                                binding.tvEmptyResults.isVisible = true
-                                binding.layoutLoading.clLoading.isVisible = false
-                                listAdapter.submitList(null)
+                                setResultEmptyUi()
                                 Toast.makeText(requireContext(), uiState.msg, Toast.LENGTH_SHORT).show()
                             }
                             is SearchUiState.Loading -> {
-                                binding.tvEmptyResults.isVisible = false
-                                binding.layoutLoading.clLoading.isVisible = true
+                                setLoadingUi()
                             }
                             is SearchUiState.Results -> {
-                                binding.tvEmptyResults.isVisible = false
-                                binding.layoutLoading.clLoading.isVisible = false
+                                setExistResultsUi()
                                 listAdapter.submitList(uiState.data)
                             }
                         }
                     }
                 }
+
+                launch {
+                    viewModel.searchQuery.collectLatest { queryText ->
+                        binding.ivClear.isVisible = queryText.isNotEmpty()
+                    }
+                }
             }
         }
+    }
+
+    private fun setResultEmptyUi() = with (binding) {
+        tvEmptyResults.isVisible = true
+        layoutLoading.clLoading.isVisible = false
+        listAdapter.submitList(null)
+    }
+
+    private fun setLoadingUi() = with (binding) {
+        tvEmptyResults.isVisible = false
+        layoutLoading.clLoading.isVisible = true
+    }
+
+    private fun setExistResultsUi() = with (binding) {
+        tvEmptyResults.isVisible = false
+        layoutLoading.clLoading.isVisible = false
     }
 
     private val searchTextWatcher = object: TextWatcher {
@@ -93,6 +113,12 @@ class SearchFragment: BaseFragment<FragmentSearchBinding>({ FragmentSearchBindin
             putExtra(AppConstants.INTENT_NOTE_ID, resultItem.item.id)
             startActivity(this)
         }
+    }
+
+    private val textClearButtonClickListener = OnClickListener {
+        viewModel.clearSearchQuery()
+        binding.etSearch.text?.clear()
+        setResultEmptyUi()
     }
 
     companion object {
