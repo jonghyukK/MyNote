@@ -4,8 +4,8 @@ import android.view.View
 import android.view.View.OnClickListener
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.children
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -52,7 +52,7 @@ class CalendarMonthBSDialog
 
     override fun onInitView() {
         onInitCalendarMonthView()
-        setYearMonthTitle(viewModel.getSelectedDate())
+        setMonthTextAndHideRightBtnWhenTodayMonth(viewModel.getSelectedDate())
 
         with (binding) {
             ivArrowLeft.setOnThrottleClickListener(onLeftArrowClickListener)
@@ -76,7 +76,7 @@ class CalendarMonthBSDialog
         val daysOfWeek = daysOfWeek()
         val currentMonth = viewModel.getSelectedDate().yearMonth
         val startMonth = currentMonth.minusMonths(50)
-        val endMonth = currentMonth.plusMonths(50)
+        val endMonth = currentMonth.plusMonths(0)
 
         configureBinders(daysOfWeek)
 
@@ -87,9 +87,11 @@ class CalendarMonthBSDialog
         }
     }
 
-    private fun setYearMonthTitle(date: LocalDate) = with (binding) {
+    private fun setMonthTextAndHideRightBtnWhenTodayMonth(date: LocalDate) = with (binding) {
         currentYearMonth = date
         tvCurrentYearMonth.text = date.toStringWithPattern("yyyy년 MM월")
+        ivArrowRight.isVisible =
+            date.withDayOfMonth(1) != todayDate.withDayOfMonth(1)
     }
 
     private fun selectDate(date: LocalDate) {
@@ -178,7 +180,7 @@ class CalendarMonthBSDialog
     }
 
     private val monthViewScrollListener: MonthScrollListener = { date ->
-        setYearMonthTitle(date.yearMonth.atDay(1))
+        setMonthTextAndHideRightBtnWhenTodayMonth(date.yearMonth.atDay(1))
     }
 
     private val onLeftArrowClickListener = OnClickListener {
