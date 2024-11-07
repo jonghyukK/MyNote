@@ -1,6 +1,7 @@
 package com.kjh.data.repository
 
 import com.example.domain.model.PlaceNote
+import com.example.domain.model.SearchPlaceNoteWithCount
 import com.example.domain.repository.PlaceNoteRepository
 import com.kjh.data.model.entity.PlaceNoteEntity
 import com.kjh.data.model.entity.toDomainModel
@@ -47,4 +48,7 @@ class PlaceNoteRepositoryImpl @Inject constructor(
 
     override suspend fun getPlaceNotesByPlaceName(placeName: String): List<PlaceNote> =
         noteLocalDataSource.getPlaceNotesByPlaceName(placeName).toDomainModel()
+
+    override suspend fun searchByQueryFlow(query: String): List<SearchPlaceNoteWithCount> =
+        noteLocalDataSource.searchByQuery(query).toDomainModel()
 }
