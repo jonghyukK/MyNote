@@ -1,27 +1,30 @@
 package com.kjh.mynote.ui.features.purchase
 
+import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.CalendarMonth
-import com.kizitonwose.calendar.view.MonthScrollListener
 import com.kjh.mynote.databinding.FragmentPurchaseBinding
+import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.ui.base.BaseFragment
 import com.kjh.mynote.ui.features.purchase.adapter.PurchaseHomeListAdapter
 import com.kjh.mynote.ui.features.purchase.make.MakePurchaseNoteActivity
 import com.kjh.mynote.utils.SpacingItemDecoration
+import com.kjh.mynote.utils.constants.AppConstants
+import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
+import com.kjh.mynote.utils.extensions.toMillis
 import com.kjh.mynote.utils.extensions.toStringWithPattern
-import com.naver.maps.map.overlay.Overlay.OnClickListener
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.time.LocalDate
 
 /**
@@ -46,10 +49,11 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
 
             rvPurchases.apply {
                 itemAnimator = null
-                addItemDecoration(SpacingItemDecoration(bottom = 20, exceptFirstItem = false))
+                addItemDecoration(SpacingItemDecoration(bottom = 15, exceptFirstItem = false))
                 adapter = listAdapter
             }
 
+            layoutEmpty.btnMakePurchase.setOnThrottleClickListener(makePurchaseEmptyBtnClickListener)
             fabMakePurchaseNote.setOnThrottleClickListener(makePurchaseFabClickListener)
         }
     }
@@ -68,6 +72,7 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
                         .map { it.selectedDayPurchaseNotes }
                         .distinctUntilChanged()
                         .collect { notesInDay ->
+                            binding.layoutEmpty.root.isVisible = notesInDay.isEmpty()
                             listAdapter.submitList(notesInDay)
                         }
                 }
@@ -84,6 +89,18 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
         }
     }
 
+    private val makeNoteResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val insertedPlaceNoteItem = result.data?.parcelable<PurchaseNoteUiModel>(
+                AppConstants.INTENT_PURCHASE_NOTE_ITEM
+            ) ?: return@registerForActivityResult
+
+            viewModel.setSelectedDay(insertedPlaceNoteItem.purchaseLocalDate)
+        }
+    }
+
     private val monthScrollListener: (CalendarMonth) -> Unit = { date ->
         viewModel.setCurrentMonth(date.yearMonth)
     }
@@ -94,7 +111,16 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
 
     private val makePurchaseFabClickListener = View.OnClickListener {
         Intent(requireContext(), MakePurchaseNoteActivity::class.java).apply {
-            startActivity(this)
+            makeNoteResultLauncher.launch(this)
+        }
+    }
+
+    private val makePurchaseEmptyBtnClickListener = View.OnClickListener {
+        val selectedDay = viewModel.uiState.value.selectedDay.toMillis()
+
+        Intent(requireContext(), MakePurchaseNoteActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_PURCHASE_DATE, selectedDay)
+            makeNoteResultLauncher.launch(this)
         }
     }
 

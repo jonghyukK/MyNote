@@ -151,9 +151,13 @@ class MyMonthCalendarView @JvmOverloads constructor(
     fun updateCalendarUI(data: Pair<LocalDate, List<LocalDate>>) {
         val (selectedDay, hasEventDays) = data
 
+        if (selectedDay == selectedDate && hasEventDays == hasEventDates)
+            return
+
         selectedDate = selectedDay
         hasEventDates = hasEventDays
 
+        binding.calendarView.scrollToMonth(selectedDay.yearMonth)
         binding.calendarView.notifyCalendarChanged()
     }
 

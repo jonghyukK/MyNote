@@ -2,7 +2,6 @@ package com.kjh.mynote.ui.features.purchase
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.domain.model.PurchaseNote
 import com.example.domain.usecase.GetPurchaseNotesUseCase
 import com.kizitonwose.calendar.core.yearMonth
 import com.kjh.mynote.model.PurchaseNoteUiModel
@@ -41,7 +40,7 @@ class PurchaseHomeViewModel @Inject constructor(
 
     private val _selectedDay = MutableStateFlow(LocalDate.now())
 
-    val purchaseNotesFlow = getPurchaseNotesUseCase()
+    private val purchaseNotesFlow = getPurchaseNotesUseCase()
         .map { it.toUiModel().groupBy { it.purchaseLocalDate } }
         .stateIn(
             viewModelScope,

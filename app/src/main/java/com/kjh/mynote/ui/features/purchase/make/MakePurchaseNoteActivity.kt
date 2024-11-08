@@ -65,6 +65,11 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityMakePurchaseNoteBinding>({ 
     }
 
     override fun onInitUiData() {
+        val selectedPurchaseDate = intent.getLongExtra(AppConstants.INTENT_PURCHASE_DATE, -1)
+        if (selectedPurchaseDate > 0) {
+            viewModel.setPurchaseDate(selectedPurchaseDate)
+        }
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
