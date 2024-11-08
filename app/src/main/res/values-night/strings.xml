@@ -1,7 +1,52 @@
 <resources>
     <string name="app_name">MyNote</string>
-    <string name="make_note">노트 작성</string>
-    <string name="save">저장</string>
+    <string name="bnv_menu_home">홈</string>
+    <string name="bnv_menu_place_note">장소노트</string>
+    <string name="bnv_menu_purchase_note">구매노트</string>
+    <string name="bnv_menu_search">검색</string>
+
+    <string name="make_purchase_note">구매노트 작성</string>
     <string name="empty">내용이 없어요</string>
     <string name="product_title">물건명</string>
+    <string name="select_location">장소 검색</string>
+    <string name="search_place">장소 검색</string>
+    <string name="hint_input_place_or_address">장소명 혹은 주소 입력</string>
+    <string name="show_list">목록보기</string>
+    <string name="nothing_result">검색 결과가 없어요</string>
+    <string name="select">선택</string>
+    <string name="purchase_place">구매 장소</string>
+    <string name="visit_place">방문 장소</string>
+    <string name="search_visit_place">방문 장소 검색</string>
+    <string name="visit_date">방문 날짜</string>
+    <string name="purchase_date">구매 날짜</string>
+    <string name="select_visit_date">방문 날짜 선택</string>
+    <string name="purchase_price">구매 금액</string>
+
+    <string name="format_full_date">%1$s (%2$s)</string>
+    <string name="format_plus_value">+%1$d</string>
+    <string name="format_slash">%1$d/%2$d</string>
+    <string name="format_slash_with_space">%1$d / %2$d</string>
+
+    <string name="input_title">제목 입력하기</string>
+    <string name="input_contents">내용 입력하기</string>
+    <string name="msg_created_place_note">장소 노트 작성이 완료되었어요!</string>
+    <string name="empty_my_places_will_you_add">등록된 내 장소가 없어요.\n장소를 추가해보세요!</string>
+    <string name="make_place_note">장소노트 작성</string>
+    <string name="my_product">내 물건</string>
+    <string name="view_all">전체보기</string>
+    <string name="do_save">저장하기</string>
+    <string name="do_modify">수정하기</string>
+    <string name="do_delete">삭제하기</string>
+    <string name="confirm">확인</string>
+    <string name="will_you_delete">정말로 삭제하시겠어요?</string>
+    <string name="yes_i_will_delete">예, 삭제할게요</string>
+    <string name="cancel">취소할래요</string>
+    <string name="do_watch_map">지도 보기</string>
+    <string name="do_find_road">가는 길 보기</string>
+    <string name="navigation">내비게이션</string>
+    <string name="do_start_navi">길 안내 시작하기</string>
+    <string name="deleted_place_note">삭제된 장소노트에요!</string>
+    <string name="hint_input_place_or_region">장소명 혹은 지역을 입력해주세요</string>
+    <string name="nothing_search_results">검색 결과가 없습니다.</string>
+    <string name="hint_input_purchase_price">구매 금액 입력</string>
 </resources>

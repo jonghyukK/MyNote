@@ -1,5 +1,6 @@
 package com.kjh.mynote.utils.extensions
 
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
@@ -27,4 +28,9 @@ fun Long.toStringWithFormat(
     val dateFormat = SimpleDateFormat(format, Locale.KOREAN)
 
     return dateFormat.format(date)
+}
+
+fun Long.toComma(): String {
+    val decimal = DecimalFormat("#,###")
+    return decimal.format(this)
 }

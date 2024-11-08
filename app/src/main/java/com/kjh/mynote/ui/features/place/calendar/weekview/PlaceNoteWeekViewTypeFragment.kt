@@ -8,7 +8,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.kjh.mynote.databinding.FragmentCalendarWithPlacesBinding
+import com.kjh.mynote.databinding.FragmentPlaceNoteWeekViewTypeBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseFragment
 import com.kjh.mynote.ui.features.place.calendar.PlaceNoteCalendarHomeViewModel
@@ -32,7 +32,7 @@ import java.time.LocalDate
 
 @AndroidEntryPoint
 class PlaceNoteWeekViewTypeFragment
-    : BaseFragment<FragmentCalendarWithPlacesBinding>({ FragmentCalendarWithPlacesBinding.inflate(it) }) {
+    : BaseFragment<FragmentPlaceNoteWeekViewTypeBinding>({ FragmentPlaceNoteWeekViewTypeBinding.inflate(it) }) {
 
     private val viewModel: PlaceNoteCalendarHomeViewModel by activityViewModels()
 

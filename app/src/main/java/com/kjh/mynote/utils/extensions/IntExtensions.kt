@@ -1,7 +1,6 @@
 package com.kjh.mynote.utils.extensions
 
 import android.content.res.Resources
-import androidx.core.content.ContextCompat
 
 /**
  * Created by kangjonghyuk.

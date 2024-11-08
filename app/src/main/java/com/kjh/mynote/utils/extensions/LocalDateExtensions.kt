@@ -1,6 +1,8 @@
 package com.kjh.mynote.utils.extensions
 
+import java.text.DecimalFormat
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -18,6 +20,13 @@ fun LocalDate.toMillis(): Long {
 }
 
 fun LocalDate.toStringWithPattern(
+    pattern: String
+): String {
+    val formater = DateTimeFormatter.ofPattern(pattern)
+    return this.format(formater)
+}
+
+fun YearMonth.toStringWithPattern(
     pattern: String
 ): String {
     val formater = DateTimeFormatter.ofPattern(pattern)

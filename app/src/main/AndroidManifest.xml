@@ -41,6 +41,8 @@
         <activity
             android:name=".ui.features.viewer.ImagesViewerActivity"
             android:theme="@style/StatusBarBlack" />
+
+        <activity android:name=".ui.features.purchase.make.MakePurchaseNoteActivity" />
     </application>
 
 </manifest>
