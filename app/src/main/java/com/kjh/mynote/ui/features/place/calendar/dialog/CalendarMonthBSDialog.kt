@@ -74,16 +74,16 @@ class CalendarMonthBSDialog
 
     private fun onInitCalendarMonthView() {
         val daysOfWeek = daysOfWeek()
-        val currentMonth = viewModel.getSelectedDate().yearMonth
-        val startMonth = currentMonth.minusMonths(50)
-        val endMonth = currentMonth.plusMonths(0)
+        val initMonth = todayDate.yearMonth
+        val startMonth = initMonth.minusMonths(50)
+        val endMonth = initMonth.plusMonths(0)
 
         configureBinders(daysOfWeek)
 
         with (binding.calendarMonthView) {
             setup(startMonth, endMonth, daysOfWeek.first())
             monthScrollListener = monthViewScrollListener
-            scrollToMonth(currentMonth)
+            scrollToMonth(viewModel.getSelectedDate().yearMonth)
         }
     }
 
