@@ -28,6 +28,7 @@
     <string name="format_plus_value">+%1$d</string>
     <string name="format_slash">%1$d/%2$d</string>
     <string name="format_slash_with_space">%1$d / %2$d</string>
+    <string name="format_won">%1$s원</string>
 
     <string name="input_title">제목 입력하기</string>
     <string name="input_contents">내용 입력하기</string>
@@ -52,4 +53,5 @@
     <string name="nothing_search_results">검색 결과가 없습니다.</string>
     <string name="hint_input_purchase_price">구매 금액 입력</string>
     <string name="category">카테고리</string>
+    <string name="empty_purchase_note_make_note">등록된 구매노트가 없어요.\n노트를 추가해보세요!</string>
 </resources>

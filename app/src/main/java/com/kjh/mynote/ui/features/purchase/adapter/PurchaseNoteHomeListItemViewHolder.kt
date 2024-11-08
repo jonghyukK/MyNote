@@ -1,5 +1,6 @@
 package com.kjh.mynote.ui.features.purchase.adapter
 
+import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhPurchaseNoteHomeListItemBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
@@ -19,7 +20,7 @@ class PurchaseNoteHomeListItemViewHolder(
 
         with (binding) {
             tvCategory.text = item.category
-            tvPrice.text = item.purchasePrice.toComma()
+            tvPrice.text = context.getString(R.string.format_won, item.purchasePrice.toComma())
         }
     }
 }
