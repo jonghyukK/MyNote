@@ -41,8 +41,6 @@ data class MakePurchaseNoteUiState(
     val category: String = "",
 )
 
-
-
 @HiltViewModel
 class MakePurchaseNoteViewModel @Inject constructor(
     private val makePurchaseNoteUseCase: MakePurchaseNoteUseCase

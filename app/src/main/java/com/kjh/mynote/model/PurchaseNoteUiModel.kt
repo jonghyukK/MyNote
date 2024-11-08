@@ -3,7 +3,9 @@ package com.kjh.mynote.model
 import android.os.Parcelable
 import com.example.domain.model.PurchaseNote
 import com.example.domain.model.PurchasePlaceInfo
+import com.kjh.mynote.utils.extensions.toLocalDate
 import kotlinx.parcelize.Parcelize
+import java.time.LocalDate
 
 /**
  * Created by kangjonghyuk.
@@ -15,10 +17,11 @@ import kotlinx.parcelize.Parcelize
 data class PurchaseNoteUiModel(
     val id: Int,
     val purchaseDate: Long,
+    val purchaseLocalDate: LocalDate,
     val purchasePrice: Long,
     val category: String,
     val images: List<String>? = null,
-    val purchasePlaceInfo: PurchasePlaceInfoUiModel? = null
+    val purchasePlaceInfo: PurchasePlaceInfoUiModel? = null,
 ): Parcelable
 
 @Parcelize
@@ -33,11 +36,14 @@ data class PurchasePlaceInfoUiModel(
 fun PurchaseNote.toUiModel() = PurchaseNoteUiModel(
     id = id,
     purchaseDate = purchaseDate,
+    purchaseLocalDate = purchaseDate.toLocalDate(),
     purchasePrice = purchasePrice,
     category = category,
     images = images,
     purchasePlaceInfo = purchasePlaceInfo?.toUiModel()
 )
+
+fun List<PurchaseNote>.toUiModel() = map(PurchaseNote::toUiModel)
 
 fun PurchasePlaceInfo.toUiModel() = PurchasePlaceInfoUiModel(
     placeName = placeName,

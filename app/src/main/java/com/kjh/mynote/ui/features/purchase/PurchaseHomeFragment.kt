@@ -11,11 +11,15 @@ import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.view.MonthScrollListener
 import com.kjh.mynote.databinding.FragmentPurchaseBinding
 import com.kjh.mynote.ui.base.BaseFragment
+import com.kjh.mynote.ui.features.purchase.adapter.PurchaseHomeListAdapter
 import com.kjh.mynote.ui.features.purchase.make.MakePurchaseNoteActivity
+import com.kjh.mynote.utils.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.toStringWithPattern
 import com.naver.maps.map.overlay.Overlay.OnClickListener
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalDate
@@ -31,10 +35,20 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
 
     private val viewModel: PurchaseHomeViewModel by viewModels()
 
+    private val listAdapter: PurchaseHomeListAdapter by lazy {
+        PurchaseHomeListAdapter()
+    }
+
     override fun onInitView() {
         with (binding) {
             calendarMonthView.setMonthScrollListener(monthScrollListener)
             calendarMonthView.setDayClickAction(monthDayClickAction)
+
+            rvPurchases.apply {
+                itemAnimator = null
+                addItemDecoration(SpacingItemDecoration(bottom = 20, exceptFirstItem = false))
+                adapter = listAdapter
+            }
 
             fabMakePurchaseNote.setOnThrottleClickListener(makePurchaseFabClickListener)
         }
@@ -50,16 +64,27 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
                 }
 
                 launch {
-                    viewModel.selectedDay.collect { selectedDay ->
-                        binding.calendarMonthView.setSelectedDay(selectedDay)
-                    }
+                    viewModel.uiState
+                        .map { it.selectedDayPurchaseNotes }
+                        .distinctUntilChanged()
+                        .collect { notesInDay ->
+                            listAdapter.submitList(notesInDay)
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.selectedDay to it.hasEventDays }
+                        .distinctUntilChanged()
+                        .collect {
+                            binding.calendarMonthView.updateCalendarUI(it)
+                        }
                 }
             }
         }
     }
 
     private val monthScrollListener: (CalendarMonth) -> Unit = { date ->
-        Timber.tag("abc123").e("monthScrolled.. $date")
         viewModel.setCurrentMonth(date.yearMonth)
     }
 

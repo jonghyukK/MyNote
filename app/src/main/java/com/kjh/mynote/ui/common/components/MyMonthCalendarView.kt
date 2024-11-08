@@ -44,7 +44,9 @@ class MyMonthCalendarView @JvmOverloads constructor(
 
     private val todayDate: LocalDate = LocalDate.now()
     private var dayClickAction: (LocalDate) -> Unit = {}
+
     private var selectedDate: LocalDate = LocalDate.now()
+    private var hasEventDates: List<LocalDate> = emptyList()
 
     init {
         onInitCalendarMonthView()
@@ -112,7 +114,7 @@ class MyMonthCalendarView @JvmOverloads constructor(
                 }
 
                 // 해당 일의 이벤트 존재 여부..
-                if (isDayInThisMonth && !isAfterDayFromToday) {
+                if (isDayInThisMonth && !isAfterDayFromToday && hasEventDates.contains(data.date)) {
                     container.binding.tvHas.makeVisible()
                 } else {
                     container.binding.tvHas.makeInVisible()
@@ -146,11 +148,13 @@ class MyMonthCalendarView @JvmOverloads constructor(
         }
     }
 
-    fun setSelectedDay(date: LocalDate) {
-        val oldDate = selectedDate
-        selectedDate = date
-        binding.calendarView.notifyDateChanged(oldDate)
-        binding.calendarView.notifyDateChanged(date)
+    fun updateCalendarUI(data: Pair<LocalDate, List<LocalDate>>) {
+        val (selectedDay, hasEventDays) = data
+
+        selectedDate = selectedDay
+        hasEventDates = hasEventDays
+
+        binding.calendarView.notifyCalendarChanged()
     }
 
     fun setDayClickAction(action: (LocalDate) -> Unit) {
