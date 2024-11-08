@@ -7,6 +7,7 @@ import com.kjh.mynote.databinding.ActivityMainBinding
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.features.home.HomeFragment
 import com.kjh.mynote.ui.features.place.calendar.PlaceNoteCalendarHomeFragment
+import com.kjh.mynote.ui.features.purchase.PurchaseHomeFragment
 import com.kjh.mynote.ui.features.search.SearchFragment
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -52,6 +53,7 @@ class MainActivity: BaseActivity<ActivityMainBinding>({ ActivityMainBinding.infl
     private fun getFragmentBy(tag: String) = when (tag) {
         HomeFragment.TAG -> HomeFragment.newInstance()
         PlaceNoteCalendarHomeFragment.TAG -> PlaceNoteCalendarHomeFragment.newInstance()
+        PurchaseHomeFragment.TAG -> PurchaseHomeFragment.newInstance()
         SearchFragment.TAG -> SearchFragment.newInstance()
         else -> throw Exception("Wrong Fragment Tag")
     }
@@ -60,6 +62,7 @@ class MainActivity: BaseActivity<ActivityMainBinding>({ ActivityMainBinding.infl
         val tag = when (item.itemId) {
             R.id.nav_home -> MainFragments.HOME_FRAGMENT.tag
             R.id.nav_place -> MainFragments.CALENDAR_WITH_PLACES_FRAGMENT.tag
+            R.id.nav_purchase -> MainFragments.PURCHASE_FRAGMENT.tag
             R.id.nav_search -> MainFragments.SEARCH_FRAGMENT.tag
             else -> throw Exception("Wrong MenuItem Id")
         }
@@ -72,6 +75,7 @@ class MainActivity: BaseActivity<ActivityMainBinding>({ ActivityMainBinding.infl
         enum class MainFragments(val tag: String) {
             HOME_FRAGMENT(HomeFragment.TAG),
             CALENDAR_WITH_PLACES_FRAGMENT(PlaceNoteCalendarHomeFragment.TAG),
+            PURCHASE_FRAGMENT(PurchaseHomeFragment.TAG),
             SEARCH_FRAGMENT(SearchFragment.TAG)
         }
     }
