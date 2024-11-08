@@ -2,10 +2,11 @@ package com.kjh.data.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.domain.repository.PlaceNoteRepository
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.kjh.data.db.NoteDataBase
-import com.kjh.data.repository.PlaceNoteRepositoryImpl
 import com.kjh.data.source.local.PlaceNoteDao
+import com.kjh.data.source.local.PurchaseNoteDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,10 +31,15 @@ object DatabaseModule {
             context.applicationContext,
             NoteDataBase::class.java,
             "Notes.db"
-        ).build()
+        )
+            .build()
     }
 
     @Provides
     @Singleton
     fun providePlaceNoteDao(dataBase: NoteDataBase): PlaceNoteDao = dataBase.placeNoteDao()
+
+    @Provides
+    @Singleton
+    fun providePurchaseNoteDao(dataBase: NoteDataBase): PurchaseNoteDao = dataBase.purchaseNoteDao()
 }

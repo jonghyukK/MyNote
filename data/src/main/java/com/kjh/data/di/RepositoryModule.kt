@@ -2,8 +2,10 @@ package com.kjh.data.di
 
 import com.example.domain.repository.KakaoMapRepository
 import com.example.domain.repository.PlaceNoteRepository
+import com.example.domain.repository.PurchaseNoteRepository
 import com.kjh.data.repository.KakaoMapRepositoryImpl
 import com.kjh.data.repository.PlaceNoteRepositoryImpl
+import com.kjh.data.repository.PurchaseNoteRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -31,4 +33,10 @@ abstract class RepositoryModule {
     abstract fun bindKakaoMapRepository(
         kakaoMapRepositoryImpl: KakaoMapRepositoryImpl
     ): KakaoMapRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPurchaseNoteRepository(
+        purchaseNoteRepositoryImpl: PurchaseNoteRepositoryImpl
+    ): PurchaseNoteRepository
 }
