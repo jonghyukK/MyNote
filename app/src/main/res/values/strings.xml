@@ -54,4 +54,9 @@
     <string name="hint_input_purchase_price">구매 금액 입력</string>
     <string name="category">카테고리</string>
     <string name="empty_purchase_note_make_note">등록된 구매노트가 없어요.\n노트를 추가해보세요!</string>
+    <string name="title_input_category_for_add">카테고리명을 입력해주세요</string>
+    <string name="do_add">추가하기</string>
+    <string name="do_cancel">취소하기</string>
+    <string name="title_input_category_for_edit">수정할 카테고리명을 입력해주세요</string>
+    <string name="title_will_you_delete_category">카테고리를 삭제하시겠어요?</string>
 </resources>

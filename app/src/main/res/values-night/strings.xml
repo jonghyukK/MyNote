@@ -49,4 +49,6 @@
     <string name="hint_input_place_or_region">장소명 혹은 지역을 입력해주세요</string>
     <string name="nothing_search_results">검색 결과가 없습니다.</string>
     <string name="hint_input_purchase_price">구매 금액 입력</string>
+    <string name="title_input_category_for_add">카테고리명을 입력해주세요</string>
+    <string name="title_will_you_delete_category">카테고리를 삭제하시겠어요?</string>
 </resources>
