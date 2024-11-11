@@ -15,5 +15,5 @@ class GetPurchaseNotesUseCase @Inject constructor(
 ) {
 
     operator fun invoke(): Flow<List<PurchaseNote>> =
-        purchaseNoteRepository.observeAll
+        purchaseNoteRepository.getPurchaseNotesWithCategory
 }

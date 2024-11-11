@@ -10,7 +10,8 @@ data class PurchaseNote(
     val id: Int = 0,
     val purchaseDate: Long,
     val purchasePrice: Long,
-    val category: String,
+    val purchaseName: String,
+    val category: Category?,
     val images: List<String>? = null,
     val purchasePlaceInfo: PurchasePlaceInfo? = null
 )
