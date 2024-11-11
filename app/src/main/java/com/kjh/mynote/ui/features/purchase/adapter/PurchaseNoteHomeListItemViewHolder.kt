@@ -19,7 +19,8 @@ class PurchaseNoteHomeListItemViewHolder(
         super.bind(item)
 
         with (binding) {
-            tvCategory.text = item.category
+            tvCategory.text = item.category?.categoryName ?: "카테고리 없음"
+            tvPurchaseName.text = item.purchaseName
             tvPrice.text = context.getString(R.string.format_won, item.purchasePrice.toComma())
         }
     }

@@ -13,15 +13,32 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <!-- 카테고리 -->
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_category"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/purple"
+            android:textStyle="bold"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tv_purchase_name"
             tools:text="편의점" />
 
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_purchase_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@color/black_800"
+            android:layout_marginTop="6dp"
+            app:layout_constraintTop_toBottomOf="@+id/tv_category"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="담배" />
+
+        <!-- 가격 -->
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_price"
             android:layout_width="wrap_content"

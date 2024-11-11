@@ -1,6 +1,7 @@
 package com.kjh.mynote.model
 
 import android.os.Parcelable
+import com.example.domain.model.Category
 import com.example.domain.model.PurchaseNote
 import com.example.domain.model.PurchasePlaceInfo
 import com.kjh.mynote.utils.extensions.toLocalDate
@@ -19,7 +20,8 @@ data class PurchaseNoteUiModel(
     val purchaseDate: Long,
     val purchaseLocalDate: LocalDate,
     val purchasePrice: Long,
-    val category: String,
+    val purchaseName: String,
+    val category: CategoryUiModel? = null,
     val images: List<String>? = null,
     val purchasePlaceInfo: PurchasePlaceInfoUiModel? = null,
 ): Parcelable
@@ -33,12 +35,19 @@ data class PurchasePlaceInfoUiModel(
     val y: String
 ): Parcelable
 
+@Parcelize
+data class CategoryUiModel(
+    val id: Int,
+    val categoryName: String
+): Parcelable
+
 fun PurchaseNote.toUiModel() = PurchaseNoteUiModel(
     id = id,
     purchaseDate = purchaseDate,
     purchaseLocalDate = purchaseDate.toLocalDate(),
     purchasePrice = purchasePrice,
-    category = category,
+    purchaseName = purchaseName,
+    category = category?.toUiModel(),
     images = images,
     purchasePlaceInfo = purchasePlaceInfo?.toUiModel()
 )
@@ -51,4 +60,14 @@ fun PurchasePlaceInfo.toUiModel() = PurchasePlaceInfoUiModel(
     placeRoadAddress = placeRoadAddress,
     x = x,
     y = y
+)
+
+fun Category.toUiModel() = CategoryUiModel(
+    id = id,
+    categoryName = categoryName
+)
+
+fun CategoryUiModel.toDomainModel() = Category(
+    id = id,
+    categoryName = categoryName
 )

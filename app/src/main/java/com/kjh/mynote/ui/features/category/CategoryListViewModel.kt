@@ -39,10 +39,10 @@ class CategoryListViewModel @Inject constructor(
     private val _makeCategoryEventState = MutableSharedFlow<UiState<Unit>>()
     val makeCategoryEventState = _makeCategoryEventState.asSharedFlow()
 
-    private val _updateCategoryNameEventState = MutableSharedFlow<UiState<Unit>>()
+    private val _updateCategoryNameEventState = MutableSharedFlow<UiState<CategoryUiModel>>()
     val updateCategoryNameEventState = _updateCategoryNameEventState.asSharedFlow()
 
-    private val _deleteCategoryEventState = MutableSharedFlow<UiState<Unit>>()
+    private val _deleteCategoryEventState = MutableSharedFlow<UiState<Int>>()
     val deleteCategoryEventState = _deleteCategoryEventState.asSharedFlow()
 
     val uiState: StateFlow<List<CategoryUiModel>> = getAllCategoriesUseCase()
@@ -82,7 +82,7 @@ class CategoryListViewModel @Inject constructor(
                         _updateCategoryNameEventState.emit(UiState.Error(result.msg ?: "카테고리 수정이 실패하였습니다."))
                     }
                     is Result.Success -> {
-                        _updateCategoryNameEventState.emit(UiState.Success(Unit))
+                        _updateCategoryNameEventState.emit(UiState.Success(category))
                     }
                 }
             }
@@ -100,7 +100,7 @@ class CategoryListViewModel @Inject constructor(
                         _deleteCategoryEventState.emit(UiState.Error(result.msg ?: "카테고리 삭제가 실패하였습니다."))
                     }
                     is Result.Success -> {
-                        _deleteCategoryEventState.emit(UiState.Success(Unit))
+                        _deleteCategoryEventState.emit(UiState.Success(categoryId))
                     }
                 }
             }

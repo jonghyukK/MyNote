@@ -59,4 +59,9 @@
     <string name="do_cancel">취소하기</string>
     <string name="title_input_category_for_edit">수정할 카테고리명을 입력해주세요</string>
     <string name="title_will_you_delete_category">카테고리를 삭제하시겠어요?</string>
+    <string name="hint_input_purchase_name">구매명 입력</string>
+    <string name="purchase_name">구매명</string>
+
+    <string name="desc_when_edit_category_name_change_same_category_notes">* 카테고리명을 수정할 경우 해당 카테고리의 구매노트 카테고리가 전부 변경돼요!</string>
+    <string name="desc_when_delete_category_change_same_category_notes">* 카테고리를 삭제할 경우 해당 카테고리의 구매노트 카테고리가 전부 사라져요!</string>
 </resources>

@@ -12,7 +12,6 @@ import com.kjh.mynote.databinding.BsdCategoryListDialogBinding
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
-import com.kjh.mynote.ui.common.components.MyDefaultDialog
 import com.kjh.mynote.ui.features.purchase.make.MakePurchaseNoteViewModel
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
@@ -75,7 +74,10 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
                     viewModel.updateCategoryNameEventState.collectLatest { event ->
                         when (event) {
                             is UiState.Error -> showToast(event.errorMsg)
-                            is UiState.Success -> dialogDismissAndSetNull()
+                            is UiState.Success -> {
+                                parentViewModel.updateSelectedCategoryWhenChanged(event.data)
+                                dialogDismissAndSetNull()
+                            }
                             else -> {}
                         }
                     }
@@ -85,7 +87,10 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
                     viewModel.deleteCategoryEventState.collectLatest { event ->
                         when (event) {
                             is UiState.Error -> showToast(event.errorMsg)
-                            is UiState.Success -> dialogDismissAndSetNull()
+                            is UiState.Success -> {
+                                parentViewModel.deleteSelectedCategoryWhenChanged(event.data)
+                                dialogDismissAndSetNull()
+                            }
                             else -> {}
                         }
                     }
@@ -101,15 +106,16 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
         }
     }
 
-    private val onItemClickAction: (CategoryUiModel) -> Unit = {
-        parentViewModel.setCategory(it.categoryName)
+    private val onItemClickAction: (CategoryUiModel) -> Unit = { category ->
+        parentViewModel.setCategory(category)
         dismiss()
     }
 
     // 수정..
     private val onEditClickAction: (CategoryUiModel) -> Unit = { category ->
         categoryEditDialog = CategoryAddOrDeleteOrEditDialog.newInstance(
-            contents = getString(R.string.title_input_category_for_edit),
+            title = getString(R.string.title_input_category_for_edit),
+            noti = getString(R.string.desc_when_edit_category_name_change_same_category_notes),
             categoryName = category.categoryName,
             posBtnText = getString(R.string.do_modify),
             posAction = { text ->
@@ -122,19 +128,21 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
 
     // 삭제..
     private val onDeleteClickAction: (CategoryUiModel) -> Unit = { category ->
-        categoryEditDialog = MyDefaultDialog.newInstance(
-            contents = getString(R.string.title_will_you_delete_category),
+        categoryEditDialog = CategoryAddOrDeleteOrEditDialog.newInstance(
+            title = getString(R.string.title_will_you_delete_category),
+            noti = getString(R.string.desc_when_delete_category_change_same_category_notes),
+            hideEditor = true,
             posBtnText = getString(R.string.yes_i_will_delete),
             posAction = { viewModel.deleteCategory(category.id) },
             negBtnText = getString(R.string.cancel)
         )
-        categoryEditDialog?.show(childFragmentManager, MyDefaultDialog.TAG)
+        categoryEditDialog?.show(childFragmentManager, CategoryAddOrDeleteOrEditDialog.TAG)
     }
 
     // 추가..
     private val addCategoryClickListener = View.OnClickListener {
         categoryEditDialog = CategoryAddOrDeleteOrEditDialog.newInstance(
-            contents = getString(R.string.title_input_category_for_add),
+            title = getString(R.string.title_input_category_for_add),
             posBtnText = getString(R.string.do_add),
             posAction = { text ->
                 viewModel.makeCategory(text)

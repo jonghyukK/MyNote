@@ -16,8 +16,10 @@ import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.features.map.NaverMapActivity
 import com.kjh.mynote.ui.features.place.make.adapter.TempImageListAdapter
+import com.kjh.mynote.ui.features.category.CategoryListBSDialog
 import com.kjh.mynote.utils.DatePickerManager
 import com.kjh.mynote.utils.constants.AppConstants
+import com.kjh.mynote.utils.extensions.hideKeyboard
 import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.registerStartActivityResultLauncher
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
@@ -27,6 +29,7 @@ import com.kjh.mynote.utils.extensions.toLocalDate
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.ZoneOffset
@@ -59,7 +62,8 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityMakePurchaseNoteBinding>({ 
             clPurchasePlaceContainer.setOnThrottleClickListener(searchMapClickListener)
             clPurchaseDateContainer.setOnThrottleClickListener(purchaseDateClickListener)
             etPrice.addTextChangedListener(priceTextWatcher)
-            etCategory.addTextChangedListener(categoryTextWatcher)
+            etPurchaseName.addTextChangedListener(purchaseNameTextWatcher)
+            clCategoryContainer.setOnThrottleClickListener(categoryClickListener)
             btnSave.setOnThrottleClickListener(saveBtnClickListener)
         }
     }
@@ -121,6 +125,15 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityMakePurchaseNoteBinding>({ 
                 }
 
                 launch {
+                    viewModel.uiState
+                        .map { it.categoryItem }
+                        .distinctUntilChanged()
+                        .collect { categoryItem ->
+                            binding.tvCategoryName.text = categoryItem?.categoryName ?: ""
+                        }
+                }
+
+                launch {
                     viewModel.saveValidateFlow.collectLatest { isValid ->
                         binding.btnSave.isEnable = isValid
                     }
@@ -153,11 +166,14 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityMakePurchaseNoteBinding>({ 
     }
 
     override fun onDestroy() {
-        with (binding) {
-            etPrice.removeTextChangedListener(priceTextWatcher)
-            etCategory.removeTextChangedListener(categoryTextWatcher)
-        }
+        binding.etPrice.removeTextChangedListener(priceTextWatcher)
+        binding.etPurchaseName.removeTextChangedListener(purchaseNameTextWatcher)
         super.onDestroy()
+    }
+
+    private fun clearFocus() {
+        binding.etPrice.hideKeyboard()
+        binding.etPurchaseName.hideKeyboard()
     }
 
     private fun showDatePicker(positiveBtnClickAction: (Long) -> Unit) {
@@ -203,11 +219,11 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityMakePurchaseNoteBinding>({ 
         }
     }
 
-    private val categoryTextWatcher = object: TextWatcher {
+    private val purchaseNameTextWatcher = object: TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         override fun afterTextChanged(s: Editable?) {
-            viewModel.setCategory(s.toString())
+            viewModel.setPurchaseName(s.toString())
         }
     }
 
@@ -241,6 +257,8 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityMakePurchaseNoteBinding>({ 
         })
 
     private val photoAttachClickListener = OnClickListener {
+        clearFocus()
+
         val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
             type = "image/*"
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
@@ -249,6 +267,8 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityMakePurchaseNoteBinding>({ 
     }
 
     private val searchMapClickListener = OnClickListener {
+        clearFocus()
+
         val intent = Intent(this@MakePurchaseNoteActivity, NaverMapActivity::class.java).apply {
             putExtra(AppConstants.INTENT_TEMP_PLACE_ITEM, viewModel.getTempPlaceItem())
         }
@@ -256,18 +276,31 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityMakePurchaseNoteBinding>({ 
     }
 
     private val purchaseDateClickListener = OnClickListener {
+        clearFocus()
+
         showDatePicker(positiveBtnClickAction = { timeInMillis ->
             viewModel.setPurchaseDate(timeInMillis)
         })
     }
 
+    private val categoryClickListener = OnClickListener {
+        clearFocus()
+
+        CategoryListBSDialog.newInstance()
+            .show(supportFragmentManager, CategoryListBSDialog.TAG)
+    }
+
     private val saveBtnClickListener = OnClickListener {
+        clearFocus()
+
         if (binding.btnSave.isEnable) {
             viewModel.makePurchaseNote()
         }
     }
 
     private val deleteTempImageClickAction: (String) -> Unit = { uri ->
+        clearFocus()
+
         viewModel.deleteTempImageByUrl(uri)
     }
 

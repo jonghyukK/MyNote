@@ -5,13 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.domain.model.PurchaseNote
 import com.example.domain.model.PurchasePlaceInfo
 import com.example.domain.model.Result
-import com.example.domain.usecase.MakePurchaseNoteUseCase
+import com.example.domain.usecase.MakeAndGetPurchaseNoteUseCase
+import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.KakaoPlaceUiModel
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.model.UiState
+import com.kjh.mynote.model.toDomainModel
 import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.utils.constants.AppConstants
-import com.kjh.mynote.utils.extensions.toComma
 import com.kjh.mynote.utils.extensions.toStringWithFormat
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,7 +24,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -38,12 +38,13 @@ data class MakePurchaseNoteUiState(
     val purchaseDate: Long = -1,
     val purchaseDateText: String = "",
     val purchasePrice: Long = 0,
-    val category: String = "",
+    val purchaseName: String = "",
+    val categoryItem: CategoryUiModel? = null,
 )
 
 @HiltViewModel
 class MakePurchaseNoteViewModel @Inject constructor(
-    private val makePurchaseNoteUseCase: MakePurchaseNoteUseCase
+    private val makeAndGetPurchaseNoteUseCase: MakeAndGetPurchaseNoteUseCase
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow(MakePurchaseNoteUiState())
@@ -55,7 +56,8 @@ class MakePurchaseNoteViewModel @Inject constructor(
     val saveValidateFlow = _uiState.map {
         it.purchaseDate > 0
                 && it.purchasePrice > 0
-                && it.category.isNotBlank()
+                && it.categoryItem != null
+                && it.purchaseName.isNotBlank()
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -64,7 +66,7 @@ class MakePurchaseNoteViewModel @Inject constructor(
 
     fun makePurchaseNote() {
         viewModelScope.launch {
-            makePurchaseNoteUseCase(convertUiStateToPurchaseNoteModel()).collect { result ->
+            makeAndGetPurchaseNoteUseCase(convertUiStateToPurchaseNoteModel()).collect { result ->
                 when (result) {
                     is Result.Loading -> {
                         _makePurchaseNoteEventState.emit(UiState.Loading)
@@ -131,9 +133,37 @@ class MakePurchaseNoteViewModel @Inject constructor(
         }
     }
 
-    fun setCategory(category: String) {
+    fun setPurchaseName(name: String) {
         _uiState.update {
-            it.copy(category = category)
+            it.copy(purchaseName = name)
+        }
+    }
+
+    fun setCategory(category: CategoryUiModel) {
+        _uiState.update {
+            it.copy(categoryItem = category)
+        }
+    }
+
+    fun updateSelectedCategoryWhenChanged(category: CategoryUiModel) {
+        val currentCategory = _uiState.value.categoryItem
+        currentCategory?.let {
+            if (it.id == category.id) {
+                _uiState.update {
+                    it.copy(categoryItem = category)
+                }
+            }
+        }
+    }
+
+    fun deleteSelectedCategoryWhenChanged(categoryId: Int) {
+        val currentCategory = _uiState.value.categoryItem
+        currentCategory?.let {
+            if (it.id == categoryId) {
+                _uiState.update {
+                    it.copy(categoryItem = null)
+                }
+            }
         }
     }
 
@@ -141,7 +171,8 @@ class MakePurchaseNoteViewModel @Inject constructor(
         PurchaseNote(
             purchaseDate = purchaseDate,
             purchasePrice = purchasePrice,
-            category = category,
+            purchaseName = purchaseName,
+            category = categoryItem?.toDomainModel(),
             images = tempImageUrls.ifEmpty { null },
             purchasePlaceInfo = tempPlaceItem?.let {
                 PurchasePlaceInfo(
