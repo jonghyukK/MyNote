@@ -1,8 +1,10 @@
 package com.kjh.data.di
 
+import com.example.domain.repository.CategoryRepository
 import com.example.domain.repository.KakaoMapRepository
 import com.example.domain.repository.PlaceNoteRepository
 import com.example.domain.repository.PurchaseNoteRepository
+import com.kjh.data.repository.CategoryRepositoryImpl
 import com.kjh.data.repository.KakaoMapRepositoryImpl
 import com.kjh.data.repository.PlaceNoteRepositoryImpl
 import com.kjh.data.repository.PurchaseNoteRepositoryImpl
@@ -39,4 +41,10 @@ abstract class RepositoryModule {
     abstract fun bindPurchaseNoteRepository(
         purchaseNoteRepositoryImpl: PurchaseNoteRepositoryImpl
     ): PurchaseNoteRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCategoryRepository(
+        categoryRepositoryImpl: CategoryRepositoryImpl
+    ): CategoryRepository
 }

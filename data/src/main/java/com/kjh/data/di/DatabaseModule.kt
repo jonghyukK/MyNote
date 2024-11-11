@@ -2,9 +2,8 @@ package com.kjh.data.di
 
 import android.content.Context
 import androidx.room.Room
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.kjh.data.db.NoteDataBase
+import com.kjh.data.source.local.CategoryDao
 import com.kjh.data.source.local.PlaceNoteDao
 import com.kjh.data.source.local.PurchaseNoteDao
 import dagger.Module
@@ -42,4 +41,8 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun providePurchaseNoteDao(dataBase: NoteDataBase): PurchaseNoteDao = dataBase.purchaseNoteDao()
+
+    @Provides
+    @Singleton
+    fun provideCategoryDao(dataBase: NoteDataBase): CategoryDao = dataBase.categoryDao()
 }
