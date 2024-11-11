@@ -16,7 +16,7 @@ import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.features.map.NaverMapActivity
 import com.kjh.mynote.ui.features.place.make.adapter.TempImageListAdapter
-import com.kjh.mynote.ui.features.category.CategoryListBSDialog
+import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog
 import com.kjh.mynote.utils.DatePickerManager
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.hideKeyboard
@@ -29,7 +29,6 @@ import com.kjh.mynote.utils.extensions.toLocalDate
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.ZoneOffset

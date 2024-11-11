@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.usecase.GetPurchaseNotesUseCase
 import com.kizitonwose.calendar.core.yearMonth
+import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.model.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import timber.log.Timber
 import java.time.LocalDate
 import java.time.YearMonth
 import javax.inject.Inject
@@ -34,6 +36,9 @@ data class PurchaseNoteHomeUiState(
 class PurchaseHomeViewModel @Inject constructor(
     private val getPurchaseNotesUseCase: GetPurchaseNotesUseCase
 ): ViewModel() {
+
+    private val _appliedCategoryItems = MutableStateFlow<List<CategoryUiModel>>(emptyList())
+    val appliedCategoryItems = _appliedCategoryItems.asStateFlow()
 
     private val _currentMonth = MutableStateFlow(LocalDate.now().yearMonth)
     val currentMonth = _currentMonth.asStateFlow()
@@ -68,5 +73,10 @@ class PurchaseHomeViewModel @Inject constructor(
 
     fun setSelectedDay(day: LocalDate) {
         _selectedDay.value = day
+    }
+
+    fun setCategoryFilterItems(items: List<CategoryUiModel>) {
+        Timber.tag("abc123").e("items: $items")
+        _appliedCategoryItems.value = items
     }
 }

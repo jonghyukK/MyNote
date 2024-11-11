@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.category
+package com.kjh.mynote.ui.features.category.list
 
 import android.view.View
 import androidx.fragment.app.DialogFragment
@@ -64,6 +64,7 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
                             viewModel.setSelectedCategoryItem(it)
                         }
                 }
+
                 launch {
                     viewModel.uiState.collect { state ->
                         listAdapter.submitList(state)

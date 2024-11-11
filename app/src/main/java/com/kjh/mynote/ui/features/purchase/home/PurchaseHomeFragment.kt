@@ -3,6 +3,7 @@ package com.kjh.mynote.ui.features.purchase.home
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.view.View
+import android.view.View.OnClickListener
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -13,6 +14,7 @@ import com.kizitonwose.calendar.core.CalendarMonth
 import com.kjh.mynote.databinding.FragmentPurchaseBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.ui.base.BaseFragment
+import com.kjh.mynote.ui.features.category.filter.CategoryFilterDialogFragment
 import com.kjh.mynote.ui.features.purchase.home.adapter.PurchaseHomeListAdapter
 import com.kjh.mynote.ui.features.purchase.make.MakePurchaseNoteActivity
 import com.kjh.mynote.utils.SpacingItemDecoration
@@ -53,6 +55,8 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
                 adapter = listAdapter
             }
 
+            ivFilter.setOnThrottleClickListener(filterClickListener)
+            ivSearch.setOnThrottleClickListener(searchClickListener)
             layoutEmpty.btnMakePurchase.setOnThrottleClickListener(makePurchaseEmptyBtnClickListener)
             fabMakePurchaseNote.setOnThrottleClickListener(makePurchaseFabClickListener)
         }
@@ -107,6 +111,16 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
 
     private val monthDayClickAction: (LocalDate) -> Unit = { date ->
         viewModel.setSelectedDay(date)
+    }
+
+    private val filterClickListener = OnClickListener {
+        CategoryFilterDialogFragment.newInstance(
+            appliedFilterItems = viewModel.appliedCategoryItems.value
+        ).show(childFragmentManager, CategoryFilterDialogFragment.TAG)
+    }
+
+    private val searchClickListener = OnClickListener {
+
     }
 
     private val makePurchaseFabClickListener = View.OnClickListener {

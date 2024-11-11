@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.category
+package com.kjh.mynote.ui.features.category.list
 
 import androidx.core.view.isVisible
 import com.kjh.mynote.R

@@ -19,6 +19,33 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="2024년 10월" />
 
+    <!-- Filter -->
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_filter"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="10dp"
+        android:background="?attr/selectableItemBackground"
+        app:srcCompat="@drawable/ic_filter_24"
+        app:tint="@color/black_800"
+        app:layout_constraintTop_toTopOf="@+id/tv_current_year_month"
+        app:layout_constraintEnd_toStartOf="@+id/iv_search"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_current_year_month" />
+
+    <!-- Search -->
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_search"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="10dp"
+        android:background="?attr/selectableItemBackground"
+        android:layout_marginEnd="8dp"
+        app:srcCompat="@drawable/ic_search_24"
+        app:tint="@color/black_800"
+        app:layout_constraintTop_toTopOf="@+id/tv_current_year_month"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_current_year_month" />
+
     <com.kjh.mynote.ui.common.components.MyMonthCalendarView
         android:id="@+id/calendar_month_view"
         android:layout_width="0dp"
