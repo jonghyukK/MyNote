@@ -14,9 +14,12 @@ import com.kjh.mynote.model.toDomainModel
 import com.kjh.mynote.model.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -28,6 +31,11 @@ import javax.inject.Inject
  * Description:
  */
 
+data class CategoryListItem(
+    val isSelected: Boolean = false,
+    val categoryItem: CategoryUiModel
+)
+
 @HiltViewModel
 class CategoryListViewModel @Inject constructor(
     private val getAllCategoriesUseCase: GetAllCategoriesUseCase,
@@ -35,6 +43,8 @@ class CategoryListViewModel @Inject constructor(
     private val updateCategoryNameUseCase: UpdateCategoryNameUseCase,
     private val deleteCategoryByIdUseCase: DeleteCategoryByIdUseCase
 ): ViewModel() {
+
+    private val _selectedCategoryItem = MutableStateFlow<CategoryUiModel?>(null)
 
     private val _makeCategoryEventState = MutableSharedFlow<UiState<Unit>>()
     val makeCategoryEventState = _makeCategoryEventState.asSharedFlow()
@@ -45,13 +55,32 @@ class CategoryListViewModel @Inject constructor(
     private val _deleteCategoryEventState = MutableSharedFlow<UiState<Int>>()
     val deleteCategoryEventState = _deleteCategoryEventState.asSharedFlow()
 
-    val uiState: StateFlow<List<CategoryUiModel>> = getAllCategoriesUseCase()
+    private val _allCategoriesFlow: StateFlow<List<CategoryUiModel>> = getAllCategoriesUseCase()
         .map { categories -> categories.map { it.toUiModel() } }
         .stateIn(
             viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             emptyList()
         )
+
+    val uiState: StateFlow<List<CategoryListItem>> = combine(
+        _allCategoriesFlow, _selectedCategoryItem
+    ) { allCategories, selectedItem ->
+        allCategories.map { category ->
+            CategoryListItem(
+                isSelected = category.id == selectedItem?.id,
+                categoryItem = category
+            )
+        }
+    }.stateIn(
+        viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        emptyList()
+    )
+
+    fun setSelectedCategoryItem(categoryItem: CategoryUiModel?) {
+        _selectedCategoryItem.value = categoryItem
+    }
 
     fun makeCategory(categoryName: String) {
         viewModelScope.launch {

@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase.adapter
+package com.kjh.mynote.ui.features.purchase.home.adapter
 
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhPurchaseNoteHomeListItemBinding

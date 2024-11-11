@@ -17,6 +17,8 @@ import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /**
@@ -54,6 +56,14 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
     override fun onInitData() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    parentViewModel.uiState
+                        .map { it.categoryItem }
+                        .distinctUntilChanged()
+                        .collect {
+                            viewModel.setSelectedCategoryItem(it)
+                        }
+                }
                 launch {
                     viewModel.uiState.collect { state ->
                         listAdapter.submitList(state)

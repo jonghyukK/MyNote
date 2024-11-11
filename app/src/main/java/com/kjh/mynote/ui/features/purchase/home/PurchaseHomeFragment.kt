@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase
+package com.kjh.mynote.ui.features.purchase.home
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
@@ -13,7 +13,7 @@ import com.kizitonwose.calendar.core.CalendarMonth
 import com.kjh.mynote.databinding.FragmentPurchaseBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.ui.base.BaseFragment
-import com.kjh.mynote.ui.features.purchase.adapter.PurchaseHomeListAdapter
+import com.kjh.mynote.ui.features.purchase.home.adapter.PurchaseHomeListAdapter
 import com.kjh.mynote.ui.features.purchase.make.MakePurchaseNoteActivity
 import com.kjh.mynote.utils.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants

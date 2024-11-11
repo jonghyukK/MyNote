@@ -16,7 +16,7 @@ class CategoryListAdapter(
     private val onItemClickAction: (CategoryUiModel) -> Unit,
     private val onEditClickAction: (CategoryUiModel) -> Unit,
     private val onDeleteClickAction: (CategoryUiModel) -> Unit
-): ListAdapter<CategoryUiModel, CategoryListItemViewHolder>(UI_MODEL_COMPARATOR) {
+): ListAdapter<CategoryListItem, CategoryListItemViewHolder>(UI_MODEL_COMPARATOR) {
     
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         CategoryListItemViewHolder(
@@ -30,15 +30,17 @@ class CategoryListAdapter(
     }
 
     companion object {
-        private val UI_MODEL_COMPARATOR = object : DiffUtil.ItemCallback<CategoryUiModel>() {
+        private val UI_MODEL_COMPARATOR = object : DiffUtil.ItemCallback<CategoryListItem>() {
             override fun areItemsTheSame(
-                oldItem: CategoryUiModel,
-                newItem: CategoryUiModel
-            ): Boolean = oldItem.id == newItem.id
+                oldItem: CategoryListItem,
+                newItem: CategoryListItem
+            ): Boolean =
+                oldItem.isSelected == newItem.isSelected
+                        && oldItem.categoryItem.id == newItem.categoryItem.id
 
             override fun areContentsTheSame(
-                oldItem: CategoryUiModel,
-                newItem: CategoryUiModel
+                oldItem: CategoryListItem,
+                newItem: CategoryListItem
             ): Boolean = oldItem == newItem
         }
     }

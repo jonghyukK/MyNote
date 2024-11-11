@@ -7,7 +7,7 @@ import com.kjh.mynote.databinding.ActivityMainBinding
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.features.home.HomeFragment
 import com.kjh.mynote.ui.features.place.calendar.PlaceNoteCalendarHomeFragment
-import com.kjh.mynote.ui.features.purchase.PurchaseHomeFragment
+import com.kjh.mynote.ui.features.purchase.home.PurchaseHomeFragment
 import com.kjh.mynote.ui.features.search.SearchFragment
 import dagger.hilt.android.AndroidEntryPoint
 

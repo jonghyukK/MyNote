@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase
+package com.kjh.mynote.ui.features.purchase.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import timber.log.Timber
 import java.time.LocalDate
 import java.time.YearMonth
 import javax.inject.Inject
