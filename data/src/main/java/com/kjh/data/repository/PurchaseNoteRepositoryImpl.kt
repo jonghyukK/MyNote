@@ -1,8 +1,8 @@
 package com.kjh.data.repository
 
 import com.example.domain.model.PurchaseNote
+import com.example.domain.repository.CategoryRepository
 import com.example.domain.repository.PurchaseNoteRepository
-import com.kjh.data.model.entity.PurchaseNoteEntity
 import com.kjh.data.model.entity.toDomainModel
 import com.kjh.data.model.entity.toEntity
 import com.kjh.data.source.local.PurchaseNoteDao
@@ -19,13 +19,14 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
     private val purchaseNoteLocalDateSource: PurchaseNoteDao
 ): PurchaseNoteRepository {
 
-    override val observeAll: Flow<List<PurchaseNote>>
-    get() = purchaseNoteLocalDateSource.observeAll().map(List<PurchaseNoteEntity>::toDomainModel)
+    override suspend fun insertAndGetPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote {
+        val purchaseNoteEntity = purchaseNote.toEntity()
+        val newId = purchaseNoteLocalDateSource.insert(purchaseNoteEntity).toInt()
 
-    override suspend fun insertPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote {
-        val insertedNoteId = purchaseNoteLocalDateSource.insert(purchaseNote.toEntity())
-        val insertedNote = purchaseNoteLocalDateSource.getPurchaseNoteById(insertedNoteId.toInt())
-
-        return insertedNote.toDomainModel()
+        return purchaseNoteLocalDateSource.getPurchaseNoteById(newId).toDomainModel()
     }
+
+    override val getPurchaseNotesWithCategory: Flow<List<PurchaseNote>>
+        get() = purchaseNoteLocalDateSource.getPurchaseNotesWithCategory()
+            .map { data -> data.map { it.toDomainModel() } }
 }

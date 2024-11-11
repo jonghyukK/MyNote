@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
  */
 interface PurchaseNoteRepository {
 
-    val observeAll: Flow<List<PurchaseNote>>
+    suspend fun insertAndGetPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote
 
-    suspend fun insertPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote
+    val getPurchaseNotesWithCategory: Flow<List<PurchaseNote>>
 }

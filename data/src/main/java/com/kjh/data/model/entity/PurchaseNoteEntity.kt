@@ -1,6 +1,7 @@
 package com.kjh.data.model.entity
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.example.domain.model.PurchaseNote
@@ -13,35 +14,35 @@ import com.kjh.data.db.DBTypeConverters
  * Description:
  */
 
-@Entity(tableName = "purchase")
+@Entity(
+    tableName = "purchase",
+    foreignKeys = [ForeignKey(
+        entity = CategoryEntity::class,
+        parentColumns = ["id"],
+        childColumns = ["categoryId"],
+        onDelete = ForeignKey.SET_NULL
+    )]
+)
 data class PurchaseNoteEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val purchaseDate: Long,
     val purchasePrice: Long,
-    val category: String,
+    val purchaseName: String,
     val images: List<String>? = null,
-
+    val categoryId: Int?,
     @TypeConverters(DBTypeConverters::class)
     val purchasePlaceInfo: PurchasePlaceInfo? = null,
 )
 
-fun PurchaseNoteEntity.toDomainModel() = PurchaseNote(
-    id = id,
-    purchaseDate = purchaseDate,
-    purchasePrice = purchasePrice,
-    category = category,
-    images = images,
-    purchasePlaceInfo = purchasePlaceInfo
-)
-
-fun List<PurchaseNoteEntity>.toDomainModel() = map(PurchaseNoteEntity::toDomainModel)
-
-fun PurchaseNote.toEntity() = PurchaseNoteEntity(
-    purchaseDate = purchaseDate,
-    purchasePrice = purchasePrice,
-    category = category,
-    images = images,
-    purchasePlaceInfo = purchasePlaceInfo
-)
-
+fun PurchaseNote.toEntity(): PurchaseNoteEntity {
+    return PurchaseNoteEntity(
+        id = id,
+        purchaseDate = purchaseDate,
+        purchasePrice = purchasePrice,
+        purchaseName = purchaseName,
+        categoryId = category?.id,
+        images = images,
+        purchasePlaceInfo = purchasePlaceInfo
+    )
+}

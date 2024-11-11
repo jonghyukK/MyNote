@@ -4,7 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.kjh.data.model.entity.PurchaseNoteEntity
+import com.kjh.data.model.entity.PurchaseNoteWithCategoryEntity
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -23,5 +25,9 @@ interface PurchaseNoteDao {
     suspend fun insert(purchaseNoteEntity: PurchaseNoteEntity): Long
 
     @Query("SELECT * FROM purchase WHERE id = :id")
-    suspend fun getPurchaseNoteById(id: Int): PurchaseNoteEntity
+    suspend fun getPurchaseNoteById(id: Int): PurchaseNoteWithCategoryEntity
+
+    @Transaction
+    @Query("SELECT * FROM purchase")
+    fun getPurchaseNotesWithCategory(): Flow<List<PurchaseNoteWithCategoryEntity>>
 }
