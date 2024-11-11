@@ -16,6 +16,11 @@ class MakeCategoryUseCase @Inject constructor(
     private val categoryRepository: CategoryRepository
 ) {
     suspend operator fun invoke(category: Category): Flow<Result<Long>> = flow {
+        if (category.categoryName.isBlank()) {
+            emit(Result.Error("카테고리명을 입력해주세요."))
+            return@flow
+        }
+
         emit(Result.Loading)
 
         try {
