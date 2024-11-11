@@ -64,4 +64,9 @@
 
     <string name="desc_when_edit_category_name_change_same_category_notes">* 카테고리명을 수정할 경우 해당 카테고리의 구매노트 카테고리가 전부 변경돼요!</string>
     <string name="desc_when_delete_category_change_same_category_notes">* 카테고리를 삭제할 경우 해당 카테고리의 구매노트 카테고리가 전부 사라져요!</string>
+    <string name="filter">필터</string>
+    <string name="category_list">카테고리 목록</string>
+    <string name="category_filter">카테고리 필터</string>
+    <string name="do_apply">적용하기</string>
+    <string name="reset">초기화</string>
 </resources>

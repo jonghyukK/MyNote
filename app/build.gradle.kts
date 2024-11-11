@@ -85,4 +85,7 @@ dependencies {
 
     // Calendar
     implementation(libs.calendar)
+
+    // Flexbox
+    implementation(libs.flexbox)
 }
