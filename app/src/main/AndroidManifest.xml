@@ -43,6 +43,8 @@
             android:theme="@style/StatusBarBlack" />
 
         <activity android:name=".ui.features.purchase.make.MakePurchaseNoteActivity" />
+
+        <activity android:name=".ui.features.purchase.detail.PurchaseNoteDetailActivity" />
     </application>
 
 </manifest>

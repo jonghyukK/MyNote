@@ -71,4 +71,5 @@
     <string name="reset">초기화</string>
     <string name="desc_empty_category_filters_make_purchase_note">생성된 카테고리가 없어요.\n노트를 추가해보세요!</string>
     <string name="desc_empty_category_filters_make_category">생성된 카테고리가 없어요.</string>
+    <string name="will_you_delete_this_purchase_note">구매노트를\n삭제하시겠어요?</string>
 </resources>

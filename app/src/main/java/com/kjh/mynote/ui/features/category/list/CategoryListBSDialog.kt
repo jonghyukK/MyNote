@@ -1,7 +1,6 @@
 package com.kjh.mynote.ui.features.category.list
 
 import android.view.View
-import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels

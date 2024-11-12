@@ -16,8 +16,8 @@ class DBTypeConverters {
      *  List<String> ...
      */
     @TypeConverter
-    fun fromUrisToString(uriList: List<String>?): String {
-        return uriList?.joinToString(separator = ",") ?: ""
+    fun fromUrisToString(uriList: List<String>?): String? {
+        return uriList?.joinToString(separator = ",")
     }
 
     @TypeConverter

@@ -16,4 +16,8 @@ interface PurchaseNoteRepository {
     val getPurchaseNotesWithCategory: Flow<List<PurchaseNote>>
 
     fun getPurchaseNotesByCategories(categories: List<Category>): Flow<List<PurchaseNote>>
+
+    suspend fun getPurchaseNoteById(id: Int): PurchaseNote
+
+    suspend fun deletePurchaseNoteById(id: Int)
 }

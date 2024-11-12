@@ -38,4 +38,7 @@ interface PurchaseNoteDao {
     @Query("UPDATE purchase SET categoryId = :etcCategoryId WHERE categoryId = :categoryId")
     suspend fun updateCategoryIdForPurchaseNote(etcCategoryId: Int, categoryId: Int)
 
+    @Query("DELETE FROM purchase WHERE id = :id")
+    suspend fun deletePurchaseNoteById(id: Int)
+
 }

@@ -17,6 +17,7 @@ import com.kjh.mynote.databinding.FragmentPurchaseBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.ui.base.BaseFragment
 import com.kjh.mynote.ui.features.category.filter.CategoryFilterDialogFragment
+import com.kjh.mynote.ui.features.purchase.detail.PurchaseNoteDetailActivity
 import com.kjh.mynote.ui.features.purchase.home.adapter.PurchaseHomeListAdapter
 import com.kjh.mynote.ui.features.purchase.make.MakePurchaseNoteActivity
 import com.kjh.mynote.utils.SpacingItemDecoration
@@ -43,7 +44,7 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
     private val viewModel: PurchaseHomeViewModel by viewModels()
 
     private val listAdapter: PurchaseHomeListAdapter by lazy {
-        PurchaseHomeListAdapter()
+        PurchaseHomeListAdapter(purchaseNoteItemClickAction)
     }
 
     override fun onInitView() {
@@ -119,6 +120,13 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
             ) ?: return@registerForActivityResult
 
             viewModel.setSelectedDay(insertedPlaceNoteItem.purchaseLocalDate)
+        }
+    }
+
+    private val purchaseNoteItemClickAction: (PurchaseNoteUiModel) -> Unit = { noteItem ->
+        Intent(requireContext(), PurchaseNoteDetailActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_PURCHASE_NOTE_ID, noteItem.id)
+            startActivity(this)
         }
     }
 

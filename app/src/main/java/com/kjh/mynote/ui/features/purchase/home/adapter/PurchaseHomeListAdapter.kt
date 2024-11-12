@@ -12,8 +12,9 @@ import com.kjh.mynote.model.PurchaseNoteUiModel
  * Created On 2024. 11. 8..
  * Description:
  */
-class PurchaseHomeListAdapter
-    : ListAdapter<PurchaseNoteUiModel, PurchaseNoteHomeListItemViewHolder>(UI_MODEL_COMPARATOR) {
+class PurchaseHomeListAdapter(
+    private val purchaseNoteItemClickAction: (PurchaseNoteUiModel) -> Unit
+) : ListAdapter<PurchaseNoteUiModel, PurchaseNoteHomeListItemViewHolder>(UI_MODEL_COMPARATOR) {
         
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -21,7 +22,7 @@ class PurchaseHomeListAdapter
     ) = PurchaseNoteHomeListItemViewHolder(
         VhPurchaseNoteHomeListItemBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
-        )
+        ), purchaseNoteItemClickAction
     )
 
     override fun onBindViewHolder(holder: PurchaseNoteHomeListItemViewHolder, position: Int) {

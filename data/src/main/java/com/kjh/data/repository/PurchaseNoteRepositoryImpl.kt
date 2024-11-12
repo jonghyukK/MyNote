@@ -36,4 +36,12 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
         return purchaseNoteLocalDateSource.getPurchaseNotesByCategoryIds(categoryIds)
             .map { data -> data.map { it.toDomainModel() } }
     }
+
+    override suspend fun getPurchaseNoteById(id: Int): PurchaseNote {
+        return purchaseNoteLocalDateSource.getPurchaseNoteById(id).toDomainModel()
+    }
+
+    override suspend fun deletePurchaseNoteById(id: Int) {
+        purchaseNoteLocalDateSource.deletePurchaseNoteById(id)
+    }
 }

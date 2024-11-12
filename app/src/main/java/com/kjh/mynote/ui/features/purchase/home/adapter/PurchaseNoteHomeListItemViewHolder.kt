@@ -4,6 +4,7 @@ import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhPurchaseNoteHomeListItemBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
+import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.toComma
 
 /**
@@ -12,8 +13,15 @@ import com.kjh.mynote.utils.extensions.toComma
  * Description:
  */
 class PurchaseNoteHomeListItemViewHolder(
-    private val binding: VhPurchaseNoteHomeListItemBinding
+    private val binding: VhPurchaseNoteHomeListItemBinding,
+    private val purchaseNoteItemClickAction: (PurchaseNoteUiModel) -> Unit
 ): BaseViewHolder<PurchaseNoteUiModel>(binding.root) {
+
+    init {
+        itemView.onThrottleClick {
+            bindItem?.let { item -> purchaseNoteItemClickAction.invoke(item) }
+        }
+    }
 
     override fun bind(item: PurchaseNoteUiModel) {
         super.bind(item)
