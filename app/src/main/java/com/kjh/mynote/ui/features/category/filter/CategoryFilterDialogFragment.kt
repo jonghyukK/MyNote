@@ -2,6 +2,7 @@ package com.kjh.mynote.ui.features.category.filter
 
 import android.os.Bundle
 import android.view.View.OnClickListener
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -75,6 +76,7 @@ class CategoryFilterDialogFragment
                         .map { it.filterItems }
                         .distinctUntilChanged()
                         .collectLatest {
+                            binding.layoutEmptyView.root.isVisible = it.isEmpty()
                             listAdapter.submitList(it)
                         }
                 }

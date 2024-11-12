@@ -1,6 +1,7 @@
 package com.kjh.mynote.ui.features.category.list
 
 import android.view.View
+import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -67,6 +68,9 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
 
                 launch {
                     viewModel.uiState.collect { state ->
+                        binding.layoutEmptyView.root.isVisible = state.isEmpty()
+                        binding.layoutEmptyView.tvDesc.text = getString(R.string.desc_empty_category_filters_make_category)
+
                         listAdapter.submitList(state)
                     }
                 }

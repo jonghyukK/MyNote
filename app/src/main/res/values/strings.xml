@@ -69,4 +69,6 @@
     <string name="category_filter">카테고리 필터</string>
     <string name="do_apply">적용하기</string>
     <string name="reset">초기화</string>
+    <string name="desc_empty_category_filters_make_purchase_note">생성된 카테고리가 없어요.\n노트를 추가해보세요!</string>
+    <string name="desc_empty_category_filters_make_category">생성된 카테고리가 없어요.</string>
 </resources>

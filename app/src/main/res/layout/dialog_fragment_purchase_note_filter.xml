@@ -37,6 +37,7 @@
             app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- Reset Layout -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_reset_container"
         android:layout_width="wrap_content"
@@ -71,6 +72,7 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- Filter List -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_categories"
         android:layout_width="0dp"
@@ -82,6 +84,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/btn_apply" />
 
+    <!-- Bottom Button -->
     <com.kjh.mynote.ui.common.components.MyBottomButton
         android:id="@+id/btn_apply"
         android:layout_width="0dp"
@@ -91,5 +94,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-
+    <include
+        android:id="@+id/layout_empty_view"
+        layout="@layout/layout_empty_my_categories"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/cl_toolbar_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
