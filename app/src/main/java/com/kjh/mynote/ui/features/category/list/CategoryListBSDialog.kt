@@ -67,11 +67,8 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
                 }
 
                 launch {
-                    viewModel.uiState.collect { state ->
-                        binding.layoutEmptyView.root.isVisible = state.isEmpty()
-                        binding.layoutEmptyView.tvDesc.text = getString(R.string.desc_empty_category_filters_make_category)
-
-                        listAdapter.submitList(state)
+                    viewModel.uiState.collect { categoryItems ->
+                        listAdapter.submitList(categoryItems)
                     }
                 }
 

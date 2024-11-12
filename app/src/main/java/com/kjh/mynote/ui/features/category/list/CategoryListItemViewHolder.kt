@@ -47,6 +47,9 @@ class CategoryListItemViewHolder(
                 ivChecked.isVisible = false
                 tvCategoryName.setTextColorRes(R.color.black_700)
             }
+
+            ivEdit.isVisible = !item.isDefaultCategory
+            ivDelete.isVisible = !item.isDefaultCategory
         }
     }
 }

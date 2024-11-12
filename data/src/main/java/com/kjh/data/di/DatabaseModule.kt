@@ -2,6 +2,8 @@ package com.kjh.data.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.kjh.data.db.NoteDataBase
 import com.kjh.data.source.local.CategoryDao
 import com.kjh.data.source.local.PlaceNoteDao
@@ -31,6 +33,12 @@ object DatabaseModule {
             NoteDataBase::class.java,
             "Notes.db"
         )
+            .addCallback(object: RoomDatabase.Callback() {
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    super.onCreate(db)
+                    db.execSQL("INSERT INTO categories (id, categoryName) VALUES (999, '기타')")
+                }
+            })
             .build()
     }
 

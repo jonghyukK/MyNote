@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.Category
 import com.example.domain.model.Result
-import com.example.domain.usecase.DeleteCategoryByIdUseCase
+import com.example.domain.usecase.DeleteCategoryAndAssignToETCUseCase
 import com.example.domain.usecase.GetAllCategoriesUseCase
 import com.example.domain.usecase.MakeCategoryUseCase
 import com.example.domain.usecase.UpdateCategoryNameUseCase
@@ -32,6 +32,7 @@ import javax.inject.Inject
 
 data class CategoryListItem(
     val isSelected: Boolean = false,
+    val isDefaultCategory: Boolean = false,
     val categoryItem: CategoryUiModel
 )
 
@@ -40,7 +41,7 @@ class CategoryListViewModel @Inject constructor(
     private val getAllCategoriesUseCase: GetAllCategoriesUseCase,
     private val makeCategoryUseCase: MakeCategoryUseCase,
     private val updateCategoryNameUseCase: UpdateCategoryNameUseCase,
-    private val deleteCategoryByIdUseCase: DeleteCategoryByIdUseCase
+    private val deleteCategoryAndAssignToETCUseCase: DeleteCategoryAndAssignToETCUseCase
 ): ViewModel() {
 
     private val _selectedCategoryItem = MutableStateFlow<CategoryUiModel?>(null)
@@ -68,6 +69,7 @@ class CategoryListViewModel @Inject constructor(
         allCategories.map { category ->
             CategoryListItem(
                 isSelected = category.id == selectedItem?.id,
+                isDefaultCategory = category.id == 999,
                 categoryItem = category
             )
         }
@@ -119,7 +121,7 @@ class CategoryListViewModel @Inject constructor(
 
     fun deleteCategory(categoryId: Int) {
         viewModelScope.launch {
-            deleteCategoryByIdUseCase(categoryId).collect { result ->
+            deleteCategoryAndAssignToETCUseCase(categoryId).collect { result ->
                 when (result) {
                     is Result.Loading -> {
                         _deleteCategoryEventState.emit(UiState.Loading)
