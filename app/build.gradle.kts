@@ -88,4 +88,7 @@ dependencies {
 
     // Flexbox
     implementation(libs.flexbox)
+
+    // ColorPicker
+    implementation(libs.colorPicker)
 }
