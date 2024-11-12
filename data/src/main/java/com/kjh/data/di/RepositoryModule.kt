@@ -4,10 +4,12 @@ import com.example.domain.repository.CategoryRepository
 import com.example.domain.repository.KakaoMapRepository
 import com.example.domain.repository.PlaceNoteRepository
 import com.example.domain.repository.PurchaseNoteRepository
+import com.example.domain.repository.PurchaseNoteWithCategoryRepository
 import com.kjh.data.repository.CategoryRepositoryImpl
 import com.kjh.data.repository.KakaoMapRepositoryImpl
 import com.kjh.data.repository.PlaceNoteRepositoryImpl
 import com.kjh.data.repository.PurchaseNoteRepositoryImpl
+import com.kjh.data.repository.PurchaseNoteWithCategoryRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -47,4 +49,10 @@ abstract class RepositoryModule {
     abstract fun bindCategoryRepository(
         categoryRepositoryImpl: CategoryRepositoryImpl
     ): CategoryRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPurchaseNoteWithCategoryRepository(
+        purchaseNoteWithCategoryRepositoryImpl: PurchaseNoteWithCategoryRepositoryImpl
+    ): PurchaseNoteWithCategoryRepository
 }
