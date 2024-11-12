@@ -1,5 +1,6 @@
 package com.example.domain.repository
 
+import com.example.domain.model.Category
 import com.example.domain.model.PurchaseNote
 import kotlinx.coroutines.flow.Flow
 
@@ -13,4 +14,6 @@ interface PurchaseNoteRepository {
     suspend fun insertAndGetPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote
 
     val getPurchaseNotesWithCategory: Flow<List<PurchaseNote>>
+
+    fun getPurchaseNotesByCategories(categories: List<Category>): Flow<List<PurchaseNote>>
 }

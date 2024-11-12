@@ -1,5 +1,6 @@
 package com.kjh.data.repository
 
+import com.example.domain.model.Category
 import com.example.domain.model.PurchaseNote
 import com.example.domain.repository.CategoryRepository
 import com.example.domain.repository.PurchaseNoteRepository
@@ -29,4 +30,10 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
     override val getPurchaseNotesWithCategory: Flow<List<PurchaseNote>>
         get() = purchaseNoteLocalDateSource.getPurchaseNotesWithCategory()
             .map { data -> data.map { it.toDomainModel() } }
+
+    override fun getPurchaseNotesByCategories(categories: List<Category>): Flow<List<PurchaseNote>> {
+        val categoryIds = categories.map { it.id }
+        return purchaseNoteLocalDateSource.getPurchaseNotesByCategoryIds(categoryIds)
+            .map { data -> data.map { it.toDomainModel() } }
+    }
 }

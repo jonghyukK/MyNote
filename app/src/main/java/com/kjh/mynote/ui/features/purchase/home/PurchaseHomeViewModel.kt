@@ -2,10 +2,12 @@ package com.kjh.mynote.ui.features.purchase.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.domain.usecase.GetPurchaseNotesByCategoriesUseCase
 import com.example.domain.usecase.GetPurchaseNotesUseCase
 import com.kizitonwose.calendar.core.yearMonth
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.PurchaseNoteUiModel
+import com.kjh.mynote.model.toDomainModel
 import com.kjh.mynote.model.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,6 +15,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import timber.log.Timber
@@ -34,7 +37,8 @@ data class PurchaseNoteHomeUiState(
 
 @HiltViewModel
 class PurchaseHomeViewModel @Inject constructor(
-    private val getPurchaseNotesUseCase: GetPurchaseNotesUseCase
+    private val getPurchaseNotesUseCase: GetPurchaseNotesUseCase,
+    private val getPurchaseNotesByCategoriesUseCase: GetPurchaseNotesByCategoriesUseCase
 ): ViewModel() {
 
     private val _appliedCategoryItems = MutableStateFlow<List<CategoryUiModel>>(emptyList())
@@ -45,13 +49,19 @@ class PurchaseHomeViewModel @Inject constructor(
 
     private val _selectedDay = MutableStateFlow(LocalDate.now())
 
-    private val purchaseNotesFlow = getPurchaseNotesUseCase()
-        .map { it.toUiModel().groupBy { it.purchaseLocalDate } }
-        .stateIn(
-            viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            emptyMap()
-        )
+    private val purchaseNotesFlow = _appliedCategoryItems.flatMapLatest { appliedCategoryItems ->
+        if (appliedCategoryItems.isEmpty()) {
+            getPurchaseNotesUseCase()
+                .map { it.toUiModel().groupBy { it.purchaseLocalDate } }
+        } else {
+            getPurchaseNotesByCategoriesUseCase(appliedCategoryItems.map { it.toDomainModel() })
+                .map { it.toUiModel().groupBy { it.purchaseLocalDate } }
+        }
+    }.stateIn(
+        viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        emptyMap()
+    )
 
     val uiState: StateFlow<PurchaseNoteHomeUiState> = combine(
         purchaseNotesFlow, _selectedDay
@@ -76,7 +86,6 @@ class PurchaseHomeViewModel @Inject constructor(
     }
 
     fun setCategoryFilterItems(items: List<CategoryUiModel>) {
-        Timber.tag("abc123").e("items: $items")
         _appliedCategoryItems.value = items
     }
 }

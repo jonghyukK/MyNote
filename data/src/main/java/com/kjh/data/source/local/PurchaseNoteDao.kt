@@ -30,4 +30,7 @@ interface PurchaseNoteDao {
     @Transaction
     @Query("SELECT * FROM purchase")
     fun getPurchaseNotesWithCategory(): Flow<List<PurchaseNoteWithCategoryEntity>>
+
+    @Query("SELECT * FROM purchase WHERE categoryId IN (:categoryIds)")
+    fun getPurchaseNotesByCategoryIds(categoryIds: List<Int>): Flow<List<PurchaseNoteWithCategoryEntity>>
 }

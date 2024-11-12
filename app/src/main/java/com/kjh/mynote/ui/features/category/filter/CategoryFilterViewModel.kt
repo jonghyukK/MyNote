@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.domain.usecase.GetAllCategoriesUseCase
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.toUiModel
-import com.kjh.mynote.ui.features.category.list.CategoryListItem
 import com.kjh.mynote.ui.features.category.filter.CategoryFilterDialogFragment.Companion.ARG_APPLIED_FILTER_ITEMS
+import com.kjh.mynote.ui.features.category.list.CategoryListItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

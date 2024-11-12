@@ -106,6 +106,7 @@ class CategoryFilterDialogFragment
     private val applyButtonClickListener = OnClickListener {
         if (binding.btnApply.isEnable) {
             parentViewModel.setCategoryFilterItems(viewModel.selectedCategoryItems.value)
+            dismiss()
         }
     }
 

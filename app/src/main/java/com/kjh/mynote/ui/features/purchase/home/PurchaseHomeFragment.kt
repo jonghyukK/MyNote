@@ -5,12 +5,14 @@ import android.content.Intent
 import android.view.View
 import android.view.View.OnClickListener
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.kizitonwose.calendar.core.CalendarMonth
+import com.kjh.mynote.R
 import com.kjh.mynote.databinding.FragmentPurchaseBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.ui.base.BaseFragment
@@ -88,6 +90,21 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
                         .collect {
                             binding.calendarMonthView.updateCalendarUI(it)
                         }
+                }
+
+                launch {
+                    viewModel.appliedCategoryItems.collect { appliedFilterItems ->
+                        with (binding) {
+                            if (appliedFilterItems.isEmpty()) {
+                                tvFilteredCount.isVisible = false
+                                ivFilter.setColorFilter(ContextCompat.getColor(requireContext(), R.color.black_800))
+                            } else {
+                                tvFilteredCount.isVisible = true
+                                tvFilteredCount.text = appliedFilterItems.size.toString()
+                                ivFilter.setColorFilter(ContextCompat.getColor(requireContext(), R.color.purple))
+                            }
+                        }
+                    }
                 }
             }
         }
