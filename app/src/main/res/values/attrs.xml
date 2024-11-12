@@ -6,6 +6,8 @@
         <attr name="backButtonTint" format="reference|integer" />
         <attr name="isShowMoreButton" format="boolean" />
         <attr name="moreButtonTint" format="reference|integer" />
+        <attr name="rightFirstImage" format="reference|integer" />
+        <attr name="rightSecondImage" format="reference|integer" />
     </declare-styleable>
 
     <declare-styleable name="MyBottomButton">

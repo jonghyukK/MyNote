@@ -2,6 +2,7 @@ package com.kjh.mynote.ui.common.components
 
 import android.content.Context
 import android.graphics.PorterDuff
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
@@ -66,6 +67,30 @@ class MyToolBar @JvmOverloads constructor(
             field = value
         }
 
+    /**
+     *  Right First Image
+     */
+    var rightFirstImage: Drawable? = null
+        set(value) {
+            binding.ivRightFirst.isVisible = value != null
+            value?.let {
+                binding.ivRightFirst.setImageDrawable(it)
+            }
+            field = value
+        }
+
+    /**
+     *  Right Second Image
+     */
+    var rightSecondImage: Drawable? = null
+        set(value) {
+            binding.ivRightSecond.isVisible = value != null
+            value?.let {
+                binding.ivRightSecond.setImageDrawable(it)
+            }
+            field = value
+        }
+
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.MyToolBar, defStyleAttr, 0)
 
@@ -74,6 +99,8 @@ class MyToolBar @JvmOverloads constructor(
         backButtonTint = typedArray.getInteger(R.styleable.MyToolBar_backButtonTint, R.color.white)
         isShowMoreButton = typedArray.getBoolean(R.styleable.MyToolBar_isShowMoreButton, false)
         moreButtonTint = typedArray.getInteger(R.styleable.MyToolBar_moreButtonTint, R.color.white)
+        rightFirstImage = typedArray.getDrawable(R.styleable.MyToolBar_rightFirstImage)
+        rightSecondImage = typedArray.getDrawable(R.styleable.MyToolBar_rightSecondImage)
 
         if (context is AppCompatActivity && !binding.ivBack.hasOnClickListeners()) {
             binding.ivBack.onThrottleClick { context.onBackPressed() }
@@ -87,5 +114,19 @@ class MyToolBar @JvmOverloads constructor(
      */
     fun setMoreButtonClickListener(listener: OnClickListener) {
         binding.ivMore.setOnThrottleClickListener(listener)
+    }
+
+    /**
+     *  Right First Button ClickListener.
+     */
+    fun setRightFirstButtonClickListener(listener: OnClickListener) {
+        binding.ivRightFirst.setOnThrottleClickListener(listener)
+    }
+
+    /**
+     *  Right Second Button ClickListener.
+     */
+    fun setRightSecondButtonClickListener(listener: OnClickListener) {
+        binding.ivRightSecond.setOnThrottleClickListener(listener)
     }
 }

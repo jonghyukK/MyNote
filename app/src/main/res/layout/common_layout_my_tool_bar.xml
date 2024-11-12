@@ -51,4 +51,34 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
+    <!-- Right First Button -->
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_right_first"
+        android:layout_width="@dimen/toolbar_icon"
+        android:layout_height="@dimen/toolbar_icon"
+        android:background="@drawable/ripple_white"
+        app:srcCompat="@drawable/ic_more_vertical_24"
+        android:padding="8dp"
+        android:layout_marginEnd="2dp"
+        app:tint="@color/black_800"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- Right Second Button -->
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_right_second"
+        android:layout_width="@dimen/toolbar_icon"
+        android:layout_height="@dimen/toolbar_icon"
+        android:background="@drawable/ripple_white"
+        app:srcCompat="@drawable/ic_more_vertical_24"
+        android:padding="8dp"
+        android:layout_marginEnd="2dp"
+        app:tint="@color/black_800"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/iv_right_first"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
