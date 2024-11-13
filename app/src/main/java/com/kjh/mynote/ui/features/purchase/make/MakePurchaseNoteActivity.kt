@@ -10,16 +10,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.kjh.mynote.R
-import com.kjh.mynote.databinding.ActivityMakePurchaseNoteBinding
+import com.kjh.mynote.databinding.ActivityEditOrMakePurchaseNoteBinding
 import com.kjh.mynote.model.KakaoPlaceUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
+import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog
 import com.kjh.mynote.ui.features.map.NaverMapActivity
 import com.kjh.mynote.ui.features.place.make.adapter.TempImageListAdapter
-import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog
 import com.kjh.mynote.utils.DatePickerManager
 import com.kjh.mynote.utils.constants.AppConstants
-import com.kjh.mynote.utils.extensions.hideKeyboard
 import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.registerStartActivityResultLauncher
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
@@ -40,7 +39,7 @@ import java.time.ZoneOffset
  */
 
 @AndroidEntryPoint
-class MakePurchaseNoteActivity: BaseActivity<ActivityMakePurchaseNoteBinding>({ ActivityMakePurchaseNoteBinding.inflate(it) }) {
+class MakePurchaseNoteActivity: BaseActivity<ActivityEditOrMakePurchaseNoteBinding>({ ActivityEditOrMakePurchaseNoteBinding.inflate(it) }) {
 
     private val viewModel: MakePurchaseNoteViewModel by viewModels()
 
@@ -53,17 +52,22 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityMakePurchaseNoteBinding>({ 
 
     override fun onInitView() {
         with (binding) {
+            tbToolbar.leftTitle = getString(R.string.make_purchase_note)
+            btnBottom.btnTitle = getString(R.string.do_save)
+
             rvTempImages.apply {
                 adapter = tempImageListAdapter
             }
 
+            etPurchaseName.addMyTextWatcher(purchaseNameTextWatcher)
+            etPurchasePrice.addMyTextWatcher(priceTextWatcher)
+
+            tvCategory.setTextClickListener(categoryClickListener)
+            tvPurchaseDate.setTextClickListener(purchaseDateClickListener)
+            tvPurchasePlace.setTextClickListener(searchMapClickListener)
+
             clAttachImages.setOnThrottleClickListener(photoAttachClickListener)
-            clPurchasePlaceContainer.setOnThrottleClickListener(searchMapClickListener)
-            clPurchaseDateContainer.setOnThrottleClickListener(purchaseDateClickListener)
-            etPrice.addTextChangedListener(priceTextWatcher)
-            etPurchaseName.addTextChangedListener(purchaseNameTextWatcher)
-            clCategoryContainer.setOnThrottleClickListener(categoryClickListener)
-            btnSave.setOnThrottleClickListener(saveBtnClickListener)
+            btnBottom.setOnThrottleClickListener(saveBtnClickListener)
         }
     }
 
@@ -75,6 +79,55 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityMakePurchaseNoteBinding>({ 
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.uiState
+                        .map { it.categoryItem }
+                        .distinctUntilChanged()
+                        .collect { categoryItem ->
+                            categoryItem?.let {
+                                binding.tvCategory.text = it.categoryName
+                                binding.tvCategory.textColor = R.color.black_800
+                            } ?: run {
+                                binding.tvCategory.text = getString(R.string.select_category)
+                                binding.tvCategory.textColor = R.color.black_400
+                            }
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.purchaseDateText }
+                        .distinctUntilChanged()
+                        .collect { purchaseDateText ->
+                            with (binding.tvPurchaseDate) {
+                                if (purchaseDateText.isBlank()) {
+                                    text = getString(R.string.select_purchase_date)
+                                    textColor = R.color.black_400
+                                } else {
+                                    text = purchaseDateText
+                                    textColor = R.color.black_900
+                                }
+                            }
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.tempPlaceItem }
+                        .distinctUntilChanged()
+                        .collect { tempPlaceItem ->
+                            with (binding.tvPurchasePlace) {
+                                if (tempPlaceItem == null) {
+                                    text = getString(R.string.search_purchase_place)
+                                    textColor = R.color.black_400
+                                } else {
+                                    text = tempPlaceItem.placeName
+                                    textColor = R.color.black_900
+                                }
+                            }
+                        }
+                }
+
                 launch {
                     viewModel.uiState
                         .map { it.tempImageUrls }
@@ -90,51 +143,8 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityMakePurchaseNoteBinding>({ 
                 }
 
                 launch {
-                    viewModel.uiState
-                        .map { it.tempPlaceItem }
-                        .distinctUntilChanged()
-                        .collect { tempPlaceItem ->
-                            with (binding.tvPurchasePlace) {
-                                if (tempPlaceItem == null) {
-                                    text = getString(R.string.search_purchase_place)
-                                    setTextColor(getColor(R.color.black_400))
-                                } else {
-                                    text = tempPlaceItem.placeName
-                                    setTextColor(getColor(R.color.black_900))
-                                }
-                            }
-                        }
-                }
-
-                launch {
-                    viewModel.uiState
-                        .map { it.purchaseDateText }
-                        .distinctUntilChanged()
-                        .collect { purchaseDateText ->
-                            with (binding.tvPurchaseDate) {
-                                if (purchaseDateText.isBlank()) {
-                                    text = getString(R.string.select_purchase_date)
-                                    setTextColor(getColor(R.color.black_400))
-                                } else {
-                                    text = purchaseDateText
-                                    setTextColor(getColor(R.color.black_900))
-                                }
-                            }
-                        }
-                }
-
-                launch {
-                    viewModel.uiState
-                        .map { it.categoryItem }
-                        .distinctUntilChanged()
-                        .collect { categoryItem ->
-                            binding.tvCategoryName.text = categoryItem?.categoryName ?: ""
-                        }
-                }
-
-                launch {
                     viewModel.saveValidateFlow.collectLatest { isValid ->
-                        binding.btnSave.isEnable = isValid
+                        binding.btnBottom.isEnable = isValid
                     }
                 }
 
@@ -143,14 +153,14 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityMakePurchaseNoteBinding>({ 
                         when (event) {
                             is UiState.Init -> {}
                             is UiState.Loading -> {
-                                binding.btnSave.isLoading = true
+                                binding.btnBottom.isLoading = true
                             }
                             is UiState.Error -> {
-                                binding.btnSave.isLoading = false
+                                binding.btnBottom.isLoading = false
                                 showToast(event.errorMsg)
                             }
                             is UiState.Success -> {
-                                binding.btnSave.isLoading = false
+                                binding.btnBottom.isLoading = false
                                 Intent().apply {
                                     putExtra(AppConstants.INTENT_PURCHASE_NOTE_ITEM, event.data)
                                     setResult(RESULT_OK, this)
@@ -164,15 +174,9 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityMakePurchaseNoteBinding>({ 
         }
     }
 
-    override fun onDestroy() {
-        binding.etPrice.removeTextChangedListener(priceTextWatcher)
-        binding.etPurchaseName.removeTextChangedListener(purchaseNameTextWatcher)
-        super.onDestroy()
-    }
-
     private fun clearFocus() {
-        binding.etPrice.hideKeyboard()
         binding.etPurchaseName.hideKeyboard()
+        binding.etPurchasePrice.hideKeyboard()
     }
 
     private fun showDatePicker(positiveBtnClickAction: (Long) -> Unit) {
@@ -192,32 +196,6 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityMakePurchaseNoteBinding>({ 
         ).show(supportFragmentManager, "DATE_PICKER")
     }
 
-    private val priceTextWatcher = object: TextWatcher {
-        private var current = ""
-
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        override fun afterTextChanged(s: Editable?) {
-            if (s.toString() != current) {
-                binding.etPrice.removeTextChangedListener(this)
-
-                val cleanString = s.toString().replace(",", "")
-                if (cleanString.isNotEmpty()) {
-                    viewModel.setPurchasePrice(cleanString)
-
-                    val formatted = cleanString.toLong().toComma()
-                    current = formatted
-                    binding.etPrice.setText(formatted)
-                    binding.etPrice.setSelection(formatted.length)
-                } else {
-                    viewModel.clearPurchasePrice()
-                }
-
-                binding.etPrice.addTextChangedListener(this)
-            }
-        }
-    }
-
     private val purchaseNameTextWatcher = object: TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -225,6 +203,41 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityMakePurchaseNoteBinding>({ 
             viewModel.setPurchaseName(s.toString())
         }
     }
+
+    private val priceTextWatcher = object: TextWatcher {
+        private var current = ""
+
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        override fun afterTextChanged(s: Editable?) {
+            if (s.toString() != current) {
+                binding.etPurchasePrice.removeMyTextWatcher()
+
+                val cleanString = s.toString().replace(",", "")
+                if (cleanString.isNotEmpty()) {
+                    viewModel.setPurchasePrice(cleanString)
+
+                    val formatted = cleanString.toLong().toComma()
+                    current = formatted
+                    binding.etPurchasePrice.text = formatted
+                    binding.etPurchasePrice.setSelection(formatted.length)
+                } else {
+                    viewModel.clearPurchasePrice()
+                }
+
+                binding.etPurchasePrice.addMyTextWatcher(this)
+            }
+        }
+    }
+
+    private val searchPlaceResultLauncher = registerStartActivityResultLauncher(
+        resultOkBlock = { result ->
+            val placeItem =
+                result.data?.parcelable<KakaoPlaceUiModel>(AppConstants.INTENT_TEMP_PLACE_ITEM)
+                    ?: return@registerStartActivityResultLauncher
+
+            viewModel.setTempPlaceItem(placeItem)
+        })
 
     private val multiPhotoPickerLauncher = registerStartActivityResultLauncher(
         resultOkBlock = { result ->
@@ -246,40 +259,14 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityMakePurchaseNoteBinding>({ 
         }
     )
 
-    private val searchPlaceResultLauncher = registerStartActivityResultLauncher(
-        resultOkBlock = { result ->
-            val placeItem =
-                result.data?.parcelable<KakaoPlaceUiModel>(AppConstants.INTENT_TEMP_PLACE_ITEM)
-                    ?: return@registerStartActivityResultLauncher
-
-            viewModel.setTempPlaceItem(placeItem)
-        })
-
-    private val photoAttachClickListener = OnClickListener {
+    private val deleteTempImageClickAction: (String) -> Unit = { uri ->
         clearFocus()
 
-        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-            type = "image/*"
-            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-        }
-        multiPhotoPickerLauncher.launch(intent)
+        viewModel.deleteTempImageByUrl(uri)
     }
 
-    private val searchMapClickListener = OnClickListener {
-        clearFocus()
-
-        val intent = Intent(this@MakePurchaseNoteActivity, NaverMapActivity::class.java).apply {
-            putExtra(AppConstants.INTENT_TEMP_PLACE_ITEM, viewModel.getTempPlaceItem())
-        }
-        searchPlaceResultLauncher.launch(intent)
-    }
-
-    private val purchaseDateClickListener = OnClickListener {
-        clearFocus()
-
-        showDatePicker(positiveBtnClickAction = { timeInMillis ->
-            viewModel.setPurchaseDate(timeInMillis)
-        })
+    private val tempImageClickAction: (String) -> Unit = {
+        showToast("개발 예정..")
     }
 
     private val categoryClickListener = OnClickListener {
@@ -299,22 +286,37 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityMakePurchaseNoteBinding>({ 
         ).show(supportFragmentManager, CategoryListBSDialog.TAG)
     }
 
-    private val saveBtnClickListener = OnClickListener {
+    private val purchaseDateClickListener = OnClickListener {
         clearFocus()
 
-        if (binding.btnSave.isEnable) {
+        showDatePicker(positiveBtnClickAction = { timeInMillis ->
+            viewModel.setPurchaseDate(timeInMillis)
+        })
+    }
+
+    private val searchMapClickListener = OnClickListener {
+        clearFocus()
+
+        val intent = Intent(this@MakePurchaseNoteActivity, NaverMapActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_TEMP_PLACE_ITEM, viewModel.getTempPlaceItem())
+        }
+        searchPlaceResultLauncher.launch(intent)
+    }
+
+    private val photoAttachClickListener = OnClickListener {
+        clearFocus()
+
+        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "image/*"
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+        }
+        multiPhotoPickerLauncher.launch(intent)
+    }
+
+    private val saveBtnClickListener = OnClickListener {
+        if (binding.btnBottom.isEnable) {
+            clearFocus()
             viewModel.makePurchaseNote()
         }
     }
-
-    private val deleteTempImageClickAction: (String) -> Unit = { uri ->
-        clearFocus()
-
-        viewModel.deleteTempImageByUrl(uri)
-    }
-
-    private val tempImageClickAction: (String) -> Unit = {
-        showToast("개발 예정..")
-    }
-
 }

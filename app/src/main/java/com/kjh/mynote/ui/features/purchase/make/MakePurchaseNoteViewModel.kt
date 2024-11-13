@@ -33,13 +33,13 @@ import javax.inject.Inject
  */
 
 data class MakePurchaseNoteUiState(
-    val tempImageUrls: List<String> = emptyList(),
-    val tempPlaceItem: KakaoPlaceUiModel? = null,
+    val purchaseName: String = "",
+    val categoryItem: CategoryUiModel? = null,
     val purchaseDate: Long = -1,
     val purchaseDateText: String = "",
     val purchasePrice: Long = 0,
-    val purchaseName: String = "",
-    val categoryItem: CategoryUiModel? = null,
+    val tempPlaceItem: KakaoPlaceUiModel? = null,
+    val tempImageUrls: List<String> = emptyList()
 )
 
 @HiltViewModel
@@ -114,7 +114,7 @@ class MakePurchaseNoteViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 purchaseDate = timeInMillis,
-                purchaseDateText = timeInMillis.toStringWithFormat("yyyy-MM-dd (E)")
+                purchaseDateText = timeInMillis.toStringWithFormat(DATE_PATTERN)
             )
         }
     }
@@ -202,5 +202,9 @@ class MakePurchaseNoteViewModel @Inject constructor(
         } else {
             return currentTempUris + deduplicatedNewTempUris
         }
+    }
+
+    companion object {
+        private const val DATE_PATTERN = "yyyy년 M월 d일 (E)"
     }
 }

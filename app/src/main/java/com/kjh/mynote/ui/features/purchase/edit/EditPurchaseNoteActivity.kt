@@ -11,7 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.kjh.mynote.R
-import com.kjh.mynote.databinding.ActivityEditPurchaseNoteBinding
+import com.kjh.mynote.databinding.ActivityEditOrMakePurchaseNoteBinding
 import com.kjh.mynote.model.KakaoPlaceUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
@@ -39,7 +39,7 @@ import java.time.ZoneOffset
  */
 
 @AndroidEntryPoint
-class EditPurchaseNoteActivity: BaseActivity<ActivityEditPurchaseNoteBinding>({ ActivityEditPurchaseNoteBinding.inflate(it) }) {
+class EditPurchaseNoteActivity: BaseActivity<ActivityEditOrMakePurchaseNoteBinding>({ ActivityEditOrMakePurchaseNoteBinding.inflate(it) }) {
 
     private val viewModel: EditPurchaseNoteViewModel by viewModels()
 
@@ -52,6 +52,9 @@ class EditPurchaseNoteActivity: BaseActivity<ActivityEditPurchaseNoteBinding>({ 
 
     override fun onInitView() {
         with (binding) {
+            tbToolbar.leftTitle = getString(R.string.purchase_note_edit)
+            btnBottom.btnTitle = getString(R.string.do_modify)
+
             rvTempImages.apply {
                 adapter = tempImageListAdapter
             }
@@ -62,8 +65,9 @@ class EditPurchaseNoteActivity: BaseActivity<ActivityEditPurchaseNoteBinding>({ 
             tvCategory.setTextClickListener(categoryClickListener)
             tvPurchaseDate.setTextClickListener(purchaseDateClickListener)
             tvPurchasePlace.setTextClickListener(searchMapClickListener)
+
             clAttachImages.setOnThrottleClickListener(photoAttachClickListener)
-            btnEdit.setOnThrottleClickListener(editButtonClickListener)
+            btnBottom.setOnThrottleClickListener(editButtonClickListener)
         }
     }
 
@@ -157,7 +161,7 @@ class EditPurchaseNoteActivity: BaseActivity<ActivityEditPurchaseNoteBinding>({ 
 
                 launch {
                     viewModel.editValidateFlow.collect {
-                        binding.btnEdit.isEnable = it
+                        binding.btnBottom.isEnable = it
                     }
                 }
 
@@ -166,15 +170,15 @@ class EditPurchaseNoteActivity: BaseActivity<ActivityEditPurchaseNoteBinding>({ 
                         when (state) {
                             is UiState.Init -> {}
                             is UiState.Loading -> {
-                                binding.btnEdit.isLoading = true
+                                binding.btnBottom.isLoading = true
                             }
                             is UiState.Error -> {
-                                binding.btnEdit.isLoading = false
+                                binding.btnBottom.isLoading = false
 
                                 showToast(state.errorMsg)
                             }
                             is UiState.Success -> {
-                                binding.btnEdit.isLoading = false
+                                binding.btnBottom.isLoading = false
 
                                 Intent().apply {
                                     setResult(RESULT_OK, this)
@@ -276,7 +280,6 @@ class EditPurchaseNoteActivity: BaseActivity<ActivityEditPurchaseNoteBinding>({ 
 
     private val deleteTempImageClickAction: (String) -> Unit = { uri ->
         clearFocus()
-
         viewModel.deleteTempImageByUrl(uri)
     }
 
@@ -329,7 +332,7 @@ class EditPurchaseNoteActivity: BaseActivity<ActivityEditPurchaseNoteBinding>({ 
     }
 
     private val editButtonClickListener = OnClickListener {
-        if (binding.btnEdit.isEnable) {
+        if (binding.btnBottom.isEnable) {
             clearFocus()
             viewModel.requestEditPurchaseNote()
         }

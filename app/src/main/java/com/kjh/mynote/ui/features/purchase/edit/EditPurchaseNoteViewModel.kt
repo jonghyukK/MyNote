@@ -40,7 +40,7 @@ data class EditPurchaseNoteUiState(
     val purchaseDateText: String = "",
     val purchasePrice: Long = 0,
     val tempPlaceItem: KakaoPlaceUiModel? = null,
-    val tempImageUrls: List<String> = emptyList(),
+    val tempImageUrls: List<String> = emptyList()
 )
 
 @HiltViewModel

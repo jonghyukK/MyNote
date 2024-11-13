@@ -156,7 +156,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.kjh.mynote.ui.common.components.MyBottomButton
-        android:id="@+id/btn_edit"
+        android:id="@+id/btn_bottom"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:btnTitle="@string/do_modify"
