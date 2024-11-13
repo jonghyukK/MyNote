@@ -15,6 +15,7 @@ import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.common.components.MyDefaultDialog
 import com.kjh.mynote.ui.features.purchase.edit.EditPurchaseNoteActivity
+import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity
 import com.kjh.mynote.utils.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.ifNullOrEmpty
@@ -90,12 +91,12 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
     private fun setupPurchaseNoteUi(purchaseNoteItem: PurchaseNoteUiModel) = with (binding) {
         tvPurchaseName.text = purchaseNoteItem.purchaseName
         tvCategory.text = purchaseNoteItem.category?.categoryName ?: "카테고리 없음"
-        tvPurchaseDate.text = purchaseNoteItem.purchaseDate.toStringWithFormat("yyyy년 MM월 dd일")
+        tvPurchaseDate.text = purchaseNoteItem.purchaseDate.toStringWithFormat("yyyy년 M월 d일 (E)")
         tvPurchasePrice.text = getString(R.string.format_won, purchaseNoteItem.purchasePrice.toComma())
 
         purchaseNoteItem.purchasePlaceInfo?.let { placeInfo ->
             groupPlace.isVisible = true
-            tvPurchasePlace.text = placeInfo.placeRoadAddress.ifNullOrEmpty(placeInfo.placeAddress)
+            tvPurchasePlace.text = placeInfo.placeName
         } ?: run {
             groupPlace.isVisible = false
         }
@@ -112,8 +113,14 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
         viewModel.getPurchaseNoteById()
     })
 
-    private val imageClickAction: (String) -> Unit = {
+    private val imageClickAction: (String) -> Unit = { clickedImage ->
+        val images = viewModel.uiState.value.purchaseNoteItem?.images ?: emptyList()
 
+        Intent(this, ImagesViewerActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_IMAGE_LIST, ArrayList(images))
+            putExtra(AppConstants.INTENT_URL, clickedImage)
+            startActivity(this)
+        }
     }
 
     private val deleteNoteClickListener = OnClickListener {
