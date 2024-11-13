@@ -12,7 +12,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class KakaoPlaceUiModel(
-    val id: String,
+    val id: String = "",
     val placeName: String,
     val addressName: String,
     val roadAddressName: String? = null,

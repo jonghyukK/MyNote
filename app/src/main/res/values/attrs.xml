@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <attr name="isRequired" format="boolean" />
+    <attr name="title" format="reference|string" />
+
     <declare-styleable name="MyToolBar">
         <attr name="isShowBackButton" format="boolean" />
         <attr name="leftTitle" format="reference|string" />
@@ -14,5 +17,19 @@
         <attr name="btnTitle" format="reference|string" />
         <attr name="isEnable" format="boolean" />
         <attr name="isLoading" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="MyTitleWithEditTextView">
+        <attr name="title" />
+        <attr name="isRequired" />
+        <attr name="android:inputType" />
+        <attr name="android:imeOptions" />
+        <attr name="android:hint" />
+    </declare-styleable>
+
+    <declare-styleable name="MyTitleWithSelectableTextView">
+        <attr name="title" />
+        <attr name="android:text" format="reference|string" />
+        <attr name="isRequired" />
     </declare-styleable>
 </resources>

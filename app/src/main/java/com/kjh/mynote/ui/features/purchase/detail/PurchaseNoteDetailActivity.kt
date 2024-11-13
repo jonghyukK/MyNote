@@ -1,5 +1,6 @@
 package com.kjh.mynote.ui.features.purchase.detail
 
+import android.content.Intent
 import android.view.View
 import android.view.View.OnClickListener
 import androidx.activity.viewModels
@@ -13,8 +14,11 @@ import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.common.components.MyDefaultDialog
+import com.kjh.mynote.ui.features.purchase.edit.EditPurchaseNoteActivity
 import com.kjh.mynote.utils.SpacingItemDecoration
+import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.ifNullOrEmpty
+import com.kjh.mynote.utils.extensions.registerStartActivityResultLauncher
 import com.kjh.mynote.utils.extensions.showToast
 import com.kjh.mynote.utils.extensions.toComma
 import com.kjh.mynote.utils.extensions.toStringWithFormat
@@ -104,6 +108,10 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
         }
     }
 
+    private val editNoteResultLauncher = registerStartActivityResultLauncher(resultOkBlock = {
+        viewModel.getPurchaseNoteById()
+    })
+
     private val imageClickAction: (String) -> Unit = {
 
     }
@@ -120,6 +128,9 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
     }
 
     private val editNoteClickListener = OnClickListener {
-
+        Intent(this, EditPurchaseNoteActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_PURCHASE_NOTE_ITEM, viewModel.uiState.value.purchaseNoteItem)
+            editNoteResultLauncher.launch(this)
+        }
     }
 }

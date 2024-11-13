@@ -43,7 +43,9 @@
                 android:textSize="24sp"
                 android:textColor="@color/black_800"
                 android:textStyle="bold"
-                tools:text="담배" />
+                tools:text="담배"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
 
             <!-- 카테고리 -->
             <androidx.appcompat.widget.AppCompatTextView
