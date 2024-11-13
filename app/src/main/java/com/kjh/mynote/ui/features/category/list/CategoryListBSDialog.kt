@@ -1,8 +1,8 @@
 package com.kjh.mynote.ui.features.category.list
 
+import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -12,13 +12,12 @@ import com.kjh.mynote.databinding.BsdCategoryListDialogBinding
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
-import com.kjh.mynote.ui.features.purchase.make.MakePurchaseNoteViewModel
+import com.kjh.mynote.utils.constants.AppConstants
+import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /**
@@ -30,7 +29,6 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialogBinding>({ BsdCategoryListDialogBinding.inflate(it) }) {
 
-    private val parentViewModel: MakePurchaseNoteViewModel by activityViewModels()
     private val viewModel: CategoryListViewModel by viewModels()
 
     private val listAdapter: CategoryListAdapter by lazy {
@@ -41,7 +39,21 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
         )
     }
 
+    private var categoryClickAction: (CategoryUiModel) -> Unit = {}
+    private var updateCategoryNameAction: (CategoryUiModel) -> Unit = {}
+    private var deleteCategoryAction: (Int) -> Unit = {}
+
     private var categoryEditDialog: DialogFragment? = null
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        arguments?.let {
+            val selectedCategoryItem = it.parcelable<CategoryUiModel>(AppConstants.INTENT_CATEGORY_ITEM)
+            viewModel.setSelectedCategoryItem(selectedCategoryItem)
+        }
+    }
 
     override fun onInitView() {
         with (binding) {
@@ -56,15 +68,6 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
     override fun onInitData() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    parentViewModel.uiState
-                        .map { it.categoryItem }
-                        .distinctUntilChanged()
-                        .collect {
-                            viewModel.setSelectedCategoryItem(it)
-                        }
-                }
-
                 launch {
                     viewModel.uiState.collect { categoryItems ->
                         listAdapter.submitList(categoryItems)
@@ -86,7 +89,7 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
                         when (event) {
                             is UiState.Error -> showToast(event.errorMsg)
                             is UiState.Success -> {
-                                parentViewModel.updateSelectedCategoryWhenChanged(event.data)
+                                updateCategoryNameAction(event.data)
                                 dialogDismissAndSetNull()
                             }
                             else -> {}
@@ -99,7 +102,7 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
                         when (event) {
                             is UiState.Error -> showToast(event.errorMsg)
                             is UiState.Success -> {
-                                parentViewModel.deleteSelectedCategoryWhenChanged(event.data)
+                                deleteCategoryAction(event.data)
                                 dialogDismissAndSetNull()
                             }
                             else -> {}
@@ -118,7 +121,7 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
     }
 
     private val onItemClickAction: (CategoryUiModel) -> Unit = { category ->
-        parentViewModel.setCategory(category)
+        categoryClickAction(category)
         dismiss()
     }
 
@@ -167,6 +170,19 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
     companion object {
         const val TAG = "CategoryListBSDialog"
 
-        fun newInstance() = CategoryListBSDialog()
+        fun newInstance(
+            selectedCategoryItem: CategoryUiModel?,
+            selectCategoryAction: (CategoryUiModel) -> Unit,
+            updateCategoryNameAction: (CategoryUiModel) -> Unit,
+            deleteCategoryAction: (Int) -> Unit
+        ) = CategoryListBSDialog().apply {
+            arguments = Bundle().apply {
+                putParcelable(AppConstants.INTENT_CATEGORY_ITEM, selectedCategoryItem)
+            }
+
+            this.categoryClickAction = selectCategoryAction
+            this.updateCategoryNameAction = updateCategoryNameAction
+            this.deleteCategoryAction = deleteCategoryAction
+        }
     }
 }

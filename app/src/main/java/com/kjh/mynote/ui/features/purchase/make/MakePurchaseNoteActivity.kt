@@ -285,8 +285,18 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityMakePurchaseNoteBinding>({ 
     private val categoryClickListener = OnClickListener {
         clearFocus()
 
-        CategoryListBSDialog.newInstance()
-            .show(supportFragmentManager, CategoryListBSDialog.TAG)
+        CategoryListBSDialog.newInstance(
+            selectedCategoryItem = viewModel.uiState.value.categoryItem,
+            selectCategoryAction = { categoryItem ->
+                viewModel.setCategory(categoryItem)
+            },
+            updateCategoryNameAction = { categoryItem ->
+                viewModel.updateSelectedCategoryWhenChanged(categoryItem)
+            },
+            deleteCategoryAction = { categoryId ->
+                viewModel.deleteSelectedCategoryWhenChanged(categoryId)
+            }
+        ).show(supportFragmentManager, CategoryListBSDialog.TAG)
     }
 
     private val saveBtnClickListener = OnClickListener {
