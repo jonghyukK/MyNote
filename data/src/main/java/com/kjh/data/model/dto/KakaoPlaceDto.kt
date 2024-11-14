@@ -1,7 +1,7 @@
 package com.kjh.data.model.dto
 
 import android.os.Parcelable
-import com.example.domain.model.KakaoPlace
+import com.example.domain.model.PlaceInfo
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
@@ -33,11 +33,11 @@ data class KakaoPlaceDto(
     val y: String,
 ): Parcelable
 
-fun KakaoPlaceDto.toDomainModel() = KakaoPlace(
+fun KakaoPlaceDto.toDomainModel() = PlaceInfo(
     id = id,
-    placeName = placeName,
-    addressName = addressName,
-    roadAddressName = roadAddressName,
+    name = placeName,
+    address = addressName,
+    roadAddress = roadAddressName,
     x = x,
     y = y
 )

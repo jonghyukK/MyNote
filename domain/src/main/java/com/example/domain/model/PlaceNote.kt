@@ -9,11 +9,7 @@ package com.example.domain.model
 data class PlaceNote(
     val id: Int = 0,
     val placeImages: List<String>,
-    val placeName: String,
-    val placeAddress: String,
-    val placeRoadAddress: String? = null,
-    val x: String,
-    val y: String,
+    val placeInfo: PlaceInfo,
     val visitDate: Long,
     val noteTitle: String,
     val noteContents: String

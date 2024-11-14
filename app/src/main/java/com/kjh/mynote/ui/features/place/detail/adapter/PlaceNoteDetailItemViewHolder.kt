@@ -71,10 +71,10 @@ class PlaceNoteDetailItemViewHolder(
         with (binding) {
             vpPlaceImages.setCurrentItem(0, false)
 
-            tvPlaceName.text = item.placeNoteItem.placeName
-            tvAddress.text = item.placeNoteItem.placeAddress
+            tvPlaceName.text = item.placeNoteItem.placeInfo.placeName
+            tvAddress.text = item.placeNoteItem.placeInfo.address
             tvNoteContents.text = item.placeNoteItem.noteContents
-            tvVisitDate.text = item.placeNoteItem.visitDate.toStringWithFormat("yyyy년 MM월 dd일 (E)")
+            tvVisitDate.text = item.placeNoteItem.visitDate.toStringWithFormat("yyyy년 M월 d일 (E)")
 
             makeIndicator(0, item.placeNoteItem.placeImages.size)
         }

@@ -42,8 +42,8 @@ class PlaceNoteListTypeInnerContentsItemViewHolder(
 
         with (binding) {
             ivImage.loadImage(item.item.placeImages[0])
-            tvPlaceName.text = item.item.placeName
-            tvPlaceArea.text = item.item.placeRegion
+            tvPlaceName.text = item.item.placeInfo.placeName
+            tvPlaceArea.text = item.item.placeInfo.placeRegion
         }
     }
 }

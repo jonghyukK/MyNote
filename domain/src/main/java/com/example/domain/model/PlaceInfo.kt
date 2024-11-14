@@ -6,11 +6,11 @@ package com.example.domain.model
  * Description:
  */
 
-data class KakaoPlace(
+data class PlaceInfo(
     val id: String,
-    val placeName: String,
-    val addressName: String,
-    val roadAddressName: String,
+    val name: String,
+    val address: String,
+    val roadAddress: String,
     val x: String,
     val y: String
 )

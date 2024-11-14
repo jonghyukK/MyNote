@@ -1,7 +1,7 @@
 package com.kjh.mynote.ui.features.map
 
 import com.kjh.mynote.databinding.VhNaverMapSearchResultItemBinding
-import com.kjh.mynote.model.KakaoPlaceUiModel
+import com.kjh.mynote.model.PlaceInfoUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.utils.extensions.onThrottleClick
 
@@ -13,9 +13,9 @@ import com.kjh.mynote.utils.extensions.onThrottleClick
 
 class NaverMapSearchResultItemViewHolder(
     private val binding: VhNaverMapSearchResultItemBinding,
-    private val onPlaceClickAction: (KakaoPlaceUiModel) -> Unit,
-    private val onSelectClickAction: (KakaoPlaceUiModel) -> Unit
-): BaseViewHolder<KakaoPlaceUiModel>(binding.root) {
+    private val onPlaceClickAction: (PlaceInfoUiModel) -> Unit,
+    private val onSelectClickAction: (PlaceInfoUiModel) -> Unit
+): BaseViewHolder<PlaceInfoUiModel>(binding.root) {
 
     init {
         itemView.onThrottleClick {
@@ -27,13 +27,13 @@ class NaverMapSearchResultItemViewHolder(
         }
     }
 
-    override fun bind(item: KakaoPlaceUiModel) {
+    override fun bind(item: PlaceInfoUiModel) {
         super.bind(item)
 
         with (binding) {
             tvPlaceName.text = item.placeName
-            tvAddress.text = item.addressName
-            tvRoadAddress.text = item.roadAddressName
+            tvAddress.text = item.address
+            tvRoadAddress.text = item.roadAddress
         }
     }
 }

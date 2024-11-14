@@ -7,7 +7,7 @@ import com.example.domain.model.PurchasePlaceInfo
 import com.example.domain.model.Result
 import com.example.domain.usecase.MakeAndGetPurchaseNoteUseCase
 import com.kjh.mynote.model.CategoryUiModel
-import com.kjh.mynote.model.KakaoPlaceUiModel
+import com.kjh.mynote.model.PlaceInfoUiModel
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.model.toDomainModel
@@ -38,7 +38,7 @@ data class MakePurchaseNoteUiState(
     val purchaseDate: Long = -1,
     val purchaseDateText: String = "",
     val purchasePrice: Long = 0,
-    val tempPlaceItem: KakaoPlaceUiModel? = null,
+    val tempPlaceItem: PlaceInfoUiModel? = null,
     val tempImageUrls: List<String> = emptyList()
 )
 
@@ -102,7 +102,7 @@ class MakePurchaseNoteViewModel @Inject constructor(
         }
     }
 
-    fun setTempPlaceItem(placeItem: KakaoPlaceUiModel) {
+    fun setTempPlaceItem(placeItem: PlaceInfoUiModel) {
         _uiState.update {
             it.copy(tempPlaceItem = placeItem)
         }
@@ -177,8 +177,8 @@ class MakePurchaseNoteViewModel @Inject constructor(
             purchasePlaceInfo = tempPlaceItem?.let {
                 PurchasePlaceInfo(
                     placeName = it.placeName,
-                    placeAddress = it.addressName,
-                    placeRoadAddress = it.roadAddressName,
+                    placeAddress = it.address,
+                    placeRoadAddress = it.roadAddress,
                     x = it.x,
                     y = it.y
                 )

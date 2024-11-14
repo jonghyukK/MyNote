@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.domain.model.Result
 import com.example.domain.usecase.GetKakaoPlacesByQueryUseCase
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.kjh.mynote.model.KakaoPlaceUiModel
+import com.kjh.mynote.model.PlaceInfoUiModel
 import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.utils.constants.AppConstants
@@ -29,9 +29,9 @@ import javax.inject.Inject
 data class NaverMapUiState(
     val isLoading: Boolean = false,
     val isEmpty: Boolean = false,
-    val placeItems: List<KakaoPlaceUiModel> = emptyList(),
+    val placeItems: List<PlaceInfoUiModel> = emptyList(),
     val sheetBehavior: Int = BottomSheetBehavior.STATE_HIDDEN,
-    val movingCameraPlaceItem: KakaoPlaceUiModel? = null
+    val movingCameraPlaceItem: PlaceInfoUiModel? = null
 )
 
 @HiltViewModel
@@ -41,7 +41,7 @@ class NaverMapViewModel @Inject constructor(
 ): BaseViewModel() {
 
     private val prevAttachedPlaceItem =
-        savedStateHandle.get<KakaoPlaceUiModel>(AppConstants.INTENT_TEMP_PLACE_ITEM)
+        savedStateHandle.get<PlaceInfoUiModel>(AppConstants.INTENT_TEMP_PLACE_ITEM)
 
     private val _uiState = MutableStateFlow(NaverMapUiState())
     val uiState = _uiState.asStateFlow()
@@ -116,7 +116,7 @@ class NaverMapViewModel @Inject constructor(
         }
     }
 
-    fun setMovingCameraPlaceItem(placeItem: KakaoPlaceUiModel) {
+    fun setMovingCameraPlaceItem(placeItem: PlaceInfoUiModel) {
         _uiState.update {
             it.copy(movingCameraPlaceItem = placeItem)
         }

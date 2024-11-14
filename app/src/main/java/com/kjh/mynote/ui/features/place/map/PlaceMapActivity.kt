@@ -11,9 +11,8 @@ import com.kakao.sdk.navi.model.Location
 import com.kakao.sdk.navi.model.NaviOption
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityPlaceMapBinding
-import com.kjh.mynote.model.KakaoPlaceUiModel
+import com.kjh.mynote.model.PlaceInfoUiModel
 import com.kjh.mynote.model.PlaceNoteUiModel
-import com.kjh.mynote.model.toKakaoPlaceUiModel
 import com.kjh.mynote.ui.base.BaseNaverMapActivity
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.constants.AppConstants.DEFAULT_ZOOM_LEVEL
@@ -49,14 +48,14 @@ class PlaceMapActivity: BaseNaverMapActivity<ActivityPlaceMapBinding>({ Activity
         }
 
         placeNoteItem?.let {
-            binding.tvAddress.text = it.placeAddress
+            binding.tvAddress.text = it.placeInfo.address
             binding.btnFindRoad.isEnable = true
 
-            moveToCamera(it.toKakaoPlaceUiModel())
+            moveToCamera(it.placeInfo)
         }
     }
 
-    private fun moveToCamera(placeItem: KakaoPlaceUiModel) {
+    private fun moveToCamera(placeItem: PlaceInfoUiModel) {
         val targetLatLng = LatLng(placeItem.y.toDouble(), placeItem.x.toDouble())
         val cameraUpdate = CameraUpdate.scrollAndZoomTo(targetLatLng, DEFAULT_ZOOM_LEVEL)
             .animate(CameraAnimation.None)
@@ -66,7 +65,7 @@ class PlaceMapActivity: BaseNaverMapActivity<ActivityPlaceMapBinding>({ Activity
     }
 
     private fun getMarker(
-        placeItem: KakaoPlaceUiModel,
+        placeItem: PlaceInfoUiModel,
         latLng: LatLng
     ): Marker = Marker().apply {
         position = latLng
@@ -85,7 +84,7 @@ class PlaceMapActivity: BaseNaverMapActivity<ActivityPlaceMapBinding>({ Activity
         placeNoteItem?.let { place ->
             startActivity(
                 NaviClient.instance.shareDestinationIntent(
-                    Location(place.placeName, place.x, place.y),
+                    Location(place.placeInfo.placeName, place.placeInfo.x, place.placeInfo.y),
                     NaviOption(coordType = CoordType.WGS84)
                 )
             )

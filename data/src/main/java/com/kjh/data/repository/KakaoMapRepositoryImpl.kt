@@ -1,6 +1,6 @@
 package com.kjh.data.repository
 
-import com.example.domain.model.KakaoPlace
+import com.example.domain.model.PlaceInfo
 import com.example.domain.repository.KakaoMapRepository
 import com.kjh.data.ResponseWrapper
 import com.kjh.data.model.dto.toDomainModel
@@ -16,7 +16,7 @@ class KakaoMapRepositoryImpl @Inject constructor(
     private val kakaoMapRemoteDataSource: KakaoApiService
 ): KakaoMapRepository {
 
-    override suspend fun getPlacesByQuery(query: String): List<KakaoPlace> {
+    override suspend fun getPlacesByQuery(query: String): List<PlaceInfo> {
         val response = kakaoMapRemoteDataSource.getPlaceByQuery(query = query)
         val res = ResponseWrapper.parseResponse(response)?.kakaoPlaces?.map {
             it.toDomainModel()

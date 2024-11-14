@@ -30,7 +30,7 @@ data class PurchaseNoteUiModel(
 data class PurchasePlaceInfoUiModel(
     val placeName: String,
     val placeAddress: String,
-    val placeRoadAddress: String? = null,
+    val placeRoadAddress: String,
     val x: String,
     val y: String
 ): Parcelable

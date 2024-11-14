@@ -1,6 +1,6 @@
 package com.example.domain.repository
 
-import com.example.domain.model.KakaoPlace
+import com.example.domain.model.PlaceInfo
 
 /**
  * Created by kangjonghyuk.
@@ -9,5 +9,5 @@ import com.example.domain.model.KakaoPlace
  */
 interface KakaoMapRepository {
 
-    suspend fun getPlacesByQuery(query: String): List<KakaoPlace>
+    suspend fun getPlacesByQuery(query: String): List<PlaceInfo>
 }

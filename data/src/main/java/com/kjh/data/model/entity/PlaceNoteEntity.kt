@@ -2,6 +2,7 @@ package com.kjh.data.model.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.domain.model.PlaceInfo
 import com.example.domain.model.PlaceNote
 
 /**
@@ -15,9 +16,10 @@ data class PlaceNoteEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val placeImages: List<String>,
+    val placeId: String,
     val placeName: String,
     val placeAddress: String,
-    val placeRoadAddress: String? = null,
+    val placeRoadAddress: String,
     val x: String,
     val y: String,
     val visitDate: Long,
@@ -25,14 +27,20 @@ data class PlaceNoteEntity(
     val noteContents: String,
 )
 
+/**
+ *  PlaceNoteEntity(Data) -> PlaceNote(Domain)
+ */
 fun PlaceNoteEntity.toDomainModel() = PlaceNote(
     id = id,
     placeImages = placeImages,
-    placeName = placeName,
-    placeAddress = placeAddress,
-    placeRoadAddress = placeRoadAddress,
-    x = x,
-    y = y,
+    placeInfo = PlaceInfo(
+        id = placeId,
+        name = placeName,
+        address = placeAddress,
+        roadAddress = placeRoadAddress,
+        x = x,
+        y = y
+    ),
     visitDate = visitDate,
     noteTitle = noteTitle,
     noteContents = noteContents
@@ -40,13 +48,17 @@ fun PlaceNoteEntity.toDomainModel() = PlaceNote(
 
 fun List<PlaceNoteEntity>.toDomainModel() = map(PlaceNoteEntity::toDomainModel)
 
+/**
+ *  PlaceNote(Domain) -> PlaceNoteEntity(Data)
+ */
 fun PlaceNote.toEntity() = PlaceNoteEntity(
     placeImages = placeImages,
-    placeName = placeName,
-    placeAddress = placeAddress,
-    placeRoadAddress = placeRoadAddress,
-    x = x,
-    y = y,
+    placeId = placeInfo.id,
+    placeName = placeInfo.name,
+    placeAddress = placeInfo.address,
+    placeRoadAddress = placeInfo.roadAddress,
+    x = placeInfo.x,
+    y = placeInfo.y,
     visitDate = visitDate,
     noteTitle = noteTitle,
     noteContents = noteContents

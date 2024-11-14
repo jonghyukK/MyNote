@@ -21,9 +21,19 @@ class PlaceNoteRepositoryImpl @Inject constructor(
     private val noteLocalDataSource: PlaceNoteDao
 ): PlaceNoteRepository {
 
+    /**
+     *  장소노트 전체 조회.
+     *
+     *  return Flow<List<PlaceNote>>
+     */
     override val placeNotesFlow: Flow<List<PlaceNote>>
         get() = noteLocalDataSource.observeAll().map(List<PlaceNoteEntity>::toDomainModel)
 
+    /**
+     *  장소노트 Insert Or Update 후, 장소노트 반환.
+     *
+     *  return PlaceNote
+     */
     override suspend fun upsertAndGetPlaceNote(
         placeNote: PlaceNote,
         noteId: Int
@@ -38,17 +48,37 @@ class PlaceNoteRepositoryImpl @Inject constructor(
         }.toDomainModel()
     }
 
+    /**
+     *  장소노트 삭제.
+     *
+     *  return noteId
+     */
     override suspend fun deletePlaceNoteById(noteId: Int): Int {
         noteLocalDataSource.deletePlaceNoteById(noteId)
         return noteId
     }
 
+    /**
+     *  장소노트 조회 By Id.
+     *
+     *  return PlaceNote
+     */
     override suspend fun getPlaceNoteById(noteId: Int): PlaceNote =
         noteLocalDataSource.getPlaceNoteById(noteId).toDomainModel()
 
+    /**
+     * 장소노트 목록 조회 by PlaceName.
+     *
+     * return List<PlaceNote>
+     */
     override suspend fun getPlaceNotesByPlaceName(placeName: String): List<PlaceNote> =
         noteLocalDataSource.getPlaceNotesByPlaceName(placeName).toDomainModel()
 
+    /**
+     *  장소노트 목록 및 카운트 조회 by Query.
+     *
+     *  return List<SearchPlaceNoteWithCount>
+     */
     override suspend fun searchByQueryFlow(query: String): List<SearchPlaceNoteWithCount> =
         noteLocalDataSource.searchByQuery(query).toDomainModel()
 }

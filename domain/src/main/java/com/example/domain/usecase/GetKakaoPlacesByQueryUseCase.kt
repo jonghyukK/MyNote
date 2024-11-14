@@ -1,6 +1,6 @@
 package com.example.domain.usecase
 
-import com.example.domain.model.KakaoPlace
+import com.example.domain.model.PlaceInfo
 import com.example.domain.model.Result
 import com.example.domain.repository.KakaoMapRepository
 import kotlinx.coroutines.flow.Flow
@@ -18,7 +18,7 @@ class GetKakaoPlacesByQueryUseCase @Inject constructor(
     private val kakaoMapRepository: KakaoMapRepository
 ) {
 
-    suspend operator fun invoke(query: String): Flow<Result<List<KakaoPlace>>> = flow {
+    suspend operator fun invoke(query: String): Flow<Result<List<PlaceInfo>>> = flow {
         emit(Result.Loading)
 
         try {

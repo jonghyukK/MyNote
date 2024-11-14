@@ -45,8 +45,8 @@ class CalendarPlaceNoteOnePictureItemViewHolder(
         with (binding) {
             ivImage1.loadImage(item.item.placeImages[0])
 
-            layoutPlaceContents.tvPlaceName.text = item.item.placeName
-            layoutPlaceContents.tvPlaceArea.text = item.item.placeRegion
+            layoutPlaceContents.tvPlaceName.text = item.item.placeInfo.placeName
+            layoutPlaceContents.tvPlaceArea.text = item.item.placeInfo.placeRegion
             layoutPlaceContents.tvContents.text = item.item.noteContents
         }
     }
@@ -81,8 +81,8 @@ class CalendarPlaceNoteTwoPictureItemViewHolder(
             ivImage1.loadImage(item.item.placeImages[0])
             ivImage2.loadImage(item.item.placeImages[1])
 
-            layoutPlaceContents.tvPlaceName.text = item.item.placeName
-            layoutPlaceContents.tvPlaceArea.text = item.item.placeRegion
+            layoutPlaceContents.tvPlaceName.text = item.item.placeInfo.placeName
+            layoutPlaceContents.tvPlaceArea.text = item.item.placeInfo.placeRegion
             layoutPlaceContents.tvContents.text = item.item.noteContents
         }
     }
@@ -123,8 +123,8 @@ class CalendarPlaceNoteThreePictureItemViewHolder(
             ivImage2.loadImage(item.item.placeImages[1])
             ivImage3.loadImage(item.item.placeImages[2])
 
-            layoutPlaceContents.tvPlaceName.text = item.item.placeName
-            layoutPlaceContents.tvPlaceArea.text = item.item.placeRegion
+            layoutPlaceContents.tvPlaceName.text = item.item.placeInfo.placeName
+            layoutPlaceContents.tvPlaceArea.text = item.item.placeInfo.placeRegion
             layoutPlaceContents.tvContents.text = item.item.noteContents
         }
     }
@@ -171,8 +171,8 @@ class CalendarPlaceNoteFourPictureItemViewHolder(
             ivImage3.loadImage(item.item.placeImages[2])
             ivImage4.loadImage(item.item.placeImages[3])
 
-            layoutPlaceContents.tvPlaceName.text = item.item.placeName
-            layoutPlaceContents.tvPlaceArea.text = item.item.placeRegion
+            layoutPlaceContents.tvPlaceName.text = item.item.placeInfo.placeName
+            layoutPlaceContents.tvPlaceArea.text = item.item.placeInfo.placeRegion
             layoutPlaceContents.tvContents.text = item.item.noteContents
         }
     }
@@ -226,8 +226,8 @@ class CalendarPlaceNoteOverPictureItemViewHolder(
             ivImage4.loadImage(item.item.placeImages[3])
             ivImage5.loadImage(item.item.placeImages[4])
 
-            layoutPlaceContents.tvPlaceName.text = item.item.placeName
-            layoutPlaceContents.tvPlaceArea.text = item.item.placeRegion
+            layoutPlaceContents.tvPlaceName.text = item.item.placeInfo.placeName
+            layoutPlaceContents.tvPlaceArea.text = item.item.placeInfo.placeRegion
             layoutPlaceContents.tvContents.text = item.item.noteContents
 
             groupOver.isVisible = item.remainImgCount > 0

@@ -8,7 +8,7 @@ import com.example.domain.model.PurchasePlaceInfo
 import com.example.domain.model.Result
 import com.example.domain.usecase.MakeAndGetPurchaseNoteUseCase
 import com.kjh.mynote.model.CategoryUiModel
-import com.kjh.mynote.model.KakaoPlaceUiModel
+import com.kjh.mynote.model.PlaceInfoUiModel
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.model.toDomainModel
@@ -39,7 +39,7 @@ data class EditPurchaseNoteUiState(
     val purchaseDate: Long = -1,
     val purchaseDateText: String = "",
     val purchasePrice: Long = 0,
-    val tempPlaceItem: KakaoPlaceUiModel? = null,
+    val tempPlaceItem: PlaceInfoUiModel? = null,
     val tempImageUrls: List<String> = emptyList()
 )
 
@@ -156,7 +156,7 @@ class EditPurchaseNoteViewModel @Inject constructor(
 
     fun getPurchaseDateTimeMills() = _uiState.value.purchaseDate
 
-    fun setTempPlaceItem(placeItem: KakaoPlaceUiModel) {
+    fun setTempPlaceItem(placeItem: PlaceInfoUiModel) {
         _uiState.update {
             it.copy(tempPlaceItem = placeItem)
         }
@@ -192,12 +192,12 @@ class EditPurchaseNoteViewModel @Inject constructor(
             purchaseDateText = purchaseDate.toStringWithFormat(DATE_PATTERN),
             purchasePrice = purchasePrice,
             tempPlaceItem = purchasePlaceInfo?.let {
-                KakaoPlaceUiModel(
+                PlaceInfoUiModel(
                     placeName = it.placeName,
-                    addressName = it.placeAddress,
-                    roadAddressName = it.placeRoadAddress,
+                    address = it.placeAddress,
+                    roadAddress = it.placeRoadAddress,
                     x = it.x,
-                    y = it.y
+                    y = it.y,
                 )
             },
             tempImageUrls = images ?: emptyList()
@@ -214,8 +214,8 @@ class EditPurchaseNoteViewModel @Inject constructor(
             purchasePlaceInfo = tempPlaceItem?.let {
                 PurchasePlaceInfo(
                     placeName = it.placeName,
-                    placeAddress = it.addressName,
-                    placeRoadAddress = it.roadAddressName,
+                    placeAddress = it.address,
+                    placeRoadAddress = it.roadAddress,
                     x = it.x,
                     y = it.y
                 )

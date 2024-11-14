@@ -4,10 +4,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.domain.model.PlaceNote
 import com.example.domain.model.Result
 import com.example.domain.usecase.UpsertAndGetPlaceNoteUseCase
-import com.kjh.mynote.model.KakaoPlaceUiModel
+import com.kjh.mynote.model.PlaceInfoUiModel
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.model.UiState
-import com.kjh.mynote.model.toKakaoPlaceUiModel
+import com.kjh.mynote.model.toDomainModel
 import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.utils.constants.AppConstants
@@ -28,7 +28,7 @@ import javax.inject.Inject
 data class MakeOrModifyNoteUiState(
     val noteId: Int = -1,
     val tempImageUrls: List<String> = emptyList(),
-    val tempPlaceItem: KakaoPlaceUiModel? = null,
+    val tempPlaceItem: PlaceInfoUiModel? = null,
     val visitDate: Long = -1,
     val visitDateText: String = "",
     val title: String = "",
@@ -106,7 +106,7 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
         }
     }
 
-    fun setTempPlaceItem(placeItem: KakaoPlaceUiModel) {
+    fun setTempPlaceItem(placeItem: PlaceInfoUiModel) {
         _uiState.update {
             it.copy(tempPlaceItem = placeItem)
         }
@@ -118,7 +118,7 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 visitDate = timeInMills,
-                visitDateText = timeInMills.toStringWithFormat("yyyy-MM-dd (E)")
+                visitDateText = timeInMills.toStringWithFormat("yyyy-M-d (E)")
             )
         }
     }
@@ -140,11 +140,7 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
     private fun convertUiStateToPlaceNoteModel() = with(_uiState.value) {
         PlaceNote(
             placeImages = tempImageUrls,
-            placeName = tempPlaceItem?.placeName ?: "",
-            placeAddress = tempPlaceItem?.addressName ?: "",
-            placeRoadAddress = tempPlaceItem?.roadAddressName,
-            x = tempPlaceItem?.x ?: "",
-            y = tempPlaceItem?.y ?: "",
+            placeInfo = tempPlaceItem!!.toDomainModel(),
             visitDate = visitDate,
             noteTitle = title,
             noteContents = contents
@@ -156,9 +152,9 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
             it.copy(
                 noteId = placeNoteModel.id,
                 tempImageUrls = placeNoteModel.placeImages,
-                tempPlaceItem = placeNoteModel.toKakaoPlaceUiModel(),
+                tempPlaceItem = placeNoteModel.placeInfo,
                 visitDate = placeNoteModel.visitDate,
-                visitDateText = placeNoteModel.visitDate.toStringWithFormat("yyyy-MM-dd (E)"),
+                visitDateText = placeNoteModel.visitDate.toStringWithFormat("yyyy-M-d (E)"),
                 title = placeNoteModel.noteTitle,
                 contents = placeNoteModel.noteContents,
             )
