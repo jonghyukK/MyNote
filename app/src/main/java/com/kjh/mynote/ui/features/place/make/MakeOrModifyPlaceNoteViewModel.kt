@@ -31,7 +31,6 @@ data class MakeOrModifyNoteUiState(
     val tempPlaceItem: PlaceInfoUiModel? = null,
     val visitDate: Long = -1,
     val visitDateText: String = "",
-    val title: String = "",
     val contents: String = ""
 )
 
@@ -50,8 +49,7 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
         it.tempImageUrls.isNotEmpty()
                 && it.tempPlaceItem != null
                 && it.visitDate > 0
-                && it.title.isNotBlank()
-                && it.contents.isNotBlank()
+
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -125,12 +123,6 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
 
     fun getVisitDateTimeMills() = _uiState.value.visitDate
 
-    fun setTitle(title: String) {
-        _uiState.update {
-            it.copy(title = title)
-        }
-    }
-
     fun setContents(contents: String) {
         _uiState.update {
             it.copy(contents = contents)
@@ -142,7 +134,6 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
             placeImages = tempImageUrls,
             placeInfo = tempPlaceItem!!.toDomainModel(),
             visitDate = visitDate,
-            noteTitle = title,
             noteContents = contents
         )
     }
@@ -155,7 +146,6 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
                 tempPlaceItem = placeNoteModel.placeInfo,
                 visitDate = placeNoteModel.visitDate,
                 visitDateText = placeNoteModel.visitDate.toStringWithFormat("yyyy-MM-dd (E)"),
-                title = placeNoteModel.noteTitle,
                 contents = placeNoteModel.noteContents,
             )
         }

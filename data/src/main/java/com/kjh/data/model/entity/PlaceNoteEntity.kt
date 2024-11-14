@@ -23,7 +23,6 @@ data class PlaceNoteEntity(
     val x: String,
     val y: String,
     val visitDate: Long,
-    val noteTitle: String,
     val noteContents: String,
 )
 
@@ -42,7 +41,6 @@ fun PlaceNoteEntity.toDomainModel() = PlaceNote(
         y = y
     ),
     visitDate = visitDate,
-    noteTitle = noteTitle,
     noteContents = noteContents
 )
 
@@ -60,6 +58,5 @@ fun PlaceNote.toEntity() = PlaceNoteEntity(
     x = placeInfo.x,
     y = placeInfo.y,
     visitDate = visitDate,
-    noteTitle = noteTitle,
     noteContents = noteContents
 )

@@ -1,7 +1,6 @@
 package com.kjh.mynote.model
 
 import android.os.Parcelable
-import com.example.domain.model.PlaceInfo
 import com.example.domain.model.PlaceNote
 import com.kjh.mynote.utils.extensions.toLocalDate
 import kotlinx.parcelize.Parcelize
@@ -19,7 +18,6 @@ data class PlaceNoteUiModel(
     val placeImages: List<String>,
     val placeInfo: PlaceInfoUiModel,
     val visitDate: Long,
-    val noteTitle: String,
     val noteContents: String,
     val localDate: LocalDate
 ): Parcelable
@@ -32,7 +30,6 @@ fun PlaceNote.toUiModel() = PlaceNoteUiModel(
     placeImages = placeImages,
     placeInfo = placeInfo.toUiModel(),
     visitDate = visitDate,
-    noteTitle = noteTitle,
     noteContents = noteContents,
     localDate = visitDate.toLocalDate()
 )

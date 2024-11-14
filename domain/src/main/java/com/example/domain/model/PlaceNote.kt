@@ -11,6 +11,5 @@ data class PlaceNote(
     val placeImages: List<String>,
     val placeInfo: PlaceInfo,
     val visitDate: Long,
-    val noteTitle: String,
     val noteContents: String
 )

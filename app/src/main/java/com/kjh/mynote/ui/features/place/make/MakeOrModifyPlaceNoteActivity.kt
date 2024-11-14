@@ -55,9 +55,8 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
         }
 
         clAttachImages.setOnThrottleClickListener(photoAttachClickListener)
-        clVisitPlaceContainer.setOnThrottleClickListener(searchMapClickListener)
-        clVisitDateContainer.setOnThrottleClickListener(visitDateClickListener)
-        etNoteTitle.addTextChangedListener(titleTextWatcher)
+        tvVisitPlace.setTextClickListener(searchMapClickListener)
+        tvVisitDate.setTextClickListener(visitDateClickListener)
         etNoteContents.addTextChangedListener(contentsTextWatcher)
         btnSave.setOnThrottleClickListener(saveBtnClickListener)
     }
@@ -106,10 +105,10 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
                         .collect { tempPlaceItem ->
                             if (tempPlaceItem == null) {
                                 binding.tvVisitPlace.text = getString(R.string.search_visit_place)
-                                binding.tvVisitPlace.setTextColor(getColor(R.color.black_500))
+                                binding.tvVisitPlace.textColor = R.color.black_500
                             } else {
                                 binding.tvVisitPlace.text = tempPlaceItem.placeName
-                                binding.tvVisitPlace.setTextColor(getColor(R.color.black_900))
+                                binding.tvVisitPlace.textColor = R.color.black_900
                             }
                         }
                 }
@@ -121,21 +120,10 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
                         .collect { visitDateText ->
                             if (visitDateText.isBlank()) {
                                 binding.tvVisitDate.text = getString(R.string.select_visit_date)
-                                binding.tvVisitDate.setTextColor(getColor(R.color.black_500))
+                                binding.tvVisitDate.textColor = R.color.black_500
                             } else {
                                 binding.tvVisitDate.text = visitDateText
-                                binding.tvVisitDate.setTextColor(getColor(R.color.black_900))
-                            }
-                        }
-                }
-
-                launch {
-                    viewModel.uiState
-                        .map { it.title }
-                        .distinctUntilChanged()
-                        .collect { title ->
-                            if (title != binding.etNoteTitle.text.toString()) {
-                                binding.etNoteTitle.setText(title)
+                                binding.tvVisitDate.textColor = R.color.black_900
                             }
                         }
                 }
@@ -185,11 +173,12 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
     }
 
     override fun onDestroy() {
-        with (binding) {
-            etNoteTitle.removeTextChangedListener(titleTextWatcher)
-            etNoteContents.removeTextChangedListener(contentsTextWatcher)
-        }
+        binding.etNoteContents.removeTextChangedListener(contentsTextWatcher)
         super.onDestroy()
+    }
+
+    private fun clearFocus() {
+        binding.etNoteContents.hideKeyboard()
     }
 
     private fun showDatePicker(positiveBtnClickAction: (Long) -> Unit) {
@@ -207,14 +196,6 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
             selection = selection,
             positiveButtonClickAction = positiveBtnClickAction
         ).show(supportFragmentManager, "DATE_PICKER")
-    }
-
-    private val titleTextWatcher = object: TextWatcher {
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        override fun afterTextChanged(s: Editable?) {
-            viewModel.setTitle(s.toString())
-        }
     }
 
     private val contentsTextWatcher = object: TextWatcher {
@@ -255,6 +236,7 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
         })
 
     private val deleteTempImageClickAction: (String) -> Unit = { uri ->
+        clearFocus()
         viewModel.deleteTempImageByUrl(uri)
     }
 
@@ -263,6 +245,7 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
     }
 
     private val searchMapClickListener = View.OnClickListener {
+        clearFocus()
         val intent = Intent(this@MakeOrModifyPlaceNoteActivity, NaverMapActivity::class.java).apply {
             putExtra(AppConstants.INTENT_TEMP_PLACE_ITEM, viewModel.getTempPlaceItem())
         }
@@ -270,24 +253,28 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
     }
 
     private val visitDateClickListener = OnClickListener {
+        clearFocus()
         showDatePicker(positiveBtnClickAction = datePickerPositiveBtnClickAction)
     }
 
     private val datePickerPositiveBtnClickAction: (Long) -> Unit = { long ->
+        clearFocus()
         viewModel.setVisitDate(long)
     }
 
-    private val saveBtnClickListener = View.OnClickListener {
-        if (binding.btnSave.isEnable) {
-            viewModel.upsertPlaceNote()
-        }
-    }
-
     private val photoAttachClickListener = View.OnClickListener {
+        clearFocus()
         val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
             type = "image/*"
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         }
         multiPhotoPickerLauncher.launch(intent)
+    }
+
+    private val saveBtnClickListener = View.OnClickListener {
+        if (binding.btnSave.isEnable) {
+            clearFocus()
+            viewModel.upsertPlaceNote()
+        }
     }
 }
