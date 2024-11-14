@@ -1,7 +1,9 @@
 package com.kjh.mynote.ui.common.components
 
 import android.content.Context
+import android.graphics.Typeface
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import androidx.core.view.isVisible
@@ -61,12 +63,32 @@ class MyTitleWithSelectableTextView @JvmOverloads constructor(
             field = value
         }
 
+    /**
+     *  textStyle
+     */
+    var typeFace: Int = Typeface.NORMAL
+        set(value) {
+            binding.tvValue.setTypeface(null, value)
+            field = value
+        }
+
+    /**
+     *  Gravity
+     */
+    var gravity: Int = Gravity.START
+        set(value) {
+            binding.tvValue.gravity = value
+            field = value
+        }
+
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.MyTitleWithSelectableTextView, defStyleAttr, 0)
 
         title = typedArray.getString(R.styleable.MyTitleWithSelectableTextView_title) ?: ""
         text = typedArray.getString(R.styleable.MyTitleWithSelectableTextView_android_text) ?: ""
         isRequired = typedArray.getBoolean(R.styleable.MyTitleWithSelectableTextView_isRequired,false)
+        typeFace = typedArray.getInt(R.styleable.MyTitleWithSelectableTextView_android_textStyle, Typeface.NORMAL)
+        gravity = typedArray.getInt(R.styleable.MyTitleWithSelectableTextView_android_gravity, Gravity.START)
 
         typedArray.recycle()
     }

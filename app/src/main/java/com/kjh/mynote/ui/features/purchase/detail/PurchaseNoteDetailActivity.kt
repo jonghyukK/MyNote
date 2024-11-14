@@ -18,7 +18,6 @@ import com.kjh.mynote.ui.features.purchase.edit.EditPurchaseNoteActivity
 import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity
 import com.kjh.mynote.utils.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
-import com.kjh.mynote.utils.extensions.ifNullOrEmpty
 import com.kjh.mynote.utils.extensions.registerStartActivityResultLauncher
 import com.kjh.mynote.utils.extensions.showToast
 import com.kjh.mynote.utils.extensions.toComma
@@ -46,14 +45,15 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
 
     override fun onInitView() {
         with (binding) {
-            tbToolbar.setRightFirstButtonClickListener(deleteNoteClickListener)
-            tbToolbar.setRightSecondButtonClickListener(editNoteClickListener)
-
             rvImages.apply {
                 itemAnimator = null
                 addItemDecoration(SpacingItemDecoration(right = 12, exceptFirstItem = false))
                 adapter = imageListAdapter
             }
+
+            tbToolbar.setRightFirstButtonClickListener(deleteNoteClickListener)
+            tbToolbar.setRightSecondButtonClickListener(editNoteClickListener)
+            tvPurchasePlace.setTextClickListener(placeClickListener)
         }
     }
 
@@ -95,10 +95,10 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
         tvPurchasePrice.text = getString(R.string.format_won, purchaseNoteItem.purchasePrice.toComma())
 
         purchaseNoteItem.purchasePlaceInfo?.let { placeInfo ->
-            groupPlace.isVisible = true
+            tvPurchasePlace.isVisible = true
             tvPurchasePlace.text = placeInfo.placeName
         } ?: run {
-            groupPlace.isVisible = false
+            tvPurchasePlace.isVisible = false
         }
 
         if (purchaseNoteItem.images.isNullOrEmpty()) {
@@ -139,5 +139,12 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
             putExtra(AppConstants.INTENT_PURCHASE_NOTE_ITEM, viewModel.uiState.value.purchaseNoteItem)
             editNoteResultLauncher.launch(this)
         }
+    }
+
+    private val placeClickListener = OnClickListener {
+//        Intent(this, PlaceMapActivity::class.java).apply {
+//            putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, item)
+//            startActivity(this)
+//        }
     }
 }

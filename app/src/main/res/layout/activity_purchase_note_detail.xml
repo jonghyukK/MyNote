@@ -48,102 +48,53 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
             <!-- 카테고리 -->
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tv_title_category"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:text="@string/category"
-                android:textSize="16sp"
-                android:textColor="@color/black_600"
-                app:layout_constraintTop_toBottomOf="@+id/tv_purchase_name"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <androidx.appcompat.widget.AppCompatTextView
+            <com.kjh.mynote.ui.common.components.MyTitleWithTextView
                 android:id="@+id/tv_category"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textColor="@color/black_800"
                 android:textStyle="bold"
-                app:layout_constraintTop_toTopOf="@+id/tv_title_category"
-                app:layout_constraintBottom_toBottomOf="@+id/tv_title_category"
-                app:layout_constraintEnd_toEndOf="parent"
-                tools:text="편의점" />
+                android:gravity="end"
+                android:layout_marginTop="18dp"
+                app:title="@string/category"
+                app:layout_constraintTop_toBottomOf="@+id/tv_purchase_name"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <!-- 구매 날짜 -->
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tv_title_purchase_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="@string/purchase_date"
-                android:textSize="16sp"
-                android:textColor="@color/black_600"
-                app:layout_constraintTop_toBottomOf="@+id/tv_title_category"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <androidx.appcompat.widget.AppCompatTextView
+            <com.kjh.mynote.ui.common.components.MyTitleWithTextView
                 android:id="@+id/tv_purchase_date"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textColor="@color/black_800"
+                app:title="@string/purchase_date"
                 android:textStyle="bold"
-                app:layout_constraintTop_toTopOf="@+id/tv_title_purchase_date"
-                app:layout_constraintBottom_toBottomOf="@+id/tv_title_purchase_date"
-                app:layout_constraintEnd_toEndOf="parent"
-                tools:text="2024년 10월 11일" />
+                android:gravity="end"
+                app:layout_constraintTop_toBottomOf="@+id/tv_category"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <!-- 구매 금액 -->
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tv_title_purchase_price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="@string/purchase_price"
-                android:textSize="16sp"
-                android:textColor="@color/black_600"
-                app:layout_constraintTop_toBottomOf="@+id/tv_title_purchase_date"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <androidx.appcompat.widget.AppCompatTextView
+            <com.kjh.mynote.ui.common.components.MyTitleWithTextView
                 android:id="@+id/tv_purchase_price"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textColor="@color/black_800"
+                app:title="@string/purchase_price"
                 android:textStyle="bold"
-                app:layout_constraintTop_toTopOf="@+id/tv_title_purchase_price"
-                app:layout_constraintBottom_toBottomOf="@+id/tv_title_purchase_price"
-                app:layout_constraintEnd_toEndOf="parent"
-                tools:text="10,000원" />
+                android:gravity="end"
+                app:layout_constraintTop_toBottomOf="@+id/tv_purchase_date"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <!-- 구매 장소 -->
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tv_title_purchase_place"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="@string/purchase_place"
-                android:textSize="16sp"
-                android:textColor="@color/black_600"
-                app:layout_constraintTop_toBottomOf="@+id/tv_title_purchase_price"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <androidx.appcompat.widget.AppCompatTextView
+            <com.kjh.mynote.ui.common.components.MyTitleWithSelectableTextView
                 android:id="@+id/tv_purchase_place"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textSize="13sp"
-                android:textColor="@color/black_800"
-                android:textStyle="bold"
+                app:title="@string/purchase_place"
                 android:gravity="end"
-                app:layout_constraintTop_toTopOf="@+id/tv_title_purchase_place"
-                app:layout_constraintBottom_toBottomOf="@+id/tv_title_purchase_place"
-                app:layout_constraintStart_toEndOf="@+id/gl_guideline"
-                app:layout_constraintEnd_toEndOf="parent"
-                tools:text="경기도 수원시 영통구 이의동 광교로 에듀하임로 101 108동 209호" />
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@+id/tv_purchase_price"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <!-- 사진 -->
             <androidx.recyclerview.widget.RecyclerView
@@ -155,15 +106,9 @@
                 android:overScrollMode="never"
                 android:visibility="gone"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintTop_toBottomOf="@+id/tv_title_purchase_place"
+                app:layout_constraintTop_toBottomOf="@+id/tv_purchase_place"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
-
-            <androidx.constraintlayout.widget.Group
-                android:id="@+id/group_place"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:constraint_referenced_ids="tv_purchase_place, tv_title_purchase_place" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/gl_guideline"

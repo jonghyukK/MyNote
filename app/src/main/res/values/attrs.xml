@@ -29,7 +29,16 @@
 
     <declare-styleable name="MyTitleWithSelectableTextView">
         <attr name="title" />
-        <attr name="android:text" format="reference|string" />
         <attr name="isRequired" />
+        <attr name="android:text" />
+        <attr name="android:gravity" />
+        <attr name="android:textStyle" />
+    </declare-styleable>
+
+    <declare-styleable name="MyTitleWithTextView">
+        <attr name="title" />
+        <attr name="android:text" />
+        <attr name="android:gravity" />
+        <attr name="android:textStyle" />
     </declare-styleable>
 </resources>
