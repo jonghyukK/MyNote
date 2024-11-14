@@ -89,7 +89,7 @@ class CalendarMonthBSDialog
 
     private fun setMonthTextAndHideRightBtnWhenTodayMonth(date: LocalDate) = with (binding) {
         currentYearMonth = date
-        tvCurrentYearMonth.text = date.toStringWithPattern("yyyy년 MM월")
+        tvCurrentYearMonth.text = date.toStringWithPattern("yyyy년 M월")
         ivArrowRight.isVisible =
             date.withDayOfMonth(1) != todayDate.withDayOfMonth(1)
     }

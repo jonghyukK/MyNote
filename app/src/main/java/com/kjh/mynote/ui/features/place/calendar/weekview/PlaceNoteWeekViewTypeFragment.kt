@@ -79,7 +79,7 @@ class PlaceNoteWeekViewTypeFragment
                         .map { it.currentDay to it.selectedMonthEventDays }
                         .distinctUntilChanged()
                         .collect {
-                            binding.tvCurrentYearMonth.text = it.first.toStringWithPattern("yyyy년 MM월")
+                            binding.tvCurrentYearMonth.text = it.first.toStringWithPattern("yyyy년 M월")
                             binding.myWeekCalendar.updateSelectDayWithEventDates(it)
                         }
                 }

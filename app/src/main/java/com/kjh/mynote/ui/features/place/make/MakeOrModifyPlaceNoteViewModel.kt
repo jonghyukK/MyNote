@@ -118,7 +118,7 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 visitDate = timeInMills,
-                visitDateText = timeInMills.toStringWithFormat("yyyy-M-d (E)")
+                visitDateText = timeInMills.toStringWithFormat("yyyy-MM-dd (E)")
             )
         }
     }
@@ -154,7 +154,7 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
                 tempImageUrls = placeNoteModel.placeImages,
                 tempPlaceItem = placeNoteModel.placeInfo,
                 visitDate = placeNoteModel.visitDate,
-                visitDateText = placeNoteModel.visitDate.toStringWithFormat("yyyy-M-d (E)"),
+                visitDateText = placeNoteModel.visitDate.toStringWithFormat("yyyy-MM-dd (E)"),
                 title = placeNoteModel.noteTitle,
                 contents = placeNoteModel.noteContents,
             )

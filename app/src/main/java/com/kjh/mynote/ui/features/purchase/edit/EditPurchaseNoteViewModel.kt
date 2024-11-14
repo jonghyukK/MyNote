@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.PurchaseNote
-import com.example.domain.model.PurchasePlaceInfo
 import com.example.domain.model.Result
 import com.example.domain.usecase.MakeAndGetPurchaseNoteUseCase
 import com.kjh.mynote.model.CategoryUiModel
@@ -191,15 +190,7 @@ class EditPurchaseNoteViewModel @Inject constructor(
             purchaseDate = purchaseDate,
             purchaseDateText = purchaseDate.toStringWithFormat(DATE_PATTERN),
             purchasePrice = purchasePrice,
-            tempPlaceItem = purchasePlaceInfo?.let {
-                PlaceInfoUiModel(
-                    placeName = it.placeName,
-                    address = it.placeAddress,
-                    roadAddress = it.placeRoadAddress,
-                    x = it.x,
-                    y = it.y,
-                )
-            },
+            tempPlaceItem = placeInfo,
             tempImageUrls = images ?: emptyList()
         )
 
@@ -211,15 +202,7 @@ class EditPurchaseNoteViewModel @Inject constructor(
             purchaseName = purchaseName,
             category = categoryItem?.toDomainModel(),
             images = tempImageUrls.ifEmpty { null },
-            purchasePlaceInfo = tempPlaceItem?.let {
-                PurchasePlaceInfo(
-                    placeName = it.placeName,
-                    placeAddress = it.address,
-                    placeRoadAddress = it.roadAddress,
-                    x = it.x,
-                    y = it.y
-                )
-            }
+            placeInfo = tempPlaceItem?.toDomainModel()
         )
     }
 

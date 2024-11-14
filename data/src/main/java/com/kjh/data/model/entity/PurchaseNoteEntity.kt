@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
+import com.example.domain.model.PlaceInfo
 import com.example.domain.model.PurchaseNote
 import com.example.domain.model.PurchasePlaceInfo
 import com.kjh.data.db.DBTypeConverters
@@ -32,9 +33,12 @@ data class PurchaseNoteEntity(
     val images: List<String>? = null,
     val categoryId: Int?,
     @TypeConverters(DBTypeConverters::class)
-    val purchasePlaceInfo: PurchasePlaceInfo? = null,
+    val placeInfo: PlaceInfo? = null,
 )
 
+/**
+ *  PurchaseNote (domain) -> PurchaseNoteEntity (data)
+ */
 fun PurchaseNote.toEntity(): PurchaseNoteEntity {
     return PurchaseNoteEntity(
         id = id,
@@ -43,6 +47,6 @@ fun PurchaseNote.toEntity(): PurchaseNoteEntity {
         purchaseName = purchaseName,
         categoryId = category?.id,
         images = images,
-        purchasePlaceInfo = purchasePlaceInfo
+        placeInfo = placeInfo
     )
 }

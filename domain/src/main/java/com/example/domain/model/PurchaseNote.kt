@@ -13,5 +13,5 @@ data class PurchaseNote(
     val purchaseName: String,
     val category: Category?,
     val images: List<String>? = null,
-    val purchasePlaceInfo: PurchasePlaceInfo? = null
+    val placeInfo: PlaceInfo? = null
 )

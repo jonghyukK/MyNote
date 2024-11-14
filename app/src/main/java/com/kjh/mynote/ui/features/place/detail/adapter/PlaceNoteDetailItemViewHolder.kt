@@ -8,6 +8,7 @@ import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.ui.common.listener.OnNestedHorizontalTouchListener
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailUi
+import com.kjh.mynote.utils.extensions.ifNullOrEmpty
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.toStringWithFormat
 
@@ -66,17 +67,21 @@ class PlaceNoteDetailItemViewHolder(
     override fun bind(item: PlaceNoteDetailUi.DetailItem) {
         super.bind(item)
 
-        imagePagerAdapter?.submitList(item.placeNoteItem.placeImages)
+        val placeNoteItem = item.placeNoteItem
+
+        imagePagerAdapter?.submitList(placeNoteItem.placeImages)
 
         with (binding) {
             vpPlaceImages.setCurrentItem(0, false)
 
-            tvPlaceName.text = item.placeNoteItem.placeInfo.placeName
-            tvAddress.text = item.placeNoteItem.placeInfo.address
-            tvNoteContents.text = item.placeNoteItem.noteContents
-            tvVisitDate.text = item.placeNoteItem.visitDate.toStringWithFormat("yyyy년 M월 d일 (E)")
+            tvPlaceName.text = placeNoteItem.placeInfo.placeName
+            tvAddress.text = placeNoteItem.placeInfo.roadAddress
+                .ifNullOrEmpty(placeNoteItem.placeInfo.address)
 
-            makeIndicator(0, item.placeNoteItem.placeImages.size)
+            tvNoteContents.text = placeNoteItem.noteContents
+            tvVisitDate.text = placeNoteItem.visitDate.toStringWithFormat("yyyy년 M월 d일 (E)")
+
+            makeIndicator(0, placeNoteItem.placeImages.size)
         }
     }
 

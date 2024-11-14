@@ -28,7 +28,7 @@ class PlaceNoteDetailSamePlaceItemViewHolder(
 
         with (binding) {
             ivImage.loadImage(item.placeImages[0])
-            tvVisitDate.text = item.visitDate.toStringWithFormat("yyyy년 MM월 dd일 (E)")
+            tvVisitDate.text = item.visitDate.toStringWithFormat("yyyy년 M월 d일 (E)")
         }
     }
 }

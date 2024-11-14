@@ -14,6 +14,7 @@ import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.common.components.MyDefaultDialog
+import com.kjh.mynote.ui.features.place.map.PlaceMapActivity
 import com.kjh.mynote.ui.features.purchase.edit.EditPurchaseNoteActivity
 import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity
 import com.kjh.mynote.utils.SpacingItemDecoration
@@ -94,7 +95,7 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
         tvPurchaseDate.text = purchaseNoteItem.purchaseDate.toStringWithFormat("yyyy년 M월 d일 (E)")
         tvPurchasePrice.text = getString(R.string.format_won, purchaseNoteItem.purchasePrice.toComma())
 
-        purchaseNoteItem.purchasePlaceInfo?.let { placeInfo ->
+        purchaseNoteItem.placeInfo?.let { placeInfo ->
             tvPurchasePlace.isVisible = true
             tvPurchasePlace.text = placeInfo.placeName
         } ?: run {
@@ -142,9 +143,9 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
     }
 
     private val placeClickListener = OnClickListener {
-//        Intent(this, PlaceMapActivity::class.java).apply {
-//            putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, item)
-//            startActivity(this)
-//        }
+        Intent(this, PlaceMapActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_PLACE_INFO_ITEM, viewModel.uiState.value.purchaseNoteItem?.placeInfo)
+            startActivity(this)
+        }
     }
 }

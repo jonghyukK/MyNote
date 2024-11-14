@@ -21,6 +21,9 @@ data class PurchaseNoteWithCategoryEntity(
     val category: CategoryEntity?
 )
 
+/**
+ *  PurchaseNoteWithCategoryEntity (data) -> PurchaseNote (domain)
+ */
 fun PurchaseNoteWithCategoryEntity.toDomainModel() =
     PurchaseNote(
         id = purchaseNote.id,
@@ -29,5 +32,5 @@ fun PurchaseNoteWithCategoryEntity.toDomainModel() =
         purchaseName = purchaseNote.purchaseName,
         category = category?.toDomainModel(),
         images = purchaseNote.images,
-        purchasePlaceInfo = purchaseNote.purchasePlaceInfo
+        placeInfo = purchaseNote.placeInfo
     )

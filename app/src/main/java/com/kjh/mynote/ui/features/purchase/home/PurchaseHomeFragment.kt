@@ -71,7 +71,7 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.currentMonth.collect { currentDate ->
-                        binding.tvCurrentYearMonth.text = currentDate.toStringWithPattern("yyyy년 MM월")
+                        binding.tvCurrentYearMonth.text = currentDate.toStringWithPattern("yyyy년 M월")
                     }
                 }
 

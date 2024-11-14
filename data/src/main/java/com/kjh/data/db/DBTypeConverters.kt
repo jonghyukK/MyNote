@@ -1,6 +1,7 @@
 package com.kjh.data.db
 
 import androidx.room.TypeConverter
+import com.example.domain.model.PlaceInfo
 import com.example.domain.model.PurchasePlaceInfo
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -31,13 +32,13 @@ class DBTypeConverters {
      *  PurchasePlaceNoteInfo ...
      */
     @TypeConverter
-    fun fromPurchasePlaceInfo(placeInfo: PurchasePlaceInfo): String {
+    fun fromPurchasePlaceInfo(placeInfo: PlaceInfo): String {
         return gson.toJson(placeInfo)
     }
 
     @TypeConverter
-    fun toPurchasePlaceInfo(data: String): PurchasePlaceInfo {
-        val type = object: TypeToken<PurchasePlaceInfo>() {}.type
+    fun toPurchasePlaceInfo(data: String): PlaceInfo {
+        val type = object: TypeToken<PlaceInfo>() {}.type
         return gson.fromJson(data, type)
     }
 

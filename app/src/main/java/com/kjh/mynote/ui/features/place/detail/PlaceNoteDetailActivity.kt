@@ -168,7 +168,7 @@ class PlaceNoteDetailActivity
 
     private val addressClickAction: (PlaceNoteUiModel) -> Unit = { item ->
         Intent(this@PlaceNoteDetailActivity, PlaceMapActivity::class.java).apply {
-            putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, item)
+            putExtra(AppConstants.INTENT_PLACE_INFO_ITEM, item.placeInfo)
             startActivity(this)
         }
     }

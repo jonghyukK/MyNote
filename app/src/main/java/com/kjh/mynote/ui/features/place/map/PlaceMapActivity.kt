@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.view.View.OnClickListener
 import androidx.core.content.ContextCompat
+import com.example.domain.model.PlaceInfo
 import com.kakao.sdk.navi.Constants
 import com.kakao.sdk.navi.NaviClient
 import com.kakao.sdk.navi.model.CoordType
@@ -16,6 +17,7 @@ import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseNaverMapActivity
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.constants.AppConstants.DEFAULT_ZOOM_LEVEL
+import com.kjh.mynote.utils.extensions.ifNullOrEmpty
 import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.naver.maps.geometry.LatLng
@@ -35,23 +37,23 @@ import dagger.hilt.android.AndroidEntryPoint
 class PlaceMapActivity: BaseNaverMapActivity<ActivityPlaceMapBinding>({ ActivityPlaceMapBinding.inflate(it) }) {
 
     private var marker: Marker? = null
-    private var placeNoteItem: PlaceNoteUiModel? = null
+    private var placeInfoItem: PlaceInfoUiModel? = null
 
     override fun onInitView() {
         binding.btnFindRoad.setOnThrottleClickListener(findRoadClickListener)
     }
 
     override fun onInitUiData() {
-        placeNoteItem = intent.parcelable<PlaceNoteUiModel>(AppConstants.INTENT_PLACE_NOTE_ITEM) ?: run {
+        placeInfoItem = intent.parcelable<PlaceInfoUiModel>(AppConstants.INTENT_PLACE_INFO_ITEM) ?: run {
             finish()
             return
         }
 
-        placeNoteItem?.let {
-            binding.tvAddress.text = it.placeInfo.address
+        placeInfoItem?.let {
+            binding.tvAddress.text = it.roadAddress.ifNullOrEmpty(it.address)
             binding.btnFindRoad.isEnable = true
 
-            moveToCamera(it.placeInfo)
+            moveToCamera(it)
         }
     }
 
@@ -81,10 +83,10 @@ class PlaceMapActivity: BaseNaverMapActivity<ActivityPlaceMapBinding>({ Activity
     override fun onCameraChange(p0: Int, p1: Boolean) {}
 
     private fun goToKakaoNaviApp() {
-        placeNoteItem?.let { place ->
+        placeInfoItem?.let { place ->
             startActivity(
                 NaviClient.instance.shareDestinationIntent(
-                    Location(place.placeInfo.placeName, place.placeInfo.x, place.placeInfo.y),
+                    Location(place.placeName, place.x, place.y),
                     NaviOption(coordType = CoordType.WGS84)
                 )
             )

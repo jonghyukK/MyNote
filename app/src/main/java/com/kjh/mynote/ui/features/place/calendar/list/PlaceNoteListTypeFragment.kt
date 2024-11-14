@@ -70,7 +70,7 @@ class PlaceNoteListTypeFragment: BaseFragment<FragmentPlaceNoteListTypeBinding>(
                         .map { it.currentMonth }
                         .distinctUntilChanged()
                         .collect {
-                            binding.tvCurrentYearMonth.text = it.toStringWithPattern("yyyy년 MM월")
+                            binding.tvCurrentYearMonth.text = it.toStringWithPattern("yyyy년 M월")
                         }
                 }
 
