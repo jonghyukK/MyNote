@@ -47,6 +47,7 @@ class CalendarPlaceNoteOnePictureItemViewHolder(
 
             layoutPlaceContents.tvPlaceName.text = item.item.placeInfo.placeName
             layoutPlaceContents.tvPlaceArea.text = item.item.placeInfo.placeRegion
+            layoutPlaceContents.tvContents.isVisible = item.item.noteContents.isNotEmpty()
             layoutPlaceContents.tvContents.text = item.item.noteContents
         }
     }
@@ -83,6 +84,7 @@ class CalendarPlaceNoteTwoPictureItemViewHolder(
 
             layoutPlaceContents.tvPlaceName.text = item.item.placeInfo.placeName
             layoutPlaceContents.tvPlaceArea.text = item.item.placeInfo.placeRegion
+            layoutPlaceContents.tvContents.isVisible = item.item.noteContents.isNotEmpty()
             layoutPlaceContents.tvContents.text = item.item.noteContents
         }
     }
@@ -125,6 +127,7 @@ class CalendarPlaceNoteThreePictureItemViewHolder(
 
             layoutPlaceContents.tvPlaceName.text = item.item.placeInfo.placeName
             layoutPlaceContents.tvPlaceArea.text = item.item.placeInfo.placeRegion
+            layoutPlaceContents.tvContents.isVisible = item.item.noteContents.isNotEmpty()
             layoutPlaceContents.tvContents.text = item.item.noteContents
         }
     }
@@ -173,6 +176,7 @@ class CalendarPlaceNoteFourPictureItemViewHolder(
 
             layoutPlaceContents.tvPlaceName.text = item.item.placeInfo.placeName
             layoutPlaceContents.tvPlaceArea.text = item.item.placeInfo.placeRegion
+            layoutPlaceContents.tvContents.isVisible = item.item.noteContents.isNotEmpty()
             layoutPlaceContents.tvContents.text = item.item.noteContents
         }
     }
@@ -228,6 +232,7 @@ class CalendarPlaceNoteOverPictureItemViewHolder(
 
             layoutPlaceContents.tvPlaceName.text = item.item.placeInfo.placeName
             layoutPlaceContents.tvPlaceArea.text = item.item.placeInfo.placeRegion
+            layoutPlaceContents.tvContents.isVisible = item.item.noteContents.isNotEmpty()
             layoutPlaceContents.tvContents.text = item.item.noteContents
 
             groupOver.isVisible = item.remainImgCount > 0

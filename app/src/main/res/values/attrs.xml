@@ -30,6 +30,7 @@
     <declare-styleable name="MyTitleWithSelectableTextView">
         <attr name="title" />
         <attr name="isRequired" />
+        <attr name="titleTextColor" format="reference|color" />
         <attr name="android:text" />
         <attr name="android:gravity" />
         <attr name="android:textStyle" />

@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.widget.FrameLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ComponentsMyTitleWithSelectableTextViewBinding
@@ -55,6 +56,15 @@ class MyTitleWithSelectableTextView @JvmOverloads constructor(
         }
 
     /**
+     *  Title Text Color
+     */
+    var titleTextColor: Int = ContextCompat.getColor(context, R.color.black_800)
+        set(value) {
+            binding.tvTitle.setTextColor(value)
+            field = value
+        }
+
+    /**
      *  Value Text Color
      */
     var textColor: Int = R.color.black_800
@@ -89,6 +99,7 @@ class MyTitleWithSelectableTextView @JvmOverloads constructor(
         isRequired = typedArray.getBoolean(R.styleable.MyTitleWithSelectableTextView_isRequired,false)
         typeFace = typedArray.getInt(R.styleable.MyTitleWithSelectableTextView_android_textStyle, Typeface.NORMAL)
         gravity = typedArray.getInt(R.styleable.MyTitleWithSelectableTextView_android_gravity, Gravity.START)
+        titleTextColor = typedArray.getColor(R.styleable.MyTitleWithSelectableTextView_titleTextColor, ContextCompat.getColor(context, R.color.black_800))
 
         typedArray.recycle()
     }
