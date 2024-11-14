@@ -24,6 +24,7 @@ import com.kjh.mynote.utils.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
+import com.kjh.mynote.utils.extensions.toComma
 import com.kjh.mynote.utils.extensions.toMillis
 import com.kjh.mynote.utils.extensions.toStringWithPattern
 import dagger.hilt.android.AndroidEntryPoint
@@ -90,6 +91,20 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
                         .distinctUntilChanged()
                         .collect {
                             binding.calendarMonthView.updateCalendarUI(it)
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.selectedDayTotalPrice }
+                        .distinctUntilChanged()
+                        .collect { totalPrice ->
+                            if (totalPrice > 0) {
+                                binding.clTotalPriceContainer.isVisible = true
+                                binding.tvTotalPrice.text = getString(R.string.format_total_purchase_price, totalPrice.toComma())
+                            } else {
+                                binding.clTotalPriceContainer.isVisible = false
+                            }
                         }
                 }
 

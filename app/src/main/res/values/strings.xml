@@ -29,6 +29,7 @@
     <string name="format_slash">%1$d/%2$d</string>
     <string name="format_slash_with_space">%1$d / %2$d</string>
     <string name="format_won">%1$s원</string>
+    <string name="format_total_purchase_price">총 지출 금액: %1$s원</string>
 
     <string name="input_title">제목 입력하기</string>
     <string name="input_contents">내용 입력하기</string>

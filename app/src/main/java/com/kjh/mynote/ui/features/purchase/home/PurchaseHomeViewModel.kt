@@ -32,7 +32,8 @@ import javax.inject.Inject
 data class PurchaseNoteHomeUiState(
     val selectedDay: LocalDate = LocalDate.now(),
     val hasEventDays: List<LocalDate> = emptyList(),
-    val selectedDayPurchaseNotes: List<PurchaseNoteUiModel> = emptyList()
+    val selectedDayPurchaseNotes: List<PurchaseNoteUiModel> = emptyList(),
+    val selectedDayTotalPrice: Long = 0
 )
 
 @HiltViewModel
@@ -69,7 +70,8 @@ class PurchaseHomeViewModel @Inject constructor(
         PurchaseNoteHomeUiState(
             selectedDay = selectedDay,
             hasEventDays = notesMap.keys.toList(),
-            selectedDayPurchaseNotes = notesMap[selectedDay] ?: emptyList()
+            selectedDayPurchaseNotes = notesMap[selectedDay] ?: emptyList(),
+            selectedDayTotalPrice = notesMap[selectedDay]?.sumOf { it.purchasePrice } ?: 0
         )
     }.stateIn(
         viewModelScope,
