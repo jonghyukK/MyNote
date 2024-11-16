@@ -2,6 +2,7 @@ package com.kjh.mynote.model
 
 import android.os.Parcelable
 import com.example.domain.model.Category
+import com.example.domain.model.CategoryWithPurchaseNoteCount
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -13,7 +14,8 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class CategoryUiModel(
     val id: Int,
-    val categoryName: String
+    val categoryName: String,
+    val purchaseNoteCount: Int = 0
 ): Parcelable
 
 /**
@@ -30,4 +32,13 @@ fun Category.toUiModel() = CategoryUiModel(
 fun CategoryUiModel.toDomainModel() = Category(
     id = id,
     categoryName = categoryName
+)
+
+/**
+ *  CategoryWithPurchaseNoteCount (domain) -> CategoryUiModel (presentation)
+ */
+fun CategoryWithPurchaseNoteCount.toUiModel() = CategoryUiModel(
+    id = categoryId,
+    categoryName = categoryName,
+    purchaseNoteCount = purchaseNoteCount
 )

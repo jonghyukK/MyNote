@@ -12,7 +12,7 @@ import com.kjh.mynote.databinding.FragmentPlaceNoteWeekViewTypeBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseFragment
 import com.kjh.mynote.ui.features.place.calendar.PlaceNoteCalendarHomeViewModel
-import com.kjh.mynote.ui.features.place.calendar.dialog.CalendarMonthBSDialog
+import com.kjh.mynote.ui.features.place.calendar.weekview.dialog.CalendarMonthBSDialog
 import com.kjh.mynote.ui.features.place.calendar.weekview.adapter.PlaceNoteWeekViewTypeListAdapter
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
 import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity

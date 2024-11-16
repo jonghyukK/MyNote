@@ -48,6 +48,7 @@ class CategoryListItemViewHolder(
                 tvCategoryName.setTextColorRes(R.color.black_700)
             }
 
+            tvCount.text = item.categoryItem.purchaseNoteCount.toString()
             ivEdit.isVisible = !item.isDefaultCategory
             ivDelete.isVisible = !item.isDefaultCategory
         }

@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.domain.model.CategoryWithPurchaseNoteCount
 import com.kjh.data.model.entity.CategoryEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -33,4 +34,15 @@ interface CategoryDao {
 
     @Query("DELETE FROM categories WHERE id = :id")
     suspend fun deleteCategoryById(id: Int)
+
+    @Query("""
+        SELECT
+        c.id AS categoryId,
+        c.categoryName AS categoryName,
+        COUNT(p.id) AS purchaseNoteCount
+        FROM categories c
+        LEFT JOIN purchase p ON c.id = p.categoryId
+        GROUP BY c.id
+    """)
+    fun getCategoriesWithPurchaseNoteCount(): Flow<List<CategoryWithPurchaseNoteCount>>
 }

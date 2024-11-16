@@ -5,13 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.domain.model.Category
 import com.example.domain.model.Result
 import com.example.domain.usecase.DeleteCategoryAndAssignToETCUseCase
-import com.example.domain.usecase.GetAllCategoriesUseCase
+import com.example.domain.usecase.GetCategoriesWithPurchaseNoteCountUseCase
 import com.example.domain.usecase.MakeCategoryUseCase
 import com.example.domain.usecase.UpdateCategoryNameUseCase
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.model.toDomainModel
-import com.kjh.mynote.model.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +37,7 @@ data class CategoryListItem(
 
 @HiltViewModel
 class CategoryListViewModel @Inject constructor(
-    private val getAllCategoriesUseCase: GetAllCategoriesUseCase,
+    private val getCategoriesWithPurchaseNoteCountUseCase: GetCategoriesWithPurchaseNoteCountUseCase,
     private val makeCategoryUseCase: MakeCategoryUseCase,
     private val updateCategoryNameUseCase: UpdateCategoryNameUseCase,
     private val deleteCategoryAndAssignToETCUseCase: DeleteCategoryAndAssignToETCUseCase
@@ -55,8 +54,14 @@ class CategoryListViewModel @Inject constructor(
     private val _deleteCategoryEventState = MutableSharedFlow<UiState<Int>>()
     val deleteCategoryEventState = _deleteCategoryEventState.asSharedFlow()
 
-    private val _allCategoriesFlow: StateFlow<List<CategoryUiModel>> = getAllCategoriesUseCase()
-        .map { categories -> categories.map { it.toUiModel() } }
+    private val _categoriesWithPurchaseNoteCountFlow: StateFlow<List<CategoryUiModel>> = getCategoriesWithPurchaseNoteCountUseCase()
+        .map { categories -> categories.map { categoryWithPurchaseNoteCount ->
+            CategoryUiModel(
+                id = categoryWithPurchaseNoteCount.categoryId,
+                categoryName = categoryWithPurchaseNoteCount.categoryName,
+                purchaseNoteCount = categoryWithPurchaseNoteCount.purchaseNoteCount
+            )
+        }}
         .stateIn(
             viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -64,7 +69,7 @@ class CategoryListViewModel @Inject constructor(
         )
 
     val uiState: StateFlow<List<CategoryListItem>> = combine(
-        _allCategoriesFlow, _selectedCategoryItem
+        _categoriesWithPurchaseNoteCountFlow, _selectedCategoryItem
     ) { allCategories, selectedItem ->
         allCategories.map { category ->
             CategoryListItem(

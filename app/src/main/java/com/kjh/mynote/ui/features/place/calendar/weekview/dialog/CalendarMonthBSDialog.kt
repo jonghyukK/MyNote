@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.place.calendar.dialog
+package com.kjh.mynote.ui.features.place.calendar.weekview.dialog
 
 import android.view.View
 import android.view.View.OnClickListener

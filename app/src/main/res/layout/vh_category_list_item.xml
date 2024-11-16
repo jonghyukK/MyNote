@@ -5,7 +5,19 @@
     android:layout_height="50dp"
     android:paddingStart="20dp"
     android:paddingEnd="5dp"
+    android:background="?attr/selectableItemBackground"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_checked"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_check_small_24"
+        app:tint="@color/purple"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"  />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_category_name"
@@ -17,24 +29,25 @@
         android:gravity="center_vertical"
         android:layout_marginEnd="4dp"
         app:layout_goneMarginEnd="0dp"
-        android:background="?attr/selectableItemBackground"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constrainedWidth="true"
         app:layout_constraintWidth_default="wrap"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/iv_checked"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/iv_checked"
-        tools:text="자동차하나둘셋넷다여" />
+        app:layout_constraintEnd_toStartOf="@+id/tv_count"
+        tools:text="자동차하나둘셋넷다여ㄴㅇㄴㅁ" />
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/iv_checked"
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_check_small_24"
-        app:tint="@color/purple"
-        android:visibility="gone"
+        android:textColor="@color/black_500"
+        android:textSize="14sp"
+        android:layout_marginStart="2dp"
+        android:visibility="visible"
+        tools:text="199"
         app:layout_constraintTop_toTopOf="@+id/tv_category_name"
         app:layout_constraintStart_toEndOf="@+id/tv_category_name"
         app:layout_constraintBottom_toBottomOf="@+id/tv_category_name"

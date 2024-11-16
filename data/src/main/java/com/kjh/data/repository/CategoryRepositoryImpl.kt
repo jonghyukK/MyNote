@@ -1,6 +1,7 @@
 package com.kjh.data.repository
 
 import com.example.domain.model.Category
+import com.example.domain.model.CategoryWithPurchaseNoteCount
 import com.example.domain.repository.CategoryRepository
 import com.kjh.data.model.entity.toDomainModel
 import com.kjh.data.model.entity.toEntity
@@ -20,6 +21,10 @@ class CategoryRepositoryImpl @Inject constructor(
 
     override fun allCategoriesFlow(): Flow<List<Category>> =
         categoryLocalDataSource.getAllCategories().map { it.toDomainModel() }
+
+    override fun getCategoriesWithPurchaseNoteCount(): Flow<List<CategoryWithPurchaseNoteCount>> {
+        return categoryLocalDataSource.getCategoriesWithPurchaseNoteCount()
+    }
 
     override suspend fun insertCategory(category: Category): Long {
         return categoryLocalDataSource.insert(category.toEntity())
