@@ -35,8 +35,10 @@ import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
-class PlaceNoteDetailActivity
-    : BaseActivity<ActivityPlaceNoteDetailBinding>({ ActivityPlaceNoteDetailBinding.inflate(it) }) {
+class PlaceNoteDetailActivity :
+    BaseActivity<ActivityPlaceNoteDetailBinding>({ ActivityPlaceNoteDetailBinding.inflate(it) }),
+    PlaceNoteDetailMenuBSDialog.PlaceNoteDetailMenuClickListener
+{
 
     private val viewModel: PlaceNoteDetailViewModel by viewModels()
 
@@ -123,11 +125,9 @@ class PlaceNoteDetailActivity
         super.onDestroy()
     }
 
-    private fun showMenuDialog() {
-        PlaceNoteDetailMenuBSDialog.newInstance(
-            deleteAction = noteDeleteAction,
-            modifyAction = noteModifyAction
-        ).show(supportFragmentManager, PlaceNoteDetailMenuBSDialog.TAG)
+    private fun showDeleteOrModifyDialog() {
+        PlaceNoteDetailMenuBSDialog.newInstance()
+            .show(supportFragmentManager, PlaceNoteDetailMenuBSDialog.TAG)
     }
 
     private val modifyResultLauncher = registerStartActivityResultLauncher(
@@ -180,7 +180,11 @@ class PlaceNoteDetailActivity
         }
     }
 
-    private val noteDeleteAction: () -> Unit = {
+    private val toolbarMoreButtonClickListener = OnClickListener {
+        showDeleteOrModifyDialog()
+    }
+
+    override fun onClickDeleteMenu() {
         MyDefaultDialog.newInstance(
             contents = getString(R.string.will_you_delete),
             posBtnText = getString(R.string.yes_i_will_delete),
@@ -191,7 +195,7 @@ class PlaceNoteDetailActivity
         ).show(supportFragmentManager, MyDefaultDialog.TAG)
     }
 
-    private val noteModifyAction: () -> Unit = {
+    override fun onClickModifyMenu() {
         val noteItem = viewModel.uiState.value.placeNoteItem
         noteItem?.let {
             Intent(this@PlaceNoteDetailActivity, MakeOrModifyPlaceNoteActivity::class.java).apply {
@@ -199,9 +203,5 @@ class PlaceNoteDetailActivity
                 modifyResultLauncher.launch(this)
             }
         }
-    }
-
-    private val toolbarMoreButtonClickListener = OnClickListener {
-        showMenuDialog()
     }
 }

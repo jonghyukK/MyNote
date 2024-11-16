@@ -1,5 +1,6 @@
 package com.kjh.mynote.ui.features.place.detail
 
+import android.content.Context
 import com.kjh.mynote.databinding.BsdPlaceDetailMenuDialogBinding
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
 import com.kjh.mynote.utils.extensions.onThrottleClick
@@ -13,17 +14,25 @@ import com.kjh.mynote.utils.extensions.onThrottleClick
 class PlaceNoteDetailMenuBSDialog
     : BaseBottomSheetDialogFragment<BsdPlaceDetailMenuDialogBinding>({ BsdPlaceDetailMenuDialogBinding.inflate(it) })
 {
-    private lateinit var deleteAction: () -> Unit
-    private lateinit var modifyAction: () -> Unit
+    private var menuClickListener: PlaceNoteDetailMenuClickListener? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        menuClickListener = when {
+            parentFragment is PlaceNoteDetailMenuClickListener -> parentFragment as PlaceNoteDetailMenuClickListener
+            context is PlaceNoteDetailMenuClickListener -> context
+            else -> throw IllegalStateException("Parent must implement PlaceNoteDetailMenuClickListener")
+        }
+    }
 
     override fun onInitView() {
         with(binding) {
             tvModify.onThrottleClick {
-                modifyAction.invoke()
+                menuClickListener?.onClickModifyMenu()
                 dismiss()
             }
             tvDelete.onThrottleClick {
-                deleteAction.invoke()
+                menuClickListener?.onClickDeleteMenu()
                 dismiss()
             }
         }
@@ -31,15 +40,19 @@ class PlaceNoteDetailMenuBSDialog
 
     override fun onInitData() {}
 
+    override fun onDetach() {
+        super.onDetach()
+        menuClickListener = null
+    }
+
+    interface PlaceNoteDetailMenuClickListener {
+        fun onClickDeleteMenu()
+        fun onClickModifyMenu()
+    }
+
     companion object {
         const val TAG = "PlaceNoteDetailMenuBSDialog"
 
-        fun newInstance(
-            deleteAction: () -> Unit,
-            modifyAction: () -> Unit
-        ): PlaceNoteDetailMenuBSDialog = PlaceNoteDetailMenuBSDialog().apply {
-            this.deleteAction = deleteAction
-            this.modifyAction = modifyAction
-        }
+        fun newInstance(): PlaceNoteDetailMenuBSDialog = PlaceNoteDetailMenuBSDialog()
     }
 }
