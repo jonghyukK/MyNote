@@ -15,7 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.kjh.mynote.R
-import com.kjh.mynote.databinding.ActivityNaverMapBinding
+import com.kjh.mynote.databinding.ActivityNaverMapSearchBinding
 import com.kjh.mynote.model.PlaceInfoUiModel
 import com.kjh.mynote.ui.base.BaseNaverMapActivity
 import com.kjh.mynote.utils.constants.AppConstants
@@ -41,8 +41,8 @@ import kotlinx.coroutines.launch
  */
 
 @AndroidEntryPoint
-class NaverMapActivity
-    : BaseNaverMapActivity<ActivityNaverMapBinding>({ ActivityNaverMapBinding.inflate(it) }) {
+class NaverMapSearchActivity
+    : BaseNaverMapActivity<ActivityNaverMapSearchBinding>({ ActivityNaverMapSearchBinding.inflate(it) }) {
 
     private val viewModel: NaverMapViewModel by viewModels()
 
@@ -162,9 +162,9 @@ class NaverMapActivity
         width = 60
         height = 80
         icon = MarkerIcons.BLACK
-        iconTintColor = ContextCompat.getColor(this@NaverMapActivity, R.color.purple)
+        iconTintColor = ContextCompat.getColor(this@NaverMapSearchActivity, R.color.purple)
         captionText = placeItem.placeName
-        captionColor = ContextCompat.getColor(this@NaverMapActivity, R.color.purple)
+        captionColor = ContextCompat.getColor(this@NaverMapSearchActivity, R.color.purple)
         map = naverMap
     }
 

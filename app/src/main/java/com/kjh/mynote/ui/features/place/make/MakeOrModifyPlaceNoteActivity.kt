@@ -17,7 +17,7 @@ import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.base.BaseViewModel
-import com.kjh.mynote.ui.features.map.NaverMapActivity
+import com.kjh.mynote.ui.features.map.NaverMapSearchActivity
 import com.kjh.mynote.ui.features.place.make.adapter.TempImageListAdapter
 import com.kjh.mynote.utils.DatePickerManager
 import com.kjh.mynote.utils.constants.AppConstants
@@ -246,7 +246,7 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
 
     private val searchMapClickListener = View.OnClickListener {
         clearFocus()
-        val intent = Intent(this@MakeOrModifyPlaceNoteActivity, NaverMapActivity::class.java).apply {
+        val intent = Intent(this@MakeOrModifyPlaceNoteActivity, NaverMapSearchActivity::class.java).apply {
             putExtra(AppConstants.INTENT_TEMP_PLACE_ITEM, viewModel.getTempPlaceItem())
         }
         searchPlaceResultLauncher.launch(intent)
