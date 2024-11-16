@@ -44,7 +44,7 @@ class PlaceNoteRepositoryImpl @Inject constructor(
         }
 
         return noteLocalDataSource.insert(placeNoteEntity).run {
-            noteLocalDataSource.getPlaceNoteById(this.toInt())
+            noteLocalDataSource.getPlaceNoteById(this.toInt())!!
         }.toDomainModel()
     }
 
@@ -63,8 +63,8 @@ class PlaceNoteRepositoryImpl @Inject constructor(
      *
      *  return PlaceNote
      */
-    override suspend fun getPlaceNoteById(noteId: Int): PlaceNote =
-        noteLocalDataSource.getPlaceNoteById(noteId).toDomainModel()
+    override suspend fun getPlaceNoteById(noteId: Int): PlaceNote? =
+        noteLocalDataSource.getPlaceNoteById(noteId)?.toDomainModel()
 
     /**
      * 장소노트 목록 조회 by PlaceName.

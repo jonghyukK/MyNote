@@ -18,6 +18,7 @@ import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.common.components.MyDefaultDialog
+import com.kjh.mynote.ui.common.components.MyDefaultDialog.MyDefaultDialogEventListener
 import com.kjh.mynote.ui.features.place.detail.adapter.PlaceNoteDetailUiListAdapter
 import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
 import com.kjh.mynote.ui.features.place.map.PlaceMapActivity
@@ -29,17 +30,16 @@ import com.kjh.mynote.utils.extensions.setDarkStatusBar
 import com.kjh.mynote.utils.extensions.setLightStatusBar
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
 class PlaceNoteDetailActivity :
     BaseActivity<ActivityPlaceNoteDetailBinding>({ ActivityPlaceNoteDetailBinding.inflate(it) }),
-    PlaceNoteDetailMenuBSDialog.PlaceNoteDetailMenuClickListener
+    PlaceNoteDetailMenuBSDialog.PlaceNoteDetailMenuClickListener,
+    MyDefaultDialogEventListener
 {
-
     private val viewModel: PlaceNoteDetailViewModel by viewModels()
 
     private val uiListAdapter: PlaceNoteDetailUiListAdapter by lazy {
@@ -85,16 +85,29 @@ class PlaceNoteDetailActivity :
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.uiState
-                        .map { it.placeNoteDetailUiItems }
-                        .distinctUntilChanged()
-                        .collect { uiItems ->
-                            uiListAdapter.submitList(uiItems)
+                    viewModel.uiState.collect { uiState ->
+                        when (uiState) {
+                            is PlaceNoteDetailUiState.Loading -> {}
+                            is PlaceNoteDetailUiState.NotExist -> {
+                                with (binding) {
+                                    motionLayout.progress = 1f
+                                    tbToolbar.isShowMoreButton = false
+                                    tvDeletedNotes.isVisible = true
+                                }
+                            }
+                            is PlaceNoteDetailUiState.Error -> {
+                                showToast(uiState.msg)
+                                viewModel.shownGetPlaceNoteDetailError()
+                            }
+                            is PlaceNoteDetailUiState.Success -> {
+                                uiListAdapter.submitList(uiState.placeNoteDetailUiItems)
+                            }
                         }
+                    }
                 }
 
                 launch {
-                    viewModel.deleteEvent.collect { state ->
+                    viewModel.requestDeleteEventState.collectLatest{ state ->
                         when (state) {
                             is UiState.Error -> {
                                 showToast(state.errorMsg)
@@ -103,16 +116,6 @@ class PlaceNoteDetailActivity :
                                 finish()
                             }
                             else -> {}
-                        }
-                    }
-                }
-
-                launch {
-                    viewModel.itemNotExistEvent.collect {
-                        with (binding) {
-                            motionLayout.progress = 1f
-                            tbToolbar.isShowMoreButton = false
-                            tvDeletedNotes.isVisible = true
                         }
                     }
                 }
@@ -188,20 +191,25 @@ class PlaceNoteDetailActivity :
         MyDefaultDialog.newInstance(
             contents = getString(R.string.will_you_delete),
             posBtnText = getString(R.string.yes_i_will_delete),
-            negBtnText = getString(R.string.cancel),
-            posAction = {
-                viewModel.deletePlaceNote()
-            }
+            negBtnText = getString(R.string.cancel)
         ).show(supportFragmentManager, MyDefaultDialog.TAG)
     }
 
     override fun onClickModifyMenu() {
-        val noteItem = viewModel.uiState.value.placeNoteItem
-        noteItem?.let {
-            Intent(this@PlaceNoteDetailActivity, MakeOrModifyPlaceNoteActivity::class.java).apply {
-                putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, it)
-                modifyResultLauncher.launch(this)
+        val uiState = viewModel.uiState.value
+        if (uiState is PlaceNoteDetailUiState.Success) {
+            uiState.placeNoteItem?.let {
+                Intent(this@PlaceNoteDetailActivity, MakeOrModifyPlaceNoteActivity::class.java).apply {
+                    putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, it)
+                    modifyResultLauncher.launch(this)
+                }
             }
         }
     }
+
+    override fun onClickPositive() {
+        viewModel.deletePlaceNote()
+    }
+
+    override fun onClickNegative() {}
 }

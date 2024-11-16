@@ -1,5 +1,6 @@
 package com.example.domain.usecase
 
+import com.example.domain.model.ERROR_CODE_NULL
 import com.example.domain.model.PlaceNoteWithSamePlaceNameNotes
 import com.example.domain.model.Result
 import com.example.domain.repository.PlaceNoteRepository
@@ -23,15 +24,23 @@ class GetPlaceNoteWithSamePlaceNameNotesUseCase @Inject constructor(
 
         try {
             val placeNote = placeNoteRepository.getPlaceNoteById(noteId)
-            val samePlaceNameNotes = placeNoteRepository.getPlaceNotesByPlaceName(placeNote.placeInfo.name)
+            if (placeNote == null) {
+                emit(Result.Error(msg = "해당 Id의 장소노트가 존재하지 않습니다.", errorCode = ERROR_CODE_NULL))
+                return@flow
+            }
+
+            val samePlaceNameNotes = placeNoteRepository
+                .getPlaceNotesByPlaceName(placeNote.placeInfo.name)
                 .filter { it.id != noteId }
 
-            emit(Result.Success(
-                PlaceNoteWithSamePlaceNameNotes(
-                    placeNote = placeNote,
-                    samePlaceNameNotes = samePlaceNameNotes
+            emit(
+                Result.Success(
+                    PlaceNoteWithSamePlaceNameNotes(
+                        placeNote = placeNote,
+                        samePlaceNameNotes = samePlaceNameNotes
+                    )
                 )
-            ))
+            )
         } catch (e: Exception) {
             emit(Result.Error(e.message))
         }

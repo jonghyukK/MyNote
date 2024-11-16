@@ -24,7 +24,7 @@ interface PlaceNoteDao {
     suspend fun insert(placeNoteEntity: PlaceNoteEntity): Long
 
     @Query("SELECT * FROM places WHERE id = :id")
-    suspend fun getPlaceNoteById(id: Int): PlaceNoteEntity
+    suspend fun getPlaceNoteById(id: Int): PlaceNoteEntity?
 
     @Query("DELETE FROM places WHERE id = :id")
     suspend fun deletePlaceNoteById(id: Int)

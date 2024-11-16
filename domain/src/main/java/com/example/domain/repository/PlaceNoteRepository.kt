@@ -20,7 +20,7 @@ interface PlaceNoteRepository {
 
     suspend fun deletePlaceNoteById(noteId: Int): Int
 
-    suspend fun getPlaceNoteById(noteId: Int): PlaceNote
+    suspend fun getPlaceNoteById(noteId: Int): PlaceNote?
 
     suspend fun getPlaceNotesByPlaceName(placeName: String): List<PlaceNote>
 

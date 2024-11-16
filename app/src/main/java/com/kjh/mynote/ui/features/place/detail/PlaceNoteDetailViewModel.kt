@@ -2,6 +2,7 @@ package com.kjh.mynote.ui.features.place.detail
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.example.domain.model.ERROR_CODE_NULL
 import com.example.domain.model.Result
 import com.example.domain.usecase.DeletePlaceNoteByIdUseCase
 import com.example.domain.usecase.GetPlaceNoteWithSamePlaceNameNotesUseCase
@@ -15,7 +16,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,14 +25,7 @@ import javax.inject.Inject
  * Description:
  */
 
-data class PlaceNoteDetailUiState(
-    val isLoading: Boolean = true,
-    val placeNoteItem: PlaceNoteUiModel? = null,
-    val placeNoteDetailUiItems: List<PlaceNoteDetailUi> = emptyList()
-)
-
 sealed class PlaceNoteDetailUi {
-
     data class DetailItem(
         val placeNoteItem: PlaceNoteUiModel
     ): PlaceNoteDetailUi()
@@ -41,6 +34,19 @@ sealed class PlaceNoteDetailUi {
         val sectionTitle: String,
         val placeNoteItems: List<PlaceNoteUiModel>
     ): PlaceNoteDetailUi()
+}
+
+sealed class PlaceNoteDetailUiState {
+    data object Loading: PlaceNoteDetailUiState()
+
+    data object NotExist: PlaceNoteDetailUiState()
+
+    data class Success(
+        val placeNoteItem: PlaceNoteUiModel? = null,
+        val placeNoteDetailUiItems: List<PlaceNoteDetailUi> = emptyList()
+    ): PlaceNoteDetailUiState()
+
+    data class Error(val msg: String): PlaceNoteDetailUiState()
 }
 
 @HiltViewModel
@@ -52,24 +58,25 @@ class PlaceNoteDetailViewModel @Inject constructor(
 
     val noteId = savedStateHandle.get<Int>(AppConstants.INTENT_NOTE_ID) ?: -1
 
-    private val _uiState = MutableStateFlow(PlaceNoteDetailUiState())
+    private val _uiState: MutableStateFlow<PlaceNoteDetailUiState> = MutableStateFlow(PlaceNoteDetailUiState.Success())
     val uiState = _uiState.asStateFlow()
 
-    private val _deleteEvent = MutableSharedFlow<UiState<Unit>>()
-    val deleteEvent = _deleteEvent.asSharedFlow()
-
-    private val _itemNotExistEvent = MutableSharedFlow<Unit>()
-    val itemNotExistEvent = _itemNotExistEvent.asSharedFlow()
+    private val _requestDeleteEventState = MutableSharedFlow<UiState<Unit>>()
+    val requestDeleteEventState = _requestDeleteEventState.asSharedFlow()
 
     fun getPlaceNoteDetail() {
         viewModelScope.launch {
             getPlaceNoteWithSamePlaceNameNotesUseCase(noteId).collect { result ->
                 when (result) {
                     is Result.Loading -> {
-                        _uiState.value = PlaceNoteDetailUiState(isLoading = true)
+                        _uiState.value = PlaceNoteDetailUiState.Loading
                     }
                     is Result.Error -> {
-                        _itemNotExistEvent.emit(Unit)
+                        if (result.errorCode == ERROR_CODE_NULL) {
+                            _uiState.value = PlaceNoteDetailUiState.NotExist
+                        } else {
+                            _uiState.value = PlaceNoteDetailUiState.Error(result.msg ?: "장소노트 상세정보 조회가 실패하였습니다.")
+                        }
                     }
                     is Result.Success -> {
                         result.data?.let { data ->
@@ -87,13 +94,10 @@ class PlaceNoteDetailViewModel @Inject constructor(
                                 )
                             }
 
-                            _uiState.update {
-                                it.copy(
-                                    isLoading = false,
-                                    placeNoteItem = placeNoteItem.toUiModel(),
-                                    placeNoteDetailUiItems = uiItems
-                                )
-                            }
+                            _uiState.value = PlaceNoteDetailUiState.Success(
+                                placeNoteItem = placeNoteItem.toUiModel(),
+                                placeNoteDetailUiItems = uiItems
+                            )
                         }
                     }
                 }
@@ -101,18 +105,22 @@ class PlaceNoteDetailViewModel @Inject constructor(
         }
     }
 
+    fun shownGetPlaceNoteDetailError() {
+        _uiState.value = PlaceNoteDetailUiState.Success()
+    }
+
     fun deletePlaceNote() {
         viewModelScope.launch {
             deletePlaceNoteByIdUseCase(noteId).collect { result ->
                 when (result) {
                     is Result.Loading -> {
-                        _deleteEvent.emit(UiState.Loading)
+                        _requestDeleteEventState.emit(UiState.Loading)
                     }
                     is Result.Error -> {
-                        _deleteEvent.emit(UiState.Error("장소노트 삭제가 실패했어요!"))
+                        _requestDeleteEventState.emit(UiState.Error("장소노트 삭제가 실패했어요!"))
                     }
                     is Result.Success -> {
-                        _deleteEvent.emit(UiState.Success(Unit))
+                        _requestDeleteEventState.emit(UiState.Success(Unit))
                     }
                 }
             }
