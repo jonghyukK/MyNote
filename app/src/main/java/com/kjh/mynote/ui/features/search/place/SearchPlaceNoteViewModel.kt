@@ -1,13 +1,10 @@
-package com.kjh.mynote.ui.features.search
+package com.kjh.mynote.ui.features.search.place
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.domain.model.PlaceNoteWithSamePlaceNameNotes
 import com.example.domain.model.Result
 import com.example.domain.model.SearchPlaceNoteWithCount
 import com.example.domain.usecase.SearchPlaceNotesWithCountUseCase
-import com.kjh.mynote.model.PlaceNoteUiModel
-import com.kjh.mynote.model.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -34,7 +31,7 @@ data class SearchResultItem(
 )
 
 @HiltViewModel
-class SearchViewModel @Inject constructor(
+class SearchPlaceNoteViewModel @Inject constructor(
     private val searchPlaceNotesWithCountUseCase: SearchPlaceNotesWithCountUseCase
 ): ViewModel() {
 

@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.search
+package com.kjh.mynote.ui.features.search.place
 
 import android.content.Intent
 import android.text.Editable
@@ -10,10 +10,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.kjh.mynote.databinding.FragmentSearchBinding
-import com.kjh.mynote.ui.base.BaseFragment
+import com.kjh.mynote.databinding.FragmentSearchPlaceNoteBinding
+import com.kjh.mynote.ui.base.BaseDialogFragment
+import com.kjh.mynote.ui.base.DialogType
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
-import com.kjh.mynote.ui.features.search.adapter.SearchResultListAdapter
+import com.kjh.mynote.ui.features.search.place.adapter.SearchResultListAdapter
 import com.kjh.mynote.utils.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.hideKeyboard
@@ -29,9 +30,12 @@ import kotlinx.coroutines.launch
  */
 
 @AndroidEntryPoint
-class SearchFragment: BaseFragment<FragmentSearchBinding>({ FragmentSearchBinding.inflate(it) }) {
+class SearchPlaceNoteFragment: BaseDialogFragment<FragmentSearchPlaceNoteBinding>(
+    { FragmentSearchPlaceNoteBinding.inflate(it) },
+    DialogType.FULL_SCREEN
+) {
 
-    private val viewModel: SearchViewModel by viewModels()
+    private val viewModel: SearchPlaceNoteViewModel by viewModels()
 
     private val listAdapter: SearchResultListAdapter by lazy {
         SearchResultListAdapter(searchResultClickAction)
@@ -46,6 +50,8 @@ class SearchFragment: BaseFragment<FragmentSearchBinding>({ FragmentSearchBindin
             }
 
             etSearch.addTextChangedListener(searchTextWatcher)
+
+            ivBack.setOnThrottleClickListener(backButtonClickListener)
             ivClear.setOnThrottleClickListener(textClearButtonClickListener)
         }
     }
@@ -115,6 +121,11 @@ class SearchFragment: BaseFragment<FragmentSearchBinding>({ FragmentSearchBindin
         }
     }
 
+    private val backButtonClickListener = OnClickListener {
+        binding.etSearch.hideKeyboard()
+        dismiss()
+    }
+
     private val textClearButtonClickListener = OnClickListener {
         viewModel.clearSearchQuery()
         binding.etSearch.text?.clear()
@@ -124,6 +135,6 @@ class SearchFragment: BaseFragment<FragmentSearchBinding>({ FragmentSearchBindin
     companion object {
         const val TAG = "SearchFragment"
 
-        fun newInstance() = SearchFragment()
+        fun newInstance() = SearchPlaceNoteFragment()
     }
 }

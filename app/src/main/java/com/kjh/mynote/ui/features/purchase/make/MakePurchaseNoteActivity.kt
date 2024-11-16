@@ -15,7 +15,7 @@ import com.kjh.mynote.model.PlaceInfoUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog
-import com.kjh.mynote.ui.features.map.NaverMapActivity
+import com.kjh.mynote.ui.features.map.NaverMapSearchActivity
 import com.kjh.mynote.ui.features.place.make.adapter.TempImageListAdapter
 import com.kjh.mynote.utils.DatePickerManager
 import com.kjh.mynote.utils.constants.AppConstants
@@ -303,7 +303,7 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityEditOrMakePurchaseNoteBindi
     private val searchMapClickListener = OnClickListener {
         clearFocus()
 
-        val intent = Intent(this@MakePurchaseNoteActivity, NaverMapActivity::class.java).apply {
+        val intent = Intent(this@MakePurchaseNoteActivity, NaverMapSearchActivity::class.java).apply {
             putExtra(AppConstants.INTENT_TEMP_PLACE_ITEM, viewModel.getTempPlaceItem())
         }
         searchPlaceResultLauncher.launch(intent)

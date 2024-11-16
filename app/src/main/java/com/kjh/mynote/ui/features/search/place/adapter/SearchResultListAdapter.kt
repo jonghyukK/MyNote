@@ -1,12 +1,11 @@
-package com.kjh.mynote.ui.features.search.adapter
+package com.kjh.mynote.ui.features.search.place.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.kjh.mynote.databinding.VhSearchResultItemBinding
-import com.kjh.mynote.model.PlaceNoteUiModel
-import com.kjh.mynote.ui.features.search.SearchResultItem
+import com.kjh.mynote.ui.features.search.place.SearchResultItem
 
 /**
  * Created by kangjonghyuk.

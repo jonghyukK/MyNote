@@ -1,10 +1,10 @@
-package com.kjh.mynote.ui.features.search.adapter
+package com.kjh.mynote.ui.features.search.place.adapter
 
 import androidx.core.view.isVisible
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhSearchResultItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.search.SearchResultItem
+import com.kjh.mynote.ui.features.search.place.SearchResultItem
 import com.kjh.mynote.utils.extensions.highlightText
 import com.kjh.mynote.utils.extensions.ifNullOrEmpty
 import com.kjh.mynote.utils.extensions.onThrottleClick

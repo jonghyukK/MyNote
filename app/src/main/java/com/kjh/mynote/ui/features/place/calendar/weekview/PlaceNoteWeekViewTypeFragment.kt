@@ -16,6 +16,7 @@ import com.kjh.mynote.ui.features.place.calendar.dialog.CalendarMonthBSDialog
 import com.kjh.mynote.ui.features.place.calendar.weekview.adapter.PlaceNoteWeekViewTypeListAdapter
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
 import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
+import com.kjh.mynote.ui.features.search.place.SearchPlaceNoteFragment
 import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity
 import com.kjh.mynote.utils.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
@@ -57,6 +58,7 @@ class PlaceNoteWeekViewTypeFragment
 
             myWeekCalendar.setDayClickAction(weekDayClickAction)
 
+            ivSearch.setOnThrottleClickListener(searchClickListener)
             clYearMonth.setOnThrottleClickListener(currentYearMonthClickListener)
         }
     }
@@ -136,6 +138,11 @@ class PlaceNoteWeekViewTypeFragment
     private val currentYearMonthClickListener = OnClickListener {
         CalendarMonthBSDialog.newInstance()
             .show(childFragmentManager, CalendarMonthBSDialog.TAG)
+    }
+
+    private val searchClickListener = OnClickListener {
+        SearchPlaceNoteFragment.newInstance()
+            .show(childFragmentManager, SearchPlaceNoteFragment.TAG)
     }
 
     companion object {

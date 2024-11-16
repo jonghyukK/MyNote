@@ -42,6 +42,11 @@ fun View.setOnThrottleClickListener(listener: View.OnClickListener) {
     setOnClickListener(OnThrottleClickListener(listener))
 }
 
+fun AppCompatEditText.showKeyboard() {
+    requestFocus()
+    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
+}
 fun AppCompatEditText.hideKeyboard() {
     this.clearFocus()
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
