@@ -1,10 +1,12 @@
 package com.kjh.mynote.ui.common.components
 
+import android.content.Context
 import android.os.Bundle
 import androidx.core.view.isVisible
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.DialogMyDefaultBinding
 import com.kjh.mynote.ui.base.BaseDialogFragment
+import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailMenuBSDialog.PlaceNoteDetailMenuClickListener
 import com.kjh.mynote.utils.extensions.onThrottleClick
 
 /**
@@ -15,47 +17,63 @@ import com.kjh.mynote.utils.extensions.onThrottleClick
 class MyDefaultDialog
     : BaseDialogFragment<DialogMyDefaultBinding>({ DialogMyDefaultBinding.inflate(it) }) {
 
-    private var posAction: () -> Unit = {}
-    private var negAction: (() -> Unit)? = null
+    private var eventListener: MyDefaultDialogEventListener? = null
+
+    private var contents: String = ""
+    private var posBtnText: String = ""
+    private var negBtnText: String? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        eventListener = when {
+            parentFragment is MyDefaultDialogEventListener -> parentFragment as MyDefaultDialogEventListener
+            context is MyDefaultDialogEventListener -> context
+            else -> throw IllegalStateException("Parent must implement MyDefaultDialogEventListener")
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            contents = it.getString(ARG_CONTENTS) ?: ""
+            posBtnText = it.getString(ARG_POS_BTN_TEXT) ?: getString(R.string.confirm)
+            negBtnText = it.getString(ARG_NEG_BTN_TEXT)
+        }
+    }
 
     override fun onInitView() {
-        arguments?.let {
-            val contents = it.getString(ARG_CONTENTS) ?: ""
-            val posBtnText = it.getString(ARG_POS_BTN_TEXT) ?: getString(R.string.confirm)
-            val negBtnText = it.getString(ARG_NEG_BTN_TEXT)
+        with (binding) {
+            tvContents.text = contents
 
-            binding.tvContents.text = contents
-            setupPositiveButton(posBtnText)
-            setupNegativeButton(negBtnText)
+            tvPositive.apply {
+                text = posBtnText
+                onThrottleClick {
+                    eventListener?.onClickPositive()
+                    dismiss()
+                }
+            }
+
+            tvNegative.apply {
+                isVisible = !negBtnText.isNullOrEmpty()
+                text = negBtnText ?: ""
+                onThrottleClick {
+                    eventListener?.onClickNegative()
+                    dismiss()
+                }
+            }
         }
     }
 
     override fun onInitData() {}
 
-    private fun setupPositiveButton(posBtnText: String) {
-        binding.tvPositive.apply {
-            text = posBtnText
-            onThrottleClick {
-                posAction.invoke()
-                dismiss()
-            }
-        }
+    override fun onDestroy() {
+        super.onDestroy()
+        eventListener = null
     }
 
-    private fun setupNegativeButton(negBtnText: String?) {
-        if (negBtnText.isNullOrBlank()) {
-            binding.tvNegative.isVisible = false
-            return
-        }
-
-        binding.tvNegative.apply {
-            isVisible = true
-            text = negBtnText
-            onThrottleClick {
-                negAction?.invoke()
-                dismiss()
-            }
-        }
+    interface MyDefaultDialogEventListener {
+        fun onClickPositive()
+        fun onClickNegative()
     }
 
     companion object {
@@ -68,18 +86,13 @@ class MyDefaultDialog
         fun newInstance(
             contents: String,
             posBtnText: String = "",
-            negBtnText: String = "",
-            posAction: () -> Unit,
-            negAction: (() -> Unit)? = null
+            negBtnText: String = ""
         ): MyDefaultDialog = MyDefaultDialog().apply {
             arguments = Bundle().apply {
                 putString(ARG_CONTENTS, contents)
                 putString(ARG_POS_BTN_TEXT, posBtnText)
                 putString(ARG_NEG_BTN_TEXT, negBtnText)
             }
-
-            this.posAction = posAction
-            this.negAction = negAction
         }
     }
 }

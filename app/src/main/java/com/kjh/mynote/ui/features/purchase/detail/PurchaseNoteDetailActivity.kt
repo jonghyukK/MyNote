@@ -14,6 +14,7 @@ import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.common.components.MyDefaultDialog
+import com.kjh.mynote.ui.common.components.MyDefaultDialog.MyDefaultDialogEventListener
 import com.kjh.mynote.ui.features.place.map.PlaceMapActivity
 import com.kjh.mynote.ui.features.purchase.edit.EditPurchaseNoteActivity
 import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity
@@ -36,7 +37,10 @@ import kotlinx.coroutines.launch
  */
 
 @AndroidEntryPoint
-class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding>({ ActivityPurchaseNoteDetailBinding.inflate(it) }) {
+class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding>(
+    { ActivityPurchaseNoteDetailBinding.inflate(it) }),
+    MyDefaultDialogEventListener
+{
 
     private val viewModel: PurchaseNoteDetailViewModel by viewModels()
 
@@ -128,9 +132,6 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
         MyDefaultDialog.newInstance(
             contents = getString(R.string.will_you_delete_this_purchase_note),
             posBtnText = getString(R.string.yes_i_will_delete),
-            posAction = {
-                viewModel.deletePurchaseNote()
-            },
             negBtnText = getString(R.string.cancel)
         ).show(supportFragmentManager, MyDefaultDialog.TAG)
     }
@@ -148,4 +149,10 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
             startActivity(this)
         }
     }
+
+    override fun onClickPositive() {
+        viewModel.deletePurchaseNote()
+    }
+
+    override fun onClickNegative() {}
 }
