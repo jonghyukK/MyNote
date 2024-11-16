@@ -1,131 +1,151 @@
 package com.kjh.mynote.ui.features.category.list
 
 import android.os.Bundle
+import android.os.Parcelable
 import androidx.core.view.isVisible
+import androidx.fragment.app.viewModels
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.DialogAddOrDeleteOrEditCategoryBinding
+import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.ui.base.BaseDialogFragment
 import com.kjh.mynote.utils.extensions.onThrottleClick
+import com.kjh.mynote.utils.extensions.parcelable
+import com.kjh.mynote.utils.extensions.showToast
+import kotlinx.parcelize.Parcelize
 
 /**
  * Created by kangjonghyuk.
  * Created On 2024. 11. 8..
  * Description:
  */
-class CategoryAddOrDeleteOrEditDialog: BaseDialogFragment<DialogAddOrDeleteOrEditCategoryBinding>({ DialogAddOrDeleteOrEditCategoryBinding.inflate(it) }) {
+
+@Parcelize
+enum class CategoryDialogType: Parcelable {
+    ADD,
+    MODIFY,
+    DELETE
+}
+
+class CategoryAddOrDeleteOrEditDialog: BaseDialogFragment<DialogAddOrDeleteOrEditCategoryBinding>(
+    { DialogAddOrDeleteOrEditCategoryBinding.inflate(it) }
+) {
+
+    private val parentViewModel: CategoryListViewModel by viewModels({ requireParentFragment() })
+
+    private var dialogType: CategoryDialogType? = null
+    private var currentCategoryItem: CategoryUiModel? = null
 
     init {
         isCancelable = false
     }
 
-    private var posAction: (String) -> Unit = {}
-    private var negAction: (() -> Unit)? = null
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            dialogType = it.parcelable<CategoryDialogType>(ARG_ENUM_TYPE)
+            currentCategoryItem = it.parcelable<CategoryUiModel>(ARG_CATEGORY_ITEM)
+        }
+    }
 
     override fun onInitView() {
-        arguments?.let {
-            val hideEditor = it.getBoolean(ARG_BOOL_HIDE_EDITOR)
-            val title = it.getString(ARG_STR_TITLE) ?: ""
-            val contents = it.getString(ARG_STR_CONTENTS) ?: ""
-            val categoryName = it.getString(ARG_STR_CATEGORY_NAME)
-            val noti = it.getString(ARG_STR_NOTI) ?: ""
-            val posBtnText = it.getString(ARG_STR_POS_BTN_TEXT) ?: getString(R.string.confirm)
-            val negBtnText = it.getString(ARG_STR_NEG_BTN_TEXT)
-
-            setupEditor(hideEditor)
-            setupTitle(title)
-            setupContents(contents)
-            setupCategoryName(categoryName)
-            setupNoti(noti)
-            setupPositiveButton(posBtnText)
-            setupNegativeButton(negBtnText)
+        when (dialogType) {
+            CategoryDialogType.ADD -> setupCategoryAddUI()
+            CategoryDialogType.MODIFY -> setupCategoryModifyUI()
+            CategoryDialogType.DELETE -> setupCategoryDeleteUI()
+            null -> throw Exception("Category DialogType is Null")
         }
     }
 
     override fun onInitData() {}
 
-    private fun setupEditor(isHide: Boolean) {
-        binding.etCategory.isVisible = !isHide
-    }
-
-    private fun setupTitle(title: String) {
-        binding.tvTitle.text = title
-    }
-
-    private fun setupContents(contents: String) {
-        binding.tvContents.isVisible = contents.isNotBlank()
-        binding.tvContents.text = contents
-    }
-
-    private fun setupCategoryName(categoryName: String?) {
-        if (categoryName.isNullOrBlank()) return
-
-        binding.etCategory.setText(categoryName)
-    }
-
-    private fun setupNoti(text: String) {
-        binding.tvNoti.isVisible = text.isNotBlank()
-        binding.tvNoti.text = text
-    }
-
-    private fun setupPositiveButton(posBtnText: String) {
-        binding.tvPositive.apply {
-            text = posBtnText
-            onThrottleClick {
-                posAction.invoke(binding.etCategory.text.toString())
-            }
+    private fun isValidCategoryName(): Boolean {
+        if (binding.etCategory.text.toString().isBlank()) {
+            showToast(getString(R.string.title_input_category_for_add))
+            return false
+        } else {
+            return true
         }
     }
 
-    private fun setupNegativeButton(negBtnText: String?) {
-        if (negBtnText.isNullOrBlank()) {
-            binding.tvNegative.isVisible = false
-            return
-        }
-
-        binding.tvNegative.apply {
-            isVisible = true
-            text = negBtnText
-            onThrottleClick {
-                negAction?.invoke()
-                dismiss()
+    /**
+     *  카테고리 추가 UI..
+     */
+    private fun setupCategoryAddUI() = with (binding) {
+        tvTitle.text = getString(R.string.title_input_category_for_add)
+        etCategory.isVisible = true
+        btnPositive.text = getString(R.string.do_add)
+        btnPositive.onThrottleClick {
+            if (isValidCategoryName()) {
+                parentViewModel.makeCategory(categoryName = etCategory.text.toString())
             }
+        }
+        btnNegative.text = getString(R.string.do_cancel)
+        btnNegative.onThrottleClick {
+            dismiss()
+        }
+    }
+
+    /**
+     *  카테고리 수정 UI..
+     */
+    private fun setupCategoryModifyUI() = with (binding) {
+        tvTitle.text = getString(R.string.title_input_category_for_edit)
+
+        etCategory.isVisible = true
+        etCategory.setText(currentCategoryItem?.categoryName ?: "")
+
+        tvNoti.isVisible = true
+        tvNoti.text = getString(R.string.desc_when_edit_category_name_change_same_category_notes)
+
+        btnPositive.text = getString(R.string.do_modify)
+        btnPositive.onThrottleClick {
+            if (isValidCategoryName()) {
+                currentCategoryItem?.let {
+                    parentViewModel.editCategory(it.copy(categoryName = etCategory.text.toString()))
+                }
+            }
+        }
+        btnNegative.text = getString(R.string.do_cancel)
+        btnNegative.onThrottleClick {
+            dismiss()
+        }
+    }
+
+    /**
+     *  카테고리 삭제 UI..
+     */
+    private fun setupCategoryDeleteUI() = with (binding) {
+        tvTitle.text = getString(R.string.title_will_you_delete_category)
+
+        tvNoti.isVisible = true
+        tvNoti.text = getString(R.string.desc_when_delete_category_change_same_category_notes)
+
+        btnPositive.text = getString(R.string.yes_i_will_delete)
+        btnPositive.onThrottleClick {
+            currentCategoryItem?.let {
+                parentViewModel.deleteCategory(it.id)
+            }
+        }
+        btnNegative.text = getString(R.string.do_cancel)
+        btnNegative.onThrottleClick {
+            dismiss()
         }
     }
 
     companion object {
-        const val TAG = "CategoryManagingDialog"
+        const val TAG = "CategoryAddOrDeleteOrEditDialog"
 
-        private const val ARG_STR_TITLE = "ARG_TITLE"
-        private const val ARG_STR_CONTENTS = "ARG_CONTENTS"
-        private const val ARG_STR_CATEGORY_NAME = "ARG_CATEGORY_NAME"
-        private const val ARG_STR_NOTI = "ARG_NOTI"
-        private const val ARG_STR_POS_BTN_TEXT = "ARG_POS_BTN_TEXT"
-        private const val ARG_STR_NEG_BTN_TEXT = "ARG_NEG_BTN_TEXT"
-        private const val ARG_BOOL_HIDE_EDITOR = "ARG_BOOL_HIDE_EDITOR"
+        private const val ARG_ENUM_TYPE = "TYPE"
+        private const val ARG_CATEGORY_ITEM = "ARG_CATEGORY_ITEM"
 
         fun newInstance(
-            title: String = "",
-            contents: String = "",
-            categoryName: String = "",
-            noti: String = "",
-            hideEditor: Boolean = false,
-            posBtnText: String = "",
-            negBtnText: String = "",
-            posAction: (String) -> Unit,
-            negAction: (() -> Unit)? = null
+            dialogType: CategoryDialogType,
+            categoryItem: CategoryUiModel? = null
         ): CategoryAddOrDeleteOrEditDialog = CategoryAddOrDeleteOrEditDialog().apply {
             arguments = Bundle().apply {
-                putString(ARG_STR_TITLE, title)
-                putString(ARG_STR_CONTENTS, contents)
-                putString(ARG_STR_CATEGORY_NAME, categoryName)
-                putString(ARG_STR_NOTI, noti)
-                putString(ARG_STR_POS_BTN_TEXT, posBtnText)
-                putString(ARG_STR_NEG_BTN_TEXT, negBtnText)
-                putBoolean(ARG_BOOL_HIDE_EDITOR, hideEditor)
+                putParcelable(ARG_ENUM_TYPE, dialogType)
+                putParcelable(ARG_CATEGORY_ITEM, categoryItem)
             }
-
-            this.posAction = posAction
-            this.negAction = negAction
         }
     }
 }

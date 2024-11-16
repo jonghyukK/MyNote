@@ -5,7 +5,6 @@ import com.example.domain.model.Result
 import com.example.domain.repository.CategoryRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.processNextEventInCurrentThread
 import javax.inject.Inject
 
 /**
@@ -26,8 +25,15 @@ class UpdateCategoryNameUseCase @Inject constructor(
         emit(Result.Loading)
 
         try {
-            categoryRepository.updateCategoryName(category)
-            emit(Result.Success(Unit))
+            val existingCategory = categoryRepository.getCategoryByName(category.categoryName)
+            if (existingCategory == null) {
+                categoryRepository.updateCategoryName(category)
+                emit(Result.Success(Unit))
+            } else if (existingCategory.id != category.id) {
+                emit(Result.Error("이미 해당 카테고리가 존재합니다."))
+            } else {
+                emit(Result.Error("카테고리명을 변경해주세요."))
+            }
         } catch (e: Exception) {
             emit(Result.Error(e.message))
         }

@@ -33,7 +33,7 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
 
     private val listAdapter: CategoryListAdapter by lazy {
         CategoryListAdapter(
-            onItemClickAction = onItemClickAction,
+            onItemClickAction = onCategoryClickAction,
             onEditClickAction = onEditClickAction,
             onDeleteClickAction = onDeleteClickAction
         )
@@ -44,7 +44,6 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
     private var deleteCategoryAction: (Int) -> Unit = {}
 
     private var categoryEditDialog: DialogFragment? = null
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,7 +119,7 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
         }
     }
 
-    private val onItemClickAction: (CategoryUiModel) -> Unit = { category ->
+    private val onCategoryClickAction: (CategoryUiModel) -> Unit = { category ->
         categoryClickAction(category)
         dismiss()
     }
@@ -128,14 +127,8 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
     // 수정..
     private val onEditClickAction: (CategoryUiModel) -> Unit = { category ->
         categoryEditDialog = CategoryAddOrDeleteOrEditDialog.newInstance(
-            title = getString(R.string.title_input_category_for_edit),
-            noti = getString(R.string.desc_when_edit_category_name_change_same_category_notes),
-            categoryName = category.categoryName,
-            posBtnText = getString(R.string.do_modify),
-            posAction = { text ->
-                viewModel.editCategory(category.copy(categoryName = text))
-            },
-            negBtnText = getString(R.string.do_cancel)
+            dialogType = CategoryDialogType.MODIFY,
+            categoryItem = category
         )
         categoryEditDialog?.show(childFragmentManager, CategoryAddOrDeleteOrEditDialog.TAG)
     }
@@ -143,12 +136,8 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
     // 삭제..
     private val onDeleteClickAction: (CategoryUiModel) -> Unit = { category ->
         categoryEditDialog = CategoryAddOrDeleteOrEditDialog.newInstance(
-            title = getString(R.string.title_will_you_delete_category),
-            noti = getString(R.string.desc_when_delete_category_change_same_category_notes),
-            hideEditor = true,
-            posBtnText = getString(R.string.yes_i_will_delete),
-            posAction = { viewModel.deleteCategory(category.id) },
-            negBtnText = getString(R.string.cancel)
+            dialogType = CategoryDialogType.DELETE,
+            categoryItem = category
         )
         categoryEditDialog?.show(childFragmentManager, CategoryAddOrDeleteOrEditDialog.TAG)
     }
@@ -156,14 +145,8 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
     // 추가..
     private val addCategoryClickListener = View.OnClickListener {
         categoryEditDialog = CategoryAddOrDeleteOrEditDialog.newInstance(
-            title = getString(R.string.title_input_category_for_add),
-            posBtnText = getString(R.string.do_add),
-            posAction = { text ->
-                viewModel.makeCategory(text)
-            },
-            negBtnText = getString(R.string.do_cancel)
+            dialogType = CategoryDialogType.ADD
         )
-
         categoryEditDialog?.show(childFragmentManager, CategoryAddOrDeleteOrEditDialog.TAG)
     }
 
@@ -185,4 +168,5 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
             this.deleteCategoryAction = deleteCategoryAction
         }
     }
+
 }
