@@ -41,4 +41,22 @@ interface PlaceNoteDao {
         GROUP BY placeName
     """)
     suspend fun searchByQuery(queryText: String): List<SearchPlaceNoteWithCountEntity>
+
+    @Query("""
+        SELECT * FROM places
+        WHERE (placeName LIKE '%' || :queryText || '%'
+        OR placeAddress LIKE '%' || :queryText || '%'
+        OR placeRoadAddress LIKE '%' || :queryText || '%')
+          AND visitDate >= :startDate
+          AND visitDate <= :endDate
+        ORDER BY 
+          CASE WHEN :isDescending = 1 THEN visitDate END DESC,
+          CASE WHEN :isDescending = 0 THEN visitDate END ASC
+    """)
+    suspend fun getFilteredPlaceNotes(
+        queryText: String = "",
+        startDate: Long,
+        endDate: Long,
+        isDescending: Boolean
+    ): List<PlaceNoteEntity>
 }

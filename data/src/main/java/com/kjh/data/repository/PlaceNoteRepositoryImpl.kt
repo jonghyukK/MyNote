@@ -1,5 +1,6 @@
 package com.kjh.data.repository
 
+import com.example.domain.model.FilteredSearchPlaceNotes
 import com.example.domain.model.PlaceNote
 import com.example.domain.model.SearchPlaceNoteWithCount
 import com.example.domain.repository.PlaceNoteRepository
@@ -9,6 +10,8 @@ import com.kjh.data.model.entity.toEntity
 import com.kjh.data.source.local.PlaceNoteDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.Instant
+import java.time.ZoneId
 import javax.inject.Inject
 
 /**
@@ -81,4 +84,37 @@ class PlaceNoteRepositoryImpl @Inject constructor(
      */
     override suspend fun searchByQueryFlow(query: String): List<SearchPlaceNoteWithCount> =
         noteLocalDataSource.searchByQuery(query).toDomainModel()
+
+    override suspend fun getFilteredPlaceNotes(
+        query: String,
+        startDate: Long,
+        endDate: Long,
+        isDescending: Boolean
+    ): List<FilteredSearchPlaceNotes> {
+        val placeNotes = noteLocalDataSource.getFilteredPlaceNotes(
+            query, startDate, endDate, isDescending
+        )
+
+        return placeNotes
+            .groupBy { placeNote ->
+                Instant.ofEpochMilli(placeNote.visitDate)
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate()
+            }
+            .map { (date, notes) ->
+                FilteredSearchPlaceNotes(
+                    date = date,
+                    placeNotes = notes.toDomainModel()
+                )
+            }
+            .let { groupedNotes ->
+                if (isDescending) {
+                    // 최신순
+                    groupedNotes.sortedByDescending { it.date }
+                } else {
+                    // 오래된 순
+                    groupedNotes.sortedBy { it.date }
+                }
+            }
+    }
 }
