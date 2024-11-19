@@ -1,10 +1,10 @@
-package com.kjh.mynote.ui.features.search.place.adapter
+package com.kjh.mynote.ui.features.place.search.adapter
 
 import androidx.core.view.isVisible
 import com.kjh.mynote.R
-import com.kjh.mynote.databinding.VhSearchResultItemBinding
+import com.kjh.mynote.databinding.VhSearchPlaceNoteListItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.search.place.SearchResultItem
+import com.kjh.mynote.ui.features.place.search.SearchResultItem
 import com.kjh.mynote.utils.extensions.highlightText
 import com.kjh.mynote.utils.extensions.ifNullOrEmpty
 import com.kjh.mynote.utils.extensions.onThrottleClick
@@ -14,8 +14,8 @@ import com.kjh.mynote.utils.extensions.onThrottleClick
  * Created On 2024. 11. 6..
  * Description:
  */
-class SearchResultItemViewHolder(
-    private val binding: VhSearchResultItemBinding,
+class SearchPlaceNoteListItemViewHolder(
+    private val binding: VhSearchPlaceNoteListItemBinding,
     private val itemClickAction: (SearchResultItem) -> Unit
 ): BaseViewHolder<SearchResultItem>(binding.root) {
 
