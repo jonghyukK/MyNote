@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingVertical="20dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_sort_descending"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" >
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_check_descending"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_check_small_24"
+            app:tint="@color/purple"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_sort_descending"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:text="@string/sort_descending"
+            android:textSize="16sp"
+            android:textColor="@color/black_800"
+            android:gravity="center_vertical"
+            android:layout_marginStart="4dp"
+            app:layout_goneMarginStart="0dp"
+            app:layout_constraintTop_toTopOf="@+id/parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_check_descending"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_sort_ascending"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintTop_toBottomOf="@+id/cl_sort_descending"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" >
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_check_ascending"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_check_small_24"
+            app:tint="@color/purple"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_sort_ascending"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:text="@string/sort_ascending"
+            android:textSize="16sp"
+            android:textColor="@color/black_800"
+            android:gravity="center_vertical"
+            android:layout_marginStart="4dp"
+            app:layout_goneMarginStart="0dp"
+            app:layout_constraintTop_toTopOf="@+id/parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_check_ascending"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

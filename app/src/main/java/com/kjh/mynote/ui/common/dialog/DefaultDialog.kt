@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.common.components
+package com.kjh.mynote.ui.common.dialog
 
 import android.content.Context
 import android.os.Bundle
@@ -6,15 +6,16 @@ import androidx.core.view.isVisible
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.DialogMyDefaultBinding
 import com.kjh.mynote.ui.base.BaseDialogFragment
-import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailMenuBSDialog.PlaceNoteDetailMenuClickListener
 import com.kjh.mynote.utils.extensions.onThrottleClick
 
 /**
  * Created by kangjonghyuk.
  * Created On 2024. 10. 22..
  * Description:
+ *
+ *  일반 대화상자형 Dialog
  */
-class MyDefaultDialog
+class DefaultDialog
     : BaseDialogFragment<DialogMyDefaultBinding>({ DialogMyDefaultBinding.inflate(it) }) {
 
     private var eventListener: MyDefaultDialogEventListener? = null
@@ -87,7 +88,7 @@ class MyDefaultDialog
             contents: String,
             posBtnText: String = "",
             negBtnText: String = ""
-        ): MyDefaultDialog = MyDefaultDialog().apply {
+        ): DefaultDialog = DefaultDialog().apply {
             arguments = Bundle().apply {
                 putString(ARG_CONTENTS, contents)
                 putString(ARG_POS_BTN_TEXT, posBtnText)
