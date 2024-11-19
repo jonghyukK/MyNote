@@ -4,7 +4,7 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
+import java.time.ZoneOffset
 import java.util.Date
 import java.util.Locale
 
@@ -17,8 +17,8 @@ import java.util.Locale
 
 fun Long.toLocalDate(): LocalDate {
     return Instant.ofEpochMilli(this)
-        .atZone(ZoneId.systemDefault()) // 시스템 기본 시간대 사용
-        .toLocalDate() // LocalDate로 변환
+        .atZone(ZoneOffset.UTC)
+        .toLocalDate()
 }
 
 fun Long.toStringWithFormat(

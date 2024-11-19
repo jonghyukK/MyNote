@@ -1,9 +1,8 @@
 package com.kjh.mynote.utils.extensions
 
-import java.text.DecimalFormat
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 /**
@@ -14,7 +13,7 @@ import java.time.format.DateTimeFormatter
 
 fun LocalDate.toMillis(): Long {
     return this
-        .atStartOfDay(ZoneId.systemDefault())
+        .atStartOfDay(ZoneOffset.UTC)
         .toInstant()
         .toEpochMilli()
 }
