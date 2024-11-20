@@ -1,15 +1,18 @@
 package com.kjh.mynote.utils.extensions
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.kjh.mynote.R
@@ -44,9 +47,11 @@ fun View.setOnThrottleClickListener(listener: View.OnClickListener) {
 
 fun AppCompatEditText.showKeyboard() {
     requestFocus()
+    performClick()
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
 }
+
 fun AppCompatEditText.hideKeyboard() {
     this.clearFocus()
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -55,6 +60,14 @@ fun AppCompatEditText.hideKeyboard() {
 
 internal fun AppCompatTextView.setTextColorRes(@ColorRes color: Int) =
     setTextColor(context.getColorCompat(color))
+
+internal fun AppCompatImageView.setTint(@ColorRes color: Int) {
+    imageTintList = ColorStateList.valueOf(ContextCompat.getColor(context, color))
+}
+
+internal fun View.setBackgroundRes(@DrawableRes res: Int) {
+    background = ContextCompat.getDrawable(context, res)
+}
 
 fun AppCompatImageView.loadImage(url: String) {
     Glide.with(this.context)

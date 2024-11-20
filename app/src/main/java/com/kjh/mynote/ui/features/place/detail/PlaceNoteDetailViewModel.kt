@@ -61,7 +61,7 @@ class PlaceNoteDetailViewModel @Inject constructor(
     private val _uiState: MutableStateFlow<PlaceNoteDetailUiState> = MutableStateFlow(PlaceNoteDetailUiState.Success())
     val uiState = _uiState.asStateFlow()
 
-    private val _requestDeleteEventState = MutableSharedFlow<UiState<Unit>>()
+    private val _requestDeleteEventState = MutableSharedFlow<UiState<Int>>()
     val requestDeleteEventState = _requestDeleteEventState.asSharedFlow()
 
     fun getPlaceNoteDetail() {
@@ -120,7 +120,7 @@ class PlaceNoteDetailViewModel @Inject constructor(
                         _requestDeleteEventState.emit(UiState.Error("장소노트 삭제가 실패했어요!"))
                     }
                     is Result.Success -> {
-                        _requestDeleteEventState.emit(UiState.Success(Unit))
+                        _requestDeleteEventState.emit(UiState.Success(result.data!!))
                     }
                 }
             }

@@ -55,6 +55,4 @@
         app:layout_constraintStart_toEndOf="@+id/tv_result_place_name"
         app:layout_constraintBottom_toBottomOf="@+id/tv_result_place_name"
         tools:text="+1"/>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

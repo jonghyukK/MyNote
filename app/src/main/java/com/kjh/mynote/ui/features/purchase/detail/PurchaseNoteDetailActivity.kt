@@ -13,8 +13,8 @@ import com.kjh.mynote.databinding.ActivityPurchaseNoteDetailBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
-import com.kjh.mynote.ui.common.components.MyDefaultDialog
-import com.kjh.mynote.ui.common.components.MyDefaultDialog.MyDefaultDialogEventListener
+import com.kjh.mynote.ui.common.dialog.DefaultDialog
+import com.kjh.mynote.ui.common.dialog.DefaultDialog.MyDefaultDialogEventListener
 import com.kjh.mynote.ui.features.place.map.PlaceMapActivity
 import com.kjh.mynote.ui.features.purchase.edit.EditPurchaseNoteActivity
 import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity
@@ -129,11 +129,11 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
     }
 
     private val deleteNoteClickListener = OnClickListener {
-        MyDefaultDialog.newInstance(
+        DefaultDialog.newInstance(
             contents = getString(R.string.will_you_delete_this_purchase_note),
             posBtnText = getString(R.string.yes_i_will_delete),
             negBtnText = getString(R.string.cancel)
-        ).show(supportFragmentManager, MyDefaultDialog.TAG)
+        ).show(supportFragmentManager, DefaultDialog.TAG)
     }
 
     private val editNoteClickListener = OnClickListener {

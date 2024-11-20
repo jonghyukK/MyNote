@@ -12,11 +12,11 @@ import com.kjh.mynote.databinding.FragmentPlaceNoteWeekViewTypeBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseFragment
 import com.kjh.mynote.ui.features.place.calendar.PlaceNoteCalendarHomeViewModel
-import com.kjh.mynote.ui.features.place.calendar.weekview.dialog.CalendarMonthBSDialog
 import com.kjh.mynote.ui.features.place.calendar.weekview.adapter.PlaceNoteWeekViewTypeListAdapter
+import com.kjh.mynote.ui.features.place.calendar.weekview.dialog.CalendarMonthBSDialog
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
 import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
-import com.kjh.mynote.ui.features.search.place.SearchPlaceNoteFragment
+import com.kjh.mynote.ui.features.place.search.PlaceNoteSearchActivity
 import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity
 import com.kjh.mynote.utils.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
@@ -141,8 +141,9 @@ class PlaceNoteWeekViewTypeFragment
     }
 
     private val searchClickListener = OnClickListener {
-        SearchPlaceNoteFragment.newInstance()
-            .show(childFragmentManager, SearchPlaceNoteFragment.TAG)
+        Intent(requireContext(), PlaceNoteSearchActivity::class.java).apply {
+            startActivity(this)
+        }
     }
 
     companion object {

@@ -11,11 +11,24 @@ import java.time.format.DateTimeFormatter
  * Description:
  */
 
+/**
+ *  LocalDate -> Long 으로 변환.
+ *
+ * @return
+ */
 fun LocalDate.toMillis(): Long {
     return this
         .atStartOfDay(ZoneOffset.UTC)
         .toInstant()
         .toEpochMilli()
+}
+
+fun LocalDate.getFirstDayOfMonth(): LocalDate {
+    return this.withDayOfMonth(1)
+}
+
+fun LocalDate.getLastDayOfMonth(): LocalDate {
+    return YearMonth.from(this).atEndOfMonth()
 }
 
 fun LocalDate.toStringWithPattern(

@@ -16,19 +16,24 @@
         android:theme="@style/Theme.MyNote"
         tools:targetApi="31">
         <activity
+            android:name=".ui.features.place.search.PlaceNoteSearchActivity"
+            android:exported="false"
+            android:theme="@style/AnimationActivityTheme"
+            android:windowSoftInputMode="stateVisible" />
+        <activity
             android:name=".ui.features.place.detail.PlaceNoteDetailActivity"
             android:exported="false" />
         <activity
             android:name=".ui.features.place.map.PlaceMapActivity"
             android:exported="false" />
+
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="aon1a380of" />
 
         <activity
             android:name=".ui.features.main.MainActivity"
-            android:exported="true"
-            android:windowSoftInputMode="adjustNothing">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -42,9 +47,7 @@
         <activity
             android:name=".ui.features.viewer.ImagesViewerActivity"
             android:theme="@style/StatusBarBlack" />
-
         <activity android:name=".ui.features.purchase.make.MakePurchaseNoteActivity" />
-
         <activity android:name=".ui.features.purchase.detail.PurchaseNoteDetailActivity" />
         <activity android:name=".ui.features.purchase.edit.EditPurchaseNoteActivity" />
     </application>

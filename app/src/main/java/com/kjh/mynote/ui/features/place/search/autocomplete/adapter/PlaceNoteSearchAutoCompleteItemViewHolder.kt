@@ -1,10 +1,10 @@
-package com.kjh.mynote.ui.features.place.search.adapter
+package com.kjh.mynote.ui.features.place.search.autocomplete.adapter
 
 import androidx.core.view.isVisible
 import com.kjh.mynote.R
-import com.kjh.mynote.databinding.VhSearchPlaceNoteListItemBinding
+import com.kjh.mynote.databinding.VhPlaceNoteSearchAutoCompleteItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.place.search.SearchResultItem
+import com.kjh.mynote.ui.features.place.search.autocomplete.PlaceNoteSearchAutoCompleteItem
 import com.kjh.mynote.utils.extensions.highlightText
 import com.kjh.mynote.utils.extensions.ifNullOrEmpty
 import com.kjh.mynote.utils.extensions.onThrottleClick
@@ -14,18 +14,18 @@ import com.kjh.mynote.utils.extensions.onThrottleClick
  * Created On 2024. 11. 6..
  * Description:
  */
-class SearchPlaceNoteListItemViewHolder(
-    private val binding: VhSearchPlaceNoteListItemBinding,
-    private val itemClickAction: (SearchResultItem) -> Unit
-): BaseViewHolder<SearchResultItem>(binding.root) {
+class PlaceNoteSearchAutoCompleteItemViewHolder(
+    private val binding: VhPlaceNoteSearchAutoCompleteItemBinding,
+    private val autoCompleteItemClickAction: (PlaceNoteSearchAutoCompleteItem) -> Unit
+): BaseViewHolder<PlaceNoteSearchAutoCompleteItem>(binding.root) {
 
     init {
         itemView.onThrottleClick {
-            bindItem?.let { item -> itemClickAction.invoke(item) }
+            bindItem?.let { item -> autoCompleteItemClickAction.invoke(item) }
         }
     }
 
-    override fun bind(item: SearchResultItem) {
+    override fun bind(item: PlaceNoteSearchAutoCompleteItem) {
         super.bind(item)
 
         with (binding) {

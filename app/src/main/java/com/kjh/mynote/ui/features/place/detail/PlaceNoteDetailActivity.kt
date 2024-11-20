@@ -17,8 +17,8 @@ import com.kjh.mynote.databinding.ActivityPlaceNoteDetailBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
-import com.kjh.mynote.ui.common.components.MyDefaultDialog
-import com.kjh.mynote.ui.common.components.MyDefaultDialog.MyDefaultDialogEventListener
+import com.kjh.mynote.ui.common.dialog.DefaultDialog
+import com.kjh.mynote.ui.common.dialog.DefaultDialog.MyDefaultDialogEventListener
 import com.kjh.mynote.ui.features.place.detail.adapter.PlaceNoteDetailUiListAdapter
 import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
 import com.kjh.mynote.ui.features.place.map.PlaceMapActivity
@@ -113,7 +113,11 @@ class PlaceNoteDetailActivity :
                                 showToast(state.errorMsg)
                             }
                             is UiState.Success -> {
-                                finish()
+                                Intent().apply {
+                                    putExtra(AppConstants.INTENT_NOTE_ID, state.data)
+                                    setResult(RESULT_OK, this)
+                                    finish()
+                                }
                             }
                             else -> {}
                         }
@@ -188,11 +192,11 @@ class PlaceNoteDetailActivity :
     }
 
     override fun onClickDeleteMenu() {
-        MyDefaultDialog.newInstance(
+        DefaultDialog.newInstance(
             contents = getString(R.string.will_you_delete),
             posBtnText = getString(R.string.yes_i_will_delete),
             negBtnText = getString(R.string.cancel)
-        ).show(supportFragmentManager, MyDefaultDialog.TAG)
+        ).show(supportFragmentManager, DefaultDialog.TAG)
     }
 
     override fun onClickModifyMenu() {
