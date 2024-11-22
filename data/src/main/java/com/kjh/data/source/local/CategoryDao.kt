@@ -4,7 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.domain.model.CategoryWithPurchaseDetails
 import com.example.domain.model.CategoryWithPurchaseNoteCount
+import com.example.domain.model.PurchaseDetail
 import com.kjh.data.model.entity.CategoryEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -45,4 +47,23 @@ interface CategoryDao {
         GROUP BY c.id
     """)
     fun getCategoriesWithPurchaseNoteCount(): Flow<List<CategoryWithPurchaseNoteCount>>
+
+    @Query("""
+        SELECT c.id AS categoryId,
+        c.categoryName AS categoryName,
+        COUNT(p.id) AS purchaseNoteCount
+        FROM categories c
+        LEFT JOIN purchase p ON c.id = p.categoryId
+        GROUP BY c.id, c.categoryName
+    """)
+    suspend fun getCategoryPurchaseCounts(): List<CategoryWithPurchaseNoteCount>
+
+    @Query("""
+        SELECT p.purchaseName AS purchaseName,
+        COUNT(p.id) AS count
+        FROM purchase p
+        WHERE p.categoryId = :categoryId
+        GROUP BY p.purchaseName
+    """)
+    suspend fun getPurchaseDetailsByCategory(categoryId: Int): List<PurchaseDetail>
 }

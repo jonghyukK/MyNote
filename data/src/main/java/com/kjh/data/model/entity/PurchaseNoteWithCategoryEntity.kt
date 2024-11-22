@@ -34,3 +34,5 @@ fun PurchaseNoteWithCategoryEntity.toDomainModel() =
         images = purchaseNote.images,
         placeInfo = purchaseNote.placeInfo
     )
+
+fun List<PurchaseNoteWithCategoryEntity>.toDomainModel() = map(PurchaseNoteWithCategoryEntity::toDomainModel)
