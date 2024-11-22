@@ -1,6 +1,7 @@
 package com.example.domain.repository
 
 import com.example.domain.model.Category
+import com.example.domain.model.FilteredSearchPurchaseNotes
 import com.example.domain.model.PurchaseNote
 import kotlinx.coroutines.flow.Flow
 
@@ -20,4 +21,13 @@ interface PurchaseNoteRepository {
     suspend fun getPurchaseNoteById(id: Int): PurchaseNote
 
     suspend fun deletePurchaseNoteById(id: Int)
+
+    suspend fun getFilteredPurchaseNotes(
+        queryText: String,
+        startDate: Long,
+        endDate: Long,
+        minPrice: Long,
+        maxPrice: Long,
+        categoryIds: List<Int>
+    ): List<FilteredSearchPurchaseNotes>
 }

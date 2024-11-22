@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import com.example.domain.model.PurchaseDetail
 import com.kjh.data.model.entity.PurchaseNoteEntity
 import com.kjh.data.model.entity.PurchaseNoteWithCategoryEntity
 import kotlinx.coroutines.flow.Flow
@@ -40,5 +41,26 @@ interface PurchaseNoteDao {
 
     @Query("DELETE FROM purchase WHERE id = :id")
     suspend fun deletePurchaseNoteById(id: Int)
+
+    @Transaction
+    @Query("""
+        SELECT * FROM purchase
+        WHERE purchaseName LIKE '%' || :queryText || '%'
+        AND purchaseDate >= :startDate
+        AND purchaseDate <= :endDate
+        AND purchasePrice >= :minPrice
+        AND purchasePrice <= :maxPrice
+        AND (:categoryIdsSize = 0 OR categoryId IN (:categoryIds))
+    """)
+    suspend fun getFilteredPurchaseNotes(
+        queryText: String,
+        startDate: Long,
+        endDate: Long,
+        minPrice: Long,
+        maxPrice: Long,
+        categoryIds: List<Int>,
+        categoryIdsSize: Int
+    ): List<PurchaseNoteWithCategoryEntity>
+
 
 }
