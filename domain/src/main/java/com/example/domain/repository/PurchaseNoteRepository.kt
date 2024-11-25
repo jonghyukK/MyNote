@@ -30,4 +30,6 @@ interface PurchaseNoteRepository {
         maxPrice: Long,
         categoryIds: List<Int>
     ): List<FilteredSearchPurchaseNotes>
+
+    val getMaxPurchasePrice: Flow<Long?>
 }

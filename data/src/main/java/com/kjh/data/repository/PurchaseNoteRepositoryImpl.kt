@@ -72,4 +72,7 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
                 )
             }
     }
+
+    override val getMaxPurchasePrice: Flow<Long?>
+        get() = purchaseNoteLocalDateSource.getMaxPurchasePrice()
 }

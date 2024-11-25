@@ -62,5 +62,6 @@ interface PurchaseNoteDao {
         categoryIdsSize: Int
     ): List<PurchaseNoteWithCategoryEntity>
 
-
+    @Query("SELECT MAX(purchasePrice) FROM purchase")
+    fun getMaxPurchasePrice(): Flow<Long?>
 }
