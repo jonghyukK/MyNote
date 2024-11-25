@@ -50,6 +50,7 @@
         <activity android:name=".ui.features.purchase.make.MakePurchaseNoteActivity" />
         <activity android:name=".ui.features.purchase.detail.PurchaseNoteDetailActivity" />
         <activity android:name=".ui.features.purchase.edit.EditPurchaseNoteActivity" />
+        <activity android:name=".ui.features.purchase.search.PurchaseNoteSearchActivity" />
     </application>
 
 </manifest>

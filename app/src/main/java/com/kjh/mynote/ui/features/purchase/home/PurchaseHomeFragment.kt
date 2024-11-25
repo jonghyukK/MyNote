@@ -20,6 +20,7 @@ import com.kjh.mynote.ui.features.category.filter.CategoryFilterDialogFragment
 import com.kjh.mynote.ui.features.purchase.detail.PurchaseNoteDetailActivity
 import com.kjh.mynote.ui.features.purchase.home.adapter.PurchaseHomeListAdapter
 import com.kjh.mynote.ui.features.purchase.make.MakePurchaseNoteActivity
+import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchActivity
 import com.kjh.mynote.utils.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.parcelable
@@ -160,7 +161,9 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
     }
 
     private val searchClickListener = OnClickListener {
-
+        Intent(requireContext(), PurchaseNoteSearchActivity::class.java).apply {
+            startActivity(this)
+        }
     }
 
     private val makePurchaseFabClickListener = View.OnClickListener {
