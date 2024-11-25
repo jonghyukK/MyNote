@@ -27,4 +27,7 @@ object AppConstants {
     const val MAX_SELECTABLE_IMAGE_COUNT = 10
 
     const val DEFAULT_YEARS_RANGE = 1
+
+    const val PRICE_MIN_LIMIT = 0L
+    const val PRICE_MAX_LIMIT = 10000000L
 }

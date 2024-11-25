@@ -31,6 +31,9 @@
     <string name="format_won">%1$s원</string>
     <string name="format_total_purchase_price">총 지출 금액: %1$s원</string>
     <string name="format_total_count">전체 %1$d</string>
+    <string name="format_start_date_until_end_date">%1$s ~ %2$s</string>
+    <string name="format_won_below">%1$s원 이하</string>
+    <string name="format_min_price_until_max_price">%1$s원 ~ %2$s원</string>
 
     <string name="input_title">제목 입력하기</string>
     <string name="input_contents">내용 입력하기</string>
@@ -94,4 +97,13 @@
     <string name="input_search_text">검색어를 입력해주세요</string>
     <string name="select_start_date">시작일 선택</string>
     <string name="select_end_date">종료일 선택</string>
+    <string name="do_search">검색하기</string>
+    <string name="price">가격</string>
+    <string name="hint_input_min_price">최소 가격 입력</string>
+    <string name="hint_input_max_price">최대 가격 입력</string>
+    <string name="search">검색</string>
+    <string name="search_purchase_note">구매노트 검색</string>
+    <string name="date_period">조회 기간</string>
+    <string name="recent_years_ago">최근 1년이내</string>
+    <string name="hint_input_purchase_name_to_search">검색할 구매명을 입력해주세요</string>
 </resources>

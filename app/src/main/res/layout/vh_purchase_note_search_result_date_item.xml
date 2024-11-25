@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.AppCompatTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tv_date"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:textSize="14sp"
+    android:textColor="@color/black_600"
+    android:textStyle="bold"
+    android:paddingHorizontal="20dp"
+    android:paddingVertical="12dp"
+    tools:text="2024년 11월 21일 (화)" />

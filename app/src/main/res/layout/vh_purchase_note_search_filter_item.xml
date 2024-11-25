@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/white"
+    android:paddingVertical="20dp">
+
+    <!-- Category -->
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_title_category"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="0dp"
+        android:text="@string/category"
+        android:textColor="@color/black_800"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/gl_guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 카테고리 목록 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_categories"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:nestedScrollingEnabled="false"
+        android:orientation="horizontal"
+        android:overScrollMode="never"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_title_category"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/gl_guideline"
+        app:layout_constraintTop_toTopOf="@+id/tv_title_category" />
+
+    <!-- 구매명 -->
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_title_purchase_name"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="0dp"
+        android:text="@string/purchase_name"
+        android:textColor="@color/black_800"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/gl_guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title_category" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_purchase_name"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/ripple_shape_s_white_c_4_l_black_600"
+        android:paddingHorizontal="12dp"
+        android:textColor="@color/black_800"
+        android:textSize="14sp"
+        android:gravity="center_vertical"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_title_purchase_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/gl_guideline"
+        app:layout_constraintTop_toTopOf="@+id/tv_title_purchase_name"
+        tools:text="hello?"/>
+
+    <!-- 조회기간 -->
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_title_date_range"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="0dp"
+        android:text="조회 기간"
+        android:textColor="@color/black_800"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/gl_guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title_purchase_name" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_date_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="20dp"
+        android:background="?attr/selectableItemBackground"
+        android:paddingHorizontal="12dp"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_title_date_range"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/gl_guideline"
+        app:layout_constraintTop_toTopOf="@+id/tv_title_date_range">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_date_calendar"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_calendar_24_purple"
+            app:tint="@color/black_500" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_date"
+            tools:text="2024-04-02"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:textColor="@color/black_500"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_date_calendar"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <!-- 가격 -->
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_title_price"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="0dp"
+        android:text="@string/price"
+        android:textColor="@color/black_800"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/gl_guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title_date_range" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_price"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="20dp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="12dp"
+        android:text="10,000원 ~ 100,000원"
+        android:textColor="@color/black_500"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_title_price"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/gl_guideline"
+        app:layout_constraintTop_toTopOf="@+id/tv_title_price" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gl_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.23" />
+</androidx.constraintlayout.widget.ConstraintLayout>
