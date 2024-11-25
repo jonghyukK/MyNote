@@ -133,11 +133,11 @@ class PlaceNoteSearchFilterBSDialog: BaseBottomSheetDialogFragment<BsdPlaceNoteS
     }
 
     private val oneMonthClickListener = OnClickListener {
-        viewModel.setTempMonthFilter(DateRangeFilter.MonthOne)
+        viewModel.setTempMonthFilter(DateRangeFilter.MonthOne())
     }
 
     private val threeMonthClickListener = OnClickListener {
-        viewModel.setTempMonthFilter(DateRangeFilter.MonthThree)
+        viewModel.setTempMonthFilter(DateRangeFilter.MonthThree())
     }
 
     private val directlyClickListener = OnClickListener {

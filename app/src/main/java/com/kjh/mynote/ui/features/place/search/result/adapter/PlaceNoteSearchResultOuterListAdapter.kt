@@ -43,6 +43,7 @@ class PlaceNoteSearchResultOuterListAdapter(
                     oldItem: FilteredSearchPlaceNotesUiModel,
                     newItem: FilteredSearchPlaceNotesUiModel
                 ): Boolean = oldItem.date == newItem.date
+                        && oldItem.placeNoteItems == newItem.placeNoteItems
 
                 override fun areContentsTheSame(
                     oldItem: FilteredSearchPlaceNotesUiModel,

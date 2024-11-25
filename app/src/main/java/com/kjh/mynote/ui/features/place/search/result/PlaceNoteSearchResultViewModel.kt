@@ -32,9 +32,21 @@ sealed class DateRangeFilter {
         fun getDateUiText() = date.toStringWithPattern("yyyy년 M월")
     }
 
-    data object MonthOne: DateRangeFilter()
+    data class MonthOne(
+        val startDate: LocalDate = LocalDate.now().minusMonths(1),
+        val endDate: LocalDate = LocalDate.now()
+    ): DateRangeFilter() {
+        fun getStartDateUiText() = startDate.toStringWithPattern("yyyy-MM-dd")
+        fun getEndDateUiText() = endDate.toStringWithPattern("yyyy-MM-dd")
+    }
 
-    data object MonthThree: DateRangeFilter()
+    data class MonthThree(
+        val startDate: LocalDate = LocalDate.now().minusMonths(3),
+        val endDate: LocalDate = LocalDate.now()
+    ): DateRangeFilter() {
+        fun getStartDateUiText() = startDate.toStringWithPattern("yyyy-MM-dd")
+        fun getEndDateUiText() = endDate.toStringWithPattern("yyyy-MM-dd")
+    }
 
     data class Directly(
         val startDate: LocalDate,

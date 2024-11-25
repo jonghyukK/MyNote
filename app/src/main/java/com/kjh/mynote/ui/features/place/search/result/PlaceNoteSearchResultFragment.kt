@@ -4,6 +4,7 @@ import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.view.View.OnClickListener
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -50,10 +51,15 @@ class PlaceNoteSearchResultFragment
     override fun onInitView() {
         with (binding) {
             rvSearchResults.apply {
-                itemAnimator = null
                 adapter = listAdapter
                 addItemDecoration(SpacingItemDecoration(top = 20))
             }
+
+            layoutLoading.root.setBackgroundColor(
+                ContextCompat.getColor(requireContext(),R.color.black_50))
+
+            layoutEmpty.root.setBackgroundColor(
+                ContextCompat.getColor(requireContext(),R.color.black_50))
 
             clFilterSort.setOnThrottleClickListener(sortFilterClickListener)
             clFilterConditions.setOnThrottleClickListener(conditionFilterClickListener)
