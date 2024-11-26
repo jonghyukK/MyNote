@@ -5,7 +5,7 @@ import androidx.core.view.isVisible
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhPurchaseNoteSearchCategoryListItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.category.list.CategoryListItem
+import com.kjh.mynote.ui.features.purchase.search.Filters
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.setTextColorRes
 
@@ -18,7 +18,7 @@ import com.kjh.mynote.utils.extensions.setTextColorRes
 class PurchaseNoteSearchCategoryListItemViewHolder(
     private val binding: VhPurchaseNoteSearchCategoryListItemBinding,
     private val categoryClickAction: (Int) -> Unit
-): BaseViewHolder<CategoryListItem>(binding.root) {
+): BaseViewHolder<Filters.Category>(binding.root) {
 
     init {
         itemView.onThrottleClick {
@@ -26,19 +26,19 @@ class PurchaseNoteSearchCategoryListItemViewHolder(
         }
     }
 
-    override fun bind(item: CategoryListItem) {
+    override fun bind(item: Filters.Category) {
         super.bind(item)
 
         with (binding) {
             tvFilterName.text = item.categoryItem.categoryName
-            if (item.isSelected) {
+            if (item.isApplied) {
                 tvFilterName.setTypeface(null, Typeface.BOLD)
                 tvFilterName.setTextColorRes(appliedTextColor)
             } else {
                 tvFilterName.setTypeface(null, Typeface.NORMAL)
                 tvFilterName.setTextColorRes(normalTextColor)
             }
-            ivImage.isVisible = item.isSelected
+            ivImage.isVisible = item.isApplied
         }
     }
 

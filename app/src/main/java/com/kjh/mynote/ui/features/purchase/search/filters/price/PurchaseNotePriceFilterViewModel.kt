@@ -2,7 +2,7 @@ package com.kjh.mynote.ui.features.purchase.search.filters.price
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kjh.mynote.ui.features.purchase.search.PriceFilter
+import com.kjh.mynote.ui.features.purchase.search.Filters
 import com.kjh.mynote.utils.constants.AppConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -20,8 +20,8 @@ import javax.inject.Inject
  */
 
 data class PurchaseNotePriceFilterUiState(
-    val initPriceFilter: PriceFilter = PriceFilter(),
-    val tempPriceFilter: PriceFilter = initPriceFilter
+    val initPriceFilter: Filters.Price = Filters.Price(),
+    val tempPriceFilter: Filters.Price = initPriceFilter
 )
 
 fun PurchaseNotePriceFilterUiState.isChangedFilter() =
@@ -42,14 +42,18 @@ class PurchaseNotePriceFilterViewModel @Inject constructor(): ViewModel() {
     private val _priceValidateEventState = MutableSharedFlow<PriceValidateEvent>()
     val priceValidateEventState = _priceValidateEventState.asSharedFlow()
 
-    fun setInitPrices(initPriceFilter: PriceFilter) {
+    fun setInitPrices(initPriceFilter: Filters.Price) {
         _uiState.value = PurchaseNotePriceFilterUiState(initPriceFilter)
     }
 
     fun setTempMinPrice(min: String) {
         _uiState.update { uiState ->
             uiState.copy(
-                tempPriceFilter = uiState.tempPriceFilter.copy(minPrice = min.toLong())
+                tempPriceFilter = uiState.tempPriceFilter.copy(
+                    minPrice = min.toLong(),
+                    isApplied = min.toLong() > AppConstants.PRICE_MIN_LIMIT
+                            || uiState.tempPriceFilter.maxPrice != uiState.tempPriceFilter.myMaxPrice
+                )
             )
         }
     }
@@ -57,7 +61,11 @@ class PurchaseNotePriceFilterViewModel @Inject constructor(): ViewModel() {
     fun setTempMaxPrice(max: String) {
         _uiState.update { uiState ->
             uiState.copy(
-                tempPriceFilter = uiState.tempPriceFilter.copy(maxPrice = max.toLong())
+                tempPriceFilter = uiState.tempPriceFilter.copy(
+                    maxPrice = max.toLong(),
+                    isApplied = max.toLong() != uiState.tempPriceFilter.myMaxPrice
+                            || uiState.tempPriceFilter.minPrice > AppConstants.PRICE_MIN_LIMIT
+                )
             )
         }
     }
@@ -65,7 +73,10 @@ class PurchaseNotePriceFilterViewModel @Inject constructor(): ViewModel() {
     fun clearTempMinPrice() {
         _uiState.update { uiState ->
             uiState.copy(
-                tempPriceFilter = uiState.tempPriceFilter.copy(minPrice = 0)
+                tempPriceFilter = uiState.tempPriceFilter.copy(
+                    minPrice = 0,
+                    isApplied = false
+                )
             )
         }
     }
@@ -73,7 +84,10 @@ class PurchaseNotePriceFilterViewModel @Inject constructor(): ViewModel() {
     fun clearTempMaxPrice() {
         _uiState.update { uiState ->
             uiState.copy(
-                tempPriceFilter = uiState.tempPriceFilter.copy(maxPrice = 0)
+                tempPriceFilter = uiState.tempPriceFilter.copy(
+                    maxPrice = 0,
+                    isApplied = false
+                )
             )
         }
     }
@@ -83,7 +97,8 @@ class PurchaseNotePriceFilterViewModel @Inject constructor(): ViewModel() {
             uiState.copy(
                 tempPriceFilter = uiState.tempPriceFilter.copy(
                     minPrice = AppConstants.PRICE_MIN_LIMIT,
-                    maxPrice = uiState.initPriceFilter.myMaxPrice
+                    maxPrice = uiState.initPriceFilter.myMaxPrice,
+                    isApplied = false
                 )
             )
         }

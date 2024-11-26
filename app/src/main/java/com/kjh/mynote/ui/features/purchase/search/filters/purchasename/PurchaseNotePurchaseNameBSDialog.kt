@@ -38,6 +38,7 @@ class PurchaseNotePurchaseNameBSDialog :
         with (binding) {
             etPurchaseName.addTextChangedListener(purchaseNameTextWatcher)
 
+            ivClose.setOnThrottleClickListener(closeBtnClickListener)
             ivClear.setOnThrottleClickListener(textClearBtnClickListener)
             clResetContainer.setOnThrottleClickListener(resetBtnClickListener)
             btnApply.setOnThrottleClickListener(applyBtnClickListener)
@@ -45,22 +46,22 @@ class PurchaseNotePurchaseNameBSDialog :
     }
 
     override fun onInitData() {
-        val appliedPurchaseName = parentViewModel.filtersUiState.value.purchaseName
-        viewModel.setInitPurchaseName(appliedPurchaseName)
+        val appliedPurchaseNameFilter = parentViewModel.filtersUiState.value.purchaseNameFilter
+        viewModel.setInitPurchaseNameFilter(appliedPurchaseNameFilter.purchaseName)
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.uiState
-                        .map { it.tempPurchaseName }
+                        .map { it.tempPurchaseNameFilter }
                         .distinctUntilChanged()
-                        .collect { purchaseName ->
-                            if (binding.etPurchaseName.text.toString() != purchaseName) {
-                                binding.etPurchaseName.setText(purchaseName)
-                                binding.etPurchaseName.setSelection(purchaseName.length)
+                        .collect { filter ->
+                            if (binding.etPurchaseName.text.toString() != filter.purchaseName) {
+                                binding.etPurchaseName.setText(filter.purchaseName)
+                                binding.etPurchaseName.setSelection(filter.purchaseName.length)
                             }
 
-                            binding.ivClear.isVisible = purchaseName.isNotEmpty()
+                            binding.ivClear.isVisible = filter.purchaseName.isNotEmpty()
                         }
                 }
 
@@ -85,22 +86,26 @@ class PurchaseNotePurchaseNameBSDialog :
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         override fun afterTextChanged(s: Editable?) {
-            viewModel.setTempPurchaseName(s.toString())
+            viewModel.setTempPurchaseNameFilter(s.toString())
         }
     }
 
+    private val closeBtnClickListener = View.OnClickListener {
+        dismiss()
+    }
+
     private val resetBtnClickListener = View.OnClickListener {
-        viewModel.clearPurchaseName()
+        viewModel.clearTempFilter()
     }
 
     private val textClearBtnClickListener = View.OnClickListener {
-        viewModel.clearPurchaseName()
+        viewModel.clearTempFilter()
     }
 
     private val applyBtnClickListener = View.OnClickListener {
         if (binding.btnApply.isEnable) {
-            val purchaseName = viewModel.uiState.value.tempPurchaseName
-            parentViewModel.setPurchaseName(purchaseName)
+            val filter = viewModel.uiState.value.tempPurchaseNameFilter
+            parentViewModel.setPurchaseName(filter)
             dismiss()
         }
     }

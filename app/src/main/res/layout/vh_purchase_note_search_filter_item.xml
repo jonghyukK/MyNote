@@ -5,7 +5,8 @@
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/white"
-    android:paddingVertical="20dp">
+    android:paddingTop="10dp"
+    android:paddingBottom="5dp">
 
     <!-- Category -->
     <androidx.appcompat.widget.AppCompatTextView
@@ -31,11 +32,22 @@
         android:nestedScrollingEnabled="false"
         android:orientation="horizontal"
         android:overScrollMode="never"
+        android:paddingHorizontal="2dp"
+        android:clipToPadding="false"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="@+id/tv_title_category"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/gl_guideline"
         app:layout_constraintTop_toTopOf="@+id/tv_title_category" />
+
+    <View
+        android:id="@+id/divider1"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/black_100"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title_category"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- 구매명 -->
     <androidx.appcompat.widget.AppCompatTextView
@@ -51,15 +63,16 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/gl_guideline"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_title_category" />
+        app:layout_constraintTop_toBottomOf="@+id/divider1" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_purchase_name"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="32dp"
         android:layout_marginEnd="20dp"
         android:background="@drawable/ripple_shape_s_white_c_4_l_black_600"
         android:paddingHorizontal="12dp"
+        android:layout_marginStart="12dp"
         android:textColor="@color/black_800"
         android:textSize="14sp"
         android:gravity="center_vertical"
@@ -68,6 +81,15 @@
         app:layout_constraintStart_toEndOf="@+id/gl_guideline"
         app:layout_constraintTop_toTopOf="@+id/tv_title_purchase_name"
         tools:text="hello?"/>
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/black_100"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title_purchase_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- 조회기간 -->
     <androidx.appcompat.widget.AppCompatTextView
@@ -83,7 +105,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/gl_guideline"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_title_purchase_name" />
+        app:layout_constraintTop_toBottomOf="@+id/divider2" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_date_container"
@@ -120,6 +142,14 @@
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <View
+        android:id="@+id/divider3"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/black_100"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title_date_range"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- 가격 -->
     <androidx.appcompat.widget.AppCompatTextView
@@ -135,7 +165,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/gl_guideline"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_title_date_range" />
+        app:layout_constraintTop_toBottomOf="@+id/divider3" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_price"

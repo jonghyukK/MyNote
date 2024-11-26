@@ -7,16 +7,19 @@ import com.kjh.mynote.databinding.LayoutLoadingBinding
 import com.kjh.mynote.databinding.VhPurchaseNoteSearchFilterItemBinding
 import com.kjh.mynote.databinding.VhPurchaseNoteSearchResultDateItemBinding
 import com.kjh.mynote.databinding.VhPurchaseNoteSearchResultItemBinding
+import com.kjh.mynote.databinding.VhPurchaseNoteSearchSelectedFilterOuterBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.ui.features.place.search.result.DateRangeFilter
+import com.kjh.mynote.ui.features.purchase.search.Filters
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchFilterUiState
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchUiState
 import com.kjh.mynote.ui.features.purchase.search.filters.category.PurchaseNoteSearchCategoryListAdapter
-import com.kjh.mynote.ui.features.purchase.search.isChanged
 import com.kjh.mynote.utils.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.onThrottleClick
+import com.kjh.mynote.utils.extensions.setBackgroundRes
 import com.kjh.mynote.utils.extensions.setTextColorRes
+import com.kjh.mynote.utils.extensions.setTint
 import com.kjh.mynote.utils.extensions.toComma
 import com.kjh.mynote.utils.extensions.toStringWithPattern
 
@@ -26,7 +29,11 @@ import com.kjh.mynote.utils.extensions.toStringWithPattern
  * Description:
  */
 
-
+/**
+ * 구매노트 검색 로딩 ViewHolder.
+ *
+ * @property binding
+ */
 class PurchaseNoteSearchLoadingItemViewHolder(
     private val binding: LayoutLoadingBinding
 ): BaseViewHolder<Unit>(binding.root) {
@@ -37,6 +44,11 @@ class PurchaseNoteSearchLoadingItemViewHolder(
     }
 }
 
+/**
+ * 구매노트 검색 빈 화면 ViewHolder.
+ *
+ * @property binding
+ */
 class PurchaseNoteSearchEmptyItemViewHolder(
     private val binding: LayoutEmptySearchResultsBinding
 ): BaseViewHolder<Unit>(binding.root) {}
@@ -52,6 +64,15 @@ class PurchaseNoteSearchDateItemViewHolder(
     }
 }
 
+/**
+ *  구매노트 검색 필터 화면 ViewHolder.
+ *
+ * @property binding
+ * @property categoryClickAction
+ * @property purchaseNameClickAction
+ * @property dateFilterClickAction
+ * @property priceFilterClickAction
+ */
 class PurchaseNoteSearchFilterItemViewHolder(
     private val binding: VhPurchaseNoteSearchFilterItemBinding,
     private val categoryClickAction: (Int) -> Unit,
@@ -66,7 +87,6 @@ class PurchaseNoteSearchFilterItemViewHolder(
     init {
         binding.rvCategories.apply {
             itemAnimator = null
-            addItemDecoration(SpacingItemDecoration(left = 6))
             adapter = categoryListAdapter
         }
 
@@ -87,62 +107,109 @@ class PurchaseNoteSearchFilterItemViewHolder(
         super.bind(item)
 
         // 카테고리 ..
-        categoryListAdapter.submitList(item.categoryItems)
+        categoryListAdapter.submitList(item.categoryFilters)
 
         with (binding) {
-            tvPurchaseName.text = item.purchaseName
+            // 구매명 ..
+            tvPurchaseName.text = item.purchaseNameFilter.purchaseName
+            if (item.purchaseNameFilter.purchaseName.isNotEmpty()) {
+                tvPurchaseName.setTextColorRes(appliedTextColor)
+                tvPurchaseName.setBackgroundRes(R.drawable.ripple_shape_s_white_c_4_l_purple)
+            } else {
+                tvPurchaseName.setTextColorRes(normalTextColor)
+                tvPurchaseName.setBackgroundRes(R.drawable.ripple_shape_s_white_c_4_l_black_500)
+            }
 
             // 조회 기간..
-            when (val dateRange = item.dateRangeFilter) {
+            when (val dateRange = item.dateRangeFilter.dateRangeFilter) {
                 is DateRangeFilter.Monthly -> {
-                    tvDate.setTextColorRes(R.color.purple)
+                    ivDateCalendar.setTint(appliedTextColor)
+                    tvDate.setTextColorRes(appliedTextColor)
                     tvDate.setTypeface(null, Typeface.BOLD)
-                    tvDate.text = dateRange.getDateUiText()
+                    tvDate.text = dateRange.getUiText()
                 }
                 is DateRangeFilter.MonthOne -> {
-                    tvDate.setTextColorRes(R.color.purple)
+                    ivDateCalendar.setTint(appliedTextColor)
+                    tvDate.setTextColorRes(appliedTextColor)
                     tvDate.setTypeface(null, Typeface.BOLD)
-                    tvDate.text = context.getString(
-                        R.string.format_start_date_until_end_date,
-                        dateRange.getStartDateUiText(), dateRange.getEndDateUiText())
+                    tvDate.text = dateRange.getUiText()
                 }
                 is DateRangeFilter.MonthThree -> {
-                    tvDate.setTextColorRes(R.color.purple)
+                    ivDateCalendar.setTint(appliedTextColor)
+                    tvDate.setTextColorRes(appliedTextColor)
                     tvDate.setTypeface(null, Typeface.BOLD)
-                    tvDate.text = context.getString(
-                        R.string.format_start_date_until_end_date,
-                        dateRange.getStartDateUiText(), dateRange.getEndDateUiText())
+                    tvDate.text = dateRange.getUiText()
                 }
                 is DateRangeFilter.Directly -> {
-                    tvDate.setTextColorRes(R.color.purple)
+                    ivDateCalendar.setTint(appliedTextColor)
+                    tvDate.setTextColorRes(appliedTextColor)
                     tvDate.setTypeface(null, Typeface.BOLD)
-                    tvDate.text = context.getString(
-                        R.string.format_start_date_until_end_date,
-                        dateRange.getStartDateUiText(), dateRange.getEndDateUiText())
+                    tvDate.text = dateRange.getUiText()
                 }
                 null -> {
-                    tvDate.setTextColorRes(R.color.black_500)
+                    ivDateCalendar.setTint(normalTextColor)
+                    tvDate.setTextColorRes(normalTextColor)
                     tvDate.setTypeface(null, Typeface.NORMAL)
                     tvDate.text = context.getString(R.string.recent_years_ago)
                 }
             }
 
             // 가격 ..
-            if (item.priceFilter.isChanged()) {
+            if (item.priceFilter.isApplied) {
                 tvPrice.setTypeface(null, Typeface.BOLD)
-                tvPrice.setTextColorRes(R.color.purple)
+                tvPrice.setTextColorRes(appliedTextColor)
             } else {
                 tvPrice.setTypeface(null, Typeface.NORMAL)
-                tvPrice.setTextColorRes(R.color.black_500)
+                tvPrice.setTextColorRes(normalTextColor)
             }
 
             tvPrice.text = context.getString(R.string.format_min_price_until_max_price,
                 item.priceFilter.minPrice.toComma(), item.priceFilter.maxPrice.toComma())
         }
+    }
 
+    companion object {
+        private val appliedTextColor = R.color.purple
+        private val normalTextColor = R.color.black_500
     }
 }
 
+/**
+ * 구매노트 검색 선택된 필터 목록 화면 ViewHolder.
+ *
+ * @property binding
+ * @property filterClickAction
+ */
+class PurchaseNoteSearchSelectedFilterOuterItemViewHolder(
+    private val binding: VhPurchaseNoteSearchSelectedFilterOuterBinding,
+    private val filterClickAction: (Filters) -> Unit
+): BaseViewHolder<PurchaseNoteSearchUiState.AppliedFilterItems>(binding.root) {
+
+    private val selectedFilterListAdapter = PurchaseNoteSearchSelectedFilterListAdapter(filterClickAction)
+
+    init {
+        binding.rvSelectedFilters.apply {
+            itemAnimator = null
+            adapter = selectedFilterListAdapter
+            if (itemDecorationCount == 0) {
+                addItemDecoration(SpacingItemDecoration(right = 8, exceptFirstItem = false))
+            }
+        }
+    }
+
+    override fun bind(item: PurchaseNoteSearchUiState.AppliedFilterItems) {
+        super.bind(item)
+
+        selectedFilterListAdapter.submitList(item.filterItems)
+    }
+}
+
+/**
+ * 구매노트 검색 결과 항목 ViewHolder.
+ *
+ * @property binding
+ * @property onClickAction
+ */
 class PurchaseNoteSearchResultItemViewHolder(
     private val binding: VhPurchaseNoteSearchResultItemBinding,
     private val onClickAction: (PurchaseNoteUiModel) -> Unit

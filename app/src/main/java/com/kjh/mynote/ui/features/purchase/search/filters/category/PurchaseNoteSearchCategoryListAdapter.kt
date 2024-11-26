@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.kjh.mynote.databinding.VhPurchaseNoteSearchCategoryListItemBinding
 import com.kjh.mynote.ui.features.category.list.CategoryListItem
+import com.kjh.mynote.ui.features.purchase.search.Filters
 
 /**
  * Created by kangjonghyuk.
@@ -14,7 +15,7 @@ import com.kjh.mynote.ui.features.category.list.CategoryListItem
  */
 class PurchaseNoteSearchCategoryListAdapter(
     private val categoryFilterClickAction: (Int) -> Unit
-): ListAdapter<CategoryListItem, PurchaseNoteSearchCategoryListItemViewHolder>(UI_MODEL_COMPARATOR) {
+): ListAdapter<Filters.Category, PurchaseNoteSearchCategoryListItemViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -33,15 +34,15 @@ class PurchaseNoteSearchCategoryListAdapter(
     }
 
     companion object {
-        private val UI_MODEL_COMPARATOR = object : DiffUtil.ItemCallback<CategoryListItem>() {
+        private val UI_MODEL_COMPARATOR = object : DiffUtil.ItemCallback<Filters.Category>() {
             override fun areItemsTheSame(
-                oldItem: CategoryListItem,
-                newItem: CategoryListItem
+                oldItem: Filters.Category,
+                newItem: Filters.Category
             ): Boolean = oldItem.categoryItem.id == newItem.categoryItem.id
 
             override fun areContentsTheSame(
-                oldItem: CategoryListItem,
-                newItem: CategoryListItem
+                oldItem: Filters.Category,
+                newItem: Filters.Category
             ): Boolean = oldItem == newItem
         }
     }

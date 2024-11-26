@@ -1,6 +1,7 @@
 package com.kjh.mynote.ui.features.purchase.search.filters.purchasename
 
 import androidx.lifecycle.ViewModel
+import com.kjh.mynote.ui.features.purchase.search.Filters
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,12 +15,12 @@ import javax.inject.Inject
  */
 
 data class PurchaseNotePurchaseNameFilterUiState(
-    val initPurchaseName: String = "",
-    val tempPurchaseName: String = initPurchaseName
+    val initPurchaseNameFilter: Filters.PurchaseName = Filters.PurchaseName(),
+    val tempPurchaseNameFilter: Filters.PurchaseName = initPurchaseNameFilter
 )
 
 fun PurchaseNotePurchaseNameFilterUiState.isChanged() =
-    initPurchaseName != tempPurchaseName
+    initPurchaseNameFilter.purchaseName != tempPurchaseNameFilter.purchaseName
 
 @HiltViewModel
 class PurchaseNotePurchaseNameFilterViewModel @Inject constructor(): ViewModel() {
@@ -27,19 +28,28 @@ class PurchaseNotePurchaseNameFilterViewModel @Inject constructor(): ViewModel()
     private val _uiState = MutableStateFlow(PurchaseNotePurchaseNameFilterUiState())
     val uiState = _uiState.asStateFlow()
 
-    fun setInitPurchaseName(name: String) {
-        _uiState.value = PurchaseNotePurchaseNameFilterUiState(initPurchaseName = name)
+    fun setInitPurchaseNameFilter(name: String) {
+        _uiState.value = PurchaseNotePurchaseNameFilterUiState(
+            initPurchaseNameFilter = Filters.PurchaseName(name)
+        )
     }
 
-    fun setTempPurchaseName(name: String) {
+    fun setTempPurchaseNameFilter(name: String) {
         _uiState.update {
-            it.copy(tempPurchaseName = name)
+            it.copy(
+                tempPurchaseNameFilter = it.tempPurchaseNameFilter.copy(
+                    purchaseName = name,
+                    isApplied = name.isNotBlank()
+                )
+            )
         }
     }
 
-    fun clearPurchaseName() {
+    fun clearTempFilter() {
         _uiState.update {
-            it.copy(tempPurchaseName = "")
+            it.copy(
+                tempPurchaseNameFilter = Filters.PurchaseName()
+            )
         }
     }
 }

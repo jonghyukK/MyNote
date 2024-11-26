@@ -8,5 +8,5 @@
     android:textColor="@color/black_600"
     android:textStyle="bold"
     android:paddingHorizontal="20dp"
-    android:paddingVertical="12dp"
+
     tools:text="2024년 11월 21일 (화)" />

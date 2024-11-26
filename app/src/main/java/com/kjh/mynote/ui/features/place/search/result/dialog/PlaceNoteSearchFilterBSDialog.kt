@@ -81,7 +81,7 @@ class PlaceNoteSearchFilterBSDialog: BaseBottomSheetDialogFragment<BsdPlaceNoteS
                                 is DateRangeFilter.Monthly -> {
                                     makeFilterUis(binding.tvMonthly)
 
-                                    binding.tvSelectableMonth.text = monthFilter.getDateUiText()
+                                    binding.tvSelectableMonth.text = monthFilter.getUiText()
                                 }
 
                                 is DateRangeFilter.MonthOne -> {

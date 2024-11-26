@@ -28,24 +28,26 @@ import javax.inject.Inject
  */
 
 sealed class DateRangeFilter {
+    abstract fun getUiText(): String
+
     data class Monthly(val date: LocalDate): DateRangeFilter() {
-        fun getDateUiText() = date.toStringWithPattern("yyyy년 M월")
+        override fun getUiText(): String = date.toStringWithPattern("yyyy년 M월")
     }
 
     data class MonthOne(
         val startDate: LocalDate = LocalDate.now().minusMonths(1),
         val endDate: LocalDate = LocalDate.now()
     ): DateRangeFilter() {
-        fun getStartDateUiText() = startDate.toStringWithPattern("yyyy-MM-dd")
-        fun getEndDateUiText() = endDate.toStringWithPattern("yyyy-MM-dd")
+        override fun getUiText(): String =
+            "${startDate.toStringWithPattern("yyyy-MM-dd")} ~ ${endDate.toStringWithPattern("yyyy-MM-dd")}"
     }
 
     data class MonthThree(
         val startDate: LocalDate = LocalDate.now().minusMonths(3),
         val endDate: LocalDate = LocalDate.now()
     ): DateRangeFilter() {
-        fun getStartDateUiText() = startDate.toStringWithPattern("yyyy-MM-dd")
-        fun getEndDateUiText() = endDate.toStringWithPattern("yyyy-MM-dd")
+        override fun getUiText(): String =
+            "${startDate.toStringWithPattern("yyyy-MM-dd")} ~ ${endDate.toStringWithPattern("yyyy-MM-dd")}"
     }
 
     data class Directly(
@@ -54,6 +56,9 @@ sealed class DateRangeFilter {
     ): DateRangeFilter() {
         fun getStartDateUiText() = startDate.toStringWithPattern("yyyy-MM-dd")
         fun getEndDateUiText() = endDate.toStringWithPattern("yyyy-MM-dd")
+
+        override fun getUiText(): String =
+            "${getStartDateUiText()} ~ ${getEndDateUiText()}"
     }
 }
 

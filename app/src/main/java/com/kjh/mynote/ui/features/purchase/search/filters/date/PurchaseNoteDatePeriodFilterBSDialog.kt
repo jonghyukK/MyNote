@@ -79,12 +79,11 @@ class PurchaseNoteDatePeriodFilterBSDialog :
                         .map { it.tempMonthFilter }
                         .distinctUntilChanged()
                         .collect { monthFilter ->
-
-                            when (monthFilter) {
+                            when (monthFilter.dateRangeFilter) {
                                 is DateRangeFilter.Monthly -> {
                                     makeFilterUis(binding.tvMonthly)
 
-                                    binding.tvSelectableMonth.text = monthFilter.getDateUiText()
+                                    binding.tvSelectableMonth.text = monthFilter.dateRangeFilter.getUiText()
                                 }
 
                                 is DateRangeFilter.MonthOne -> {
@@ -98,8 +97,8 @@ class PurchaseNoteDatePeriodFilterBSDialog :
                                 is DateRangeFilter.Directly -> {
                                     makeFilterUis(binding.tvDirectly)
 
-                                    binding.tvStartDate.text = monthFilter.getStartDateUiText()
-                                    binding.tvEndDate.text = monthFilter.getEndDateUiText()
+                                    binding.tvStartDate.text = monthFilter.dateRangeFilter.getStartDateUiText()
+                                    binding.tvEndDate.text = monthFilter.dateRangeFilter.getEndDateUiText()
                                 }
 
                                 else -> {
@@ -153,7 +152,7 @@ class PurchaseNoteDatePeriodFilterBSDialog :
     }
 
     private val selectableMonthClickListener = View.OnClickListener {
-        val filterItem = viewModel.uiState.value.tempMonthFilter
+        val filterItem = viewModel.uiState.value.tempMonthFilter.dateRangeFilter
         if (filterItem is DateRangeFilter.Monthly) {
             SelectableYearMonthListBSDialog.newInstance(
                 selectedDate = filterItem.date
@@ -162,7 +161,7 @@ class PurchaseNoteDatePeriodFilterBSDialog :
     }
 
     private val startDateClickListener = View.OnClickListener {
-        val monthFilter = viewModel.uiState.value.tempMonthFilter
+        val monthFilter = viewModel.uiState.value.tempMonthFilter.dateRangeFilter
         if (monthFilter is DateRangeFilter.Directly) {
             DatePickerManager.build(
                 title = getString(R.string.select_start_date),
@@ -182,7 +181,7 @@ class PurchaseNoteDatePeriodFilterBSDialog :
     }
 
     private val endDateClickListener = View.OnClickListener {
-        val monthFilter = viewModel.uiState.value.tempMonthFilter
+        val monthFilter = viewModel.uiState.value.tempMonthFilter.dateRangeFilter
         if (monthFilter is DateRangeFilter.Directly) {
             DatePickerManager.build(
                 title = getString(R.string.select_end_date),
