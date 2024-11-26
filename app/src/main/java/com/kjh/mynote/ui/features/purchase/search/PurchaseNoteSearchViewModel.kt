@@ -198,7 +198,10 @@ class PurchaseNoteSearchViewModel @Inject constructor(
                 setDateRangeFilter(Filters.DateRange())
             }
             is Filters.Price -> {
-                setPriceFilter(Filters.Price())
+                setPriceFilter(Filters.Price(
+                    maxPrice = filters.myMaxPrice,
+                    myMaxPrice = filters.myMaxPrice
+                ))
             }
             is Filters.PurchaseName -> {
                 setPurchaseName(Filters.PurchaseName())
