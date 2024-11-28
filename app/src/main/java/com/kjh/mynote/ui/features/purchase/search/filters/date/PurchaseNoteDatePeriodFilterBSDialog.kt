@@ -14,6 +14,7 @@ import com.kjh.mynote.databinding.BsdDateRangeFilterDialogBinding
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
 import com.kjh.mynote.ui.common.dialog.yearmonths.SelectableYearMonthListBSDialog
 import com.kjh.mynote.ui.features.place.search.result.DateRangeFilter
+import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchFilterViewModel
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchViewModel
 import com.kjh.mynote.utils.DatePickerManager
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
@@ -39,7 +40,7 @@ class PurchaseNoteDatePeriodFilterBSDialog :
     }), SelectableYearMonthListBSDialog.YearMonthClickListener {
 
     private val parentViewModel: PurchaseNoteSearchViewModel by activityViewModels()
-    private val viewModel: PurchaseNoteDatePeriodFilterViewModel by viewModels()
+    private val viewModel: PurchaseNoteSearchFilterViewModel by viewModels()
 
     override fun onInitView() {
         with (binding) {
@@ -60,23 +61,20 @@ class PurchaseNoteDatePeriodFilterBSDialog :
     }
 
     override fun onInitData() {
-        val appliedMonthFilter = parentViewModel.filtersUiState.value.dateRangeFilter
-        viewModel.setInitFilter(appliedMonthFilter)
+        val appliedFilter = parentViewModel.filtersUiState.value
+        viewModel.setInitFilterUiState(appliedFilter)
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.uiState
-                        .map { it.isChangedFilter() }
-                        .distinctUntilChanged()
-                        .collect { isChangedFilter ->
-                            binding.btnApply.isEnable = isChangedFilter
-                        }
+                    viewModel.isChangedDateFilter.collect { isChangedFilter ->
+                        binding.btnApply.isEnable = isChangedFilter
+                    }
                 }
 
                 launch {
-                    viewModel.uiState
-                        .map { it.tempMonthFilter }
+                    viewModel.tempFilterUiState
+                        .map { it.dateRangeFilter }
                         .distinctUntilChanged()
                         .collect { monthFilter ->
                             when (monthFilter.dateRangeFilter) {
@@ -127,23 +125,23 @@ class PurchaseNoteDatePeriodFilterBSDialog :
     }
 
     private val resetClickListener = View.OnClickListener {
-        viewModel.resetTempMonthFilter()
+        viewModel.resetDateFilter()
     }
 
     private val monthlyClickListener = View.OnClickListener {
-        viewModel.setTempMonthFilter(DateRangeFilter.Monthly(date = LocalDate.now()))
+        viewModel.setDateFilter(DateRangeFilter.Monthly(date = LocalDate.now()))
     }
 
     private val oneMonthClickListener = View.OnClickListener {
-        viewModel.setTempMonthFilter(DateRangeFilter.MonthOne())
+        viewModel.setDateFilter(DateRangeFilter.MonthOne())
     }
 
     private val threeMonthClickListener = View.OnClickListener {
-        viewModel.setTempMonthFilter(DateRangeFilter.MonthThree())
+        viewModel.setDateFilter(DateRangeFilter.MonthThree())
     }
 
     private val directlyClickListener = View.OnClickListener {
-        viewModel.setTempMonthFilter(
+        viewModel.setDateFilter(
             DateRangeFilter.Directly(
                 startDate = LocalDate.now().minusYears(1),
                 endDate = LocalDate.now()
@@ -152,7 +150,7 @@ class PurchaseNoteDatePeriodFilterBSDialog :
     }
 
     private val selectableMonthClickListener = View.OnClickListener {
-        val filterItem = viewModel.uiState.value.tempMonthFilter.dateRangeFilter
+        val filterItem = viewModel.tempFilterUiState.value.dateRangeFilter.dateRangeFilter
         if (filterItem is DateRangeFilter.Monthly) {
             SelectableYearMonthListBSDialog.newInstance(
                 selectedDate = filterItem.date
@@ -161,7 +159,7 @@ class PurchaseNoteDatePeriodFilterBSDialog :
     }
 
     private val startDateClickListener = View.OnClickListener {
-        val monthFilter = viewModel.uiState.value.tempMonthFilter.dateRangeFilter
+        val monthFilter = viewModel.tempFilterUiState.value.dateRangeFilter.dateRangeFilter
         if (monthFilter is DateRangeFilter.Directly) {
             DatePickerManager.build(
                 title = getString(R.string.select_start_date),
@@ -169,7 +167,7 @@ class PurchaseNoteDatePeriodFilterBSDialog :
                 minDate = 0L,
                 maxDate = monthFilter.endDate.toMillis(),
                 positiveButtonClickAction = { date ->
-                    viewModel.setTempMonthFilter(
+                    viewModel.setDateFilter(
                         DateRangeFilter.Directly(
                             startDate = date.toLocalDate(),
                             endDate = monthFilter.endDate
@@ -181,7 +179,7 @@ class PurchaseNoteDatePeriodFilterBSDialog :
     }
 
     private val endDateClickListener = View.OnClickListener {
-        val monthFilter = viewModel.uiState.value.tempMonthFilter.dateRangeFilter
+        val monthFilter = viewModel.tempFilterUiState.value.dateRangeFilter.dateRangeFilter
         if (monthFilter is DateRangeFilter.Directly) {
             DatePickerManager.build(
                 title = getString(R.string.select_end_date),
@@ -189,7 +187,7 @@ class PurchaseNoteDatePeriodFilterBSDialog :
                 minDate = monthFilter.startDate.toMillis(),
                 maxDate = LocalDate.now().toMillis(),
                 positiveButtonClickAction = { date ->
-                    viewModel.setTempMonthFilter(
+                    viewModel.setDateFilter(
                         DateRangeFilter.Directly(
                             startDate = monthFilter.startDate,
                             endDate = date.toLocalDate()
@@ -206,14 +204,15 @@ class PurchaseNoteDatePeriodFilterBSDialog :
 
     private val applyBtnClickListener = View.OnClickListener {
         if (binding.btnApply.isEnable) {
-            val selectedFilter = viewModel.uiState.value.tempMonthFilter
+            val selectedFilter = viewModel.tempFilterUiState.value.dateRangeFilter
             parentViewModel.setDateRangeFilter(selectedFilter)
+
             dismiss()
         }
     }
 
     override fun onClickYearMonth(date: LocalDate) {
-        viewModel.setTempMonthFilter(DateRangeFilter.Monthly(date = date))
+        viewModel.setDateFilter(DateRangeFilter.Monthly(date = date))
     }
 
     companion object {

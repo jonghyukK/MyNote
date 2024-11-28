@@ -31,14 +31,15 @@ class PurchaseNoteSearchCategoryListItemViewHolder(
 
         with (binding) {
             tvFilterName.text = item.categoryItem.categoryName
-            if (item.isApplied) {
+
+            if (item.isApplied()) {
                 tvFilterName.setTypeface(null, Typeface.BOLD)
                 tvFilterName.setTextColorRes(appliedTextColor)
             } else {
                 tvFilterName.setTypeface(null, Typeface.NORMAL)
                 tvFilterName.setTextColorRes(normalTextColor)
             }
-            ivImage.isVisible = item.isApplied
+            ivImage.isVisible = item.isApplied()
         }
     }
 

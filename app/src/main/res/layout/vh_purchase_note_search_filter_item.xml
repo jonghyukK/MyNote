@@ -4,9 +4,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/white"
-    android:paddingTop="10dp"
-    android:paddingBottom="5dp">
+    android:background="@color/white">
+
+    <View
+        android:id="@+id/divider_top"
+        android:layout_width="0dp"
+        android:layout_height="10dp"
+        android:background="@color/black_50"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Category -->
     <androidx.appcompat.widget.AppCompatTextView
@@ -17,12 +24,12 @@
         android:paddingStart="20dp"
         android:paddingEnd="0dp"
         android:text="@string/category"
-        android:textColor="@color/black_800"
+        android:textColor="@color/black_900"
         android:textSize="15sp"
-        android:textStyle="bold"
+        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toStartOf="@+id/gl_guideline"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/divider_top" />
 
     <!-- 카테고리 목록 -->
     <androidx.recyclerview.widget.RecyclerView
@@ -44,7 +51,7 @@
         android:id="@+id/divider1"
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:background="@color/black_100"
+        android:background="@color/black_50"
         app:layout_constraintTop_toBottomOf="@+id/tv_title_category"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -58,9 +65,8 @@
         android:paddingStart="20dp"
         android:paddingEnd="0dp"
         android:text="@string/purchase_name"
-        android:textColor="@color/black_800"
+        android:textColor="@color/black_900"
         android:textSize="15sp"
-        android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/gl_guideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider1" />
@@ -86,68 +92,8 @@
         android:id="@+id/divider2"
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:background="@color/black_100"
+        android:background="@color/black_50"
         app:layout_constraintTop_toBottomOf="@+id/tv_title_purchase_name"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- 조회기간 -->
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tv_title_date_range"
-        android:layout_width="0dp"
-        android:layout_height="40dp"
-        android:gravity="center_vertical"
-        android:paddingStart="20dp"
-        android:paddingEnd="0dp"
-        android:text="조회 기간"
-        android:textColor="@color/black_800"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/gl_guideline"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/divider2" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_date_container"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginEnd="20dp"
-        android:background="?attr/selectableItemBackground"
-        android:paddingHorizontal="12dp"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_title_date_range"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/gl_guideline"
-        app:layout_constraintTop_toTopOf="@+id/tv_title_date_range">
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/iv_date_calendar"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_calendar_24_purple"
-            app:tint="@color/black_500" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tv_date"
-            tools:text="2024-04-02"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:textColor="@color/black_500"
-            android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/iv_date_calendar"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <View
-        android:id="@+id/divider3"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="@color/black_100"
-        app:layout_constraintTop_toBottomOf="@+id/tv_title_date_range"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -160,12 +106,13 @@
         android:paddingStart="20dp"
         android:paddingEnd="0dp"
         android:text="@string/price"
-        android:textColor="@color/black_800"
+        android:textColor="@color/black_900"
         android:textSize="15sp"
-        android:textStyle="bold"
+        android:layout_marginBottom="10dp"
         app:layout_constraintEnd_toStartOf="@+id/gl_guideline"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/divider3" />
+        app:layout_constraintTop_toBottomOf="@+id/divider2"
+        app:layout_constraintBottom_toTopOf="@+id/divider_bottom"/>
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_price"
@@ -175,7 +122,7 @@
         android:background="?attr/selectableItemBackground"
         android:gravity="center_vertical"
         android:paddingHorizontal="12dp"
-        android:text="10,000원 ~ 100,000원"
+        tools:text="10,000원 ~ 100,000원"
         android:textColor="@color/black_500"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="@+id/tv_title_price"
@@ -189,4 +136,13 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.23" />
+
+    <View
+        android:id="@+id/divider_bottom"
+        android:layout_width="0dp"
+        android:layout_height="10dp"
+        android:background="@color/black_50"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

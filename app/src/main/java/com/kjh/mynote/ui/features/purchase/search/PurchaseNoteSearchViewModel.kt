@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
+import kotlin.reflect.KClass
 
 /**
  * Created by kangjonghyuk.
@@ -34,20 +35,9 @@ import javax.inject.Inject
  */
 
 sealed class PurchaseNoteSearchUiState {
-    data class FilterItem(
-        val purchaseNoteSearchFilterUiState: PurchaseNoteSearchFilterUiState
-    ): PurchaseNoteSearchUiState()
-
     data object Loading: PurchaseNoteSearchUiState()
-
     data object Empty: PurchaseNoteSearchUiState()
-
-    data class AppliedFilterItems(
-        val filterItems: List<Filters> = emptyList()
-    ): PurchaseNoteSearchUiState()
-
     data class DateItem(val date: LocalDate): PurchaseNoteSearchUiState()
-
     data class ResultItem(val purchaseNoteItem: PurchaseNoteUiModel): PurchaseNoteSearchUiState()
 }
 
@@ -59,27 +49,37 @@ data class PurchaseNoteSearchFilterUiState(
 )
 
 sealed class Filters {
+    abstract fun isApplied(): Boolean
+
     data class PurchaseName(
-        val purchaseName: String = "",
-        val isApplied: Boolean = false
-    ): Filters()
+        val purchaseName: String = ""
+    ): Filters() {
+        override fun isApplied(): Boolean = purchaseName.isNotBlank()
+    }
 
     data class Category(
         val categoryItem: CategoryUiModel,
-        val isApplied: Boolean = false
-    ): Filters()
+        val isSelected: Boolean = false
+    ): Filters() {
+        override fun isApplied(): Boolean = isSelected
+    }
 
     data class DateRange(
-        val dateRangeFilter: DateRangeFilter? = null,
-        val isApplied: Boolean = false
-    ): Filters()
+        val dateRangeFilter: DateRangeFilter? = null
+    ): Filters() {
+        override fun isApplied(): Boolean = dateRangeFilter != null
+    }
 
     data class Price(
         val minPrice: Long = AppConstants.PRICE_MIN_LIMIT,
         val maxPrice: Long = AppConstants.PRICE_MAX_LIMIT,
-        val myMaxPrice: Long = AppConstants.PRICE_MAX_LIMIT,
-        val isApplied: Boolean = false
-    ): Filters()
+        val myMaxPrice: Long = AppConstants.PRICE_MAX_LIMIT
+    ): Filters() {
+        override fun isApplied(): Boolean =
+            minPrice > AppConstants.PRICE_MIN_LIMIT
+                   || maxPrice != myMaxPrice
+
+    }
 }
 
 @HiltViewModel
@@ -98,13 +98,16 @@ class PurchaseNoteSearchViewModel @Inject constructor(
     private val _appliedFilterItem = MutableStateFlow<List<Filters>>(emptyList())
     val appliedFilterItem = _appliedFilterItem.asStateFlow()
 
+    private val _resultTotalCount = MutableStateFlow(0)
+    val resultTotalCount = _resultTotalCount.asStateFlow()
+
     init {
         makeCategoryFilterItem()
 
         viewModelScope.launch {
             _filtersUiState.flatMapLatest { filterUiState ->
                 val (startDate, endDate) = getStartDateAndEndDateTimeMillis(filterUiState.dateRangeFilter.dateRangeFilter)
-                val categoryIds = filterUiState.categoryFilters.filter { it.isApplied }
+                val categoryIds = filterUiState.categoryFilters.filter { it.isApplied() }
                     .map { it.categoryItem.id }
 
                 getFilteredSearchPurchaseNotesUseCase(
@@ -120,7 +123,11 @@ class PurchaseNoteSearchViewModel @Inject constructor(
                         is Result.Error -> listOf(PurchaseNoteSearchUiState.Empty)
                         is Result.Success -> {
                             delay(300)
+
                             val resultItems = result.data?.toUiModel() ?: emptyList()
+
+                            _resultTotalCount.value = resultItems.sumOf { it.purchaseNoteItems.size }
+
                             if (resultItems.isEmpty()) {
                                 listOf(PurchaseNoteSearchUiState.Empty)
                             } else {
@@ -135,25 +142,24 @@ class PurchaseNoteSearchViewModel @Inject constructor(
                     }
                 }
             }.collectLatest { data ->
-                val filterItem = PurchaseNoteSearchUiState.FilterItem(_filtersUiState.value)
-                val appliedFilterItem = PurchaseNoteSearchUiState.AppliedFilterItems(_appliedFilterItem.value)
-
-                if (appliedFilterItem.filterItems.isEmpty()) {
-                    _uiState.value = listOf(filterItem) + data
-                } else {
-                    _uiState.value = listOf(filterItem, appliedFilterItem) + data
-                }
+                _uiState.value = data
             }
+        }
+    }
+
+    fun setDateRangeFilter(dateRangeFilter: Filters.DateRange) {
+        _filtersUiState.update {
+            it.copy(dateRangeFilter = dateRangeFilter)
         }
     }
 
     fun addOrDeleteCategoryItemBy(categoryId: Int) {
         val updatedCategoryItem = _filtersUiState.value.categoryFilters.map { currentCategoryItem ->
             if (currentCategoryItem.categoryItem.id == categoryId) {
-                updateCategoryFilter(currentCategoryItem)
+                updateAppliedFilters(currentCategoryItem, Filters.Category::class)
 
                 currentCategoryItem.copy(
-                    isApplied = !currentCategoryItem.isApplied
+                    isSelected = !currentCategoryItem.isSelected
                 )
             } else {
                 currentCategoryItem
@@ -170,15 +176,7 @@ class PurchaseNoteSearchViewModel @Inject constructor(
             it.copy(purchaseNameFilter = filter)
         }
 
-        updatePurchaseNameFilter(filter)
-    }
-
-    fun setDateRangeFilter(dateRangeFilter: Filters.DateRange) {
-        _filtersUiState.update {
-            it.copy(dateRangeFilter = dateRangeFilter)
-        }
-
-        updateDateFilter(dateRangeFilter)
+        updateAppliedFilters(filter, Filters.PurchaseName::class)
     }
 
     fun setPriceFilter(priceFilter: Filters.Price) {
@@ -186,7 +184,7 @@ class PurchaseNoteSearchViewModel @Inject constructor(
             it.copy(priceFilter = priceFilter)
         }
 
-        updatePriceFilter(priceFilter)
+        updateAppliedFilters(priceFilter, Filters.Price::class)
     }
 
     fun deleteFilter(filters: Filters) {
@@ -209,67 +207,47 @@ class PurchaseNoteSearchViewModel @Inject constructor(
         }
     }
 
-    private fun updateCategoryFilter(categoryFilter: Filters.Category) {
+    fun applyAllFilters(filterUiState: PurchaseNoteSearchFilterUiState) {
+        _filtersUiState.value = filterUiState
+
+        val filters: MutableList<Filters> = mutableListOf()
+        val appliedCategories = filterUiState.categoryFilters.filter { it.isApplied() }
+        if (appliedCategories.isNotEmpty()) {
+            appliedCategories.map {
+                filters.add(it)
+            }
+        }
+
+        if (filterUiState.purchaseNameFilter.isApplied()) {
+            filters.add(filterUiState.purchaseNameFilter)
+        }
+
+        if (filterUiState.priceFilter.isApplied()) {
+            filters.add(filterUiState.priceFilter)
+        }
+
+        _appliedFilterItem.value = filters
+    }
+
+    private fun <T: Filters> updateAppliedFilters(filter: T, filterClass: KClass<T>) {
         val filters = _appliedFilterItem.value.toMutableList()
 
         val existingFilterIndex = filters.indexOfFirst {
-            (it is Filters.Category) && (it.categoryItem.categoryName == categoryFilter.categoryItem.categoryName)
+            if (filter is Filters.Category) {
+                (it is Filters.Category) && (it.categoryItem.categoryName == filter.categoryItem.categoryName)
+            } else {
+                filterClass.isInstance(it)
+            }
         }
+
         if (existingFilterIndex != -1) {
-            filters.removeAt(existingFilterIndex)
-        } else {
-            filters.add(categoryFilter)
-        }
-
-        _appliedFilterItem.value = filters
-    }
-
-    private fun updatePurchaseNameFilter(newPurchaseName: Filters.PurchaseName) {
-        val filters = _appliedFilterItem.value.toMutableList()
-
-        val existingFilterIndex = filters.indexOfFirst { it is Filters.PurchaseName }
-        if (existingFilterIndex != -1) {
-            if (newPurchaseName.isApplied) {
-                filters[existingFilterIndex] = newPurchaseName
+            if (filter !is Filters.Category && filter.isApplied()) {
+                filters[existingFilterIndex] = filter
             } else {
                 filters.removeAt(existingFilterIndex)
             }
         } else {
-            filters.add(newPurchaseName)
-        }
-
-        _appliedFilterItem.value = filters
-    }
-
-    private fun updateDateFilter(dateFilter: Filters.DateRange) {
-        val filters = _appliedFilterItem.value.toMutableList()
-
-        val existingFilterIndex = filters.indexOfFirst { it is Filters.DateRange }
-        if (existingFilterIndex != -1) {
-            if (dateFilter.isApplied) {
-                filters[existingFilterIndex] = dateFilter
-            } else {
-                filters.removeAt(existingFilterIndex)
-            }
-        } else {
-            filters.add(dateFilter)
-        }
-
-        _appliedFilterItem.value = filters
-    }
-
-    private fun updatePriceFilter(priceFilter: Filters.Price) {
-        val filters = _appliedFilterItem.value.toMutableList()
-
-        val existingFilterIndex = filters.indexOfFirst { it is Filters.Price }
-        if (existingFilterIndex != -1) {
-            if (priceFilter.isApplied) {
-                filters[existingFilterIndex] = priceFilter
-            } else {
-                filters.removeAt(existingFilterIndex)
-            }
-        } else {
-            filters.add(priceFilter)
+            filters.add(filter)
         }
 
         _appliedFilterItem.value = filters

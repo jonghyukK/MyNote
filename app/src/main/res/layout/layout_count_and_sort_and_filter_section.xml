@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cl_count_and_sort_and_filter_section"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:background="@color/white"
+    android:paddingHorizontal="20dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
+
+    <!-- 전체 카운트 -->
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_results_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black_700"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="전체 2,168"/>
+
+    <!-- 소팅 필터 -->
+    <LinearLayout
+        android:id="@+id/cl_sort_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="6dp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/cl_condition_filter"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_sort"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black_700"
+            android:textSize="12sp"
+            tools:text="최근 날짜순"/>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_arrow_drop_down"
+            app:tint="@color/black_400" />
+    </LinearLayout>
+
+    <!-- 조건 필터 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_condition_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_shape_s_purple_c_4"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="6dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_filter"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/tv_filter"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_filter_24" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/iv_noti"
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:background="@drawable/shape_oval_s_red_500_wh_18"
+            app:layout_constraintEnd_toEndOf="@+id/iv_filter"
+            app:layout_constraintTop_toTopOf="@+id/iv_filter" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:text="@string/filter"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_filter"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

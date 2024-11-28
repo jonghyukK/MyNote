@@ -61,8 +61,8 @@ class PlaceNoteSearchResultFragment
             layoutEmpty.root.setBackgroundColor(
                 ContextCompat.getColor(requireContext(),R.color.black_50))
 
-            clFilterSort.setOnThrottleClickListener(sortFilterClickListener)
-            clFilterConditions.setOnThrottleClickListener(conditionFilterClickListener)
+            layoutFilterInfoSection.clSortFilter.setOnThrottleClickListener(sortFilterClickListener)
+            layoutFilterInfoSection.clConditionFilter.setOnThrottleClickListener(conditionFilterClickListener)
         }
     }
 
@@ -118,11 +118,11 @@ class PlaceNoteSearchResultFragment
                                 R.drawable.ripple_shape_s_white_c_4_l_black_600
                             }
 
-                            with (binding) {
+                            with (binding.layoutFilterInfoSection) {
                                 ivNoti.isVisible = hasFilters
                                 tvFilter.setTextColorRes(textColorRes)
                                 ivFilter.setTint(textColorRes)
-                                clFilterConditions.setBackgroundRes(backgroundRes)
+                                clConditionFilter.setBackgroundRes(backgroundRes)
                             }
                         }
                 }
@@ -132,7 +132,7 @@ class PlaceNoteSearchResultFragment
                         .map { it.isDescending }
                         .distinctUntilChanged()
                         .collect {
-                            binding.tvSort.text = if (it) {
+                            binding.layoutFilterInfoSection.tvSort.text = if (it) {
                                 getString(R.string.sort_descending)
                             } else {
                                 getString(R.string.sort_ascending)
@@ -154,7 +154,7 @@ class PlaceNoteSearchResultFragment
                         .map { it.resultTotalCount }
                         .distinctUntilChanged()
                         .collect { totalCount ->
-                            binding.tvResultsCount.text = getString(R.string.format_total_count, totalCount)
+                            binding.layoutFilterInfoSection.tvResultsCount.text = getString(R.string.format_total_count, totalCount)
                         }
                 }
             }

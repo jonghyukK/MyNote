@@ -1,11 +1,9 @@
 package com.kjh.mynote.ui.features.purchase.search
 
-import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -17,15 +15,18 @@ import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.kjh.mynote.R
 import com.kjh.mynote.databinding.BsdPurchaseNoteSearchFilterBinding
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
 import com.kjh.mynote.utils.SpacingItemDecoration
+import com.kjh.mynote.utils.extensions.setBackgroundRes
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.toComma
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.
@@ -45,15 +46,8 @@ class PurchaseNoteSearchFilterBSDialog: BaseBottomSheetDialogFragment<BsdPurchas
         )
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-//        dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
-    }
-
     override fun onStart() {
         super.onStart()
-
         val bottomSheet = dialog?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
         bottomSheet?.let {
             val layoutParams = it.layoutParams
@@ -61,8 +55,6 @@ class PurchaseNoteSearchFilterBSDialog: BaseBottomSheetDialogFragment<BsdPurchas
             it.layoutParams = layoutParams
 
             val behavior = BottomSheetBehavior.from(it)
-
-            // Expanded 상태로 설정
             behavior.state = BottomSheetBehavior.STATE_EXPANDED
             behavior.skipCollapsed = true
             behavior.isDraggable = false
@@ -71,15 +63,6 @@ class PurchaseNoteSearchFilterBSDialog: BaseBottomSheetDialogFragment<BsdPurchas
 
     override fun onInitView() {
         with (binding) {
-            ivClose.setOnThrottleClickListener(closeBtnClickListener)
-            ivClear.setOnThrottleClickListener(purchaseNameClearBtnClickListener)
-            etPurchaseName.addTextChangedListener(purchaseNameTextWatcher)
-            etMinPrice.addTextChangedListener(minPriceTextWatcher)
-            etMaxPrice.addTextChangedListener(maxPriceTextWatcher)
-
-            btnReset.setOnThrottleClickListener(resetBtnClickListener)
-            btnApply.setOnThrottleClickListener(applyBtnClickListener)
-
             rvCategories.apply {
                 itemAnimator = null
                 layoutManager = FlexboxLayoutManager(requireContext()).apply {
@@ -90,6 +73,15 @@ class PurchaseNoteSearchFilterBSDialog: BaseBottomSheetDialogFragment<BsdPurchas
                 addItemDecoration(SpacingItemDecoration(right = 10, bottom = 10, exceptFirstItem = false))
                 adapter = categoryFilterAdapter
             }
+
+            etPurchaseName.addTextChangedListener(purchaseNameTextWatcher)
+            etMinPrice.addTextChangedListener(minPriceTextWatcher)
+            etMaxPrice.addTextChangedListener(maxPriceTextWatcher)
+
+            ivClose.setOnThrottleClickListener(closeBtnClickListener)
+            ivClear.setOnThrottleClickListener(purchaseNameClearBtnClickListener)
+            clReset.setOnThrottleClickListener(resetBtnClickListener)
+            btnApply.setOnThrottleClickListener(applyBtnClickListener)
         }
     }
 
@@ -138,6 +130,16 @@ class PurchaseNoteSearchFilterBSDialog: BaseBottomSheetDialogFragment<BsdPurchas
                         .collect { maxPrice ->
                             binding.etMaxPrice.setText(maxPrice.toString())
                         }
+                }
+
+                launch {
+                    viewModel.isChangedFilters.collect {
+                        if (it) {
+                            binding.btnApply.setBackgroundRes(R.drawable.ripple_shape_s_color_primary_c_8)
+                        } else {
+                            binding.btnApply.setBackgroundRes(R.drawable.shape_s_black_200_c_8)
+                        }
+                    }
                 }
             }
         }
@@ -230,7 +232,10 @@ class PurchaseNoteSearchFilterBSDialog: BaseBottomSheetDialogFragment<BsdPurchas
     }
 
     private val applyBtnClickListener = View.OnClickListener {
+        val filterState = viewModel.tempFilterUiState.value
+        parentViewModel.applyAllFilters(filterState)
 
+        dismiss()
     }
 
     companion object {

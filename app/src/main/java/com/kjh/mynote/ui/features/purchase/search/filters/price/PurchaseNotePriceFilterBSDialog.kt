@@ -10,6 +10,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.mynote.databinding.BsdPriceFilterDialogBinding
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
+import com.kjh.mynote.ui.features.purchase.search.PriceValidateEvent
+import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchFilterViewModel
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchViewModel
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
@@ -29,7 +31,7 @@ import kotlinx.coroutines.launch
 class PurchaseNotePriceFilterBSDialog: BaseBottomSheetDialogFragment<BsdPriceFilterDialogBinding>({ BsdPriceFilterDialogBinding.inflate(it) }) {
 
     private val parentViewModel: PurchaseNoteSearchViewModel by activityViewModels()
-    private val viewModel: PurchaseNotePriceFilterViewModel by viewModels()
+    private val viewModel: PurchaseNoteSearchFilterViewModel by viewModels()
 
     override fun onInitView() {
         with (binding) {
@@ -43,14 +45,14 @@ class PurchaseNotePriceFilterBSDialog: BaseBottomSheetDialogFragment<BsdPriceFil
     }
 
     override fun onInitData() {
-        val appliedPriceFilter = parentViewModel.filtersUiState.value.priceFilter
-        viewModel.setInitPrices(appliedPriceFilter)
+        val appliedFilter = parentViewModel.filtersUiState.value
+        viewModel.setInitFilterUiState(appliedFilter)
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.uiState
-                        .map { it.tempPriceFilter.minPrice }
+                    viewModel.tempFilterUiState
+                        .map { it.priceFilter.minPrice }
                         .distinctUntilChanged()
                         .collect { minPrice ->
                             if (minPrice == 0L) {
@@ -62,8 +64,8 @@ class PurchaseNotePriceFilterBSDialog: BaseBottomSheetDialogFragment<BsdPriceFil
                 }
 
                 launch {
-                    viewModel.uiState
-                        .map { it.tempPriceFilter.maxPrice }
+                    viewModel.tempFilterUiState
+                        .map { it.priceFilter.maxPrice }
                         .distinctUntilChanged()
                         .collect { maxPrice->
                             if (maxPrice == 0L) {
@@ -75,12 +77,9 @@ class PurchaseNotePriceFilterBSDialog: BaseBottomSheetDialogFragment<BsdPriceFil
                 }
 
                 launch {
-                    viewModel.uiState
-                        .map { it.isChangedFilter() }
-                        .distinctUntilChanged()
-                        .collect { isChanged ->
-                            binding.btnApply.isEnable = isChanged
-                        }
+                    viewModel.isChangedPriceFilter.collect { isChanged ->
+                        binding.btnApply.isEnable = isChanged
+                    }
                 }
 
                 launch {
@@ -90,7 +89,7 @@ class PurchaseNotePriceFilterBSDialog: BaseBottomSheetDialogFragment<BsdPriceFil
                                 showToast(event.msg)
                             }
                             is PriceValidateEvent.Valid -> {
-                                val tempPriceFilter = viewModel.uiState.value.tempPriceFilter
+                                val tempPriceFilter = viewModel.tempFilterUiState.value.priceFilter
                                 parentViewModel.setPriceFilter(tempPriceFilter)
                                 dismiss()
                             }
@@ -108,7 +107,7 @@ class PurchaseNotePriceFilterBSDialog: BaseBottomSheetDialogFragment<BsdPriceFil
         override fun afterTextChanged(s: Editable?) {
             if (s.toString().isEmpty()) {
                 current = ""
-                viewModel.clearTempMinPrice()
+                viewModel.clearMinPrice()
                 return
             }
 
@@ -117,14 +116,14 @@ class PurchaseNotePriceFilterBSDialog: BaseBottomSheetDialogFragment<BsdPriceFil
 
                 val cleanString = s.toString().replace(",", "")
                 if (cleanString.isNotEmpty()) {
-                    viewModel.setTempMinPrice(cleanString)
+                    viewModel.setMinPrice(cleanString)
 
                     val formatted = cleanString.toLong().toComma()
                     current = formatted
                     binding.etMinPrice.setText(formatted)
                     binding.etMinPrice.setSelection(formatted.length)
                 } else {
-                    viewModel.clearTempMinPrice()
+                    viewModel.clearMinPrice()
                 }
 
                 binding.etMinPrice.addTextChangedListener(this)
@@ -139,7 +138,7 @@ class PurchaseNotePriceFilterBSDialog: BaseBottomSheetDialogFragment<BsdPriceFil
         override fun afterTextChanged(s: Editable?) {
             if (s.toString().isEmpty()) {
                 current = ""
-                viewModel.clearTempMaxPrice()
+                viewModel.clearMaxPrice()
                 return
             }
 
@@ -148,14 +147,14 @@ class PurchaseNotePriceFilterBSDialog: BaseBottomSheetDialogFragment<BsdPriceFil
 
                 val cleanString = s.toString().replace(",", "")
                 if (cleanString.isNotEmpty()) {
-                    viewModel.setTempMaxPrice(cleanString)
+                    viewModel.setMaxPrice(cleanString)
 
                     val formatted = cleanString.toLong().toComma()
                     current = formatted
                     binding.etMaxPrice.setText(formatted)
                     binding.etMaxPrice.setSelection(formatted.length)
                 } else {
-                    viewModel.clearTempMaxPrice()
+                    viewModel.clearMaxPrice()
                 }
 
                 binding.etMaxPrice.addTextChangedListener(this)
@@ -168,7 +167,7 @@ class PurchaseNotePriceFilterBSDialog: BaseBottomSheetDialogFragment<BsdPriceFil
     }
 
     private val resetBtnClickListener = View.OnClickListener {
-        viewModel.resetTempPrices()
+        viewModel.resetPriceFilter()
     }
 
     private val applyBtnClickListener = View.OnClickListener {

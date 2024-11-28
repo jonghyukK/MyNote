@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.mynote.databinding.BsdPurchaseNameFilterDialogBinding
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
+import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchFilterViewModel
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchViewModel
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showKeyboard
@@ -32,7 +33,7 @@ class PurchaseNotePurchaseNameBSDialog :
     }) {
 
     private val parentViewModel: PurchaseNoteSearchViewModel by activityViewModels()
-    private val viewModel: PurchaseNotePurchaseNameFilterViewModel by viewModels()
+    private val viewModel: PurchaseNoteSearchFilterViewModel by viewModels()
 
     override fun onInitView() {
         with (binding) {
@@ -46,32 +47,31 @@ class PurchaseNotePurchaseNameBSDialog :
     }
 
     override fun onInitData() {
-        val appliedPurchaseNameFilter = parentViewModel.filtersUiState.value.purchaseNameFilter
-        viewModel.setInitPurchaseNameFilter(appliedPurchaseNameFilter.purchaseName)
+        val appliedFilter = parentViewModel.filtersUiState.value
+        viewModel.setInitFilterUiState(appliedFilter)
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.uiState
-                        .map { it.tempPurchaseNameFilter }
+                    viewModel.tempFilterUiState
+                        .map { it.purchaseNameFilter }
                         .distinctUntilChanged()
                         .collect { filter ->
-                            if (binding.etPurchaseName.text.toString() != filter.purchaseName) {
-                                binding.etPurchaseName.setText(filter.purchaseName)
-                                binding.etPurchaseName.setSelection(filter.purchaseName.length)
-                            }
+                            with (binding) {
+                                if (etPurchaseName.text.toString() != filter.purchaseName) {
+                                    etPurchaseName.setText(filter.purchaseName)
+                                    etPurchaseName.setSelection(filter.purchaseName.length)
+                                }
 
-                            binding.ivClear.isVisible = filter.purchaseName.isNotEmpty()
+                                ivClear.isVisible = filter.purchaseName.isNotEmpty()
+                            }
                         }
                 }
 
                 launch {
-                    viewModel.uiState
-                        .map { it.isChanged() }
-                        .distinctUntilChanged()
-                        .collect {
-                            binding.btnApply.isEnable = it
-                        }
+                    viewModel.isChangedPurchaseNameFilter.collect { isChanged ->
+                        binding.btnApply.isEnable = isChanged
+                    }
                 }
             }
         }
@@ -86,7 +86,7 @@ class PurchaseNotePurchaseNameBSDialog :
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         override fun afterTextChanged(s: Editable?) {
-            viewModel.setTempPurchaseNameFilter(s.toString())
+            viewModel.setPurchaseName(s.toString())
         }
     }
 
@@ -95,17 +95,18 @@ class PurchaseNotePurchaseNameBSDialog :
     }
 
     private val resetBtnClickListener = View.OnClickListener {
-        viewModel.clearTempFilter()
+        viewModel.clearPurchaseName()
     }
 
     private val textClearBtnClickListener = View.OnClickListener {
-        viewModel.clearTempFilter()
+        viewModel.clearPurchaseName()
     }
 
     private val applyBtnClickListener = View.OnClickListener {
         if (binding.btnApply.isEnable) {
-            val filter = viewModel.uiState.value.tempPurchaseNameFilter
+            val filter = viewModel.tempFilterUiState.value.purchaseNameFilter
             parentViewModel.setPurchaseName(filter)
+
             dismiss()
         }
     }
