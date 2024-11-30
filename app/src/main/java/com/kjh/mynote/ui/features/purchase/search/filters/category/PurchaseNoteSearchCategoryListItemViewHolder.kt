@@ -44,7 +44,7 @@ class PurchaseNoteSearchCategoryListItemViewHolder(
     }
 
     companion object {
-        private val appliedTextColor = R.color.purple
+        private val appliedTextColor = R.color.colorPrimary
         private val normalTextColor = R.color.black_600
     }
 }

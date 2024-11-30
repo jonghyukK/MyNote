@@ -27,7 +27,7 @@
         android:visibility="gone"
         android:layout_marginStart="4dp"
         app:srcCompat="@drawable/ic_close_24_white"
-        app:tint="@color/purple"
+        app:tint="@color/colorPrimary"
         app:layout_constraintTop_toTopOf="@+id/tv_filter_name"
         app:layout_constraintBottom_toBottomOf="@+id/tv_filter_name"
         app:layout_constraintStart_toEndOf="@+id/tv_filter_name" />

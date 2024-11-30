@@ -29,9 +29,7 @@ sealed class PriceValidateEvent {
 }
 
 @HiltViewModel
-class PurchaseNoteSearchFilterViewModel @Inject constructor(
-
-): ViewModel() {
+class PurchaseNoteSearchFilterViewModel @Inject constructor(): ViewModel() {
 
     private val _initFilterUiState = MutableStateFlow(PurchaseNoteSearchFilterUiState())
 

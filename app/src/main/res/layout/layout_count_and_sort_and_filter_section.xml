@@ -55,7 +55,7 @@
         android:id="@+id/cl_condition_filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/ripple_shape_s_purple_c_4"
+        android:background="@drawable/ripple_shape_s_color_primary_c_4"
         android:paddingHorizontal="8dp"
         android:paddingVertical="6dp"
         app:layout_constraintBottom_toBottomOf="parent"

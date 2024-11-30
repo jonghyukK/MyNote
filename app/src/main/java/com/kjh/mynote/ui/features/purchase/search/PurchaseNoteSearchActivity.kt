@@ -126,13 +126,15 @@ class PurchaseNoteSearchActivity: BaseActivity<ActivityPurchaseNoteSearchBinding
                 launch {
                     viewModel.appliedFilterItem.collect {
                         binding.clSelectedFilters.isVisible = it.isNotEmpty()
+                        binding.layoutFilterInfoSection.ivNoti.isVisible = it.isNotEmpty()
+
                         selectedFilterListAdapter.submitList(it)
                     }
                 }
 
                 launch {
                     viewModel.filtersUiState.collect { item ->
-                        val appliedTextColor = R.color.purple
+                        val appliedTextColor = R.color.colorPrimary
                         val normalTextColor = R.color.black_500
 
                         with (binding.layoutFilterContainer) {
@@ -145,10 +147,10 @@ class PurchaseNoteSearchActivity: BaseActivity<ActivityPurchaseNoteSearchBinding
 
                                 if (item.purchaseNameFilter.isApplied()) {
                                     tvPurchaseName.setTextColorRes(appliedTextColor)
-                                    tvPurchaseName.setBackgroundRes(R.drawable.ripple_shape_s_white_c_4_l_purple)
+                                    tvPurchaseName.setTypeface(null, Typeface.BOLD)
                                 } else {
                                     tvPurchaseName.setTextColorRes(normalTextColor)
-                                    tvPurchaseName.setBackgroundRes(R.drawable.ripple_shape_s_white_c_4_l_black_500)
+                                    tvPurchaseName.setTypeface(null, Typeface.NORMAL)
                                 }
 
                                 // 가격 ..
