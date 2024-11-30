@@ -27,6 +27,12 @@
         <attr name="android:hint" />
     </declare-styleable>
 
+    <declare-styleable name="MyDefaultEditText">
+        <attr name="android:inputType" />
+        <attr name="android:imeOptions" />
+        <attr name="android:hint" />
+    </declare-styleable>
+
     <declare-styleable name="MyTitleWithSelectableTextView">
         <attr name="title" />
         <attr name="isRequired" />

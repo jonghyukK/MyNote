@@ -93,18 +93,12 @@
                 app:layout_constraintTop_toBottomOf="@+id/divider1"
                 app:layout_constraintStart_toStartOf="parent" />
 
-            <androidx.appcompat.widget.AppCompatEditText
+            <com.kjh.mynote.ui.common.components.MyDefaultEditText
                 android:id="@+id/et_purchase_name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:background="@drawable/selector_rounded_edit_text"
                 android:layout_marginTop="12dp"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="10dp"
                 android:hint="@string/hint_input_purchase_name_to_search"
-                android:textColorHint="@color/black_500"
-                android:textSize="15sp"
-                android:textColor="@color/black_800"
                 android:inputType="text"
                 android:imeOptions="actionDone"
                 app:layout_constraintTop_toBottomOf="@+id/tv_title_purchase_name"
@@ -149,16 +143,13 @@
                 app:layout_constraintTop_toBottomOf="@+id/divider2"
                 app:layout_constraintStart_toStartOf="parent" />
 
-            <androidx.appcompat.widget.AppCompatEditText
+            <com.kjh.mynote.ui.common.components.MyDefaultEditText
                 android:id="@+id/et_min_price"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="wrap_content"
                 android:layout_marginEnd="15dp"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/selector_rounded_edit_text"
-                android:textColor="@color/black_800"
-                android:textSize="14sp"
-                android:paddingHorizontal="12dp"
+                android:hint="0"
                 android:inputType="number"
                 android:imeOptions="actionNext"
                 app:layout_constraintTop_toBottomOf="@+id/tv_title_price"
@@ -176,15 +167,11 @@
                 app:layout_constraintStart_toEndOf="@+id/gl_guideline"
                 app:layout_constraintTop_toTopOf="@+id/et_min_price" />
 
-            <androidx.appcompat.widget.AppCompatEditText
+            <com.kjh.mynote.ui.common.components.MyDefaultEditText
                 android:id="@+id/et_max_price"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
-                android:background="@drawable/selector_rounded_edit_text"
-                android:textColor="@color/black_800"
-                android:textSize="14sp"
-                android:paddingHorizontal="12dp"
                 android:inputType="number"
                 android:imeOptions="actionDone"
                 app:layout_constraintBottom_toBottomOf="@+id/et_min_price"
