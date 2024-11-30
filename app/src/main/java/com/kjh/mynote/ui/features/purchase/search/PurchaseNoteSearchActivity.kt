@@ -96,17 +96,7 @@ class PurchaseNoteSearchActivity: BaseActivity<ActivityPurchaseNoteSearchBinding
                         .map { it.dateRangeFilter }
                         .distinctUntilChanged()
                         .collect { dateFilter ->
-                            when (dateFilter.dateRangeFilter) {
-                                is DateRangeFilter.Monthly,
-                                is DateRangeFilter.MonthOne,
-                                is DateRangeFilter.MonthThree,
-                                is DateRangeFilter.Directly -> {
-                                    binding.tvDate.text = dateFilter.dateRangeFilter.getUiText()
-                                }
-                                null -> {
-                                    binding.tvDate.text = getString(R.string.recent_years_ago)
-                                }
-                            }
+                            binding.tvDate.text = dateFilter.dateRangeFilter.getUiText()
                         }
                 }
 
@@ -134,58 +124,60 @@ class PurchaseNoteSearchActivity: BaseActivity<ActivityPurchaseNoteSearchBinding
 
                 launch {
                     viewModel.filtersUiState.collect { item ->
-                        val appliedTextColor = R.color.colorPrimary
-                        val normalTextColor = R.color.black_500
+                        categoryListAdapter.submitList(item.categoryFilters)
 
-                        with (binding.layoutFilterContainer) {
-                            // 카테고리 ..
-                            categoryListAdapter.submitList(item.categoryFilters)
-
-                            with (binding) {
-                                // 구매명 ..
-                                tvPurchaseName.text = item.purchaseNameFilter.purchaseName
-
-                                if (item.purchaseNameFilter.isApplied()) {
-                                    tvPurchaseName.setTextColorRes(appliedTextColor)
-                                    tvPurchaseName.setTypeface(null, Typeface.BOLD)
-                                } else {
-                                    tvPurchaseName.setTextColorRes(normalTextColor)
-                                    tvPurchaseName.setTypeface(null, Typeface.NORMAL)
-                                }
-
-                                // 가격 ..
-                                if (item.priceFilter.isApplied()) {
-                                    tvPrice.setTypeface(null, Typeface.BOLD)
-                                    tvPrice.setTextColorRes(appliedTextColor)
-                                } else {
-                                    tvPrice.setTypeface(null, Typeface.NORMAL)
-                                    tvPrice.setTextColorRes(normalTextColor)
-                                }
-
-                                val (minPrice, maxPrice, myMaxPrice) = item.priceFilter
-                                if (minPrice == null && maxPrice != null) {
-                                    tvPrice.text =
-                                        getString(R.string.format_won_below, maxPrice.toComma())
-                                } else if (minPrice != null && maxPrice == null) {
-                                    tvPrice.text =
-                                        getString(R.string.format_won_up, minPrice.toComma())
-                                } else {
-                                    tvPrice.text = getString(
-                                        R.string.format_min_price_until_max_price,
-                                        minPrice?.toComma() ?: "0",
-                                        maxPrice?.toComma() ?: myMaxPrice.toComma()
-                                    )
-                                }
-                            }
-                        }
+                        updatePurchaseNameFilterUi(item.purchaseNameFilter)
+                        updatePriceFilterUi(item.priceFilter)
                     }
                 }
             }
         }
     }
 
+    private fun updatePurchaseNameFilterUi(
+        purchaseNameFilter: Filters.PurchaseName,
+    ) = with(binding.layoutFilterContainer) {
+        tvPurchaseName.text = purchaseNameFilter.purchaseName
+
+        if (purchaseNameFilter.isApplied()) {
+            tvPurchaseName.setTextColorRes(appliedTextColor)
+            tvPurchaseName.setTypeface(null, Typeface.BOLD)
+        } else {
+            tvPurchaseName.setTextColorRes(normalTextColor)
+            tvPurchaseName.setTypeface(null, Typeface.NORMAL)
+        }
+    }
+
+    private fun updatePriceFilterUi(priceFilter: Filters.Price) = with (binding.layoutFilterContainer) {
+        if (priceFilter.isApplied()) {
+            tvPrice.setTypeface(null, Typeface.BOLD)
+            tvPrice.setTextColorRes(appliedTextColor)
+        } else {
+            tvPrice.setTypeface(null, Typeface.NORMAL)
+            tvPrice.setTextColorRes(normalTextColor)
+        }
+
+        val (minPrice, maxPrice, myMaxPrice) = priceFilter
+
+        tvPrice.text = if (minPrice == null && maxPrice != null) {
+            getString(R.string.format_won_below, maxPrice.toComma())
+        } else if (minPrice != null && maxPrice == null) {
+            getString(R.string.format_won_up, minPrice.toComma())
+        } else {
+            getString(
+                R.string.format_min_price_until_max_price,
+                minPrice?.toComma() ?: "0",
+                maxPrice?.toComma() ?: myMaxPrice.toComma()
+            )
+        }
+    }
+
     private val categoryFilterClickAction: (Int) -> Unit = { categoryId ->
         viewModel.addOrDeleteCategoryItemBy(categoryId)
+    }
+
+    private val selectedFilterClickAction: (Filters) -> Unit = { filter ->
+        viewModel.deleteFilter(filter)
     }
 
     private val purchaseNameFilterClickListener = View.OnClickListener {
@@ -212,10 +204,6 @@ class PurchaseNoteSearchActivity: BaseActivity<ActivityPurchaseNoteSearchBinding
         viewModel.resetSelectedFilters()
     }
 
-    private val selectedFilterClickAction: (Filters) -> Unit = { filter ->
-        viewModel.deleteFilter(filter)
-    }
-
     private val purchaseNoteItemClickAction: (PurchaseNoteUiModel) -> Unit = { purchaseNoteItem ->
         Intent(this, PurchaseNoteDetailActivity::class.java).apply {
             putExtra(AppConstants.INTENT_PURCHASE_NOTE_ID, purchaseNoteItem.id)
@@ -223,4 +211,8 @@ class PurchaseNoteSearchActivity: BaseActivity<ActivityPurchaseNoteSearchBinding
         }
     }
 
+    companion object {
+        private val appliedTextColor = R.color.colorPrimary
+        private val normalTextColor = R.color.black_500
+    }
 }

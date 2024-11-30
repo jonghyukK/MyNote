@@ -65,9 +65,9 @@ sealed class Filters {
     }
 
     data class DateRange(
-        val dateRangeFilter: DateRangeFilter? = null
+        val dateRangeFilter: DateRangeFilter = DateRangeFilter.Monthly()
     ): Filters() {
-        override fun isApplied(): Boolean = dateRangeFilter != null
+        override fun isApplied(): Boolean = true
     }
 
     data class Price(

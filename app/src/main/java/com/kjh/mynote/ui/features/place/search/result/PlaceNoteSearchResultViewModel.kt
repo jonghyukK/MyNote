@@ -30,7 +30,7 @@ import javax.inject.Inject
 sealed class DateRangeFilter {
     abstract fun getUiText(): String
 
-    data class Monthly(val date: LocalDate): DateRangeFilter() {
+    data class Monthly(val date: LocalDate = LocalDate.now()): DateRangeFilter() {
         override fun getUiText(): String = date.toStringWithPattern("yyyy년 M월")
     }
 

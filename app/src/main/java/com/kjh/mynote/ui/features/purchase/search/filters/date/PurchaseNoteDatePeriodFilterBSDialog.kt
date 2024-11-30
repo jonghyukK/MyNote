@@ -98,10 +98,6 @@ class PurchaseNoteDatePeriodFilterBSDialog :
                                     binding.tvStartDate.text = monthFilter.dateRangeFilter.getStartDateUiText()
                                     binding.tvEndDate.text = monthFilter.dateRangeFilter.getEndDateUiText()
                                 }
-
-                                else -> {
-                                    makeFilterUis(null)
-                                }
                             }
                         }
                 }
@@ -109,7 +105,7 @@ class PurchaseNoteDatePeriodFilterBSDialog :
         }
     }
 
-    private fun makeFilterUis(selectedView: AppCompatTextView?) = with (binding) {
+    private fun makeFilterUis(selectedView: AppCompatTextView) = with (binding) {
         clSelectMonthlyContainer.isVisible = selectedView == tvMonthly
         clSelectDirectlyContainer.isVisible = selectedView == tvDirectly
 

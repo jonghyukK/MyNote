@@ -132,7 +132,7 @@ class PurchaseNoteSearchFilterViewModel @Inject constructor(): ViewModel() {
         _tempFilterUiState.update { tempState ->
             tempState.copy(
                 dateRangeFilter = tempState.dateRangeFilter.copy(
-                    dateRangeFilter = null
+                    dateRangeFilter = DateRangeFilter.Monthly()
                 )
             )
         }
