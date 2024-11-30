@@ -29,13 +29,13 @@ class PurchaseNoteSearchItemDecoration: RecyclerView.ItemDecoration() {
 
         when {
             currentItem is PurchaseNoteSearchUiState.ResultItem && prevItem is PurchaseNoteSearchUiState.DateItem -> {
-                outRect.top = 14.dpToPx()
+                outRect.top = 12.dpToPx()
             }
             currentItem is PurchaseNoteSearchUiState.ResultItem -> {
                 outRect.top = 8.dpToPx()
             }
             currentItem is PurchaseNoteSearchUiState.DateItem -> {
-                outRect.top = 16.dpToPx()
+                outRect.top = 20.dpToPx()
             }
             else -> {
                 outRect.set(0, 0, 0, 0)

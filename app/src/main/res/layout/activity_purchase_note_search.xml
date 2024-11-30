@@ -110,9 +110,21 @@
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/iv_reset"
                 app:layout_constraintBottom_toBottomOf="parent"
                 tools:listitem="@layout/vh_purchase_note_search_selected_filter_item"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_reset"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginEnd="8dp"
+                android:padding="7dp"
+                app:srcCompat="@drawable/ic_reset_24"
+                app:tint="@color/colorPrimary"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <View
                 android:id="@+id/divider_selected_filters_bottom"

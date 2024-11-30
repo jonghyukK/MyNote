@@ -71,18 +71,18 @@ class PurchaseNoteSearchActivity: BaseActivity<ActivityPurchaseNoteSearchBinding
         }
 
         with (binding) {
-            rvSearchResults.apply {
-                itemAnimator = null
-                addItemDecoration(PurchaseNoteSearchItemDecoration())
-                adapter = resultListAdapter
-            }
-
             rvSelectedFilters.apply {
                 itemAnimator = null
                 addItemDecoration(SpacingItemDecoration(right = 8, exceptFirstItem = false))
                 adapter = selectedFilterListAdapter
             }
 
+            rvSearchResults.apply {
+                itemAnimator = null
+                addItemDecoration(PurchaseNoteSearchItemDecoration())
+                adapter = resultListAdapter
+            }
+            ivReset.setOnThrottleClickListener(selectedFilterResetBtnClickListener)
             llDateContainer.setOnThrottleClickListener(dateClickListener)
         }
     }
@@ -206,6 +206,10 @@ class PurchaseNoteSearchActivity: BaseActivity<ActivityPurchaseNoteSearchBinding
     private val conditionFilterClickListener = View.OnClickListener {
         PurchaseNoteSearchFilterBSDialog.newInstance()
             .show(supportFragmentManager, PurchaseNoteSearchFilterBSDialog.TAG)
+    }
+
+    private val selectedFilterResetBtnClickListener = View.OnClickListener {
+        viewModel.resetSelectedFilters()
     }
 
     private val selectedFilterClickAction: (Filters) -> Unit = { filter ->

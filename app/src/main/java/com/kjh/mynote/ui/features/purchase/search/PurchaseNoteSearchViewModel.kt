@@ -224,6 +224,21 @@ class PurchaseNoteSearchViewModel @Inject constructor(
         _appliedFilterItem.value = filters
     }
 
+    fun resetSelectedFilters() {
+        _filtersUiState.value = _filtersUiState.value.copy(
+            categoryFilters = _filtersUiState.value.categoryFilters.map {
+                it.copy(isSelected = false)
+            },
+            purchaseNameFilter = Filters.PurchaseName(),
+            priceFilter = _filtersUiState.value.priceFilter.copy(
+                minPrice = null,
+                maxPrice = null
+            )
+        )
+
+        _appliedFilterItem.value = emptyList()
+    }
+
     private fun <T: Filters> updateAppliedFilters(filter: T, filterClass: KClass<T>) {
         val filters = _appliedFilterItem.value.toMutableList()
 
