@@ -35,8 +35,8 @@ class PurchaseNotePriceFilterBSDialog: BaseBottomSheetDialogFragment<BsdPriceFil
 
     override fun onInitView() {
         with (binding) {
-            etMinPrice.addTextChangedListener(minPriceTextWatcher)
-            etMaxPrice.addTextChangedListener(maxPriceTextWatcher)
+            etMinPrice.addCustomTextWatcher(minPriceTextWatcher)
+            etMaxPrice.addCustomTextWatcher(maxPriceTextWatcher)
 
             ivClose.setOnThrottleClickListener(closeBtnClickListener)
             clResetContainer.setOnThrottleClickListener(resetBtnClickListener)
@@ -52,26 +52,14 @@ class PurchaseNotePriceFilterBSDialog: BaseBottomSheetDialogFragment<BsdPriceFil
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.tempFilterUiState
-                        .map { it.priceFilter.minPrice }
+                        .map { it.priceFilter}
                         .distinctUntilChanged()
-                        .collect { minPrice ->
-                            if (minPrice == 0L) {
-                                binding.etMinPrice.setText("0")
-                            } else {
-                                binding.etMinPrice.setText(minPrice.toString())
-                            }
-                        }
-                }
+                        .collect { (minPrice, maxPrice, myMaxPrice) ->
+                            with (binding) {
+                                etMaxPrice.hint = myMaxPrice.toComma()
 
-                launch {
-                    viewModel.tempFilterUiState
-                        .map { it.priceFilter.maxPrice }
-                        .distinctUntilChanged()
-                        .collect { maxPrice->
-                            if (maxPrice == 0L) {
-                                binding.etMaxPrice.setText("0")
-                            } else {
-                                binding.etMaxPrice.setText(maxPrice.toString())
+                                etMinPrice.text = minPrice?.toString() ?: ""
+                                etMaxPrice.text = maxPrice?.toString() ?: ""
                             }
                         }
                 }
@@ -112,7 +100,7 @@ class PurchaseNotePriceFilterBSDialog: BaseBottomSheetDialogFragment<BsdPriceFil
             }
 
             if (s.toString() != current) {
-                binding.etMinPrice.removeTextChangedListener(this)
+                binding.etMinPrice.removeCustomTextWatcher()
 
                 val cleanString = s.toString().replace(",", "")
                 if (cleanString.isNotEmpty()) {
@@ -120,13 +108,13 @@ class PurchaseNotePriceFilterBSDialog: BaseBottomSheetDialogFragment<BsdPriceFil
 
                     val formatted = cleanString.toLong().toComma()
                     current = formatted
-                    binding.etMinPrice.setText(formatted)
+                    binding.etMinPrice.text = formatted
                     binding.etMinPrice.setSelection(formatted.length)
                 } else {
                     viewModel.clearMinPrice()
                 }
 
-                binding.etMinPrice.addTextChangedListener(this)
+                binding.etMinPrice.addCustomTextWatcher(this)
             }
         }
     }
@@ -143,7 +131,7 @@ class PurchaseNotePriceFilterBSDialog: BaseBottomSheetDialogFragment<BsdPriceFil
             }
 
             if (s.toString() != current) {
-                binding.etMaxPrice.removeTextChangedListener(this)
+                binding.etMaxPrice.removeCustomTextWatcher()
 
                 val cleanString = s.toString().replace(",", "")
                 if (cleanString.isNotEmpty()) {
@@ -151,13 +139,13 @@ class PurchaseNotePriceFilterBSDialog: BaseBottomSheetDialogFragment<BsdPriceFil
 
                     val formatted = cleanString.toLong().toComma()
                     current = formatted
-                    binding.etMaxPrice.setText(formatted)
+                    binding.etMaxPrice.text = formatted
                     binding.etMaxPrice.setSelection(formatted.length)
                 } else {
                     viewModel.clearMaxPrice()
                 }
 
-                binding.etMaxPrice.addTextChangedListener(this)
+                binding.etMaxPrice.addCustomTextWatcher(this)
             }
         }
     }

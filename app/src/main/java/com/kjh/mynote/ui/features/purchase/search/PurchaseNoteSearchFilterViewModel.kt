@@ -182,7 +182,7 @@ class PurchaseNoteSearchFilterViewModel @Inject constructor(
         _tempFilterUiState.update { tempState ->
             tempState.copy(
                 priceFilter = tempState.priceFilter.copy(
-                    minPrice = 0
+                    minPrice = null
                 )
             )
         }
@@ -192,7 +192,7 @@ class PurchaseNoteSearchFilterViewModel @Inject constructor(
         _tempFilterUiState.update { tempState ->
             tempState.copy(
                 priceFilter = tempState.priceFilter.copy(
-                    maxPrice = 0
+                    maxPrice = null
                 )
             )
         }
@@ -202,8 +202,8 @@ class PurchaseNoteSearchFilterViewModel @Inject constructor(
         _tempFilterUiState.update { tempState ->
             tempState.copy(
                 priceFilter = tempState.priceFilter.copy(
-                    minPrice = AppConstants.PRICE_MIN_LIMIT,
-                    maxPrice = tempState.priceFilter.myMaxPrice
+                    minPrice = null,
+                    maxPrice = null
                 )
             )
         }
@@ -217,8 +217,8 @@ class PurchaseNoteSearchFilterViewModel @Inject constructor(
                 },
                 purchaseNameFilter = Filters.PurchaseName(),
                 priceFilter = tempState.priceFilter.copy(
-                    minPrice = AppConstants.PRICE_MIN_LIMIT,
-                    maxPrice = tempState.priceFilter.myMaxPrice
+                    minPrice = null,
+                    maxPrice = null
                 )
             )
         }
@@ -227,21 +227,13 @@ class PurchaseNoteSearchFilterViewModel @Inject constructor(
     fun checkPriceValidation() {
         viewModelScope.launch {
             val (minPrice, maxPrice) = _tempFilterUiState.value.priceFilter
-
-            val isMinPriceBiggerThanMaxPrice = minPrice > maxPrice
-            val isMaxPriceIsZero = maxPrice == 0L
-
-            when {
-                isMinPriceBiggerThanMaxPrice -> {
-                    _priceValidateEventState.emit(PriceValidateEvent.Error("최소, 최대 금액을 다시 한번 확인해주세요"))
-                }
-                isMaxPriceIsZero -> {
-                    _priceValidateEventState.emit(PriceValidateEvent.Error("최대 금액은 0보다 큰 금액이어야 합니다"))
-                }
-                else -> {
-                    _priceValidateEventState.emit(PriceValidateEvent.Valid)
-                }
+            val isMinPriceBiggerThanMaxPrice = (minPrice != null && maxPrice != null) && (minPrice > maxPrice)
+            if (isMinPriceBiggerThanMaxPrice) {
+                _priceValidateEventState.emit(PriceValidateEvent.Error("최소, 최대 금액을 다시 한번 확인해주세요"))
+                return@launch
             }
+
+            _priceValidateEventState.emit(PriceValidateEvent.Valid)
         }
     }
 }

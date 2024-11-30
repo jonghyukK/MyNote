@@ -71,14 +71,12 @@ sealed class Filters {
     }
 
     data class Price(
-        val minPrice: Long = AppConstants.PRICE_MIN_LIMIT,
-        val maxPrice: Long = AppConstants.PRICE_MAX_LIMIT,
+        val minPrice: Long? = null,
+        val maxPrice: Long? = null,
         val myMaxPrice: Long = AppConstants.PRICE_MAX_LIMIT
     ): Filters() {
         override fun isApplied(): Boolean =
-            minPrice > AppConstants.PRICE_MIN_LIMIT
-                   || maxPrice != myMaxPrice
-
+            minPrice != null || maxPrice != null
     }
 }
 
@@ -114,8 +112,8 @@ class PurchaseNoteSearchViewModel @Inject constructor(
                     queryText = filterUiState.purchaseNameFilter.purchaseName,
                     startDate = startDate,
                     endDate = endDate,
-                    minPrice = filterUiState.priceFilter.minPrice,
-                    maxPrice = filterUiState.priceFilter.maxPrice,
+                    minPrice = filterUiState.priceFilter.minPrice ?: AppConstants.PRICE_MIN_LIMIT,
+                    maxPrice = filterUiState.priceFilter.maxPrice ?: filterUiState.priceFilter.myMaxPrice,
                     categoryIds = categoryIds
                 ).map { result ->
                     when (result) {
@@ -196,10 +194,7 @@ class PurchaseNoteSearchViewModel @Inject constructor(
                 setDateRangeFilter(Filters.DateRange())
             }
             is Filters.Price -> {
-                setPriceFilter(Filters.Price(
-                    maxPrice = filters.myMaxPrice,
-                    myMaxPrice = filters.myMaxPrice
-                ))
+                setPriceFilter(Filters.Price(myMaxPrice = filters.myMaxPrice))
             }
             is Filters.PurchaseName -> {
                 setPurchaseName(Filters.PurchaseName())
@@ -268,7 +263,6 @@ class PurchaseNoteSearchViewModel @Inject constructor(
                 PurchaseNoteSearchFilterUiState(
                     categoryFilters = categoryItems,
                     priceFilter = Filters.Price(
-                        maxPrice = maxPriceValue,
                         myMaxPrice = maxPriceValue
                     )
                 )

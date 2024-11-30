@@ -33,6 +33,7 @@
     <string name="format_total_count">전체 %1$d</string>
     <string name="format_start_date_until_end_date">%1$s ~ %2$s</string>
     <string name="format_won_below">%1$s원 이하</string>
+    <string name="format_won_up">%1$s원 이상</string>
     <string name="format_min_price_until_max_price">%1$s원 ~ %2$s원</string>
 
     <string name="input_title">제목 입력하기</string>

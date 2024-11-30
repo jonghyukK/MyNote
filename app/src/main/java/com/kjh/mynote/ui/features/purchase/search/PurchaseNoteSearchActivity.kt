@@ -14,8 +14,8 @@ import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.features.place.search.result.DateRangeFilter
 import com.kjh.mynote.ui.features.purchase.detail.PurchaseNoteDetailActivity
-import com.kjh.mynote.ui.features.purchase.search.adapter.PurchaseNoteSearchSelectedFilterListAdapter
 import com.kjh.mynote.ui.features.purchase.search.adapter.PurchaseNoteSearchResultListAdapter
+import com.kjh.mynote.ui.features.purchase.search.adapter.PurchaseNoteSearchSelectedFilterListAdapter
 import com.kjh.mynote.ui.features.purchase.search.filters.category.PurchaseNoteSearchCategoryListAdapter
 import com.kjh.mynote.ui.features.purchase.search.filters.date.PurchaseNoteDatePeriodFilterBSDialog
 import com.kjh.mynote.ui.features.purchase.search.filters.price.PurchaseNotePriceFilterBSDialog
@@ -26,7 +26,6 @@ import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.setBackgroundRes
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.setTextColorRes
-import com.kjh.mynote.utils.extensions.setTint
 import com.kjh.mynote.utils.extensions.toComma
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -161,11 +160,20 @@ class PurchaseNoteSearchActivity: BaseActivity<ActivityPurchaseNoteSearchBinding
                                     tvPrice.setTextColorRes(normalTextColor)
                                 }
 
-                                tvPrice.text = getString(
-                                    R.string.format_min_price_until_max_price,
-                                    item.priceFilter.minPrice.toComma(),
-                                    item.priceFilter.maxPrice.toComma()
-                                )
+                                val (minPrice, maxPrice, myMaxPrice) = item.priceFilter
+                                if (minPrice == null && maxPrice != null) {
+                                    tvPrice.text =
+                                        getString(R.string.format_won_below, maxPrice.toComma())
+                                } else if (minPrice != null && maxPrice == null) {
+                                    tvPrice.text =
+                                        getString(R.string.format_won_up, minPrice.toComma())
+                                } else {
+                                    tvPrice.text = getString(
+                                        R.string.format_min_price_until_max_price,
+                                        minPrice?.toComma() ?: "0",
+                                        maxPrice?.toComma() ?: myMaxPrice.toComma()
+                                    )
+                                }
                             }
                         }
                     }

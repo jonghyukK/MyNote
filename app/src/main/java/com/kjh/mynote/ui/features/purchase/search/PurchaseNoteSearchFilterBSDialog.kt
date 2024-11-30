@@ -4,7 +4,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -21,12 +20,12 @@ import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
 import com.kjh.mynote.utils.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.setBackgroundRes
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
+import com.kjh.mynote.utils.extensions.showToast
 import com.kjh.mynote.utils.extensions.toComma
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.
@@ -74,12 +73,13 @@ class PurchaseNoteSearchFilterBSDialog: BaseBottomSheetDialogFragment<BsdPurchas
                 adapter = categoryFilterAdapter
             }
 
-            etPurchaseName.addTextChangedListener(purchaseNameTextWatcher)
-            etMinPrice.addTextChangedListener(minPriceTextWatcher)
-            etMaxPrice.addTextChangedListener(maxPriceTextWatcher)
+            etPurchaseName.addCustomTextWatcher(purchaseNameTextWatcher)
+            etPurchaseName.setClearButtonClickListener(purchaseNameClearBtnClickListener)
+
+            etMinPrice.addCustomTextWatcher(minPriceTextWatcher)
+            etMaxPrice.addCustomTextWatcher(maxPriceTextWatcher)
 
             ivClose.setOnThrottleClickListener(closeBtnClickListener)
-            ivClear.setOnThrottleClickListener(purchaseNameClearBtnClickListener)
             clReset.setOnThrottleClickListener(resetBtnClickListener)
             btnApply.setOnThrottleClickListener(applyBtnClickListener)
         }
@@ -106,38 +106,51 @@ class PurchaseNoteSearchFilterBSDialog: BaseBottomSheetDialogFragment<BsdPurchas
                         .distinctUntilChanged()
                         .collect { filter ->
                             with (binding) {
-                                if (etPurchaseName.text.toString() != filter.purchaseName) {
-                                    etPurchaseName.setText(filter.purchaseName)
+                                if (etPurchaseName.text != filter.purchaseName) {
+                                    etPurchaseName.text = filter.purchaseName
                                 }
-                                ivClear.isVisible = filter.purchaseName.isNotBlank()
                             }
                         }
                 }
 
                 launch {
                     viewModel.tempFilterUiState
-                        .map { it.priceFilter.minPrice }
+                        .map { it.priceFilter}
                         .distinctUntilChanged()
-                        .collect { minPrice ->
-                            binding.etMinPrice.setText(minPrice.toString())
+                        .collect { (minPrice, maxPrice, myMaxPrice) ->
+                            with (binding) {
+                                etMaxPrice.hint = myMaxPrice.toComma()
+
+                                etMinPrice.text = minPrice?.toString() ?: ""
+                                etMaxPrice.text = maxPrice?.toString() ?: ""
+                            }
                         }
                 }
 
                 launch {
-                    viewModel.tempFilterUiState
-                        .map { it.priceFilter.maxPrice }
-                        .distinctUntilChanged()
-                        .collect { maxPrice ->
-                            binding.etMaxPrice.setText(maxPrice.toString())
-                        }
-                }
-
-                launch {
-                    viewModel.isChangedFilters.collect {
-                        if (it) {
-                            binding.btnApply.setBackgroundRes(R.drawable.ripple_shape_s_color_primary_c_8)
+                    viewModel.isChangedFilters.collect { isChangedFilter ->
+                        val backgroundRes = if (isChangedFilter) {
+                            R.drawable.ripple_shape_s_color_primary_c_8
                         } else {
-                            binding.btnApply.setBackgroundRes(R.drawable.shape_s_black_200_c_8)
+                            R.drawable.shape_s_black_200_c_8
+                        }
+
+                        binding.btnApply.setBackgroundRes(backgroundRes)
+                    }
+                }
+
+                launch {
+                    viewModel.priceValidateEventState.collect { event ->
+                        when (event) {
+                            is PriceValidateEvent.Error -> {
+                                showToast(event.msg)
+                            }
+                            PriceValidateEvent.Valid -> {
+                                val filterState = viewModel.tempFilterUiState.value
+                                parentViewModel.applyAllFilters(filterState)
+
+                                dismiss()
+                            }
                         }
                     }
                 }
@@ -165,7 +178,7 @@ class PurchaseNoteSearchFilterBSDialog: BaseBottomSheetDialogFragment<BsdPurchas
             }
 
             if (s.toString() != current) {
-                binding.etMinPrice.removeTextChangedListener(this)
+                binding.etMinPrice.removeCustomTextWatcher()
 
                 val cleanString = s.toString().replace(",", "")
                 if (cleanString.isNotEmpty()) {
@@ -173,13 +186,13 @@ class PurchaseNoteSearchFilterBSDialog: BaseBottomSheetDialogFragment<BsdPurchas
 
                     val formatted = cleanString.toLong().toComma()
                     current = formatted
-                    binding.etMinPrice.setText(formatted)
+                    binding.etMinPrice.text = formatted
                     binding.etMinPrice.setSelection(formatted.length)
                 } else {
                     viewModel.clearMinPrice()
                 }
 
-                binding.etMinPrice.addTextChangedListener(this)
+                binding.etMinPrice.addCustomTextWatcher(this)
             }
         }
     }
@@ -196,7 +209,7 @@ class PurchaseNoteSearchFilterBSDialog: BaseBottomSheetDialogFragment<BsdPurchas
             }
 
             if (s.toString() != current) {
-                binding.etMaxPrice.removeTextChangedListener(this)
+                binding.etMaxPrice.removeCustomTextWatcher()
 
                 val cleanString = s.toString().replace(",", "")
                 if (cleanString.isNotEmpty()) {
@@ -204,13 +217,13 @@ class PurchaseNoteSearchFilterBSDialog: BaseBottomSheetDialogFragment<BsdPurchas
 
                     val formatted = cleanString.toLong().toComma()
                     current = formatted
-                    binding.etMaxPrice.setText(formatted)
+                    binding.etMaxPrice.text = formatted
                     binding.etMaxPrice.setSelection(formatted.length)
                 } else {
                     viewModel.clearMaxPrice()
                 }
 
-                binding.etMaxPrice.addTextChangedListener(this)
+                binding.etMaxPrice.addCustomTextWatcher(this)
             }
         }
     }
@@ -232,10 +245,7 @@ class PurchaseNoteSearchFilterBSDialog: BaseBottomSheetDialogFragment<BsdPurchas
     }
 
     private val applyBtnClickListener = View.OnClickListener {
-        val filterState = viewModel.tempFilterUiState.value
-        parentViewModel.applyAllFilters(filterState)
-
-        dismiss()
+        viewModel.checkPriceValidation()
     }
 
     companion object {

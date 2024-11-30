@@ -35,11 +35,17 @@ class PurchaseNoteSearchSelectedFilterItemViewHolder(
                 binding.tvFilterName.text = item.dateRangeFilter?.getUiText()
             }
             is Filters.Price -> {
-                binding.tvFilterName.text = context.getString(
-                    R.string.format_min_price_until_max_price,
-                    item.minPrice.toComma(),
-                    item.maxPrice.toComma()
-                )
+                binding.tvFilterName.text = if (item.minPrice != null && item.maxPrice == null) {
+                    context.getString(R.string.format_won_up, item.minPrice.toComma())
+                } else if (item.minPrice == null && item.maxPrice != null) {
+                    context.getString(R.string.format_won_below, item.maxPrice.toComma())
+                } else {
+                    context.getString(
+                        R.string.format_min_price_until_max_price,
+                        item.minPrice?.toComma() ?: "0",
+                        item.maxPrice?.toComma() ?: item.myMaxPrice.toComma()
+                    )
+                }
             }
             is Filters.PurchaseName -> {
                 binding.tvFilterName.text = item.purchaseName
