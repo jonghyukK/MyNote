@@ -10,8 +10,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.mynote.databinding.BsdPriceFilterDialogBinding
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
-import com.kjh.mynote.ui.features.purchase.search.PriceValidateEvent
-import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchFilterViewModel
+import com.kjh.mynote.ui.features.purchase.search.filters.whole.PriceValidateEvent
+import com.kjh.mynote.ui.features.purchase.search.filters.whole.PurchaseNoteSearchWholeFilterViewModel
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchViewModel
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 class PurchaseNotePriceFilterBSDialog: BaseBottomSheetDialogFragment<BsdPriceFilterDialogBinding>({ BsdPriceFilterDialogBinding.inflate(it) }) {
 
     private val parentViewModel: PurchaseNoteSearchViewModel by activityViewModels()
-    private val viewModel: PurchaseNoteSearchFilterViewModel by viewModels()
+    private val viewModel: PurchaseNoteSearchWholeFilterViewModel by viewModels()
 
     override fun onInitView() {
         with (binding) {

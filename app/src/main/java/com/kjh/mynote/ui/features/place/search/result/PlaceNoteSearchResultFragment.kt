@@ -10,11 +10,13 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.domain.model.SortType
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.FragmentPlaceNoteSearchResultBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseFragment
-import com.kjh.mynote.ui.common.dialog.SortBSDialog
+import com.kjh.mynote.ui.common.dialog.sort.SortBSDialog
+import com.kjh.mynote.ui.common.dialog.sort.SortItem
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
 import com.kjh.mynote.ui.features.place.search.result.adapter.PlaceNoteSearchResultOuterListAdapter
 import com.kjh.mynote.ui.features.place.search.result.dialog.PlaceNoteSearchFilterBSDialog
@@ -129,14 +131,10 @@ class PlaceNoteSearchResultFragment
 
                 launch {
                     viewModel.uiState
-                        .map { it.isDescending }
+                        .map { it.sortType }
                         .distinctUntilChanged()
                         .collect {
-                            binding.layoutFilterInfoSection.tvSort.text = if (it) {
-                                getString(R.string.sort_descending)
-                            } else {
-                                getString(R.string.sort_ascending)
-                            }
+                            binding.layoutFilterInfoSection.tvSort.text = it.title
                         }
                 }
 
@@ -177,8 +175,14 @@ class PlaceNoteSearchResultFragment
     }
 
     private val sortFilterClickListener = OnClickListener {
+        val currentSort = viewModel.uiState.value.sortType
         SortBSDialog.newInstance(
-            currentSort = viewModel.uiState.value.isDescending
+            sortList = listOf(SortType.LATEST, SortType.OLDEST).map {
+                SortItem(
+                    type = it,
+                    isSelected = it == currentSort
+                )
+            }
         ).show(childFragmentManager, SortBSDialog.TAG)
     }
 
@@ -187,8 +191,8 @@ class PlaceNoteSearchResultFragment
             .show(childFragmentManager, PlaceNoteSearchFilterBSDialog.TAG)
     }
 
-    override fun onClickSort(isDescending: Boolean) {
-        viewModel.applySortFilter(isDescending)
+    override fun onClickSort(sort: SortType) {
+        viewModel.applySortFilter(sort)
     }
 
     companion object {

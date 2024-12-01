@@ -8,11 +8,13 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.domain.model.SortType
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityPurchaseNoteSearchBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.ui.base.BaseActivity
-import com.kjh.mynote.ui.features.place.search.result.DateRangeFilter
+import com.kjh.mynote.ui.common.dialog.sort.SortBSDialog
+import com.kjh.mynote.ui.common.dialog.sort.SortItem
 import com.kjh.mynote.ui.features.purchase.detail.PurchaseNoteDetailActivity
 import com.kjh.mynote.ui.features.purchase.search.adapter.PurchaseNoteSearchResultListAdapter
 import com.kjh.mynote.ui.features.purchase.search.adapter.PurchaseNoteSearchSelectedFilterListAdapter
@@ -20,10 +22,10 @@ import com.kjh.mynote.ui.features.purchase.search.filters.category.PurchaseNoteS
 import com.kjh.mynote.ui.features.purchase.search.filters.date.PurchaseNoteDatePeriodFilterBSDialog
 import com.kjh.mynote.ui.features.purchase.search.filters.price.PurchaseNotePriceFilterBSDialog
 import com.kjh.mynote.ui.features.purchase.search.filters.purchasename.PurchaseNotePurchaseNameBSDialog
+import com.kjh.mynote.ui.features.purchase.search.filters.whole.PurchaseNoteSearchWholeFilterBSDialog
 import com.kjh.mynote.utils.PurchaseNoteSearchItemDecoration
 import com.kjh.mynote.utils.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
-import com.kjh.mynote.utils.extensions.setBackgroundRes
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.setTextColorRes
 import com.kjh.mynote.utils.extensions.toComma
@@ -39,7 +41,9 @@ import kotlinx.coroutines.launch
  */
 
 @AndroidEntryPoint
-class PurchaseNoteSearchActivity: BaseActivity<ActivityPurchaseNoteSearchBinding>({ ActivityPurchaseNoteSearchBinding.inflate(it) }) {
+class PurchaseNoteSearchActivity :
+    BaseActivity<ActivityPurchaseNoteSearchBinding>({ ActivityPurchaseNoteSearchBinding.inflate(it) }),
+    SortBSDialog.SortBSDialogClickListener {
 
     private val viewModel: PurchaseNoteSearchViewModel by viewModels()
 
@@ -67,6 +71,7 @@ class PurchaseNoteSearchActivity: BaseActivity<ActivityPurchaseNoteSearchBinding
         }
 
         with (binding.layoutFilterInfoSection) {
+            clSortFilter.setOnThrottleClickListener(sortFilterClickListener)
             clConditionFilter.setOnThrottleClickListener(conditionFilterClickListener)
         }
 
@@ -97,6 +102,15 @@ class PurchaseNoteSearchActivity: BaseActivity<ActivityPurchaseNoteSearchBinding
                         .distinctUntilChanged()
                         .collect { dateFilter ->
                             binding.tvDate.text = dateFilter.dateRangeFilter.getUiText()
+                        }
+                }
+
+                launch {
+                    viewModel.filtersUiState
+                        .map { it.sortType }
+                        .distinctUntilChanged()
+                        .collect { sortType ->
+                            binding.layoutFilterInfoSection.tvSort.text = sortType.title
                         }
                 }
 
@@ -195,9 +209,22 @@ class PurchaseNoteSearchActivity: BaseActivity<ActivityPurchaseNoteSearchBinding
             .show(supportFragmentManager, PurchaseNotePriceFilterBSDialog.TAG)
     }
 
+    private val sortFilterClickListener = View.OnClickListener {
+        val currentSortType = viewModel.filtersUiState.value.sortType
+        val sortItem = SortType.entries.map { sortType ->
+            SortItem(
+                type = sortType,
+                isSelected = sortType == currentSortType
+            )
+        }
+
+        SortBSDialog.newInstance(sortItem)
+            .show(supportFragmentManager, SortBSDialog.TAG)
+    }
+
     private val conditionFilterClickListener = View.OnClickListener {
-        PurchaseNoteSearchFilterBSDialog.newInstance()
-            .show(supportFragmentManager, PurchaseNoteSearchFilterBSDialog.TAG)
+        PurchaseNoteSearchWholeFilterBSDialog.newInstance()
+            .show(supportFragmentManager, PurchaseNoteSearchWholeFilterBSDialog.TAG)
     }
 
     private val selectedFilterResetBtnClickListener = View.OnClickListener {
@@ -209,6 +236,10 @@ class PurchaseNoteSearchActivity: BaseActivity<ActivityPurchaseNoteSearchBinding
             putExtra(AppConstants.INTENT_PURCHASE_NOTE_ID, purchaseNoteItem.id)
             startActivity(this)
         }
+    }
+
+    override fun onClickSort(sort: SortType) {
+        viewModel.setSortType(sort)
     }
 
     companion object {

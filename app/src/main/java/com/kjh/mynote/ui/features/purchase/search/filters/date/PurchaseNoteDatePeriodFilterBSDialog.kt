@@ -14,7 +14,7 @@ import com.kjh.mynote.databinding.BsdDateRangeFilterDialogBinding
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
 import com.kjh.mynote.ui.common.dialog.yearmonths.SelectableYearMonthListBSDialog
 import com.kjh.mynote.ui.features.place.search.result.DateRangeFilter
-import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchFilterViewModel
+import com.kjh.mynote.ui.features.purchase.search.filters.whole.PurchaseNoteSearchWholeFilterViewModel
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchViewModel
 import com.kjh.mynote.utils.DatePickerManager
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
@@ -40,7 +40,7 @@ class PurchaseNoteDatePeriodFilterBSDialog :
     }), SelectableYearMonthListBSDialog.YearMonthClickListener {
 
     private val parentViewModel: PurchaseNoteSearchViewModel by activityViewModels()
-    private val viewModel: PurchaseNoteSearchFilterViewModel by viewModels()
+    private val viewModel: PurchaseNoteSearchWholeFilterViewModel by viewModels()
 
     override fun onInitView() {
         with (binding) {

@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase.search
+package com.kjh.mynote.ui.features.purchase.search.filters.whole
 
 import android.text.Editable
 import android.text.TextWatcher
@@ -17,6 +17,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.BsdPurchaseNoteSearchFilterBinding
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
+import com.kjh.mynote.ui.features.purchase.search.Filters
+import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchViewModel
 import com.kjh.mynote.utils.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.setBackgroundRes
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
@@ -34,10 +36,10 @@ import kotlinx.coroutines.launch
  */
 
 @AndroidEntryPoint
-class PurchaseNoteSearchFilterBSDialog: BaseBottomSheetDialogFragment<BsdPurchaseNoteSearchFilterBinding>({ BsdPurchaseNoteSearchFilterBinding.inflate(it) }) {
+class PurchaseNoteSearchWholeFilterBSDialog: BaseBottomSheetDialogFragment<BsdPurchaseNoteSearchFilterBinding>({ BsdPurchaseNoteSearchFilterBinding.inflate(it) }) {
 
     private val parentViewModel: PurchaseNoteSearchViewModel by activityViewModels()
-    private val viewModel: PurchaseNoteSearchFilterViewModel by viewModels()
+    private val viewModel: PurchaseNoteSearchWholeFilterViewModel by viewModels()
 
     private val categoryFilterAdapter: PurchaseNoteSearchFlexboxCategoryAdapter by lazy {
         PurchaseNoteSearchFlexboxCategoryAdapter(
@@ -251,6 +253,6 @@ class PurchaseNoteSearchFilterBSDialog: BaseBottomSheetDialogFragment<BsdPurchas
     companion object {
         const val TAG = "PurchaseNoteSearchFilterBSDialog"
 
-        fun newInstance() = PurchaseNoteSearchFilterBSDialog()
+        fun newInstance() = PurchaseNoteSearchWholeFilterBSDialog()
     }
 }

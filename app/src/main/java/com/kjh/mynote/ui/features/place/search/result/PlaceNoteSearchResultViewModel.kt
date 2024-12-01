@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.Result
+import com.example.domain.model.SortType
 import com.example.domain.usecase.GetFilteredSearchPlaceNotesUseCase
 import com.kjh.mynote.model.FilteredSearchPlaceNotesUiModel
 import com.kjh.mynote.model.toUiModel
@@ -66,7 +67,7 @@ data class SearchPlaceNoteResultUiState(
     val isLoading: Boolean = true,
     val isError: String? = null,
     val monthFilter: DateRangeFilter? = null,
-    val isDescending: Boolean = true,
+    val sortType: SortType = SortType.LATEST,
     val resultItems: List<FilteredSearchPlaceNotesUiModel> = emptyList(),
     val resultTotalCount: Int = 0
 )
@@ -94,7 +95,7 @@ class SearchPlaceNoteResultViewModel @Inject constructor(
                 query = queryText.value,
                 startDate = startDate,
                 endDate = endDate,
-                isDescending = _uiState.value.isDescending
+                isDescending = _uiState.value.sortType == SortType.LATEST
             ).collect { result ->
                 when (result) {
                     is Result.Loading -> {
@@ -146,11 +147,11 @@ class SearchPlaceNoteResultViewModel @Inject constructor(
         getFilteredPlaceNotes()
     }
 
-    fun applySortFilter(isDescending: Boolean) {
-        if (_uiState.value.isDescending == isDescending) return
+    fun applySortFilter(sortType: SortType) {
+        if (_uiState.value.sortType == sortType) return
 
         _uiState.update {
-            it.copy(isDescending = isDescending)
+            it.copy(sortType = sortType)
         }
 
         getFilteredPlaceNotes()

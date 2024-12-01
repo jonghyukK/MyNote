@@ -3,6 +3,7 @@ package com.kjh.mynote.ui.features.purchase.search
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.Result
+import com.example.domain.model.SortType
 import com.example.domain.usecase.GetAllCategoriesUseCase
 import com.example.domain.usecase.GetFilteredSearchPurchaseNotesUseCase
 import com.example.domain.usecase.GetMaxPurchasePriceUseCase
@@ -45,7 +46,8 @@ data class PurchaseNoteSearchFilterUiState(
     val purchaseNameFilter: Filters.PurchaseName = Filters.PurchaseName(),
     val categoryFilters: List<Filters.Category> = emptyList(),
     val dateRangeFilter: Filters.DateRange = Filters.DateRange(),
-    val priceFilter: Filters.Price = Filters.Price()
+    val priceFilter: Filters.Price = Filters.Price(),
+    val sortType: SortType = SortType.LATEST
 )
 
 sealed class Filters {
@@ -114,7 +116,8 @@ class PurchaseNoteSearchViewModel @Inject constructor(
                     endDate = endDate,
                     minPrice = filterUiState.priceFilter.minPrice ?: AppConstants.PRICE_MIN_LIMIT,
                     maxPrice = filterUiState.priceFilter.maxPrice ?: filterUiState.priceFilter.myMaxPrice,
-                    categoryIds = categoryIds
+                    categoryIds = categoryIds,
+                    sortType = filterUiState.sortType
                 ).map { result ->
                     when (result) {
                         is Result.Loading -> listOf(PurchaseNoteSearchUiState.Loading)
@@ -126,14 +129,27 @@ class PurchaseNoteSearchViewModel @Inject constructor(
 
                             _resultTotalCount.value = resultItems.sumOf { it.purchaseNoteItems.size }
 
-                            if (resultItems.isEmpty()) {
-                                listOf(PurchaseNoteSearchUiState.Empty)
-                            } else {
-                                resultItems.flatMap { model ->
-                                    listOf(PurchaseNoteSearchUiState.DateItem(model.date)) +
-                                            model.purchaseNoteItems.map {
-                                                PurchaseNoteSearchUiState.ResultItem(it)
-                                            }
+                            when {
+                                resultItems.isEmpty() -> {
+                                    listOf(PurchaseNoteSearchUiState.Empty)
+                                }
+                                filterUiState.sortType == SortType.HIGH_PRICE ||
+                                        filterUiState.sortType == SortType.LOW_PRICE -> {
+                                    resultItems.flatMap { model ->
+                                        model.purchaseNoteItems.map {
+                                            listOf(PurchaseNoteSearchUiState.DateItem(it.purchaseLocalDate)) + PurchaseNoteSearchUiState.ResultItem(
+                                                it
+                                            )
+                                        }.flatten()
+                                    }
+                                }
+                                else -> {
+                                    resultItems.flatMap { model ->
+                                        listOf(PurchaseNoteSearchUiState.DateItem(model.date!!)) +
+                                                model.purchaseNoteItems.map {
+                                                    PurchaseNoteSearchUiState.ResultItem(it)
+                                                }
+                                    }
                                 }
                             }
                         }
@@ -142,6 +158,12 @@ class PurchaseNoteSearchViewModel @Inject constructor(
             }.collectLatest { data ->
                 _uiState.value = data
             }
+        }
+    }
+
+    fun setSortType(type: SortType) {
+        _filtersUiState.update {
+            it.copy(sortType = type)
         }
     }
 
@@ -190,15 +212,13 @@ class PurchaseNoteSearchViewModel @Inject constructor(
             is Filters.Category -> {
                 addOrDeleteCategoryItemBy(filters.categoryItem.id)
             }
-            is Filters.DateRange -> {
-                setDateRangeFilter(Filters.DateRange())
-            }
             is Filters.Price -> {
                 setPriceFilter(Filters.Price(myMaxPrice = filters.myMaxPrice))
             }
             is Filters.PurchaseName -> {
                 setPurchaseName(Filters.PurchaseName())
             }
+            else -> {}
         }
     }
 

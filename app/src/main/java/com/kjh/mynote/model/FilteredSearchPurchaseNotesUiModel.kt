@@ -9,7 +9,7 @@ import java.time.LocalDate
  * Description:
  */
 data class FilteredSearchPurchaseNotesUiModel(
-    val date: LocalDate,
+    val date: LocalDate?,
     val purchaseNoteItems: List<PurchaseNoteUiModel>
 )
 

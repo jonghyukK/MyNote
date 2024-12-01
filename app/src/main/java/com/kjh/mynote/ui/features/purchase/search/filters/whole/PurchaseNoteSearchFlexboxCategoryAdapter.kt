@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase.search
+package com.kjh.mynote.ui.features.purchase.search.filters.whole
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhFilterCategoryItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
+import com.kjh.mynote.ui.features.purchase.search.Filters
 import com.kjh.mynote.utils.extensions.getDrawableCompat
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.setTextColorRes
@@ -18,7 +19,9 @@ import com.kjh.mynote.utils.extensions.setTextColorRes
  */
 class PurchaseNoteSearchFlexboxCategoryAdapter(
     private val categoryItemClickAction: (Filters.Category) -> Unit
-): ListAdapter<Filters.Category, PurchaseNoteSearchFlexboxCategoryItemViewHolder>(UI_MODEL_COMPARATOR) {
+): ListAdapter<Filters.Category, PurchaseNoteSearchFlexboxCategoryItemViewHolder>(
+    UI_MODEL_COMPARATOR
+) {
     
     override fun onCreateViewHolder(
         parent: ViewGroup,

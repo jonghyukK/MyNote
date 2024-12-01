@@ -32,7 +32,7 @@ class PurchaseNoteSearchSelectedFilterItemViewHolder(
                 binding.tvFilterName.text = item.categoryItem.categoryName
             }
             is Filters.DateRange -> {
-                binding.tvFilterName.text = item.dateRangeFilter?.getUiText()
+                binding.tvFilterName.text = item.dateRangeFilter.getUiText()
             }
             is Filters.Price -> {
                 binding.tvFilterName.text = if (item.minPrice != null && item.maxPrice == null) {

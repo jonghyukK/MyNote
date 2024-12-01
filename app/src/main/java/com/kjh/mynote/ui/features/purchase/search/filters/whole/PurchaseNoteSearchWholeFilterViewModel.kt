@@ -1,9 +1,10 @@
-package com.kjh.mynote.ui.features.purchase.search
+package com.kjh.mynote.ui.features.purchase.search.filters.whole
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kjh.mynote.ui.features.place.search.result.DateRangeFilter
-import com.kjh.mynote.utils.constants.AppConstants
+import com.kjh.mynote.ui.features.purchase.search.Filters
+import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchFilterUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +30,7 @@ sealed class PriceValidateEvent {
 }
 
 @HiltViewModel
-class PurchaseNoteSearchFilterViewModel @Inject constructor(): ViewModel() {
+class PurchaseNoteSearchWholeFilterViewModel @Inject constructor(): ViewModel() {
 
     private val _initFilterUiState = MutableStateFlow(PurchaseNoteSearchFilterUiState())
 

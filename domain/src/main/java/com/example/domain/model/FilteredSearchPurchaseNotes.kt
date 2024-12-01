@@ -8,6 +8,6 @@ import java.time.LocalDate
  * Description:
  */
 data class FilteredSearchPurchaseNotes(
-    val date: LocalDate,
+    val date: LocalDate?,
     val purchaseNotes: List<PurchaseNote>
 )
