@@ -3,6 +3,7 @@ package com.example.domain.repository
 import com.example.domain.model.Category
 import com.example.domain.model.FilteredSearchPurchaseNotes
 import com.example.domain.model.PurchaseNote
+import com.example.domain.model.SortType
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -28,7 +29,8 @@ interface PurchaseNoteRepository {
         endDate: Long,
         minPrice: Long,
         maxPrice: Long,
-        categoryIds: List<Int>
+        categoryIds: List<Int>,
+        sortType: SortType
     ): List<FilteredSearchPurchaseNotes>
 
     val getMaxPurchasePrice: Flow<Long?>

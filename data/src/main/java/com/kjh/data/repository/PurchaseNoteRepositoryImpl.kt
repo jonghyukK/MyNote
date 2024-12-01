@@ -3,6 +3,7 @@ package com.kjh.data.repository
 import com.example.domain.model.Category
 import com.example.domain.model.FilteredSearchPurchaseNotes
 import com.example.domain.model.PurchaseNote
+import com.example.domain.model.SortType
 import com.example.domain.repository.PurchaseNoteRepository
 import com.kjh.data.model.entity.toDomainModel
 import com.kjh.data.model.entity.toEntity
@@ -53,24 +54,37 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
         endDate: Long,
         minPrice: Long,
         maxPrice: Long,
-        categoryIds: List<Int>
+        categoryIds: List<Int>,
+        sortType: SortType
     ): List<FilteredSearchPurchaseNotes> {
         val purchaseNotes = purchaseNoteLocalDateSource.getFilteredPurchaseNotes(
-            queryText, startDate, endDate, minPrice, maxPrice, categoryIds, categoryIdsSize = categoryIds.size
+            queryText, startDate, endDate, minPrice, maxPrice, categoryIds, categoryIdsSize = categoryIds.size, sortType.name
         )
 
-        return purchaseNotes
-            .groupBy { purchaseNote ->
-                Instant.ofEpochMilli(purchaseNote.purchaseNote.purchaseDate)
-                    .atZone(ZoneOffset.UTC)
-                    .toLocalDate()
-            }
-            .map { (date, notes) ->
-                FilteredSearchPurchaseNotes(
-                    date = date,
-                    purchaseNotes = notes.toDomainModel()
+        return when (sortType) {
+            SortType.HIGH_PRICE, SortType.LOW_PRICE-> {
+                listOf(
+                    FilteredSearchPurchaseNotes(
+                        date = null,
+                        purchaseNotes = purchaseNotes.toDomainModel()
+                    )
                 )
             }
+            else -> {
+                purchaseNotes
+                    .groupBy { purchaseNote ->
+                        Instant.ofEpochMilli(purchaseNote.purchaseNote.purchaseDate)
+                            .atZone(ZoneOffset.UTC)
+                            .toLocalDate()
+                    }
+                    .map { (date, notes) ->
+                        FilteredSearchPurchaseNotes(
+                            date = date,
+                            purchaseNotes = notes.toDomainModel()
+                        )
+                    }
+            }
+        }
     }
 
     override val getMaxPurchasePrice: Flow<Long?>

@@ -51,7 +51,17 @@ interface PurchaseNoteDao {
         AND purchasePrice >= :minPrice
         AND purchasePrice <= :maxPrice
         AND (:categoryIdsSize = 0 OR categoryId IN (:categoryIds))
-    """)
+        ORDER BY
+        CASE
+            WHEN :sortType = 'LATEST' THEN purchaseDate END DESC,
+        CASE
+            WHEN :sortType = 'OLDEST' THEN purchaseDate END ASC,
+        CASE
+            WHEN :sortType = 'HIGH_PRICE' THEN purchasePrice END DESC,
+        CASE
+            WHEN :sortType = 'LOW_PRICE' THEN purchasePrice END ASC
+    """
+    )
     suspend fun getFilteredPurchaseNotes(
         queryText: String,
         startDate: Long,
@@ -59,7 +69,8 @@ interface PurchaseNoteDao {
         minPrice: Long,
         maxPrice: Long,
         categoryIds: List<Int>,
-        categoryIdsSize: Int
+        categoryIdsSize: Int,
+        sortType: String
     ): List<PurchaseNoteWithCategoryEntity>
 
     @Query("SELECT MAX(purchasePrice) FROM purchase")
