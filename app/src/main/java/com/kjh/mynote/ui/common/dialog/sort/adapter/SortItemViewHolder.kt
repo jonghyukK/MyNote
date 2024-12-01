@@ -1,11 +1,11 @@
 package com.kjh.mynote.ui.common.dialog.sort.adapter
 
 import androidx.core.view.isVisible
+import com.example.domain.model.SortType
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhSortListItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.ui.common.dialog.sort.SortItem
-import com.kjh.mynote.ui.common.dialog.sort.SortType
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.setTextColorRes
 

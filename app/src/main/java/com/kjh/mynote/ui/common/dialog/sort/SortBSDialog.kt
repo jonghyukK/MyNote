@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
+import com.example.domain.model.SortType
 import com.kjh.mynote.databinding.BsdSortDilaogBinding
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
 import com.kjh.mynote.ui.common.dialog.sort.adapter.SortListAdapter
@@ -19,8 +20,6 @@ import kotlinx.parcelize.Parcelize
  *
  *  Sort 관련 BottomSheetDialogFragment.
  *
- *  최근 날짜 순
- *  오래된 날짜 순
  */
 
 @Parcelize
@@ -28,13 +27,6 @@ data class SortItem(
     val type: SortType = SortType.LATEST,
     val isSelected: Boolean = false
 ): Parcelable
-
-enum class SortType(val title: String) {
-    LATEST("최근 날짜 순"),
-    OLDEST("오래된 날짜 순"),
-    HIGH_PRICE("가격 높은 순"),
-    LOW_PRICE("가격 낮은 순")
-}
 
 @AndroidEntryPoint
 class SortBSDialog: BaseBottomSheetDialogFragment<BsdSortDilaogBinding>({ BsdSortDilaogBinding.inflate(it) }) {
