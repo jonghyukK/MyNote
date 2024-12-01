@@ -107,4 +107,5 @@
     <string name="date_period">조회 기간</string>
     <string name="recent_years_ago">최근 1년이내</string>
     <string name="hint_input_purchase_name_to_search">검색할 구매명을 입력해주세요</string>
+    <string name="sort">정렬</string>
 </resources>
