@@ -1,13 +1,11 @@
 package com.kjh.mynote.ui.features.purchase.search.adapter
 
 import com.kjh.mynote.R
-import com.kjh.mynote.databinding.LayoutEmptySearchResultsBinding
-import com.kjh.mynote.databinding.LayoutLoadingBinding
 import com.kjh.mynote.databinding.VhPurchaseNoteSearchResultDateItemBinding
 import com.kjh.mynote.databinding.VhPurchaseNoteSearchResultItemBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchUiState
+import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchResultItem
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.toComma
 import com.kjh.mynote.utils.extensions.toStringWithPattern
@@ -19,40 +17,15 @@ import com.kjh.mynote.utils.extensions.toStringWithPattern
  */
 
 /**
- * 구매노트 검색 로딩 ViewHolder.
- *
- * @property binding
- */
-class PurchaseNoteSearchLoadingItemViewHolder(
-    private val binding: LayoutLoadingBinding
-): BaseViewHolder<Unit>(binding.root) {
-
-    override fun bind(item: Unit) {
-        super.bind(item)
-        binding.root.setBackgroundResource(R.color.transparent)
-    }
-}
-
-/**
- * 구매노트 검색 빈 화면 ViewHolder.
- *
- * @property binding
- */
-class PurchaseNoteSearchEmptyItemViewHolder(
-    private val binding: LayoutEmptySearchResultsBinding
-): BaseViewHolder<Unit>(binding.root)
-
-
-/**
  * 구매노트 검색 결과 날짜 ViewHolder.
  *
  * @property binding
  */
 class PurchaseNoteSearchDateItemViewHolder(
     private val binding: VhPurchaseNoteSearchResultDateItemBinding
-): BaseViewHolder<PurchaseNoteSearchUiState.DateItem>(binding.root) {
+): BaseViewHolder<PurchaseNoteSearchResultItem.DateItem>(binding.root) {
 
-    override fun bind(item: PurchaseNoteSearchUiState.DateItem) {
+    override fun bind(item: PurchaseNoteSearchResultItem.DateItem) {
         super.bind(item)
 
         binding.tvDate.text = item.date.toStringWithPattern("yyyy년 M월 d일 (E)")
@@ -68,7 +41,7 @@ class PurchaseNoteSearchDateItemViewHolder(
 class PurchaseNoteSearchResultItemViewHolder(
     private val binding: VhPurchaseNoteSearchResultItemBinding,
     private val onClickAction: (PurchaseNoteUiModel) -> Unit
-): BaseViewHolder<PurchaseNoteSearchUiState.ResultItem>(binding.root) {
+): BaseViewHolder<PurchaseNoteSearchResultItem.ResultItem>(binding.root) {
 
     init {
         itemView.onThrottleClick {
@@ -76,7 +49,7 @@ class PurchaseNoteSearchResultItemViewHolder(
         }
     }
 
-    override fun bind(item: PurchaseNoteSearchUiState.ResultItem) {
+    override fun bind(item: PurchaseNoteSearchResultItem.ResultItem) {
         super.bind(item)
 
         with (binding) {

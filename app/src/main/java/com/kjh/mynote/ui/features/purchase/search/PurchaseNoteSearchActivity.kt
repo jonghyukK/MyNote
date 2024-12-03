@@ -28,6 +28,7 @@ import com.kjh.mynote.utils.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.setTextColorRes
+import com.kjh.mynote.utils.extensions.showToast
 import com.kjh.mynote.utils.extensions.toComma
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -87,6 +88,7 @@ class PurchaseNoteSearchActivity :
                 addItemDecoration(PurchaseNoteSearchItemDecoration())
                 adapter = resultListAdapter
             }
+
             ivReset.setOnThrottleClickListener(selectedFilterResetBtnClickListener)
             llDateContainer.setOnThrottleClickListener(dateClickListener)
         }
@@ -95,7 +97,6 @@ class PurchaseNoteSearchActivity :
     override fun onInitUiData() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-
                 launch {
                     viewModel.filtersUiState
                         .map { it.dateRangeFilter }
@@ -115,20 +116,30 @@ class PurchaseNoteSearchActivity :
                 }
 
                 launch {
-                    viewModel.resultTotalCount.collect { resultTotalCount ->
-                        binding.layoutFilterInfoSection.tvResultsCount.text =
-                            getString(R.string.format_total_count, resultTotalCount)
-                    }
+                    viewModel.filtersUiState
+                        .map { it.categoryFilters }
+                        .distinctUntilChanged()
+                        .collect { categories ->
+                            categoryListAdapter.submitList(categories)
+                        }
                 }
 
                 launch {
-                    viewModel.uiState.collect { uiList ->
-                        resultListAdapter.submitList(uiList)
-                    }
+                    viewModel.filtersUiState
+                        .map { it.purchaseNameFilter }
+                        .distinctUntilChanged()
+                        .collect(::updatePurchaseNameFilterUi)
                 }
 
                 launch {
-                    viewModel.appliedFilterItem.collect {
+                    viewModel.filtersUiState
+                        .map { it.priceFilter }
+                        .distinctUntilChanged()
+                        .collect(::updatePriceFilterUi)
+                }
+
+                launch {
+                    viewModel.appliedFiltersFlow.collect {
                         binding.clSelectedFilters.isVisible = it.isNotEmpty()
                         binding.layoutFilterInfoSection.ivNoti.isVisible = it.isNotEmpty()
 
@@ -137,12 +148,54 @@ class PurchaseNoteSearchActivity :
                 }
 
                 launch {
-                    viewModel.filtersUiState.collect { item ->
-                        categoryListAdapter.submitList(item.categoryFilters)
-
-                        updatePurchaseNameFilterUi(item.purchaseNameFilter)
-                        updatePriceFilterUi(item.priceFilter)
+                    viewModel.resultTotalCount.collect { resultTotalCount ->
+                        binding.layoutFilterInfoSection.tvResultsCount.text =
+                            getString(R.string.format_total_count, resultTotalCount)
                     }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.isLoading }
+                        .distinctUntilChanged()
+                        .collect { isLoading ->
+                            binding.layoutLoading.root.isVisible = isLoading
+                    }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.isEmpty }
+                        .distinctUntilChanged()
+                        .collect { isResultEmpty ->
+                            binding.layoutEmpty.root.isVisible = isResultEmpty
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.errorMsg }
+                        .distinctUntilChanged()
+                        .collect { errorMsg ->
+                            errorMsg?.let {
+                                showToast(it)
+                                viewModel.shownErrorMsg()
+                            }
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.resultItems }
+                        .distinctUntilChanged()
+                        .collect { resultItems ->
+                            resultListAdapter.submitList(resultItems) {
+                                if (viewModel.shouldScrollToTop) {
+                                    binding.rvSearchResults.scrollToPosition(0)
+                                    viewModel.shouldScrollToTop = false
+                                }
+                            }
+                        }
                 }
             }
         }

@@ -4,7 +4,7 @@ import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchUiState
+import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchResultItem
 import com.kjh.mynote.utils.extensions.dpToPx
 
 /**
@@ -23,18 +23,18 @@ class PurchaseNoteSearchItemDecoration: RecyclerView.ItemDecoration() {
         val position = parent.getChildAdapterPosition(view)
         if (position == RecyclerView.NO_POSITION) return
 
-        val adapter = parent.adapter as? ListAdapter<PurchaseNoteSearchUiState, *>
+        val adapter = parent.adapter as? ListAdapter<PurchaseNoteSearchResultItem, *>
         val currentItem = adapter?.currentList?.get(position) ?: return
         val prevItem = adapter?.currentList?.getOrNull(position - 1)
 
         when {
-            currentItem is PurchaseNoteSearchUiState.ResultItem && prevItem is PurchaseNoteSearchUiState.DateItem -> {
+            currentItem is PurchaseNoteSearchResultItem.ResultItem && prevItem is PurchaseNoteSearchResultItem.DateItem -> {
                 outRect.top = 12.dpToPx()
             }
-            currentItem is PurchaseNoteSearchUiState.ResultItem -> {
+            currentItem is PurchaseNoteSearchResultItem.ResultItem -> {
                 outRect.top = 8.dpToPx()
             }
-            currentItem is PurchaseNoteSearchUiState.DateItem -> {
+            currentItem is PurchaseNoteSearchResultItem.DateItem -> {
                 outRect.top = 20.dpToPx()
             }
             else -> {
