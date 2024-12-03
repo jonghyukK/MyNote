@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.kjh.mynote.databinding.VhPurchaseNoteHomeListItemBinding
+import com.kjh.mynote.databinding.VhPurchaseNoteSearchResultItemBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
 
 /**
@@ -20,7 +21,7 @@ class PurchaseHomeListAdapter(
         parent: ViewGroup,
         viewType: Int
     ) = PurchaseNoteHomeListItemViewHolder(
-        VhPurchaseNoteHomeListItemBinding.inflate(
+        VhPurchaseNoteSearchResultItemBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         ), purchaseNoteItemClickAction
     )

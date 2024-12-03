@@ -2,6 +2,7 @@ package com.kjh.mynote.ui.features.purchase.home.adapter
 
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhPurchaseNoteHomeListItemBinding
+import com.kjh.mynote.databinding.VhPurchaseNoteSearchResultItemBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.utils.extensions.onThrottleClick
@@ -13,7 +14,7 @@ import com.kjh.mynote.utils.extensions.toComma
  * Description:
  */
 class PurchaseNoteHomeListItemViewHolder(
-    private val binding: VhPurchaseNoteHomeListItemBinding,
+    private val binding: VhPurchaseNoteSearchResultItemBinding,
     private val purchaseNoteItemClickAction: (PurchaseNoteUiModel) -> Unit
 ): BaseViewHolder<PurchaseNoteUiModel>(binding.root) {
 
@@ -27,7 +28,7 @@ class PurchaseNoteHomeListItemViewHolder(
         super.bind(item)
 
         with (binding) {
-            tvCategory.text = item.category?.categoryName ?: "카테고리 없음"
+            tvCategoryName.text = item.category?.categoryName ?: "카테고리 없음"
             tvPurchaseName.text = item.purchaseName
             tvPrice.text = context.getString(R.string.format_won, item.purchasePrice.toComma())
         }

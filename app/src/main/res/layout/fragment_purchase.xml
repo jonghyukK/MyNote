@@ -71,8 +71,9 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_total_price_container"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/purple_200"
+        android:layout_height="44dp"
+        android:background="#BB6750A4"
+        android:layout_marginTop="4dp"
         app:layout_constraintTop_toBottomOf="@+id/calendar_month_view"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -80,15 +81,15 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_total_price"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:textColor="@color/white"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:padding="12dp"
-            android:gravity="end"
+            android:textSize="14sp"
+            android:gravity="center_vertical|end"
+            android:paddingEnd="20dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:text="200,000원" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -96,7 +97,7 @@
         android:id="@+id/rv_purchases"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/black_50"
+        android:background="@color/white"
         android:paddingVertical="20dp"
         android:clipToPadding="false"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
