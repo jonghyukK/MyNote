@@ -2,14 +2,18 @@ package com.kjh.mynote.ui.features.place.make
 
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.PlaceNote
+import com.example.domain.model.PurchaseNote
 import com.example.domain.model.Result
+import com.example.domain.usecase.MakePlaceNoteWithPurchaseNotesUseCase
 import com.example.domain.usecase.UpsertAndGetPlaceNoteUseCase
 import com.kjh.mynote.model.PlaceInfoUiModel
 import com.kjh.mynote.model.PlaceNoteUiModel
+import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.model.toDomainModel
 import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.ui.base.BaseViewModel
+import com.kjh.mynote.ui.features.purchase.make.MakePurchaseNoteUiState
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.toStringWithFormat
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,12 +35,14 @@ data class MakeOrModifyNoteUiState(
     val tempPlaceItem: PlaceInfoUiModel? = null,
     val visitDate: Long = -1,
     val visitDateText: String = "",
-    val contents: String = ""
+    val contents: String = "",
+    val tempPurchaseNoteItems: List<TempPurchaseNoteItem> = emptyList()
 )
 
 @HiltViewModel
 class MakeOrModifyPlaceNoteViewModel @Inject constructor(
-    private val upsertAndGetPlaceNoteUseCase: UpsertAndGetPlaceNoteUseCase
+    private val upsertAndGetPlaceNoteUseCase: UpsertAndGetPlaceNoteUseCase,
+    private val makePlaceNoteWithPurchaseNotesUseCase: MakePlaceNoteWithPurchaseNotesUseCase
 ): BaseViewModel() {
 
     private val _uiState = MutableStateFlow(MakeOrModifyNoteUiState())
@@ -49,7 +55,6 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
         it.tempImageUrls.isNotEmpty()
                 && it.tempPlaceItem != null
                 && it.visitDate > 0
-
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -57,6 +62,11 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
     )
 
     fun upsertPlaceNote() {
+        if (_uiState.value.tempPurchaseNoteItems.isNotEmpty()) {
+            insertPlaceNoteWithPurchaseNotes()
+            return
+        }
+
         viewModelScope.launch {
             upsertAndGetPlaceNoteUseCase(
                 placeNote = convertUiStateToPlaceNoteModel(),
@@ -76,6 +86,36 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
                     }
                     is Result.Error -> {
                         _upsertPlaceNoteEvent.emit(UiState.Error("장소 노트 저장이 실패하였습니다."))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun insertPlaceNoteWithPurchaseNotes() {
+        viewModelScope.launch {
+            val placeNote = convertUiStateToPlaceNoteModel()
+            val purchaseNotes = convertTempPurchaseNoteItemToDomainModel()
+
+            makePlaceNoteWithPurchaseNotesUseCase(
+                placeNote = placeNote,
+                purchaseNotes = purchaseNotes,
+                noteId = _uiState.value.noteId
+            ).collect { result ->
+                when (result) {
+                    is Result.Loading -> {
+                        _upsertPlaceNoteEvent.emit(UiState.Loading)
+                    }
+                    is Result.Error -> {
+                        _upsertPlaceNoteEvent.emit(UiState.Error("장소 노트 저장이 실패하였습니다."))
+                    }
+                    is Result.Success -> {
+                        delay(500)
+
+                        val upsertPlaceNote = result.data?.toUiModel()
+                        upsertPlaceNote?.let {
+                            _upsertPlaceNoteEvent.emit(UiState.Success(it))
+                        }
                     }
                 }
             }
@@ -129,15 +169,6 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
         }
     }
 
-    private fun convertUiStateToPlaceNoteModel() = with(_uiState.value) {
-        PlaceNote(
-            placeImages = tempImageUrls,
-            placeInfo = tempPlaceItem!!.toDomainModel(),
-            visitDate = visitDate,
-            noteContents = contents
-        )
-    }
-
     fun setPlaceNoteItemForModifying(placeNoteModel: PlaceNoteUiModel) {
         _uiState.update {
             it.copy(
@@ -147,6 +178,57 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
                 visitDate = placeNoteModel.visitDate,
                 visitDateText = placeNoteModel.visitDate.toStringWithFormat("yyyy-MM-dd (E)"),
                 contents = placeNoteModel.noteContents,
+            )
+        }
+    }
+
+    fun addOrUpdatePurchaseNoteItem(tempPurchaseNoteItem: TempPurchaseNoteItem) {
+        val currentTempPurchaseNoteItems = _uiState.value.tempPurchaseNoteItems.toMutableList()
+
+        val existingIndex = currentTempPurchaseNoteItems.indexOfFirst { it.tempId == tempPurchaseNoteItem.tempId }
+        if (existingIndex > -1) {
+            currentTempPurchaseNoteItems[existingIndex] = tempPurchaseNoteItem
+        } else {
+            currentTempPurchaseNoteItems += tempPurchaseNoteItem
+        }
+
+        _uiState.update {
+            it.copy(
+                tempPurchaseNoteItems = currentTempPurchaseNoteItems
+            )
+        }
+    }
+
+    fun removeTempPurchaseNoteItem(tempPurchaseNoteItem: TempPurchaseNoteItem) {
+        _uiState.update {
+            it.copy(
+                tempPurchaseNoteItems = it.tempPurchaseNoteItems - tempPurchaseNoteItem
+            )
+        }
+    }
+
+    fun getTempPurchaseNoteItemById(id: Long): TempPurchaseNoteItem? {
+        return _uiState.value.tempPurchaseNoteItems.find { it.tempId == id }
+    }
+
+    private fun convertUiStateToPlaceNoteModel() = with(_uiState.value) {
+        PlaceNote(
+            placeImages = tempImageUrls,
+            placeInfo = tempPlaceItem!!.toDomainModel(),
+            visitDate = visitDate,
+            noteContents = contents
+        )
+    }
+
+    private fun convertTempPurchaseNoteItemToDomainModel(): List<PurchaseNote> {
+        return _uiState.value.tempPurchaseNoteItems.map { tempPurchaseNoteItem ->
+            PurchaseNote(
+                purchaseDate = _uiState.value.visitDate,
+                purchasePrice = tempPurchaseNoteItem.purchasePrice,
+                purchaseName = tempPurchaseNoteItem.purchaseName,
+                category = tempPurchaseNoteItem.categoryItem?.toDomainModel(),
+                images = tempPurchaseNoteItem.tempImageUrls.ifEmpty { null },
+                placeInfo = _uiState.value.tempPlaceItem?.toDomainModel()
             )
         }
     }

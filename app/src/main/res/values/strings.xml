@@ -108,4 +108,6 @@
     <string name="recent_years_ago">최근 1년이내</string>
     <string name="hint_input_purchase_name_to_search">검색할 구매명을 입력해주세요</string>
     <string name="sort">정렬</string>
+    <string name="make_with_purchase_note">구매노트 함께 작성하기</string>
+    <string name="add_purchase_note">구매노트 추가</string>
 </resources>

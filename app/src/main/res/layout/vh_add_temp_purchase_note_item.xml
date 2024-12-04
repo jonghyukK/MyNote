@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_purchase_info"
+        android:layout_width="0dp"
+        android:layout_height="70dp"
+        android:paddingHorizontal="12dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/shape_s_white_c_12_l_alpha_color_secondary_container"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_category_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorOnPrimaryContainer"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:background="@drawable/shape_s_color_primary_container_c_20"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
+            app:layout_constraintBottom_toTopOf="@+id/tv_purchase_name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="탄도항 캠핑장" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_purchase_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textColor="@color/black_800"
+            android:textSize="15sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_category_name"
+            tools:text="경기, 수원" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="17sp"
+            android:textColor="@color/black_800"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="10,000원" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_remove"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        app:srcCompat="@drawable/ic_remove"
+        android:layout_marginTop="-10dp"
+        android:layout_marginEnd="-10dp"
+        android:background="@drawable/shape_s_color_primary_c_999"
+        app:layout_constraintTop_toTopOf="@+id/cl_purchase_info"
+        app:layout_constraintEnd_toEndOf="@+id/cl_purchase_info" />
+</androidx.constraintlayout.widget.ConstraintLayout>

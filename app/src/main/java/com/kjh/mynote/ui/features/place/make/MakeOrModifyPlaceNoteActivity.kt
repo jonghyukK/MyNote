@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import android.view.View
 import android.view.View.OnClickListener
 import androidx.activity.viewModels
+import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -19,7 +20,9 @@ import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.ui.features.map.NaverMapSearchActivity
 import com.kjh.mynote.ui.features.place.make.adapter.TempImageListAdapter
+import com.kjh.mynote.ui.features.place.make.adapter.TempPurchaseNoteListAdapter
 import com.kjh.mynote.utils.DatePickerManager
+import com.kjh.mynote.utils.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.hideKeyboard
 import com.kjh.mynote.utils.extensions.parcelable
@@ -49,15 +52,29 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
         )
     }
 
+    private val tempPurchaseNoteListAdapter: TempPurchaseNoteListAdapter by lazy {
+        TempPurchaseNoteListAdapter(
+            tempPurchaseNoteItemClickAction = tempPurchaseNoteItemClickAction,
+            removePurchaseNoteBtnClickAction = removePurchaseNoteBtnClickAction
+        )
+    }
+
     override fun onInitView() = with (binding) {
         rvTempImages.apply {
             adapter = tempImageListAdapter
+        }
+
+        rvPurchaseNotes.apply {
+            itemAnimator = null
+            addItemDecoration(SpacingItemDecoration(top = 6, exceptFirstItem = true))
+            adapter = tempPurchaseNoteListAdapter
         }
 
         clAttachImages.setOnThrottleClickListener(photoAttachClickListener)
         tvVisitPlace.setTextClickListener(searchMapClickListener)
         tvVisitDate.setTextClickListener(visitDateClickListener)
         etNoteContents.addTextChangedListener(contentsTextWatcher)
+        clAddPurchaseNote.setOnThrottleClickListener(addPurchaseNoteClickListener)
         btnSave.setOnThrottleClickListener(saveBtnClickListener)
     }
 
@@ -140,11 +157,20 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
                 }
 
                 launch {
+                    viewModel.uiState
+                        .map { it.tempPurchaseNoteItems }
+                        .distinctUntilChanged()
+                        .collect { tempPurchaseNoteItems ->
+                            binding.rvPurchaseNotes.isVisible = tempPurchaseNoteItems.isNotEmpty()
+                            tempPurchaseNoteListAdapter.submitList(tempPurchaseNoteItems)
+                        }
+                }
+
+                launch {
                     viewModel.upsertPlaceNoteEvent.collect { upsertResult ->
                         when (upsertResult) {
                             is UiState.Loading -> {
                                 binding.btnSave.isLoading = true
-                                binding.etNoteContents.hideKeyboard()
                             }
                             is UiState.Error -> {
                                 binding.btnSave.isLoading = false
@@ -244,6 +270,16 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
         showToast("개발 예정..")
     }
 
+    private val tempPurchaseNoteItemClickAction: (TempPurchaseNoteItem) -> Unit = {
+        AddPurchaseNoteDialogFragment.newInstance(
+            tempPurchaseNoteId = it.tempId
+        ).show(supportFragmentManager, AddPurchaseNoteDialogFragment.TAG)
+    }
+
+    private val removePurchaseNoteBtnClickAction: (TempPurchaseNoteItem) -> Unit = {
+        viewModel.removeTempPurchaseNoteItem(it)
+    }
+
     private val searchMapClickListener = View.OnClickListener {
         clearFocus()
         val intent = Intent(this@MakeOrModifyPlaceNoteActivity, NaverMapSearchActivity::class.java).apply {
@@ -269,6 +305,11 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         }
         multiPhotoPickerLauncher.launch(intent)
+    }
+
+    private val addPurchaseNoteClickListener = View.OnClickListener {
+        AddPurchaseNoteDialogFragment.newInstance()
+            .show(supportFragmentManager, AddPurchaseNoteDialogFragment.TAG)
     }
 
     private val saveBtnClickListener = View.OnClickListener {

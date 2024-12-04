@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import com.kjh.mynote.databinding.VhPurchaseNoteHomeListItemBinding
 import com.kjh.mynote.databinding.VhPurchaseNoteSearchResultItemBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
 

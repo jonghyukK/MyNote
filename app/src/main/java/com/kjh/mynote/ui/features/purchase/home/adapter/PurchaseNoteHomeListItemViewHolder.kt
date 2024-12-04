@@ -1,7 +1,6 @@
 package com.kjh.mynote.ui.features.purchase.home.adapter
 
 import com.kjh.mynote.R
-import com.kjh.mynote.databinding.VhPurchaseNoteHomeListItemBinding
 import com.kjh.mynote.databinding.VhPurchaseNoteSearchResultItemBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
