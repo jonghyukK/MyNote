@@ -89,6 +89,7 @@ class PurchaseNoteSearchActivity :
                 adapter = resultListAdapter
             }
 
+            ivBack.setOnThrottleClickListener(backButtonClickListener)
             ivReset.setOnThrottleClickListener(selectedFilterResetBtnClickListener)
             llDateContainer.setOnThrottleClickListener(dateClickListener)
         }
@@ -245,6 +246,10 @@ class PurchaseNoteSearchActivity :
 
     private val selectedFilterClickAction: (Filters) -> Unit = { filter ->
         viewModel.deleteFilter(filter)
+    }
+
+    private val backButtonClickListener = View.OnClickListener {
+        finish()
     }
 
     private val purchaseNameFilterClickListener = View.OnClickListener {
