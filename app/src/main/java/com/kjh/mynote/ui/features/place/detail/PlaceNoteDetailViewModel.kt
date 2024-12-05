@@ -2,10 +2,12 @@ package com.kjh.mynote.ui.features.place.detail
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.example.domain.model.ERROR_CODE_NULL
 import com.example.domain.model.Result
+import com.example.domain.model.onError
+import com.example.domain.model.onLoading
+import com.example.domain.model.onSuccess
 import com.example.domain.usecase.DeletePlaceNoteByIdUseCase
-import com.example.domain.usecase.GetPlaceNoteWithSamePlaceNameNotesUseCase
+import com.example.domain.usecase.GetPlaceNoteDetailByIdUseCase
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.model.toUiModel
@@ -51,7 +53,7 @@ sealed class PlaceNoteDetailUiState {
 
 @HiltViewModel
 class PlaceNoteDetailViewModel @Inject constructor(
-    private val getPlaceNoteWithSamePlaceNameNotesUseCase: GetPlaceNoteWithSamePlaceNameNotesUseCase,
+    private val getPlaceNoteDetailByIdUseCase: GetPlaceNoteDetailByIdUseCase,
     private val deletePlaceNoteByIdUseCase: DeletePlaceNoteByIdUseCase,
     private val savedStateHandle: SavedStateHandle
 ): BaseViewModel() {
@@ -66,41 +68,36 @@ class PlaceNoteDetailViewModel @Inject constructor(
 
     fun getPlaceNoteDetail() {
         viewModelScope.launch {
-            getPlaceNoteWithSamePlaceNameNotesUseCase(noteId).collect { result ->
-                when (result) {
-                    is Result.Loading -> {
+            getPlaceNoteDetailByIdUseCase(noteId)
+                .collect { result -> result
+                    .onLoading {
                         _uiState.value = PlaceNoteDetailUiState.Loading
                     }
-                    is Result.Error -> {
-                        if (result.errorCode == ERROR_CODE_NULL) {
+                    .onError { throwable ->
+                        if (throwable is NullPointerException) {
                             _uiState.value = PlaceNoteDetailUiState.NotExist
                         } else {
-                            _uiState.value = PlaceNoteDetailUiState.Error(result.msg ?: "장소노트 상세정보 조회가 실패하였습니다.")
+                            _uiState.value = PlaceNoteDetailUiState.Error(throwable.message ?: "장소노트 상세정보 조회가 실패하였습니다.")
                         }
                     }
-                    is Result.Success -> {
-                        result.data?.let { data ->
-                            val (placeNoteItem, samePlaceNameNoteItems) = data
+                    .onSuccess { data ->
+                        val uiItems: MutableList<PlaceNoteDetailUi> = mutableListOf()
+                        uiItems.add(PlaceNoteDetailUi.DetailItem(data.placeNote.toUiModel()))
 
-                            val uiItems: MutableList<PlaceNoteDetailUi> = mutableListOf()
-                            uiItems.add(PlaceNoteDetailUi.DetailItem(placeNoteItem.toUiModel()))
-
-                            if (samePlaceNameNoteItems.isNotEmpty()) {
-                                uiItems.add(
-                                    PlaceNoteDetailUi.SamePlaceNameItem(
-                                        sectionTitle = "다른 날에도 방문했어요!",
-                                        placeNoteItems = samePlaceNameNoteItems.toUiModel()
-                                    )
+                        if (data.samePlaceNameNotes.isNotEmpty()) {
+                            uiItems.add(
+                                PlaceNoteDetailUi.SamePlaceNameItem(
+                                    sectionTitle = "다른 날에도 방문했어요!",
+                                    placeNoteItems = data.samePlaceNameNotes.toUiModel()
                                 )
-                            }
-
-                            _uiState.value = PlaceNoteDetailUiState.Success(
-                                placeNoteItem = placeNoteItem.toUiModel(),
-                                placeNoteDetailUiItems = uiItems
                             )
                         }
+
+                        _uiState.value = PlaceNoteDetailUiState.Success(
+                            placeNoteItem = data.placeNote.toUiModel(),
+                            placeNoteDetailUiItems = uiItems
+                        )
                     }
-                }
             }
         }
     }

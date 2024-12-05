@@ -1,5 +1,6 @@
 package com.kjh.mynote.ui.features.place.detail.adapter
 
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.kjh.mynote.R
@@ -78,6 +79,7 @@ class PlaceNoteDetailItemViewHolder(
             tvAddress.text = placeNoteItem.placeInfo.roadAddress
                 .ifNullOrEmpty(placeNoteItem.placeInfo.address)
 
+            tvNoteContents.isVisible = placeNoteItem.noteContents.isNotEmpty()
             tvNoteContents.text = placeNoteItem.noteContents
             tvVisitDate.text = placeNoteItem.visitDate.toStringWithFormat("yyyy년 M월 d일 (E)")
 
