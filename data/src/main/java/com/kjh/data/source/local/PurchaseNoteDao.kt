@@ -75,4 +75,15 @@ interface PurchaseNoteDao {
 
     @Query("SELECT MAX(purchasePrice) FROM purchase")
     fun getMaxPurchasePrice(): Flow<Long?>
+
+    @Transaction
+    @Query("""
+        SELECT * FROM purchase
+        WHERE purchaseDate = :purchaseDate AND placeName = :placeName
+        """
+    )
+    suspend fun getPurchaseNotesByDateAndPlaceName(
+        purchaseDate: Long,
+        placeName: String,
+    ): List<PurchaseNoteWithCategoryEntity>
 }

@@ -34,4 +34,9 @@ interface PurchaseNoteRepository {
     ): List<FilteredSearchPurchaseNotes>
 
     val getMaxPurchasePrice: Flow<Long?>
+
+    suspend fun getPurchaseNotesByPlaceAndDate(
+        placeName: String,
+        date: Long
+    ): List<PurchaseNote>
 }

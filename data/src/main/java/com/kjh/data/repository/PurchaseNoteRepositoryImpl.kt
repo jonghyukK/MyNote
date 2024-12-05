@@ -89,4 +89,13 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
 
     override val getMaxPurchasePrice: Flow<Long?>
         get() = purchaseNoteLocalDateSource.getMaxPurchasePrice()
+
+    override suspend fun getPurchaseNotesByPlaceAndDate(
+        placeName: String,
+        date: Long,
+    ): List<PurchaseNote> =
+        purchaseNoteLocalDateSource.getPurchaseNotesByDateAndPlaceName(
+            purchaseDate = date,
+            placeName = placeName
+        ).toDomainModel()
 }
