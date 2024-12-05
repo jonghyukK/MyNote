@@ -2,6 +2,7 @@ package com.kjh.data.model.entity
 
 import androidx.room.Embedded
 import androidx.room.Relation
+import com.example.domain.model.PlaceInfo
 import com.example.domain.model.PurchaseNote
 
 /**
@@ -32,7 +33,18 @@ fun PurchaseNoteWithCategoryEntity.toDomainModel() =
         purchaseName = purchaseNote.purchaseName,
         category = category?.toDomainModel(),
         images = purchaseNote.images,
-        placeInfo = purchaseNote.placeInfo
+        placeInfo =  if (purchaseNote.placeId == null) {
+            null
+        } else {
+            PlaceInfo(
+                id = purchaseNote.placeId,
+                name = purchaseNote.placeName ?: "",
+                address = purchaseNote.placeAddress ?: "",
+                roadAddress = purchaseNote.placeRoadAddress ?: "",
+                x = purchaseNote.x ?: "",
+                y = purchaseNote.y ?: ""
+            )
+        }
     )
 
 fun List<PurchaseNoteWithCategoryEntity>.toDomainModel() = map(PurchaseNoteWithCategoryEntity::toDomainModel)

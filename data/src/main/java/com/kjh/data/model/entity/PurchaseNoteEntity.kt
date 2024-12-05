@@ -3,11 +3,7 @@ package com.kjh.data.model.entity
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
-import com.example.domain.model.PlaceInfo
 import com.example.domain.model.PurchaseNote
-import com.example.domain.model.PurchasePlaceInfo
-import com.kjh.data.db.DBTypeConverters
 
 /**
  * Created by kangjonghyuk.
@@ -32,8 +28,12 @@ data class PurchaseNoteEntity(
     val purchaseName: String,
     val images: List<String>? = null,
     val categoryId: Int?,
-    @TypeConverters(DBTypeConverters::class)
-    val placeInfo: PlaceInfo? = null,
+    val placeId: String?,
+    val placeName: String?,
+    val placeAddress: String?,
+    val placeRoadAddress: String?,
+    val x: String?,
+    val y: String?
 )
 
 /**
@@ -47,6 +47,11 @@ fun PurchaseNote.toEntity(): PurchaseNoteEntity {
         purchaseName = purchaseName,
         categoryId = category?.id,
         images = images,
-        placeInfo = placeInfo
+        placeId = placeInfo?.id,
+        placeName = placeInfo?.name,
+        placeAddress = placeInfo?.address,
+        placeRoadAddress = placeInfo?.roadAddress,
+        x = placeInfo?.x,
+        y = placeInfo?.y
     )
 }
