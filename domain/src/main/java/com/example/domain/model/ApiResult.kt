@@ -46,7 +46,7 @@ inline fun <T> ApiResult<T>.onError(
     return this
 }
 
-fun <T> safeApiCall(call: suspend () -> T): Flow<ApiResult<T>> = flow {
+inline fun <T> safeApiCall(crossinline call: suspend () -> T): Flow<ApiResult<T>> = flow {
     emit(ApiResult.Loading)
 
     try {
