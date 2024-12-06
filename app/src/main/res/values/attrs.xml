@@ -6,9 +6,11 @@
     <declare-styleable name="MyToolBar">
         <attr name="isShowBackButton" format="boolean" />
         <attr name="leftTitle" format="reference|string" />
-        <attr name="backButtonTint" format="reference|integer" />
+        <attr name="backButtonTint" format="reference|color" />
+        <attr name="backButtonBg" format="reference|integer" />
         <attr name="isShowMoreButton" format="boolean" />
-        <attr name="moreButtonTint" format="reference|integer" />
+        <attr name="moreButtonTint" format="reference|color" />
+        <attr name="moreButtonBg" format="reference" />
         <attr name="rightFirstImage" format="reference|integer" />
         <attr name="rightSecondImage" format="reference|integer" />
     </declare-styleable>

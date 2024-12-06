@@ -7,10 +7,12 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.CommonLayoutMyToolBarBinding
 import com.kjh.mynote.utils.extensions.onThrottleClick
+import com.kjh.mynote.utils.extensions.setBackgroundRes
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 
 class MyToolBar @JvmOverloads constructor(
@@ -33,9 +35,20 @@ class MyToolBar @JvmOverloads constructor(
     /**
      *  Left BackButton Tint.
      */
-    var backButtonTint: Int = R.color.white
+    var backButtonTint: Int = R.color.black_900
         set(value) {
             binding.ivBack.setColorFilter(value, PorterDuff.Mode.SRC_IN)
+            field = value
+        }
+
+    /**
+     *  Left BackButton Background.
+     */
+    var backButtonBg: Int = -1
+        set(value) {
+            if (value > -1) {
+                binding.ivBack.setBackgroundRes(value)
+            }
             field = value
         }
 
@@ -68,6 +81,17 @@ class MyToolBar @JvmOverloads constructor(
         }
 
     /**
+     *  Right MoreButton Background.
+     */
+    var moreButtonBg: Int = -1
+        set(value) {
+            if (value > -1) {
+                binding.ivMore.setBackgroundRes(value)
+            }
+            field = value
+        }
+
+    /**
      *  Right First Image
      */
     var rightFirstImage: Drawable? = null
@@ -96,9 +120,11 @@ class MyToolBar @JvmOverloads constructor(
 
         isShowBackButton = typedArray.getBoolean(R.styleable.MyToolBar_isShowBackButton, false)
         leftTitle = typedArray.getString(R.styleable.MyToolBar_leftTitle)
-        backButtonTint = typedArray.getInteger(R.styleable.MyToolBar_backButtonTint, R.color.white)
+        backButtonTint = typedArray.getColor(R.styleable.MyToolBar_backButtonTint, ContextCompat.getColor(context, R.color.black_900))
+        backButtonBg = typedArray.getResourceId(R.styleable.MyToolBar_backButtonBg, R.drawable.ripple_white)
         isShowMoreButton = typedArray.getBoolean(R.styleable.MyToolBar_isShowMoreButton, false)
-        moreButtonTint = typedArray.getInteger(R.styleable.MyToolBar_moreButtonTint, R.color.white)
+        moreButtonTint = typedArray.getColor(R.styleable.MyToolBar_moreButtonTint, ContextCompat.getColor(context, R.color.black_900))
+        moreButtonBg = typedArray.getResourceId(R.styleable.MyToolBar_moreButtonBg, R.drawable.ripple_white)
         rightFirstImage = typedArray.getDrawable(R.styleable.MyToolBar_rightFirstImage)
         rightSecondImage = typedArray.getDrawable(R.styleable.MyToolBar_rightSecondImage)
 

@@ -26,6 +26,8 @@
         android:background="@color/white"
         app:isShowBackButton="true"
         app:isShowMoreButton="true"
+        app:backButtonBg="@drawable/ripple_shape_s_white_c_50"
+        app:moreButtonBg="@drawable/ripple_shape_s_white_c_50"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

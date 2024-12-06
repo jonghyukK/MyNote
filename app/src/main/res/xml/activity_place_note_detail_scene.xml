@@ -11,10 +11,10 @@
                 app:customColorValue="@color/transparent" />
             <CustomAttribute
                 app:attributeName="backButtonTint"
-                app:customColorValue="@color/white" />
+                app:customColorValue="@color/black_900" />
             <CustomAttribute
                 app:attributeName="moreButtonTint"
-                app:customColorValue="@color/white" />
+                app:customColorValue="@color/black_900" />
             <PropertySet app:visibilityMode="ignore" />
         </Constraint>
 
