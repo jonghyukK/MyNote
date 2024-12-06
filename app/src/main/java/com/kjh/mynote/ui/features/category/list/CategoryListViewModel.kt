@@ -4,6 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.Category
 import com.example.domain.model.Result
+import com.example.domain.model.onError
+import com.example.domain.model.onLoading
+import com.example.domain.model.onSuccess
 import com.example.domain.usecase.DeleteCategoryAndAssignToETCUseCase
 import com.example.domain.usecase.GetCategoriesWithPurchaseNoteCountUseCase
 import com.example.domain.usecase.MakeCategoryUseCase
@@ -91,17 +94,16 @@ class CategoryListViewModel @Inject constructor(
     fun makeCategory(categoryName: String) {
         viewModelScope.launch {
             makeCategoryUseCase(Category(categoryName = categoryName)).collect { result ->
-                when (result) {
-                    is Result.Loading -> {
+                result
+                    .onLoading {
                         _makeCategoryEventState.emit(UiState.Loading)
                     }
-                    is Result.Error -> {
-                        _makeCategoryEventState.emit(UiState.Error(result.msg ?: "카테고리 추가가 실패하였습니다."))
+                    .onError {
+                        _makeCategoryEventState.emit(UiState.Error(it.message ?: "카테고리 추가가 실패하였습니다."))
                     }
-                    is Result.Success -> {
+                    .onSuccess {
                         _makeCategoryEventState.emit(UiState.Success(Unit))
                     }
-                }
             }
         }
     }
@@ -109,17 +111,16 @@ class CategoryListViewModel @Inject constructor(
     fun editCategory(category: CategoryUiModel) {
         viewModelScope.launch {
             updateCategoryNameUseCase(category.toDomainModel()).collect { result ->
-                when (result) {
-                    is Result.Loading -> {
+                result
+                    .onLoading {
                         _updateCategoryNameEventState.emit(UiState.Loading)
                     }
-                    is Result.Error -> {
-                        _updateCategoryNameEventState.emit(UiState.Error(result.msg ?: "카테고리 수정이 실패하였습니다."))
+                    .onError {
+                        _updateCategoryNameEventState.emit(UiState.Error(it.message ?: "카테고리 수정이 실패하였습니다."))
                     }
-                    is Result.Success -> {
+                    .onSuccess {
                         _updateCategoryNameEventState.emit(UiState.Success(category))
                     }
-                }
             }
         }
     }
@@ -127,17 +128,16 @@ class CategoryListViewModel @Inject constructor(
     fun deleteCategory(categoryId: Int) {
         viewModelScope.launch {
             deleteCategoryAndAssignToETCUseCase(categoryId).collect { result ->
-                when (result) {
-                    is Result.Loading -> {
+                result
+                    .onLoading {
                         _deleteCategoryEventState.emit(UiState.Loading)
                     }
-                    is Result.Error -> {
-                        _deleteCategoryEventState.emit(UiState.Error(result.msg ?: "카테고리 삭제가 실패하였습니다."))
+                    .onError {
+                        _deleteCategoryEventState.emit(UiState.Error(it.message ?: "카테고리 삭제가 실패하였습니다."))
                     }
-                    is Result.Success -> {
+                    .onSuccess {
                         _deleteCategoryEventState.emit(UiState.Success(categoryId))
                     }
-                }
             }
         }
     }

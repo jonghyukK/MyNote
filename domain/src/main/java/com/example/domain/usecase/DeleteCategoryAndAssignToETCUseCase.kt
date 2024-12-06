@@ -1,10 +1,9 @@
 package com.example.domain.usecase
 
-import com.example.domain.model.Result
-import com.example.domain.repository.CategoryRepository
+import com.example.domain.model.ApiResult
+import com.example.domain.model.safeApiCall
 import com.example.domain.repository.PurchaseNoteWithCategoryRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 /**
@@ -18,14 +17,6 @@ import javax.inject.Inject
 class DeleteCategoryAndAssignToETCUseCase @Inject constructor(
     private val purchaseNoteWithCategoryRepository: PurchaseNoteWithCategoryRepository
 ) {
-    suspend operator fun invoke(categoryId: Int): Flow<Result<Unit>> = flow {
-        emit(Result.Loading)
-
-        try {
-            purchaseNoteWithCategoryRepository.deleteCategoryAndReassignETC(categoryId)
-            emit(Result.Success(Unit))
-        } catch (e: Exception) {
-            emit(Result.Error(e.message))
-        }
-    }
+    suspend operator fun invoke(categoryId: Int): Flow<ApiResult<Unit>> =
+        safeApiCall { purchaseNoteWithCategoryRepository.deleteCategoryAndReassignETC(categoryId) }
 }
