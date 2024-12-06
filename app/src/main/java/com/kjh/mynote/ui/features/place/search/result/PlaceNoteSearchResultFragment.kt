@@ -20,7 +20,7 @@ import com.kjh.mynote.ui.common.dialog.sort.SortItem
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
 import com.kjh.mynote.ui.features.place.search.result.adapter.PlaceNoteSearchResultOuterListAdapter
 import com.kjh.mynote.ui.features.place.search.result.dialog.PlaceNoteSearchFilterBSDialog
-import com.kjh.mynote.utils.SpacingItemDecoration
+import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.setBackgroundRes
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener

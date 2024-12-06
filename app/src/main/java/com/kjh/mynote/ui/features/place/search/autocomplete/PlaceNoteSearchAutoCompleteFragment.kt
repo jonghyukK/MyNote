@@ -12,7 +12,7 @@ import com.kjh.mynote.ui.base.BaseFragment
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
 import com.kjh.mynote.ui.features.place.search.PlaceNoteSearchViewModel
 import com.kjh.mynote.ui.features.place.search.autocomplete.adapter.PlaceNoteSearchAutoCompleteListAdapter
-import com.kjh.mynote.utils.SpacingItemDecoration
+import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.highlightText
 import com.kjh.mynote.utils.extensions.showToast

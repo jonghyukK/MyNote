@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.place.detail.adapter
+package com.kjh.mynote.ui.features.place.detail.adapter.detail
 
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
@@ -18,6 +18,8 @@ import com.kjh.mynote.utils.extensions.toStringWithFormat
  * Created On 2024. 10. 20..
  * Description:
  */
+
+
 class PlaceNoteDetailItemViewHolder(
     private val binding: VhPlaceNoteDetailItemBinding,
     private val imageViewerClickAction: (List<String>, String) -> Unit,

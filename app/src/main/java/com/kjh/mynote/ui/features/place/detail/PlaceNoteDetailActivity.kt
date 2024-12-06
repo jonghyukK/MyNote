@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityPlaceNoteDetailBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
+import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.common.dialog.DefaultDialog
@@ -22,6 +23,7 @@ import com.kjh.mynote.ui.common.dialog.DefaultDialog.MyDefaultDialogEventListene
 import com.kjh.mynote.ui.features.place.detail.adapter.PlaceNoteDetailUiListAdapter
 import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
 import com.kjh.mynote.ui.features.place.map.PlaceMapActivity
+import com.kjh.mynote.ui.features.purchase.detail.PurchaseNoteDetailActivity
 import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.parcelable
@@ -46,7 +48,8 @@ class PlaceNoteDetailActivity :
         PlaceNoteDetailUiListAdapter(
             imageViewerClickAction = imageViewerClickAction,
             addressClickAction = addressClickAction,
-            samePlaceItemClickAction = samePlaceItemClickAction
+            samePlaceItemClickAction = samePlaceItemClickAction,
+            purchaseNoteItemClickAction = purchaseNoteItemClickAction
         )
     }
 
@@ -147,6 +150,12 @@ class PlaceNoteDetailActivity :
         }
     )
 
+    private val purchaseNoteDetailResultLauncher = registerStartActivityResultLauncher(
+        resultOkBlock = {
+            viewModel.getPlaceNoteDetail()
+        }
+    )
+
     private val onScrollListener = object: RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
@@ -184,6 +193,13 @@ class PlaceNoteDetailActivity :
         Intent(this@PlaceNoteDetailActivity, PlaceNoteDetailActivity::class.java).apply {
             putExtra(AppConstants.INTENT_NOTE_ID, item.id)
             startActivity(this)
+        }
+    }
+
+    private val purchaseNoteItemClickAction: (PurchaseNoteUiModel) -> Unit = { item ->
+        Intent(this, PurchaseNoteDetailActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_PURCHASE_NOTE_ID, item.id)
+            purchaseNoteDetailResultLauncher.launch(this)
         }
     }
 

@@ -1,4 +1,4 @@
-package com.kjh.mynote.utils
+package com.kjh.mynote.utils.decorations
 
 import android.graphics.Rect
 import android.view.View

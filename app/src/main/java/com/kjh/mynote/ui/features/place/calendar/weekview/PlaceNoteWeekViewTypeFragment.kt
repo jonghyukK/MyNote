@@ -18,7 +18,7 @@ import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
 import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
 import com.kjh.mynote.ui.features.place.search.PlaceNoteSearchActivity
 import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity
-import com.kjh.mynote.utils.SpacingItemDecoration
+import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener

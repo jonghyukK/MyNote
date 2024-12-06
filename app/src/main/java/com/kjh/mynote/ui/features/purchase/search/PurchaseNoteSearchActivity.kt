@@ -23,8 +23,8 @@ import com.kjh.mynote.ui.features.purchase.search.filters.date.PurchaseNoteDateP
 import com.kjh.mynote.ui.features.purchase.search.filters.price.PurchaseNotePriceFilterBSDialog
 import com.kjh.mynote.ui.features.purchase.search.filters.purchasename.PurchaseNotePurchaseNameBSDialog
 import com.kjh.mynote.ui.features.purchase.search.filters.whole.PurchaseNoteSearchWholeFilterBSDialog
-import com.kjh.mynote.utils.PurchaseNoteSearchItemDecoration
-import com.kjh.mynote.utils.SpacingItemDecoration
+import com.kjh.mynote.utils.decorations.PurchaseNoteSearchItemDecoration
+import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.setTextColorRes

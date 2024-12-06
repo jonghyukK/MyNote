@@ -9,6 +9,7 @@ import com.example.domain.model.onSuccess
 import com.example.domain.usecase.DeletePlaceNoteByIdUseCase
 import com.example.domain.usecase.GetPlaceNoteDetailByIdUseCase
 import com.kjh.mynote.model.PlaceNoteUiModel
+import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.ui.base.BaseViewModel
@@ -32,9 +33,16 @@ sealed class PlaceNoteDetailUi {
         val placeNoteItem: PlaceNoteUiModel
     ): PlaceNoteDetailUi()
 
+    data class SectionTitleItem(
+        val sectionTitle: String
+    ): PlaceNoteDetailUi()
+
     data class SamePlaceNameItem(
-        val sectionTitle: String,
         val placeNoteItems: List<PlaceNoteUiModel>
+    ): PlaceNoteDetailUi()
+
+    data class PurchaseNoteItem(
+        val purchaseNoteItems: List<PurchaseNoteUiModel>
     ): PlaceNoteDetailUi()
 }
 
@@ -77,20 +85,23 @@ class PlaceNoteDetailViewModel @Inject constructor(
                         if (throwable is NullPointerException) {
                             _uiState.value = PlaceNoteDetailUiState.NotExist
                         } else {
-                            _uiState.value = PlaceNoteDetailUiState.Error(throwable.message ?: "장소노트 상세정보 조회가 실패하였습니다.")
+                            _uiState.value =
+                                PlaceNoteDetailUiState.Error(throwable.message ?: "장소노트 상세정보 조회가 실패하였습니다.")
                         }
                     }
                     .onSuccess { data ->
                         val uiItems: MutableList<PlaceNoteDetailUi> = mutableListOf()
+
                         uiItems.add(PlaceNoteDetailUi.DetailItem(data.placeNote.toUiModel()))
 
+                        if (data.purchaseNotes.isNotEmpty()) {
+                            uiItems.add(PlaceNoteDetailUi.SectionTitleItem(sectionTitle = "구매노트가 있어요!"))
+                            uiItems.add(PlaceNoteDetailUi.PurchaseNoteItem(purchaseNoteItems = data.purchaseNotes.toUiModel()))
+                        }
+
                         if (data.samePlaceNameNotes.isNotEmpty()) {
-                            uiItems.add(
-                                PlaceNoteDetailUi.SamePlaceNameItem(
-                                    sectionTitle = "다른 날에도 방문했어요!",
-                                    placeNoteItems = data.samePlaceNameNotes.toUiModel()
-                                )
-                            )
+                            uiItems.add(PlaceNoteDetailUi.SectionTitleItem(sectionTitle = "다른 날에도 방문했어요!"))
+                            uiItems.add(PlaceNoteDetailUi.SamePlaceNameItem(placeNoteItems = data.samePlaceNameNotes.toUiModel()))
                         }
 
                         _uiState.value = PlaceNoteDetailUiState.Success(

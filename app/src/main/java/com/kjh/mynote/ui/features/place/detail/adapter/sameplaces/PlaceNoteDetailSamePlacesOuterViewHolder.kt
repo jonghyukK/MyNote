@@ -1,19 +1,19 @@
-package com.kjh.mynote.ui.features.place.detail.adapter
+package com.kjh.mynote.ui.features.place.detail.adapter.sameplaces
 
 import androidx.recyclerview.widget.PagerSnapHelper
-import com.kjh.mynote.databinding.VhPlaceNoteDetailSamePlacesSectionItemBinding
+import com.kjh.mynote.databinding.VhPlaceNoteDetailSamePlacesOuterItemBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailUi
-import com.kjh.mynote.utils.SpacingItemDecoration
+import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 
 /**
  * Created by kangjonghyuk.
  * Created On 2024. 10. 24..
  * Description:
  */
-class PlaceNoteDetailSamePlaceSectionItemViewHolder(
-    private val binding: VhPlaceNoteDetailSamePlacesSectionItemBinding,
+class PlaceNoteDetailSamePlacesOuterViewHolder(
+    private val binding: VhPlaceNoteDetailSamePlacesOuterItemBinding,
     private val samePlaceItemClickAction: (PlaceNoteUiModel) -> Unit
 ): BaseViewHolder<PlaceNoteDetailUi.SamePlaceNameItem>(binding.root) {
 
@@ -35,7 +35,6 @@ class PlaceNoteDetailSamePlaceSectionItemViewHolder(
     override fun bind(item: PlaceNoteDetailUi.SamePlaceNameItem) {
         super.bind(item)
 
-        binding.tvSectionTitle.text = item.sectionTitle
         listAdapter.submitList(null)
         listAdapter.submitList(item.placeNoteItems)
     }

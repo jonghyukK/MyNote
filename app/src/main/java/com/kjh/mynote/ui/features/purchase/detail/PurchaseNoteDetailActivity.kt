@@ -18,7 +18,7 @@ import com.kjh.mynote.ui.common.dialog.DefaultDialog.MyDefaultDialogEventListene
 import com.kjh.mynote.ui.features.place.map.PlaceMapActivity
 import com.kjh.mynote.ui.features.purchase.edit.EditPurchaseNoteActivity
 import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity
-import com.kjh.mynote.utils.SpacingItemDecoration
+import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.registerStartActivityResultLauncher
 import com.kjh.mynote.utils.extensions.showToast
@@ -83,7 +83,10 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
                                 showToast(deleteEventState.errorMsg)
                             }
                             is UiState.Success -> {
-                                finish()
+                                Intent().apply {
+                                    setResult(RESULT_OK, this)
+                                    finish()
+                                }
                             }
                             else -> {}
                         }
@@ -116,6 +119,10 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
 
     private val editNoteResultLauncher = registerStartActivityResultLauncher(resultOkBlock = {
         viewModel.getPurchaseNoteById()
+
+        Intent().apply {
+            setResult(RESULT_OK, this)
+        }
     })
 
     private val imageClickAction: (String) -> Unit = { clickedImage ->

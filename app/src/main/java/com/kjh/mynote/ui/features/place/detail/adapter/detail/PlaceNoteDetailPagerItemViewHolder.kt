@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.place.detail.adapter
+package com.kjh.mynote.ui.features.place.detail.adapter.detail
 
 import com.kjh.mynote.databinding.VhPlaceNoteDetailPagerImageItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder

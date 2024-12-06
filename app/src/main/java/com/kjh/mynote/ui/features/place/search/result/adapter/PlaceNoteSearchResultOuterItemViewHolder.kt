@@ -4,7 +4,7 @@ import com.kjh.mynote.databinding.VhPlaceNoteSearchResultOuterItemBinding
 import com.kjh.mynote.model.FilteredSearchPlaceNotesUiModel
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.utils.SpacingItemDecoration
+import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.toStringWithPattern
 
 /**

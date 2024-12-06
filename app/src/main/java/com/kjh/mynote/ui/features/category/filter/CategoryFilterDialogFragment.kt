@@ -15,7 +15,7 @@ import com.kjh.mynote.databinding.DialogFragmentPurchaseNoteFilterBinding
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
 import com.kjh.mynote.ui.features.purchase.home.PurchaseHomeViewModel
-import com.kjh.mynote.utils.SpacingItemDecoration
+import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.parcelableArrayList
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import dagger.hilt.android.AndroidEntryPoint

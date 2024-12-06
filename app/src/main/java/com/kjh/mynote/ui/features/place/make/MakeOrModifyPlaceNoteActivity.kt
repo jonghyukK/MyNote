@@ -22,7 +22,7 @@ import com.kjh.mynote.ui.features.map.NaverMapSearchActivity
 import com.kjh.mynote.ui.features.place.make.adapter.TempImageListAdapter
 import com.kjh.mynote.ui.features.place.make.adapter.TempPurchaseNoteListAdapter
 import com.kjh.mynote.utils.DatePickerManager
-import com.kjh.mynote.utils.SpacingItemDecoration
+import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.hideKeyboard
 import com.kjh.mynote.utils.extensions.parcelable
