@@ -9,6 +9,7 @@ import android.widget.FrameLayout
 import com.kizitonwose.calendar.core.WeekDay
 import com.kizitonwose.calendar.core.WeekDayPosition
 import com.kizitonwose.calendar.core.atStartOfMonth
+import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
 import com.kizitonwose.calendar.core.yearMonth
 import com.kizitonwose.calendar.view.ViewContainer
@@ -17,10 +18,12 @@ import com.kjh.mynote.R
 import com.kjh.mynote.databinding.CalendarDayBinding
 import com.kjh.mynote.databinding.CommonLayoutMyWeekCalendarBinding
 import com.kjh.mynote.utils.extensions.getDrawableCompat
+import com.kjh.mynote.utils.extensions.getWeekStartAndEndDates
 import com.kjh.mynote.utils.extensions.makeInVisible
 import com.kjh.mynote.utils.extensions.makeVisible
 import com.kjh.mynote.utils.extensions.setTextColorRes
 import timber.log.Timber
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -44,10 +47,18 @@ class MyWeekCalendarView @JvmOverloads constructor(
     private var isInit = false
     private var selectedDate: LocalDate = LocalDate.now()
     private var thisMonthEventList: List<LocalDate> = emptyList()
-    private var dayClickAction: (LocalDate) -> Unit = {}
+    private var dayClickAction: ((LocalDate) -> Unit)? = null
+
+    private var isOnlyThisWeek: Boolean = false
 
     init {
+        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.MyWeekCalendarView, defStyleAttr, 0)
+
+        isOnlyThisWeek = typedArray.getBoolean(R.styleable.MyWeekCalendarView_isOnlyThisWeek, false)
+
         initWeekView()
+
+        typedArray.recycle()
     }
 
     private fun initWeekView() {
@@ -60,7 +71,7 @@ class MyWeekCalendarView @JvmOverloads constructor(
                     if (day.position != WeekDayPosition.RangeDate)
                         return@setOnClickListener
 
-                    dayClickAction.invoke(day.date)
+                    dayClickAction?.invoke(day.date)
                 }
             }
         }
@@ -84,23 +95,14 @@ class MyWeekCalendarView @JvmOverloads constructor(
     }
 
     private fun setupWeekData() = with(binding.calendarView) {
-
-        val currentMonth = selectedDate.yearMonth
-        setup(
-            currentMonth.minusMonths(0).atStartOfMonth(),
-            currentMonth.plusMonths(0).atEndOfMonth(),
-            firstDayOfWeekFromLocale(Locale.KOREAN)
-        )
+        val (startDate, endDate) = getWeekViewStartAndEndDate(selectedDate)
+        setup(startDate, endDate, getDaysOfWeek())
         scrollToDate(LocalDate.now())
     }
 
     private fun updateWeekData(newDate: LocalDate) = with (binding.calendarView) {
-        val currentMonth = YearMonth.of(newDate.year, newDate.month)
-        updateWeekData(
-            currentMonth.minusMonths(0).atStartOfMonth(),
-            currentMonth.plusMonths(0).atEndOfMonth(),
-            firstDayOfWeekFromLocale(Locale.KOREAN)
-        )
+        val (startDate, endDate) = getWeekViewStartAndEndDate(newDate)
+        updateWeekData(startDate, endDate, getDaysOfWeek())
 
         notifyCalendarChanged()
         scrollToWeek(newDate)
@@ -204,6 +206,21 @@ class MyWeekCalendarView @JvmOverloads constructor(
     fun setDayClickAction(action: (LocalDate) -> Unit) {
         dayClickAction = action
     }
+
+    private fun getWeekViewStartAndEndDate(targetDate: LocalDate): Pair<LocalDate, LocalDate> =
+        if (isOnlyThisWeek) {
+            targetDate.getWeekStartAndEndDates()
+        } else {
+            targetDate.yearMonth.minusMonths(0).atStartOfMonth() to
+                    targetDate.yearMonth.plusMonths(0).atEndOfMonth()
+        }
+
+    private fun getDaysOfWeek() =
+        if (isOnlyThisWeek) {
+            daysOfWeek(DayOfWeek.MONDAY).first()
+        } else {
+            firstDayOfWeekFromLocale(Locale.KOREAN)
+        }
 
     companion object {
         private val dayOfWeekSundayTextColor = R.color.red_500
