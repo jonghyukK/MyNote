@@ -59,4 +59,10 @@ interface PlaceNoteDao {
         endDate: Long,
         isDescending: Boolean
     ): List<PlaceNoteEntity>
+
+    @Query("""
+        SELECT * FROM places
+        WHERE visitDate BETWEEN :startDate And :endDate
+    """)
+    fun getPlaceNotesWithinDateRange(startDate: Long, endDate: Long): Flow<List<PlaceNoteEntity>>
 }

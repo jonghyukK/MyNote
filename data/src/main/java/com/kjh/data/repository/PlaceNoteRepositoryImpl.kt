@@ -117,4 +117,9 @@ class PlaceNoteRepositoryImpl @Inject constructor(
                 }
             }
     }
+
+    override fun getPlaceNotesWithinDateRange(startDate: Long, endDate: Long): Flow<List<PlaceNote>> =
+        noteLocalDataSource.getPlaceNotesWithinDateRange(startDate, endDate).map {
+            it.toDomainModel()
+        }
 }
