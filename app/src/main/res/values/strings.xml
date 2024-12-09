@@ -110,4 +110,7 @@
     <string name="sort">정렬</string>
     <string name="make_with_purchase_note">구매노트 함께 작성하기</string>
     <string name="add_purchase_note">구매노트 추가</string>
+    <string name="place_notes_written_this_week">이번 주에 작성한 장소노트</string>
+    <string name="do_show_all">전체보기</string>
+    <string name="do_more">더보기</string>
 </resources>
