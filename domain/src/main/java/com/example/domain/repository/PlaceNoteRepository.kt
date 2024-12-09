@@ -33,4 +33,6 @@ interface PlaceNoteRepository {
         endDate: Long,
         isDescending: Boolean
     ): List<FilteredSearchPlaceNotes>
+
+    fun getPlaceNotesWithinDateRange(startDate: Long, endDate: Long): Flow<List<PlaceNote>>
 }
