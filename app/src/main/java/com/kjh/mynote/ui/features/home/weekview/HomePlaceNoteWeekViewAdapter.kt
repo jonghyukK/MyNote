@@ -18,7 +18,8 @@ import java.time.LocalDate
  */
 class HomePlaceNoteWeekViewAdapter(
     private val weekDayClickAction: (LocalDate) -> Unit,
-    private val placeNoteClickAction: (PlaceNoteUiModel) -> Unit
+    private val placeNoteClickAction: (PlaceNoteUiModel) -> Unit,
+    private val makePlaceNoteClickAction: () -> Unit
 ): ListAdapter<HomeItem, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(
@@ -28,7 +29,7 @@ class HomePlaceNoteWeekViewAdapter(
         VIEW_TYPE_PLACE_NOTE_WEEK_VIEW -> HomePlaceNoteWeekViewItemViewHolder(
             VhHomePlaceNoteWeekViewBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false
-            ), weekDayClickAction, placeNoteClickAction
+            ), weekDayClickAction, placeNoteClickAction, makePlaceNoteClickAction
         )
 
         else -> throw Exception("wrong ViewType: $viewType")
@@ -67,32 +68,4 @@ class HomePlaceNoteWeekViewAdapter(
         }
     }
 
-}
-
-class HomePlaceNoteWeekViewItemViewHolder(
-    private val binding: VhHomePlaceNoteWeekViewBinding,
-    private val weekDayClickAction: (LocalDate) -> Unit,
-    private val placeNoteClickAction: (PlaceNoteUiModel) -> Unit
-): BaseViewHolder<HomeItem.HomePlaceNoteWeekView>(binding.root) {
-
-    private val innerListAdapter = HomePlaceNoteWeekViewInnerAdapter(placeNoteClickAction)
-
-    init {
-        binding.rvPlaceNotes.apply {
-            itemAnimator = null
-            adapter = innerListAdapter
-        }
-
-        binding.calendarWeekView.apply {
-            setDayClickAction(weekDayClickAction)
-        }
-    }
-
-    override fun bind(item: HomeItem.HomePlaceNoteWeekView) {
-        super.bind(item)
-
-        binding.calendarWeekView.updateSelectDayWithEventDates(item.selectedDate to item.eventDays)
-        innerListAdapter.submitList(null)
-        innerListAdapter.submitList(item.displayedPlaceNotes)
-    }
 }

@@ -7,6 +7,7 @@ import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.utils.extensions.getFirstDayOfMonth
 import com.kjh.mynote.utils.extensions.getLastDayOfMonth
+import com.kjh.mynote.utils.extensions.getWeekStartAndEndDates
 import com.kjh.mynote.utils.extensions.toMillis
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +16,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 
 /**
@@ -50,40 +53,22 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val (startDate, endDate) = getWeekStartAndDates(LocalDate.now())
-
-            Timber.tag("abc123").e("""
-                startDate: $startDate
-                endDate  : $endDate
-            """.trimIndent())
+            val (startDate, endDate) = LocalDate.now().getWeekStartAndEndDates()
 
             getPlaceNotesByDateRangeUseCase(
-                startDate = startDate,
-                endDate = endDate
+                startDate = startDate.toMillis(),
+                endDate = endDate.toMillis()
             )
                 .map { notes -> notes.toUiModel().groupBy { it.localDate } }
                 .collect { groupedPlaceNote ->
-
                     var homePlaceNoteWeekView = HomeItem.HomePlaceNoteWeekView()
 
                     val placeNotesInSelectedDay =
-                        groupedPlaceNote[homePlaceNoteWeekView.selectedDate]
-
-                    val placeNoteUiItems = if (placeNotesInSelectedDay.isNullOrEmpty()) {
-                        listOf(HomePlaceNoteUiState.Empty)
-                    } else if (placeNotesInSelectedDay.size > 3) {
-                        placeNotesInSelectedDay
-                            .take(3)
-                            .map { HomePlaceNoteUiState.PlaceNote(it) } + listOf(
-                            HomePlaceNoteUiState.More
-                        )
-                    } else {
-                        placeNotesInSelectedDay.map { HomePlaceNoteUiState.PlaceNote(it) }
-                    }
+                        groupedPlaceNote[homePlaceNoteWeekView.selectedDate] ?: emptyList()
 
                     homePlaceNoteWeekView = homePlaceNoteWeekView.copy(
                         placeNotesByDate = groupedPlaceNote,
-                        displayedPlaceNotes = placeNoteUiItems,
+                        displayedPlaceNotes = makeHomePlaceNoteUiState(placeNotesInSelectedDay),
                         eventDays = groupedPlaceNote.keys.toList()
                     )
 
@@ -91,15 +76,13 @@ class HomeViewModel @Inject constructor(
                     if (index == -1) {
                         _uiState.value = listOf(homePlaceNoteWeekView)
                     } else {
-                        val updatedList = _uiState.value.map { state ->
+                        _uiState.value = _uiState.value.map { state ->
                             if (state is HomeItem.HomePlaceNoteWeekView) {
                                 homePlaceNoteWeekView
                             } else {
                                 state
                             }
                         }
-
-                        _uiState.value = updatedList
                     }
                 }
         }
@@ -109,21 +92,10 @@ class HomeViewModel @Inject constructor(
         _uiState.update { uiState ->
             uiState.map { uiList ->
                 if (uiList is HomeItem.HomePlaceNoteWeekView) {
-                    val placeNoteItemsInSelectedDay = uiList.placeNotesByDate[newDay]
-
-                    val placeNoteUiItems = if (placeNoteItemsInSelectedDay.isNullOrEmpty()) {
-                        listOf(HomePlaceNoteUiState.Empty)
-                    } else if (placeNoteItemsInSelectedDay.size > 3) {
-                        placeNoteItemsInSelectedDay
-                            .take(3)
-                            .map { HomePlaceNoteUiState.PlaceNote(it) } + listOf(HomePlaceNoteUiState.More)
-                    } else {
-                        placeNoteItemsInSelectedDay.map { HomePlaceNoteUiState.PlaceNote(it) }
-                    }
-
+                    val placeNoteItemsInSelectedDay = uiList.placeNotesByDate[newDay] ?: emptyList()
                     uiList.copy(
                         selectedDate = newDay,
-                        displayedPlaceNotes = placeNoteUiItems
+                        displayedPlaceNotes = makeHomePlaceNoteUiState(placeNoteItemsInSelectedDay)
                     )
                 } else {
                     uiList
@@ -132,13 +104,19 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getWeekStartAndDates(today: LocalDate = LocalDate.now()): Pair<Long, Long> {
-//        val startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-//        val endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
-
-        val startOfWeek = today.getFirstDayOfMonth()
-        val endOfWeek = today.getLastDayOfMonth()
-
-        return startOfWeek.toMillis() to endOfWeek.toMillis()
+    private fun makeHomePlaceNoteUiState(
+        placeNotes: List<PlaceNoteUiModel>
+    ): List<HomePlaceNoteUiState> = when {
+        placeNotes.isEmpty() -> {
+            listOf(HomePlaceNoteUiState.Empty)
+        }
+        placeNotes.size > 3 -> {
+            placeNotes
+                .take(3)
+                .map { HomePlaceNoteUiState.PlaceNote(it) } + listOf(HomePlaceNoteUiState.More)
+        }
+        else -> {
+            placeNotes.map { HomePlaceNoteUiState.PlaceNote(it) }
+        }
     }
 }

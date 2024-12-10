@@ -18,7 +18,8 @@ import com.kjh.mynote.ui.features.home.HomePlaceNoteUiState
  * Description:
  */
 class HomePlaceNoteWeekViewInnerAdapter(
-    private val placeNoteClickAction: (PlaceNoteUiModel) -> Unit
+    private val placeNoteClickAction: (PlaceNoteUiModel) -> Unit,
+    private val makePlaceNoteClickAction: () -> Unit
 ): ListAdapter<HomePlaceNoteUiState, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
     
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder = when (viewType) {
@@ -27,7 +28,7 @@ class HomePlaceNoteWeekViewInnerAdapter(
             HomePlaceNoteWeekViewInnerEmptyItemViewHolder(
                 LayoutEmptyMyPlacesBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
-                )
+                ), makePlaceNoteClickAction
             )
         }
         // More

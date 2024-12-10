@@ -1,7 +1,6 @@
 package com.kjh.mynote.ui.common.components
 
 import android.content.Context
-import android.icu.util.LocaleData
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -17,15 +16,14 @@ import com.kizitonwose.calendar.view.WeekDayBinder
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.CalendarDayBinding
 import com.kjh.mynote.databinding.CommonLayoutMyWeekCalendarBinding
+import com.kjh.mynote.utils.extensions.addClickAnimation
 import com.kjh.mynote.utils.extensions.getDrawableCompat
 import com.kjh.mynote.utils.extensions.getWeekStartAndEndDates
 import com.kjh.mynote.utils.extensions.makeInVisible
 import com.kjh.mynote.utils.extensions.makeVisible
 import com.kjh.mynote.utils.extensions.setTextColorRes
-import timber.log.Timber
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
@@ -73,6 +71,8 @@ class MyWeekCalendarView @JvmOverloads constructor(
 
                     dayClickAction?.invoke(day.date)
                 }
+
+                view.addClickAnimation()
             }
         }
 

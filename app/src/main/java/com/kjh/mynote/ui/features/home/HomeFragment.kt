@@ -10,6 +10,7 @@ import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseFragment
 import com.kjh.mynote.ui.features.home.weekview.HomePlaceNoteWeekViewAdapter
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
+import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
 import com.kjh.mynote.utils.constants.AppConstants
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -30,7 +31,8 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>({ FragmentHomeBinding.infl
     private val placeNoteWeekViewAdapter: HomePlaceNoteWeekViewAdapter by lazy {
         HomePlaceNoteWeekViewAdapter(
             weekDayClickAction = weekDayClickAction,
-            placeNoteClickAction = placeNoteClickAction
+            placeNoteClickAction = placeNoteClickAction,
+            makePlaceNoteClickAction = makePlaceNoteClickAction
         )
     }
 
@@ -49,14 +51,6 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>({ FragmentHomeBinding.infl
 
                 launch {
                     viewModel.uiState.collect {
-                        it.map { data ->
-                            if (data is HomeItem.HomePlaceNoteWeekView) {
-                                Timber.tag("abc123").e("""
-                                    seletedDate : ${data.selectedDate}
-                                    items       : ${data.displayedPlaceNotes.size}
-                                """.trimIndent())
-                            }
-                        }
                         placeNoteWeekViewAdapter.submitList(it)
                     }
                 }
@@ -65,13 +59,18 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>({ FragmentHomeBinding.infl
     }
 
     private val weekDayClickAction: (LocalDate) -> Unit = { localDate ->
-        Timber.tag("abc123").e("WeekDay Click: $localDate")
         viewModel.changePlaceNoteWeekDay(localDate)
     }
 
     private val placeNoteClickAction: (PlaceNoteUiModel) -> Unit = { placeItem ->
         Intent(requireContext(), PlaceNoteDetailActivity::class.java).apply {
             putExtra(AppConstants.INTENT_NOTE_ID, placeItem.id)
+            startActivity(this)
+        }
+    }
+
+    private val makePlaceNoteClickAction: () -> Unit = {
+        Intent(requireContext(), MakeOrModifyPlaceNoteActivity::class.java).apply {
             startActivity(this)
         }
     }

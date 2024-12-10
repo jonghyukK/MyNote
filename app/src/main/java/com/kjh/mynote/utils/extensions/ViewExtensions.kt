@@ -1,10 +1,13 @@
 package com.kjh.mynote.utils.extensions
 
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
 import android.content.Context
 import android.content.res.ColorStateList
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
+import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.ColorRes
@@ -92,4 +95,22 @@ fun AppCompatTextView.highlightText(fullText: String, wordToHighlight: String) {
     }
 
     text = spannableString
+}
+
+fun View.addClickAnimation() {
+    setOnTouchListener { v, event ->
+        if (v.isClickable) {
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    animate().scaleX(1.1f).scaleY(1.1f).setDuration(100).start()
+
+                }
+
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    animate().scaleX(1f).scaleY(1f).setDuration(100).start()
+                }
+            }
+        }
+        false
+    }
 }
