@@ -33,7 +33,6 @@ class HomePurchaseNoteCategoryPieChartViewHolder(
 ): BaseViewHolder<HomeItem.HomePurchaseNoteCategoryPirChart>(binding.root) {
 
     private var legendViews: List<View> = emptyList()
-    private var pieDataSet: PieDataSet? = null
 
     init {
         binding.chart.apply {
@@ -54,6 +53,7 @@ class HomePurchaseNoteCategoryPieChartViewHolder(
                 }
                 override fun onNothingSelected() {
                     sliceClickAction(null)
+                    centerText = null
                 }
             })
 
@@ -71,32 +71,23 @@ class HomePurchaseNoteCategoryPieChartViewHolder(
     }
 
     private fun setupPieChart(item: HomeItem.HomePurchaseNoteCategoryPirChart) {
-        if (pieDataSet == null) {
-            pieDataSet = PieDataSet(item.pieEntries, "").apply {
-                colors = item.pieColors.map { ContextCompat.getColor(context, it) }
-                sliceSpace = 3f
-                setDrawValues(false)
-            }
+        val pieDataSet = PieDataSet(item.pieEntries, "").apply {
+            colors = item.pieColors.map { ContextCompat.getColor(context, it) }
+            sliceSpace = 3f
+            setDrawValues(false)
         }
 
-        binding.chart.centerText = item.highlightedPieEntry?.let {
-            "구매노트 ${it.value.toInt()}건"
-        }
-
-        if (binding.chart.data == null) {
-            binding.chart.data = PieData(pieDataSet)
-        } else {
-            binding.chart.invalidate()
+        with (binding) {
+            chart.centerText = item.highlightedPieEntry?.let { "구매노트 ${it.value.toInt()}건" }
+            chart.data = PieData(pieDataSet)
+            chart.isHighlightPerTapEnabled = item.categoryWithCountItems.isNotEmpty()
         }
     }
 
     private fun setupLegendViews(item: HomeItem.HomePurchaseNoteCategoryPirChart) {
-        if (binding.llLegendContainer.childCount == 0) {
-            if (legendViews.isEmpty()) {
-                legendViews = makeLegendViews(item)
-            }
-            legendViews.forEach { binding.llLegendContainer.addView(it) }
-        }
+        binding.llLegendContainer.removeAllViews()
+        legendViews = makeLegendViews(item)
+        legendViews.forEach { binding.llLegendContainer.addView(it) }
     }
 
     private fun makeLegendViews(chartItem: HomeItem.HomePurchaseNoteCategoryPirChart): List<View> {
@@ -104,17 +95,19 @@ class HomePurchaseNoteCategoryPieChartViewHolder(
             val legendBinding = LayoutHomePieChartLegendBinding.inflate(
                 LayoutInflater.from(context), binding.llLegendContainer, false)
 
-            val categoryName = chartItem.categoryWithCountItems[i].categoryName
+            val categoryName = chartItem.pieEntries[i].label
 
             with (legendBinding) {
                 tvCategoryName.text = categoryName
                 viewLegendColor.setBackgroundColor(
                     ContextCompat.getColor(context, chartItem.pieColors[i]))
 
-                root.tag = categoryName
-                root.addClickAnimation()
-                root.onThrottleClick {
-                    sliceClickAction(chartItem.pieEntries[i])
+                if (chartItem.categoryWithCountItems.isNotEmpty()) {
+                    root.tag = categoryName
+                    root.addClickAnimation()
+                    root.onThrottleClick {
+                        sliceClickAction(chartItem.pieEntries[i])
+                    }
                 }
             }
 
@@ -126,7 +119,7 @@ class HomePurchaseNoteCategoryPieChartViewHolder(
         legendViews.forEach { view ->
             val legendBinding = LayoutHomePieChartLegendBinding.bind(view)
 
-            val isHighlighted = view.tag == highlightedPieEntry?.label
+            val isHighlighted = view.tag == (highlightedPieEntry?.label ?: "")
             val typeFace = if (isHighlighted) Typeface.BOLD else Typeface.NORMAL
 
             legendBinding.tvCategoryName.setTypeface(null, typeFace)
@@ -135,6 +128,8 @@ class HomePurchaseNoteCategoryPieChartViewHolder(
         val entryIndex = binding.chart.data.dataSet.getEntryIndex(highlightedPieEntry)
         if (entryIndex >= 0) {
             binding.chart.highlightValue(entryIndex.toFloat(), 0f, 0)
+        } else {
+            binding.chart.highlightValues(arrayOf())
         }
     }
 }

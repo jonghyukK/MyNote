@@ -4,4 +4,5 @@
     <dimen name="place_detail_pager_height">400dp</dimen>
     <dimen name="toolbar_icon">44dp</dimen>
     <dimen name="dialog_side_space">80dp</dimen>
+    <dimen name="home_place_note_empty_height">120dp</dimen>
 </resources>

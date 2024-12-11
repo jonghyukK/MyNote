@@ -1,5 +1,10 @@
 package com.kjh.mynote.ui.features.home.weekview
 
+import android.view.View
+import androidx.core.view.marginTop
+import androidx.core.view.setPadding
+import androidx.core.view.updatePadding
+import com.kjh.mynote.R
 import com.kjh.mynote.databinding.LayoutEmptyMyPlacesBinding
 import com.kjh.mynote.databinding.VhHomePlaceNoteWeekViewInnerMoreItemBinding
 import com.kjh.mynote.databinding.VhHomePlaceeNoteWeekViewPlaceNoteItemBinding
@@ -67,7 +72,8 @@ class HomePlaceNoteWeekViewInnerEmptyItemViewHolder(
         super.bind(item)
 
         val layoutParams = itemView.layoutParams
-        layoutParams.height = 200.dpToPx()
+        layoutParams.height = context.resources.getDimensionPixelSize(R.dimen.home_place_note_empty_height)
+        itemView.setPadding(0, 20.dpToPx(), 0, 0)
         itemView.layoutParams = layoutParams
     }
 }
