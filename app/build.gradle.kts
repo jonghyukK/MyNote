@@ -89,6 +89,7 @@ dependencies {
     // Flexbox
     implementation(libs.flexbox)
 
-    // ColorPicker
-    implementation(libs.colorPicker)
+    // MPChart
+    implementation(libs.mpchart)
+
 }

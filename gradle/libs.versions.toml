@@ -31,7 +31,7 @@ lifecycleLivedataKtx = "2.8.6"
 calendar = "2.6.0"
 jetbrainsKotlinJvm = "1.9.0"
 flexbox = "3.0.0"
-colorPicker = "2.3"
+mpchart = "3.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -68,8 +68,7 @@ androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecy
 flexbox = { group = "com.google.android.flexbox", name = "flexbox", version.ref = "flexbox" }
 
 calendar = { group = "com.kizitonwose.calendar", name = "view", version.ref = "calendar" }
-
-colorPicker = { group = "com.github.Dhaval2404", name = "ColorPicker", version.ref = "colorPicker" }
+mpchart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpchart" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
