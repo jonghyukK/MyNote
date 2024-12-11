@@ -65,14 +65,13 @@ class MyWeekCalendarView @JvmOverloads constructor(
             lateinit var day: WeekDay
 
             init {
+                view.addClickAnimation()
                 view.setOnClickListener {
                     if (day.position != WeekDayPosition.RangeDate)
                         return@setOnClickListener
 
                     dayClickAction?.invoke(day.date)
                 }
-
-                view.addClickAnimation()
             }
         }
 

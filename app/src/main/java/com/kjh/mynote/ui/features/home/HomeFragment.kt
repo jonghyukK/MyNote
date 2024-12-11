@@ -5,16 +5,15 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.github.mikephil.charting.data.PieEntry
 import com.kjh.mynote.databinding.FragmentHomeBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseFragment
-import com.kjh.mynote.ui.features.home.weekview.HomePlaceNoteWeekViewAdapter
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
 import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
 import com.kjh.mynote.utils.constants.AppConstants
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.time.LocalDate
 
 /**
@@ -28,11 +27,12 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>({ FragmentHomeBinding.infl
 
     private val viewModel: HomeViewModel by viewModels()
 
-    private val placeNoteWeekViewAdapter: HomePlaceNoteWeekViewAdapter by lazy {
-        HomePlaceNoteWeekViewAdapter(
+    private val placeNoteWeekViewAdapter: HomeUiListAdapter by lazy {
+        HomeUiListAdapter(
             weekDayClickAction = weekDayClickAction,
             placeNoteClickAction = placeNoteClickAction,
-            makePlaceNoteClickAction = makePlaceNoteClickAction
+            makePlaceNoteClickAction = makePlaceNoteClickAction,
+            sliceClickAction = sliceClickAction
         )
     }
 
@@ -73,6 +73,10 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>({ FragmentHomeBinding.infl
         Intent(requireContext(), MakeOrModifyPlaceNoteActivity::class.java).apply {
             startActivity(this)
         }
+    }
+
+    private val sliceClickAction: (PieEntry?) -> Unit = {
+        viewModel.setHighlightPieEntry(it)
     }
 
     companion object {
