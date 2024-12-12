@@ -2,6 +2,7 @@ package com.example.domain.repository
 
 import com.example.domain.model.Category
 import com.example.domain.model.CategoryWithPurchaseNoteCount
+import com.example.domain.model.CategoryWithPurchaseNotesCountAndTotalPrice
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -24,4 +25,6 @@ interface CategoryRepository {
     suspend fun updateCategoryName(category: Category)
 
     suspend fun deleteCategoryById(id: Int)
+
+    fun getCategoriesWithPurchaseNotesCountAndTotalPrice(): Flow<List<CategoryWithPurchaseNotesCountAndTotalPrice>>
 }
