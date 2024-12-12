@@ -73,7 +73,7 @@ class HomeUiListAdapter(
                     oldItem.selectedDate == newItem.selectedDate
                 }
                 oldItem is HomeItem.HomePurchaseNoteCategoryPirChart && newItem is HomeItem.HomePurchaseNoteCategoryPirChart -> {
-                    oldItem.categoryWithCountItems == newItem.categoryWithCountItems
+                    oldItem.pieEntries == newItem.pieEntries
                 }
                 else -> false
             }

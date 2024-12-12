@@ -4,6 +4,7 @@ import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.PieData
@@ -16,10 +17,11 @@ import com.kjh.mynote.databinding.LayoutHomePieChartLegendBinding
 import com.kjh.mynote.databinding.VhHomePieChartItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.ui.features.home.HomeItem
+import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.addClickAnimation
+import com.kjh.mynote.utils.extensions.makeGone
+import com.kjh.mynote.utils.extensions.makeVisible
 import com.kjh.mynote.utils.extensions.onThrottleClick
-import com.kjh.mynote.utils.extensions.setTextColorRes
-import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.
@@ -29,8 +31,10 @@ import timber.log.Timber
 
 class HomePurchaseNoteCategoryPieChartViewHolder(
     private val binding: VhHomePieChartItemBinding,
-    private val sliceClickAction: (PieEntry?) -> Unit
+    private val sliceClickAction: (PieEntry?) -> Unit,
 ): BaseViewHolder<HomeItem.HomePurchaseNoteCategoryPirChart>(binding.root) {
+
+    private val categoryPurchaseStatsListAdapter = HomeCategoryWithPurchaseStatsListAdapter()
 
     private var legendViews: List<View> = emptyList()
 
@@ -57,8 +61,16 @@ class HomePurchaseNoteCategoryPieChartViewHolder(
                 }
             })
 
-            animateY(1200, Easing.EaseInOutCubic)
+            animateY(1000, Easing.EaseInOutCubic)
             animate()
+        }
+
+        binding.rvCategories.apply {
+            itemAnimator = null
+            adapter = categoryPurchaseStatsListAdapter
+            if (itemDecorationCount == 0) {
+                addItemDecoration(SpacingItemDecoration(top = 6))
+            }
         }
     }
 
@@ -68,6 +80,9 @@ class HomePurchaseNoteCategoryPieChartViewHolder(
         setupPieChart(item)
         setupLegendViews(item)
         updateLegendHighlight(item.highlightedPieEntry)
+
+        binding.rvCategories.isVisible = item.categoryWithStatsItems.isNotEmpty()
+        categoryPurchaseStatsListAdapter.submitList(item.categoryWithStatsItems)
     }
 
     private fun setupPieChart(item: HomeItem.HomePurchaseNoteCategoryPirChart) {
@@ -80,7 +95,7 @@ class HomePurchaseNoteCategoryPieChartViewHolder(
         with (binding) {
             chart.centerText = item.highlightedPieEntry?.let { "구매노트 ${it.value.toInt()}건" }
             chart.data = PieData(pieDataSet)
-            chart.isHighlightPerTapEnabled = item.categoryWithCountItems.isNotEmpty()
+            chart.isHighlightPerTapEnabled = item.categoryWithStatsItems.isNotEmpty()
         }
     }
 
@@ -102,7 +117,7 @@ class HomePurchaseNoteCategoryPieChartViewHolder(
                 viewLegendColor.setBackgroundColor(
                     ContextCompat.getColor(context, chartItem.pieColors[i]))
 
-                if (chartItem.categoryWithCountItems.isNotEmpty()) {
+                if (chartItem.categoryWithStatsItems.isNotEmpty()) {
                     root.tag = categoryName
                     root.addClickAnimation()
                     root.onThrottleClick {

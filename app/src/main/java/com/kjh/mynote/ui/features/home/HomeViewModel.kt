@@ -3,7 +3,8 @@ package com.kjh.mynote.ui.features.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.CategoryWithPurchaseNoteCount
-import com.example.domain.usecase.GetCategoriesWithPurchaseNoteCountUseCase
+import com.example.domain.model.CategoryWithPurchaseNotesCountAndTotalPrice
+import com.example.domain.usecase.GetCategoriesWithPurchaseNotesStatsUseCase
 import com.example.domain.usecase.GetPlaceNotesByDateRangeUseCase
 import com.github.mikephil.charting.data.PieEntry
 import com.kjh.mynote.R
@@ -44,6 +45,15 @@ sealed class HomePlaceNoteUiState {
     data class PlaceNote(val item: PlaceNoteUiModel): HomePlaceNoteUiState()
 }
 
+sealed class HomeCategoryStatsUiState {
+    data class CategoryWithStatsItem(
+        val categoryStatsItem: CategoryWithPurchaseNotesCountAndTotalPrice,
+        val colors: Int
+    ): HomeCategoryStatsUiState()
+
+    data object MoreItem: HomeCategoryStatsUiState()
+}
+
 sealed class HomeItem {
     data class HomePlaceNoteWeekView(
         val todayDate: LocalDate = LocalDate.now(),
@@ -54,7 +64,7 @@ sealed class HomeItem {
     ): HomeItem()
 
     data class HomePurchaseNoteCategoryPirChart(
-        val categoryWithCountItems: List<CategoryWithPurchaseNoteCount> = emptyList(),
+        val categoryWithStatsItems: List<HomeCategoryStatsUiState> = emptyList(),
         val pieEntries: List<PieEntry> = emptyList(),
         val pieColors: List<Int> = emptyList(),
         val highlightedPieEntry: PieEntry? = null
@@ -64,7 +74,7 @@ sealed class HomeItem {
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getPlaceNotesByDateRangeUseCase: GetPlaceNotesByDateRangeUseCase,
-    private val getCategoriesWithPurchaseNoteCountUseCase: GetCategoriesWithPurchaseNoteCountUseCase
+    private val getCategoriesWithPurchaseNotesStatsUseCase: GetCategoriesWithPurchaseNotesStatsUseCase
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -90,17 +100,31 @@ class HomeViewModel @Inject constructor(
             )
 
     private val categoryChartFlow =
-        getCategoriesWithPurchaseNoteCountUseCase()
-            .map { categoriesWithCount ->
-                val categoryItems = categoriesWithCount
+        getCategoriesWithPurchaseNotesStatsUseCase()
+            .map { results ->
+                val filteredCategoryItems = results
                     .filter { it.purchaseNoteCount > 0 }
                     .sortedByDescending { it.purchaseNoteCount }
-                    .take(5)
+
+                val top5Items = filteredCategoryItems.take(5)
+                val pieColors = makePieColors(top5Items.size)
+
+                val categoryWithStatsItems: MutableList<HomeCategoryStatsUiState> =
+                    top5Items.mapIndexed { index, categoryWithCount ->
+                        HomeCategoryStatsUiState.CategoryWithStatsItem(
+                            categoryStatsItem = categoryWithCount,
+                            colors = pieColors[index]
+                        )
+                    }.toMutableList()
+
+                if (filteredCategoryItems.size > 5) {
+                    categoryWithStatsItems.add(HomeCategoryStatsUiState.MoreItem)
+                }
 
                 HomeItem.HomePurchaseNoteCategoryPirChart(
-                    categoryWithCountItems = categoryItems,
-                    pieEntries = makePieEntry(categoryItems),
-                    pieColors = makePieColors(categoryItems.size)
+                    categoryWithStatsItems = categoryWithStatsItems,
+                    pieEntries = makePieEntry(top5Items),
+                    pieColors = pieColors
                 )
             }
             .stateIn(
@@ -177,12 +201,12 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun makePieEntry(categoryWithCountItems: List<CategoryWithPurchaseNoteCount>): List<PieEntry> {
-        if (categoryWithCountItems.isEmpty()) {
+    private fun makePieEntry(categoryWithPurchaseNotesStatsItem: List<CategoryWithPurchaseNotesCountAndTotalPrice>): List<PieEntry> {
+        if (categoryWithPurchaseNotesStatsItem.isEmpty()) {
             return listOf(PieEntry(1f, "없음"))
         }
 
-        return categoryWithCountItems.map { data ->
+        return categoryWithPurchaseNotesStatsItem.map { data ->
             PieEntry(data.purchaseNoteCount.toFloat(), data.categoryName)
         }
     }

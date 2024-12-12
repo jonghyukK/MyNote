@@ -10,7 +10,7 @@
         android:id="@+id/tv_section_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="이번 달에 작성한 구매노트 카테고리"
+        android:text="이번 달에 작성한 구매노트 카테고리 비율"
         android:layout_marginStart="20dp"
         android:layout_marginTop="28dp"
         android:textSize="17sp"
@@ -57,6 +57,17 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toTopOf="@+id/gl_bottom" />
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_categories"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:clipToPadding="false"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintTop_toBottomOf="@+id/gl_bottom"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/gl_guideline"
                 android:layout_width="wrap_content"
@@ -69,7 +80,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                app:layout_constraintGuide_end="0dp" />
+                app:layout_constraintGuide_begin="200dp" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

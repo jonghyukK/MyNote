@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:paddingHorizontal="20dp">
+
+    <View
+        android:id="@+id/v_color"
+        android:layout_width="8dp"
+        android:layout_height="20dp"
+        android:background="@color/red_500"
+        app:layout_constraintTop_toTopOf="@+id/tv_category_name"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_category_name"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_category_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingStart="0dp"
+        android:paddingEnd="4dp"
+        android:textColor="@color/black_800"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toTopOf="@+id/tv_count"
+        app:layout_constraintEnd_toStartOf="@+id/gl_guideline"
+        app:layout_constraintStart_toEndOf="@+id/v_color"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="편의점" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_count"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/black_500"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/tv_category_name"
+        app:layout_constraintTop_toBottomOf="@+id/tv_category_name"
+        tools:text="구매노트 3건" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_total_price"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:textColor="@color/black_900"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/gl_guideline"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="2,000원" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/black_100"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gl_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.7" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+

@@ -22,7 +22,7 @@ class MainActivity: BaseActivity<ActivityMainBinding>({ ActivityMainBinding.infl
     override fun onInitView() {
         with (binding) {
             bnvMain.setOnItemSelectedListener(bnvOnItemSelectedListener)
-            bnvMain.selectedItemId = R.id.nav_place
+            bnvMain.selectedItemId = R.id.nav_home
         }
     }
 
