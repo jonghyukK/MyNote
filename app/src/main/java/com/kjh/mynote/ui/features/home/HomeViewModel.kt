@@ -2,7 +2,6 @@ package com.kjh.mynote.ui.features.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.domain.model.CategoryWithPurchaseNoteCount
 import com.example.domain.model.CategoryWithPurchaseNotesCountAndTotalPrice
 import com.example.domain.usecase.GetCategoriesWithPurchaseNotesStatsUseCase
 import com.example.domain.usecase.GetPlaceNotesByDateRangeUseCase

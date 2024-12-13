@@ -41,7 +41,6 @@ class HomePlaceNoteWeekViewItemViewHolder(
         binding.calendarWeekView.updateSelectDayWithEventDates(
             item.selectedDate to item.eventDays)
 
-        innerListAdapter.submitList(null)
         innerListAdapter.submitList(item.displayedPlaceNotes)
     }
 }

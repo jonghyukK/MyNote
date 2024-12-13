@@ -11,6 +11,7 @@ import com.kjh.mynote.databinding.VhHomePlaceNoteWeekViewBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.features.home.piechart.HomePurchaseNoteCategoryPieChartViewHolder
 import com.kjh.mynote.ui.features.home.weekview.HomePlaceNoteWeekViewItemViewHolder
+import timber.log.Timber
 import java.time.LocalDate
 
 /**
@@ -28,20 +29,26 @@ class HomeUiListAdapter(
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int,
-    ) = when (viewType) {
-        VIEW_TYPE_PLACE_NOTE_WEEK_VIEW -> HomePlaceNoteWeekViewItemViewHolder(
-            VhHomePlaceNoteWeekViewBinding.inflate(
-                LayoutInflater.from(parent.context), parent, false
-            ), weekDayClickAction, placeNoteClickAction, makePlaceNoteClickAction
-        )
+    ): RecyclerView.ViewHolder {
+        return when (viewType) {
+            VIEW_TYPE_PLACE_NOTE_WEEK_VIEW -> {
+                HomePlaceNoteWeekViewItemViewHolder(
+                    VhHomePlaceNoteWeekViewBinding.inflate(
+                        LayoutInflater.from(parent.context), parent, false
+                    ), weekDayClickAction, placeNoteClickAction, makePlaceNoteClickAction
+                )
+            }
 
-        VIEW_TYPE_CATEGORY_PIE_CHART -> HomePurchaseNoteCategoryPieChartViewHolder(
-            VhHomePieChartItemBinding.inflate(
-                LayoutInflater.from(parent.context), parent, false
-            ), sliceClickAction
-        )
+            VIEW_TYPE_CATEGORY_PIE_CHART -> {
+                HomePurchaseNoteCategoryPieChartViewHolder(
+                    VhHomePieChartItemBinding.inflate(
+                        LayoutInflater.from(parent.context), parent, false
+                    ), sliceClickAction
+                )
+            }
 
-        else -> throw Exception("wrong ViewType: $viewType")
+            else -> throw Exception("wrong ViewType: $viewType")
+        }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -70,7 +77,7 @@ class HomeUiListAdapter(
                 newItem: HomeItem,
             ): Boolean = when {
                 oldItem is HomeItem.HomePlaceNoteWeekView && newItem is HomeItem.HomePlaceNoteWeekView -> {
-                    oldItem.selectedDate == newItem.selectedDate
+                    true
                 }
                 oldItem is HomeItem.HomePurchaseNoteCategoryPirChart && newItem is HomeItem.HomePurchaseNoteCategoryPirChart -> {
                     oldItem.pieEntries == newItem.pieEntries
@@ -81,7 +88,9 @@ class HomeUiListAdapter(
             override fun areContentsTheSame(
                 oldItem: HomeItem,
                 newItem: HomeItem,
-            ): Boolean = oldItem == newItem
+            ): Boolean {
+                return oldItem == newItem
+            }
         }
     }
 
