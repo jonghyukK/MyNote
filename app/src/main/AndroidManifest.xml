@@ -51,6 +51,8 @@
         <activity android:name=".ui.features.purchase.detail.PurchaseNoteDetailActivity" />
         <activity android:name=".ui.features.purchase.edit.EditPurchaseNoteActivity" />
         <activity android:name=".ui.features.purchase.search.PurchaseNoteSearchActivity" />
+
+        <activity android:name=".ui.features.category.purchasestats.CategoryPurchaseNoteStatsActivity" />
     </application>
 
 </manifest>
