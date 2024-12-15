@@ -34,10 +34,7 @@ class CategoryListAdapter(
             override fun areItemsTheSame(
                 oldItem: CategoryListItem,
                 newItem: CategoryListItem
-            ): Boolean =
-                oldItem.isSelected == newItem.isSelected
-                        && oldItem.categoryItem.id == newItem.categoryItem.id
-                        && oldItem.categoryItem.purchaseNoteCount == newItem.categoryItem.purchaseNoteCount
+            ): Boolean = oldItem.categoryItem.id == newItem.categoryItem.id
 
             override fun areContentsTheSame(
                 oldItem: CategoryListItem,

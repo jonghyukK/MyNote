@@ -2,6 +2,7 @@ package com.kjh.mynote.ui.features.category.list
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -45,18 +46,10 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
 
     private var categoryEditDialog: DialogFragment? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        arguments?.let {
-            val selectedCategoryItem = it.parcelable<CategoryUiModel>(AppConstants.INTENT_CATEGORY_ITEM)
-            viewModel.setSelectedCategoryItem(selectedCategoryItem)
-        }
-    }
-
     override fun onInitView() {
         with (binding) {
             rvCategories.apply {
+                itemAnimator = null
                 adapter = listAdapter
             }
 
@@ -67,6 +60,12 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
     override fun onInitData() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.isEditable.collect { isEditable ->
+                        binding.ivAddCategory.isVisible = isEditable
+                    }
+                }
+
                 launch {
                     viewModel.uiState.collect { categoryItems ->
                         listAdapter.submitList(categoryItems)
@@ -152,14 +151,17 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
 
     companion object {
         const val TAG = "CategoryListBSDialog"
+        const val ARG_BOOL_IS_EDITABLE = "ARG_BOOL_IS_EDITABLE"
 
         fun newInstance(
+            isEditable: Boolean = true,
             selectedCategoryItem: CategoryUiModel?,
             selectCategoryAction: (CategoryUiModel) -> Unit,
-            updateCategoryNameAction: (CategoryUiModel) -> Unit,
-            deleteCategoryAction: (Int) -> Unit
+            updateCategoryNameAction: (CategoryUiModel) -> Unit = {},
+            deleteCategoryAction: (Int) -> Unit = {}
         ) = CategoryListBSDialog().apply {
             arguments = Bundle().apply {
+                putBoolean(ARG_BOOL_IS_EDITABLE, isEditable)
                 putParcelable(AppConstants.INTENT_CATEGORY_ITEM, selectedCategoryItem)
             }
 
@@ -168,5 +170,4 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
             this.deleteCategoryAction = deleteCategoryAction
         }
     }
-
 }

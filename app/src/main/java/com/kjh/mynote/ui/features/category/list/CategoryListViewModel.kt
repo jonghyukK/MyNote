@@ -1,5 +1,6 @@
 package com.kjh.mynote.ui.features.category.list
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.Category
@@ -14,6 +15,7 @@ import com.example.domain.usecase.UpdateCategoryNameUseCase
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.model.toDomainModel
+import com.kjh.mynote.utils.constants.AppConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,6 +37,7 @@ import javax.inject.Inject
 data class CategoryListItem(
     val isSelected: Boolean = false,
     val isDefaultCategory: Boolean = false,
+    val isEditable: Boolean = true,
     val categoryItem: CategoryUiModel
 )
 
@@ -43,10 +46,14 @@ class CategoryListViewModel @Inject constructor(
     private val getCategoriesWithPurchaseNoteCountUseCase: GetCategoriesWithPurchaseNoteCountUseCase,
     private val makeCategoryUseCase: MakeCategoryUseCase,
     private val updateCategoryNameUseCase: UpdateCategoryNameUseCase,
-    private val deleteCategoryAndAssignToETCUseCase: DeleteCategoryAndAssignToETCUseCase
+    private val deleteCategoryAndAssignToETCUseCase: DeleteCategoryAndAssignToETCUseCase,
+    private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
-    private val _selectedCategoryItem = MutableStateFlow<CategoryUiModel?>(null)
+    private val _isEditable = MutableStateFlow(savedStateHandle[CategoryListBSDialog.ARG_BOOL_IS_EDITABLE] ?: true)
+    val isEditable = _isEditable.asSharedFlow()
+
+    private val _selectedCategoryItem = MutableStateFlow<CategoryUiModel?>(savedStateHandle[AppConstants.INTENT_CATEGORY_ITEM])
 
     private val _makeCategoryEventState = MutableSharedFlow<UiState<Unit>>()
     val makeCategoryEventState = _makeCategoryEventState.asSharedFlow()
@@ -78,6 +85,7 @@ class CategoryListViewModel @Inject constructor(
             CategoryListItem(
                 isSelected = category.id == selectedItem?.id,
                 isDefaultCategory = category.id == 999,
+                isEditable = _isEditable.value,
                 categoryItem = category
             )
         }
@@ -86,10 +94,6 @@ class CategoryListViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000),
         emptyList()
     )
-
-    fun setSelectedCategoryItem(categoryItem: CategoryUiModel?) {
-        _selectedCategoryItem.value = categoryItem
-    }
 
     fun makeCategory(categoryName: String) {
         viewModelScope.launch {

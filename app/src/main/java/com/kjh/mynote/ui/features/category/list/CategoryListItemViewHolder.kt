@@ -49,8 +49,9 @@ class CategoryListItemViewHolder(
             }
 
             tvCount.text = item.categoryItem.purchaseNoteCount.toString()
-            ivEdit.isVisible = !item.isDefaultCategory
-            ivDelete.isVisible = !item.isDefaultCategory
+
+            ivEdit.isVisible = !item.isDefaultCategory || item.isEditable
+            ivDelete.isVisible = !item.isDefaultCategory || item.isEditable
         }
     }
 }
