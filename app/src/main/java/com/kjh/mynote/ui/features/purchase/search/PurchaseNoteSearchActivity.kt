@@ -23,7 +23,7 @@ import com.kjh.mynote.ui.features.purchase.search.filters.date.PurchaseNoteDateP
 import com.kjh.mynote.ui.features.purchase.search.filters.price.PurchaseNotePriceFilterBSDialog
 import com.kjh.mynote.ui.features.purchase.search.filters.purchasename.PurchaseNotePurchaseNameBSDialog
 import com.kjh.mynote.ui.features.purchase.search.filters.whole.PurchaseNoteSearchWholeFilterBSDialog
-import com.kjh.mynote.utils.decorations.PurchaseNoteSearchItemDecoration
+import com.kjh.mynote.utils.decorations.PurchaseNotesUiStateItemDecoration
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
@@ -85,7 +85,7 @@ class PurchaseNoteSearchActivity :
 
             rvSearchResults.apply {
                 itemAnimator = null
-                addItemDecoration(PurchaseNoteSearchItemDecoration())
+                addItemDecoration(PurchaseNotesUiStateItemDecoration())
                 adapter = resultListAdapter
             }
 
