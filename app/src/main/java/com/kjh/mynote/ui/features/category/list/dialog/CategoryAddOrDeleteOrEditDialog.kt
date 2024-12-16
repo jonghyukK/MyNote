@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.category.list
+package com.kjh.mynote.ui.features.category.list.dialog
 
 import android.os.Bundle
 import android.os.Parcelable
@@ -8,6 +8,7 @@ import com.kjh.mynote.R
 import com.kjh.mynote.databinding.DialogAddOrDeleteOrEditCategoryBinding
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.ui.base.BaseDialogFragment
+import com.kjh.mynote.ui.features.category.list.CategoryListViewModel
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.showToast

@@ -8,13 +8,14 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.kjh.mynote.R
 import com.kjh.mynote.databinding.BsdCategoryListDialogBinding
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
+import com.kjh.mynote.ui.features.category.list.adapter.CategoryListAdapter
+import com.kjh.mynote.ui.features.category.list.dialog.CategoryAddOrDeleteOrEditDialog
+import com.kjh.mynote.ui.features.category.list.dialog.CategoryDialogType
 import com.kjh.mynote.utils.constants.AppConstants
-import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
