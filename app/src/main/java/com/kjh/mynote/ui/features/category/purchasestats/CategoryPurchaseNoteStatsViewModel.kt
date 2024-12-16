@@ -5,6 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.Result
 import com.example.domain.model.SortType
+import com.example.domain.model.onError
+import com.example.domain.model.onLoading
+import com.example.domain.model.onSuccess
 import com.example.domain.usecase.GetFilteredSearchPurchaseNotesUseCase
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.toUiModel
@@ -72,22 +75,20 @@ class CategoryPurchaseNoteStatsViewModel @Inject constructor(
                 categoryIds = listOf(categoryId),
                 sortType = SortType.LATEST
             ).collect { result ->
-                when (result) {
-                    is Result.Loading -> {
+                result
+                    .onLoading {
                         _uiState.update {
-                            it.copy(
-                                isLoading = true
-                            )
+                            it.copy(isLoading = true)
                         }
                     }
-                    is Result.Error -> {
+                    .onError { error ->
                         _uiState.value = CategoryPurchaseNoteStatsUiState(
                             isLoading = false,
-                            errorMsg = result.msg ?: "구매노트 목록 조회가 실패하였습니다."
+                            errorMsg = error.message ?: "구매노트 목록 조회가 실패하였습니다."
                         )
                     }
-                    is Result.Success -> {
-                        val resultItems = result.data?.toUiModel() ?: emptyList()
+                    .onSuccess { data ->
+                        val resultItems = data.toUiModel()
 
                         when {
                             resultItems.isEmpty() -> {
@@ -117,7 +118,6 @@ class CategoryPurchaseNoteStatsViewModel @Inject constructor(
                             }
                         }
                     }
-                }
             }
         }
     }

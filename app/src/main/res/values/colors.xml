@@ -2,6 +2,12 @@
 <resources>
     <color name="white">#FFFFFFFF</color>
 
+    <color name="pie_color_1">#EF476F</color>
+    <color name="pie_color_2">#F78C6B</color>
+    <color name="pie_color_3">#FFD166</color>
+    <color name="pie_color_4">#06D6A0</color>
+    <color name="pie_color_5">#118AB2</color>
+
     <color name="colorPrimary">#6750A4</color>
     <color name="colorOnPrimary">#FFFFFF</color>
     <color name="colorPrimaryContainer">#EADDFF</color>
