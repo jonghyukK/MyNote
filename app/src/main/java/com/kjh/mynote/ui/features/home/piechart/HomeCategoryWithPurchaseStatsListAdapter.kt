@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.domain.model.CategoryWithPurchaseNotesCountAndTotalPrice
 import com.kjh.mynote.databinding.VhHomeCategoryPutchaseStatsItemBinding
 import com.kjh.mynote.databinding.VhHomePlaceNoteWeekViewInnerMoreItemBinding
 import com.kjh.mynote.ui.features.home.HomeCategoryStatsUiState
@@ -16,7 +17,7 @@ import com.kjh.mynote.ui.features.home.weekview.HomePlaceNoteWeekViewInnerMoreIt
  * Description:
  */
 class HomeCategoryWithPurchaseStatsListAdapter(
-
+    private val categoryStatsItemClickAction: (CategoryWithPurchaseNotesCountAndTotalPrice) -> Unit
 ) : ListAdapter<HomeCategoryStatsUiState, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(
@@ -27,7 +28,7 @@ class HomeCategoryWithPurchaseStatsListAdapter(
             HomeCategoryWithPurchaseStatsItemViewHolder(
                 VhHomeCategoryPutchaseStatsItemBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
-                )
+                ), categoryStatsItemClickAction
             )
         }
         VIEW_TYPE_MORE -> {

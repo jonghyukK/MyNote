@@ -1,6 +1,7 @@
 package com.kjh.mynote.ui.features.home.piechart
 
 import androidx.core.content.ContextCompat
+import com.example.domain.model.CategoryWithPurchaseNotesCountAndTotalPrice
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhHomeCategoryPutchaseStatsItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
@@ -15,13 +16,14 @@ import com.kjh.mynote.utils.extensions.toComma
  * Description:
  */
 class HomeCategoryWithPurchaseStatsItemViewHolder(
-    private val binding: VhHomeCategoryPutchaseStatsItemBinding
+    private val binding: VhHomeCategoryPutchaseStatsItemBinding,
+    private val categoryStatsItemClickAction: (CategoryWithPurchaseNotesCountAndTotalPrice) -> Unit
 ): BaseViewHolder<HomeCategoryStatsUiState.CategoryWithStatsItem>(binding.root) {
 
     init {
         itemView.addClickAnimation()
         itemView.onThrottleClick {
-
+            bindItem?.let { item -> categoryStatsItemClickAction(item.categoryStatsItem) }
         }
     }
 

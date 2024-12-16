@@ -80,67 +80,67 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
-        <!-- Count, Sort, Filter Btn Layout -->
-        <include
-            android:id="@+id/layout_filter_info_section"
-            layout="@layout/layout_count_and_sort_and_filter_section" />
+<!--        &lt;!&ndash; Count, Sort, Filter Btn Layout &ndash;&gt;-->
+<!--        <include-->
+<!--            android:id="@+id/layout_filter_info_section"-->
+<!--            layout="@layout/layout_count_and_sort_and_filter_section" />-->
 
-        <!-- Selected Filters Layout -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_selected_filters"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@color/white"
-            app:layout_scrollFlags="scroll|enterAlwaysCollapsed">
+<!--        &lt;!&ndash; Selected Filters Layout &ndash;&gt;-->
+<!--        <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--            android:id="@+id/cl_selected_filters"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="48dp"-->
+<!--            android:background="@color/white"-->
+<!--            app:layout_scrollFlags="scroll|enterAlwaysCollapsed">-->
 
-            <View
-                android:id="@+id/divider_selected_filters_top"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:background="@color/black_50"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+<!--            <View-->
+<!--                android:id="@+id/divider_selected_filters_top"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="1dp"-->
+<!--                android:background="@color/black_50"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent" />-->
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_selected_filters"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:paddingStart="20dp"
-                android:paddingEnd="0dp"
-                android:clipToPadding="false"
-                android:orientation="horizontal"
-                android:nestedScrollingEnabled="false"
-                android:background="@color/white"
-                android:overScrollMode="never"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/iv_reset"
-                app:layout_constraintBottom_toBottomOf="parent"
-                tools:listitem="@layout/vh_purchase_note_search_selected_filter_item"/>
+<!--            <androidx.recyclerview.widget.RecyclerView-->
+<!--                android:id="@+id/rv_selected_filters"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:paddingStart="20dp"-->
+<!--                android:paddingEnd="0dp"-->
+<!--                android:clipToPadding="false"-->
+<!--                android:orientation="horizontal"-->
+<!--                android:nestedScrollingEnabled="false"-->
+<!--                android:background="@color/white"-->
+<!--                android:overScrollMode="never"-->
+<!--                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintEnd_toStartOf="@+id/iv_reset"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                tools:listitem="@layout/vh_purchase_note_search_selected_filter_item"/>-->
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/iv_reset"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_marginEnd="8dp"
-                android:padding="7dp"
-                app:srcCompat="@drawable/ic_reset_24"
-                app:tint="@color/colorPrimary"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+<!--            <androidx.appcompat.widget.AppCompatImageView-->
+<!--                android:id="@+id/iv_reset"-->
+<!--                android:layout_width="44dp"-->
+<!--                android:layout_height="44dp"-->
+<!--                android:layout_marginEnd="8dp"-->
+<!--                android:padding="7dp"-->
+<!--                app:srcCompat="@drawable/ic_reset_24"-->
+<!--                app:tint="@color/colorPrimary"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent" />-->
 
-            <View
-                android:id="@+id/divider_selected_filters_bottom"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:background="@color/black_50"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+<!--            <View-->
+<!--                android:id="@+id/divider_selected_filters_bottom"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="1dp"-->
+<!--                android:background="@color/black_50"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent" />-->
+<!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -152,4 +152,12 @@
         android:clipToPadding="false"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+    <include
+        android:id="@+id/layout_empty"
+        layout="@layout/layout_empty_my_purchases"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
