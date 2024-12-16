@@ -1,7 +1,5 @@
 package com.kjh.mynote.utils.extensions
 
-import android.animation.ObjectAnimator
-import android.animation.PropertyValuesHolder
 import android.content.Context
 import android.content.res.ColorStateList
 import android.text.Spannable
@@ -102,8 +100,7 @@ fun View.addClickAnimation() {
         if (v.isClickable) {
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    animate().scaleX(1.1f).scaleY(1.1f).setDuration(100).start()
-
+                    animate().scaleX(1.05f).scaleY(1.05f).setDuration(100).start()
                 }
 
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
