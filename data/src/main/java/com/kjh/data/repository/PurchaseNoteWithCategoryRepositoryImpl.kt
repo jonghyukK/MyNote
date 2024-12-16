@@ -1,7 +1,6 @@
 package com.kjh.data.repository
 
 import androidx.room.withTransaction
-import com.example.domain.model.CategoryWithPurchaseDetails
 import com.example.domain.repository.PurchaseNoteWithCategoryRepository
 import com.kjh.data.db.NoteDataBase
 import com.kjh.data.source.local.CategoryDao
@@ -23,20 +22,6 @@ class PurchaseNoteWithCategoryRepositoryImpl @Inject constructor(
         database.withTransaction {
             purchaseNoteLocalDataSource.updateCategoryIdForPurchaseNote(999, categoryId)
             categoryLocalDataSource.deleteCategoryById(categoryId)
-        }
-    }
-
-    override suspend fun getCategoryWithPurchaseDetails(): List<CategoryWithPurchaseDetails> {
-        val categoryCounts = categoryLocalDataSource.getCategoryPurchaseCounts()
-
-        return categoryCounts.map { category ->
-            val purchaseDetails = categoryLocalDataSource.getPurchaseDetailsByCategory(category.categoryId)
-            CategoryWithPurchaseDetails(
-                categoryId = category.categoryId,
-                categoryName = category.categoryName,
-                purchaseNoteCount = category.purchaseNoteCount,
-                purchaseDetails = purchaseDetails
-            )
         }
     }
 }
