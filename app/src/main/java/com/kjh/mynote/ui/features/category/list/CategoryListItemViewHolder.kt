@@ -42,16 +42,17 @@ class CategoryListItemViewHolder(
 
             if (item.isSelected) {
                 ivChecked.isVisible = true
-                tvCategoryName.setTextColorRes(R.color.purple)
+                tvCategoryName.setTextColorRes(R.color.colorPrimary)
             } else {
                 ivChecked.isVisible = false
-                tvCategoryName.setTextColorRes(R.color.black_700)
+                tvCategoryName.setTextColorRes(R.color.black_900)
             }
 
+            tvCount.isVisible = item.isEditable
             tvCount.text = item.categoryItem.purchaseNoteCount.toString()
 
-            ivEdit.isVisible = !item.isDefaultCategory || item.isEditable
-            ivDelete.isVisible = !item.isDefaultCategory || item.isEditable
+            ivEdit.isVisible = !item.isDefaultCategory && item.isEditable
+            ivDelete.isVisible = !item.isDefaultCategory && item.isEditable
         }
     }
 }

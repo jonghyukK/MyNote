@@ -9,7 +9,9 @@ import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhPurchaseNoteSearchResultDateItemBinding
 import com.kjh.mynote.databinding.VhPurchaseNoteSearchResultItemBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
-import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchResultItem
+import com.kjh.mynote.ui.common.uistate.PurchaseNotesUiState
+import com.kjh.mynote.ui.common.vh.PurchaseNoteDateItemViewHolder
+import com.kjh.mynote.ui.common.vh.PurchaseNoteItemViewHolder
 
 /**
  * Created by kangjonghyuk.
@@ -18,7 +20,7 @@ import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchResultItem
  */
 class PurchaseNoteSearchResultListAdapter(
     private val purchaseNoteItemClickAction: (PurchaseNoteUiModel) -> Unit
-): ListAdapter<PurchaseNoteSearchResultItem, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
+): ListAdapter<PurchaseNotesUiState, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -26,7 +28,7 @@ class PurchaseNoteSearchResultListAdapter(
     ) = when (viewType) {
         // 날짜 아이템.
         R.layout.vh_purchase_note_search_result_date_item -> {
-            PurchaseNoteSearchDateItemViewHolder(
+            PurchaseNoteDateItemViewHolder(
                 VhPurchaseNoteSearchResultDateItemBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
                 )
@@ -34,7 +36,7 @@ class PurchaseNoteSearchResultListAdapter(
         }
         // 결과 아이템.
         R.layout.vh_purchase_note_search_result_item -> {
-            PurchaseNoteSearchResultItemViewHolder(
+            PurchaseNoteItemViewHolder(
                 VhPurchaseNoteSearchResultItemBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
                 ), purchaseNoteItemClickAction
@@ -49,42 +51,42 @@ class PurchaseNoteSearchResultListAdapter(
         position: Int
     ) {
         when (val item = getItem(position)) {
-            is PurchaseNoteSearchResultItem.ResultItem -> {
-                (holder as PurchaseNoteSearchResultItemViewHolder).bind(item)
+            is PurchaseNotesUiState.PurchaseNoteItem -> {
+                (holder as PurchaseNoteItemViewHolder).bind(item.purchaseNote)
             }
-            is PurchaseNoteSearchResultItem.DateItem -> {
-                (holder as PurchaseNoteSearchDateItemViewHolder).bind(item)
+            is PurchaseNotesUiState.DateItem -> {
+                (holder as PurchaseNoteDateItemViewHolder).bind(item.date)
             }
         }
     }
 
     override fun getItemViewType(position: Int) = when (getItem(position)) {
-        is PurchaseNoteSearchResultItem.DateItem -> R.layout.vh_purchase_note_search_result_date_item
-        is PurchaseNoteSearchResultItem.ResultItem -> R.layout.vh_purchase_note_search_result_item
+        is PurchaseNotesUiState.DateItem -> R.layout.vh_purchase_note_search_result_date_item
+        is PurchaseNotesUiState.PurchaseNoteItem -> R.layout.vh_purchase_note_search_result_item
     }
 
     companion object {
         private val UI_MODEL_COMPARATOR =
-            object : DiffUtil.ItemCallback<PurchaseNoteSearchResultItem>() {
+            object : DiffUtil.ItemCallback<PurchaseNotesUiState>() {
                 override fun areItemsTheSame(
-                    oldItem: PurchaseNoteSearchResultItem,
-                    newItem: PurchaseNoteSearchResultItem
+                    oldItem: PurchaseNotesUiState,
+                    newItem: PurchaseNotesUiState
                 ): Boolean = when {
-                        oldItem is PurchaseNoteSearchResultItem.DateItem
-                                && newItem is PurchaseNoteSearchResultItem.DateItem -> {
+                        oldItem is PurchaseNotesUiState.DateItem
+                                && newItem is PurchaseNotesUiState.DateItem -> {
                             oldItem.date == newItem.date
                         }
 
-                        oldItem is PurchaseNoteSearchResultItem.ResultItem
-                                && newItem is PurchaseNoteSearchResultItem.ResultItem -> {
-                            oldItem.purchaseNoteItem.id == newItem.purchaseNoteItem.id
+                        oldItem is PurchaseNotesUiState.PurchaseNoteItem
+                                && newItem is PurchaseNotesUiState.PurchaseNoteItem -> {
+                            oldItem.purchaseNote.id == newItem.purchaseNote.id
                         }
                         else -> false
                     }
 
                 override fun areContentsTheSame(
-                    oldItem: PurchaseNoteSearchResultItem,
-                    newItem: PurchaseNoteSearchResultItem
+                    oldItem: PurchaseNotesUiState,
+                    newItem: PurchaseNotesUiState
                 ): Boolean = oldItem == newItem
             }
     }

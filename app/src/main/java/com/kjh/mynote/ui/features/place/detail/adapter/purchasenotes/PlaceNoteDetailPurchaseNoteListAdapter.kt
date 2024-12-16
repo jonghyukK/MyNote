@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.kjh.mynote.databinding.VhPurchaseNoteSearchResultItemBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
+import com.kjh.mynote.ui.common.vh.PurchaseNoteItemViewHolder
 
 /**
  * Created by kangjonghyuk.
@@ -14,19 +15,19 @@ import com.kjh.mynote.model.PurchaseNoteUiModel
  */
 class PlaceNoteDetailPurchaseNoteListAdapter(
     private val purchaseNoteItemClickAction: (PurchaseNoteUiModel) -> Unit
-): ListAdapter<PurchaseNoteUiModel, PlaceNoteDetailPurchaseNoteItemViewHolder>(UI_MODEL_COMPARATOR) {
+): ListAdapter<PurchaseNoteUiModel, PurchaseNoteItemViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int,
-    ) = PlaceNoteDetailPurchaseNoteItemViewHolder(
+    ) = PurchaseNoteItemViewHolder(
         VhPurchaseNoteSearchResultItemBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         ), purchaseNoteItemClickAction
     )
 
     override fun onBindViewHolder(
-        holder: PlaceNoteDetailPurchaseNoteItemViewHolder,
+        holder: PurchaseNoteItemViewHolder,
         position: Int,
     ) {
         holder.bind(getItem(position))

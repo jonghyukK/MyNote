@@ -8,8 +8,8 @@ import com.example.domain.model.SortType
 import com.example.domain.usecase.GetFilteredSearchPurchaseNotesUseCase
 import com.example.domain.usecase.GetPurchaseNoteSearchFilterInfoUseCase
 import com.kjh.mynote.model.CategoryUiModel
-import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.model.toUiModel
+import com.kjh.mynote.ui.common.uistate.PurchaseNotesUiState
 import com.kjh.mynote.ui.features.place.search.result.DateRangeFilter
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.getFirstDayOfMonth
@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -69,16 +68,11 @@ sealed class Filters {
     }
 }
 
-sealed class PurchaseNoteSearchResultItem {
-    data class DateItem(val date: LocalDate): PurchaseNoteSearchResultItem()
-    data class ResultItem(val purchaseNoteItem: PurchaseNoteUiModel): PurchaseNoteSearchResultItem()
-}
-
 data class PurchaseNoteSearchUiState(
     val isLoading: Boolean = true,
     val isEmpty: Boolean = false,
     val errorMsg: String? = null,
-    val resultItems: List<PurchaseNoteSearchResultItem> = emptyList()
+    val resultItems: List<PurchaseNotesUiState> = emptyList()
 )
 
 data class PurchaseNoteSearchFilterUiState(
@@ -171,7 +165,6 @@ class PurchaseNoteSearchViewModel @Inject constructor(
             }.collectLatest { (result, filterUiState) ->
 
                 shouldScrollToTop = true
-                Timber.tag("abc123").e("observeFiltersAndFetchResults() 1111")
                 makeSearchResultUiItems(result, filterUiState)
             }
         }
@@ -223,8 +216,8 @@ class PurchaseNoteSearchViewModel @Inject constructor(
                                 resultItems = resultItems.flatMap { model ->
                                     model.purchaseNoteItems.map {
                                         listOf(
-                                            PurchaseNoteSearchResultItem.DateItem(it.purchaseLocalDate)
-                                        ) + PurchaseNoteSearchResultItem.ResultItem(it)
+                                            PurchaseNotesUiState.DateItem(it.purchaseLocalDate)
+                                        ) + PurchaseNotesUiState.PurchaseNoteItem(it)
                                     }.flatten()
                                 }
                             )
@@ -236,9 +229,9 @@ class PurchaseNoteSearchViewModel @Inject constructor(
                                 isLoading = false,
                                 isEmpty = false,
                                 resultItems = resultItems.flatMap { model ->
-                                    listOf(PurchaseNoteSearchResultItem.DateItem(model.date!!)) +
+                                    listOf(PurchaseNotesUiState.DateItem(model.date!!)) +
                                             model.purchaseNoteItems.map {
-                                                PurchaseNoteSearchResultItem.ResultItem(it)
+                                                PurchaseNotesUiState.PurchaseNoteItem(it)
                                             }
                                 }
                             )
