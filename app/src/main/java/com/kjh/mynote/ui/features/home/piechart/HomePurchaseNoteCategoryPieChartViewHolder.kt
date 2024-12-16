@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import com.example.domain.model.CategoryWithPurchaseNotesCountAndTotalPrice
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.PieData
@@ -19,8 +20,6 @@ import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.ui.features.home.HomeItem
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.addClickAnimation
-import com.kjh.mynote.utils.extensions.makeGone
-import com.kjh.mynote.utils.extensions.makeVisible
 import com.kjh.mynote.utils.extensions.onThrottleClick
 
 /**
@@ -32,9 +31,10 @@ import com.kjh.mynote.utils.extensions.onThrottleClick
 class HomePurchaseNoteCategoryPieChartViewHolder(
     private val binding: VhHomePieChartItemBinding,
     private val sliceClickAction: (PieEntry?) -> Unit,
+    private val categoryStatsItemClickAction: (CategoryWithPurchaseNotesCountAndTotalPrice) -> Unit
 ): BaseViewHolder<HomeItem.HomePurchaseNoteCategoryPirChart>(binding.root) {
 
-    private val categoryPurchaseStatsListAdapter = HomeCategoryWithPurchaseStatsListAdapter()
+    private val categoryPurchaseStatsListAdapter = HomeCategoryWithPurchaseStatsListAdapter(categoryStatsItemClickAction)
 
     private var legendViews: List<View> = emptyList()
 

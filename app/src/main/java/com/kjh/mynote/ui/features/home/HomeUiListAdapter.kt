@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.domain.model.CategoryWithPurchaseNotesCountAndTotalPrice
 import com.github.mikephil.charting.data.PieEntry
 import com.kjh.mynote.databinding.VhHomePieChartItemBinding
 import com.kjh.mynote.databinding.VhHomePlaceNoteWeekViewBinding
@@ -23,7 +24,8 @@ class HomeUiListAdapter(
     private val weekDayClickAction: (LocalDate) -> Unit,
     private val placeNoteClickAction: (PlaceNoteUiModel) -> Unit,
     private val makePlaceNoteClickAction: () -> Unit,
-    private val sliceClickAction: (PieEntry?) -> Unit
+    private val sliceClickAction: (PieEntry?) -> Unit,
+    private val categoryStatsItemClickAction: (CategoryWithPurchaseNotesCountAndTotalPrice) -> Unit
 ): ListAdapter<HomeItem, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(
@@ -43,7 +45,7 @@ class HomeUiListAdapter(
                 HomePurchaseNoteCategoryPieChartViewHolder(
                     VhHomePieChartItemBinding.inflate(
                         LayoutInflater.from(parent.context), parent, false
-                    ), sliceClickAction
+                    ), sliceClickAction, categoryStatsItemClickAction
                 )
             }
 

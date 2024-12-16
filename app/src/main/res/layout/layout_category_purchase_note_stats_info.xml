@@ -21,6 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
+        android:background="?attr/selectableItemBackground"
         app:layout_constraintTop_toBottomOf="@+id/divider_top"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -31,7 +32,9 @@
             android:textSize="20sp"
             android:textColor="@color/colorPrimary"
             android:textStyle="bold"
-            tools:text="생활비" />
+            tools:text="생활비"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="wrap_content"
@@ -57,8 +60,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="카테고리의 구매노트"
-        android:layout_marginStart="6dp"
-        android:textSize="15sp"
+        android:layout_marginStart="8dp"
+        android:textSize="16sp"
         android:textColor="@color/black_900"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/cl_category"

@@ -5,10 +5,13 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.domain.model.CategoryWithPurchaseNotesCountAndTotalPrice
 import com.github.mikephil.charting.data.PieEntry
 import com.kjh.mynote.databinding.FragmentHomeBinding
+import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseFragment
+import com.kjh.mynote.ui.features.category.purchasestats.CategoryPurchaseNoteStatsActivity
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
 import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
 import com.kjh.mynote.utils.constants.AppConstants
@@ -32,7 +35,8 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>({ FragmentHomeBinding.infl
             weekDayClickAction = weekDayClickAction,
             placeNoteClickAction = placeNoteClickAction,
             makePlaceNoteClickAction = makePlaceNoteClickAction,
-            sliceClickAction = sliceClickAction
+            sliceClickAction = sliceClickAction,
+            categoryStatsItemClickAction = categoryStatsItemClickAction
         )
     }
 
@@ -77,6 +81,13 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>({ FragmentHomeBinding.infl
 
     private val sliceClickAction: (PieEntry?) -> Unit = {
         viewModel.setHighlightPieEntry(it)
+    }
+
+    private val categoryStatsItemClickAction: (CategoryWithPurchaseNotesCountAndTotalPrice) -> Unit = { item ->
+        Intent(requireContext(), CategoryPurchaseNoteStatsActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_CATEGORY_ITEM, CategoryUiModel(item.categoryId, item.categoryName))
+            startActivity(this)
+        }
     }
 
     companion object {
