@@ -2,9 +2,12 @@ package com.kjh.mynote.ui.features.purchase.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.domain.model.ApiResult
 import com.example.domain.model.FilteredSearchPurchaseNotes
-import com.example.domain.model.Result
 import com.example.domain.model.SortType
+import com.example.domain.model.onError
+import com.example.domain.model.onLoading
+import com.example.domain.model.onSuccess
 import com.example.domain.usecase.GetFilteredSearchPurchaseNotesUseCase
 import com.example.domain.usecase.GetPurchaseNoteSearchFilterInfoUseCase
 import com.kjh.mynote.model.CategoryUiModel
@@ -171,11 +174,11 @@ class PurchaseNoteSearchViewModel @Inject constructor(
     }
 
     private fun makeSearchResultUiItems(
-        result: Result<List<FilteredSearchPurchaseNotes>>,
+        result: ApiResult<List<FilteredSearchPurchaseNotes>>,
         filterUiState: PurchaseNoteSearchFilterUiState
     ) {
-        when (result) {
-            is Result.Loading -> {
+        result
+            .onLoading {
                 _uiState.update {
                     it.copy(
                         isLoading = true,
@@ -184,18 +187,18 @@ class PurchaseNoteSearchViewModel @Inject constructor(
                     )
                 }
             }
-            is Result.Error -> {
+            .onError { error ->
                 _uiState.update {
                     it.copy(
                         isLoading = false,
                         isEmpty = true,
-                        errorMsg = result.msg ?: "구매노트 목록 검색에 실패하였습니다.",
+                        errorMsg = error.message ?: "구매노트 목록 검색에 실패하였습니다.",
                         resultItems = emptyList()
                     )
                 }
             }
-            is Result.Success -> {
-                val resultItems = result.data?.toUiModel() ?: emptyList()
+            .onSuccess { data ->
+                val resultItems = data.toUiModel()
                 _resultTotalCount.value = resultItems.sumOf { it.purchaseNoteItems.size }
 
                 when {
@@ -208,6 +211,7 @@ class PurchaseNoteSearchViewModel @Inject constructor(
                             )
                         }
                     }
+
                     filterUiState.sortType in listOf(SortType.HIGH_PRICE, SortType.LOW_PRICE) -> {
                         _uiState.update { uiState ->
                             uiState.copy(
@@ -223,6 +227,7 @@ class PurchaseNoteSearchViewModel @Inject constructor(
                             )
                         }
                     }
+
                     else -> {
                         _uiState.update {
                             it.copy(
@@ -239,7 +244,6 @@ class PurchaseNoteSearchViewModel @Inject constructor(
                     }
                 }
             }
-        }
     }
 
     fun setSortType(type: SortType) {
