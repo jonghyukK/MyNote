@@ -1,163 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/white"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/abl_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    <!-- Toolbar -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_toolbar_container"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        android:paddingStart="0dp"
+        android:paddingEnd="10dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:id="@+id/ctl_layout"
-            android:layout_width="match_parent"
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_back"
+            android:layout_width="@dimen/toolbar_icon"
+            android:layout_height="@dimen/toolbar_icon"
+            android:padding="5dp"
+            android:background="?attr/selectableItemBackground"
+            android:layout_marginStart="5dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:tint="@color/black_900"
+            app:srcCompat="@drawable/ic_chevron_left_24_white"/>
+
+        <LinearLayout
+            android:id="@+id/ll_date_container"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minHeight="?attr/actionBarSize"
-            app:contentScrim="@color/transparent"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+            android:orientation="horizontal"
+            android:background="?attr/selectableItemBackground"
+            android:layout_marginStart="8dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_back"
+            app:layout_constraintBottom_toBottomOf="parent">
 
-            <!-- 카테고리 지표 정보 -->
-            <include
-                android:id="@+id/layout_stats_info_container"
-                layout="@layout/layout_category_purchase_note_stats_info"
-                android:layout_width="match_parent"
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_date"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="?attr/actionBarSize" />
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:textColor="@color/black_800"
+                tools:text="2024년 11월" />
 
-            <!-- Toolbar -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/cl_top_container"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="@color/white"
-                android:paddingStart="0dp"
-                android:paddingEnd="10dp"
-                app:layout_collapseMode="pin">
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/iv_back"
-                    android:layout_width="@dimen/toolbar_icon"
-                    android:layout_height="@dimen/toolbar_icon"
-                    android:padding="5dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:layout_marginStart="5dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:tint="@color/black_900"
-                    app:srcCompat="@drawable/ic_chevron_left_24_white"/>
-
-                <LinearLayout
-                    android:id="@+id/ll_date_container"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:background="?attr/selectableItemBackground"
-                    android:layout_marginStart="8dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/iv_back"
-                    app:layout_constraintBottom_toBottomOf="parent">
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/tv_date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="17sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/black_800"
-                        tools:text="2024년 11월" />
-
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="2dp"
-                        app:tint="@color/black_800"
-                        app:srcCompat="@drawable/ic_arrow_down_24" />
-                </LinearLayout>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
-
-<!--        &lt;!&ndash; Count, Sort, Filter Btn Layout &ndash;&gt;-->
-<!--        <include-->
-<!--            android:id="@+id/layout_filter_info_section"-->
-<!--            layout="@layout/layout_count_and_sort_and_filter_section" />-->
-
-<!--        &lt;!&ndash; Selected Filters Layout &ndash;&gt;-->
-<!--        <androidx.constraintlayout.widget.ConstraintLayout-->
-<!--            android:id="@+id/cl_selected_filters"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="48dp"-->
-<!--            android:background="@color/white"-->
-<!--            app:layout_scrollFlags="scroll|enterAlwaysCollapsed">-->
-
-<!--            <View-->
-<!--                android:id="@+id/divider_selected_filters_top"-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="1dp"-->
-<!--                android:background="@color/black_50"-->
-<!--                app:layout_constraintTop_toTopOf="parent"-->
-<!--                app:layout_constraintStart_toStartOf="parent"-->
-<!--                app:layout_constraintEnd_toEndOf="parent" />-->
-
-<!--            <androidx.recyclerview.widget.RecyclerView-->
-<!--                android:id="@+id/rv_selected_filters"-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:paddingStart="20dp"-->
-<!--                android:paddingEnd="0dp"-->
-<!--                android:clipToPadding="false"-->
-<!--                android:orientation="horizontal"-->
-<!--                android:nestedScrollingEnabled="false"-->
-<!--                android:background="@color/white"-->
-<!--                android:overScrollMode="never"-->
-<!--                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
-<!--                app:layout_constraintTop_toTopOf="parent"-->
-<!--                app:layout_constraintStart_toStartOf="parent"-->
-<!--                app:layout_constraintEnd_toStartOf="@+id/iv_reset"-->
-<!--                app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                tools:listitem="@layout/vh_purchase_note_search_selected_filter_item"/>-->
-
-<!--            <androidx.appcompat.widget.AppCompatImageView-->
-<!--                android:id="@+id/iv_reset"-->
-<!--                android:layout_width="44dp"-->
-<!--                android:layout_height="44dp"-->
-<!--                android:layout_marginEnd="8dp"-->
-<!--                android:padding="7dp"-->
-<!--                app:srcCompat="@drawable/ic_reset_24"-->
-<!--                app:tint="@color/colorPrimary"-->
-<!--                app:layout_constraintTop_toTopOf="parent"-->
-<!--                app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                app:layout_constraintEnd_toEndOf="parent" />-->
-
-<!--            <View-->
-<!--                android:id="@+id/divider_selected_filters_bottom"-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="1dp"-->
-<!--                android:background="@color/black_50"-->
-<!--                app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                app:layout_constraintStart_toStartOf="parent"-->
-<!--                app:layout_constraintEnd_toEndOf="parent" />-->
-<!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
-    </com.google.android.material.appbar.AppBarLayout>
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="2dp"
+                app:tint="@color/black_800"
+                app:srcCompat="@drawable/ic_arrow_down_24" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_purchase_notes"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:overScrollMode="never"
         android:paddingBottom="40dp"
         android:clipToPadding="false"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        android:background="@color/black_50"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintTop_toBottomOf="@+id/cl_toolbar_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <include
-        android:id="@+id/layout_empty"
-        layout="@layout/layout_empty_my_purchases"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        android:id="@+id/layout_loading"
+        layout="@layout/layout_loading"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/cl_toolbar_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

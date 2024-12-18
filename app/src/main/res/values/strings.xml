@@ -35,6 +35,8 @@
     <string name="format_won_below">%1$s원 이하</string>
     <string name="format_won_up">%1$s원 이상</string>
     <string name="format_min_price_until_max_price">%1$s원 ~ %2$s원</string>
+    <string name="format_total_count_with_unit">총 %1$d건이고,</string>
+    <string name="format_total_price">총 금액은 %1$s원이에요!</string>
 
     <string name="input_title">제목 입력하기</string>
     <string name="input_contents">내용 입력하기</string>
@@ -114,4 +116,6 @@
     <string name="do_show_all">전체보기</string>
     <string name="do_more">더보기</string>
     <string name="nothing_place_note">등록된 장소노트가 없어요!</string>
+    <string name="most_of_purchase_name_ranking">가장 많이 쓴 구매노트명 순위</string>
+    <string name="u_can_see_max_5_purchase_name_ranking">가장 많이 쓴 구매노트명순으로 최대 5개까지 볼 수 있어요!</string>
 </resources>

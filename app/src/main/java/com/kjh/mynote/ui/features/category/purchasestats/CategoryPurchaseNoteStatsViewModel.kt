@@ -3,20 +3,20 @@ package com.kjh.mynote.ui.features.category.purchasestats
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.domain.model.Result
-import com.example.domain.model.SortType
+import com.example.domain.model.CategoryPurchaseNoteStats
 import com.example.domain.model.onError
 import com.example.domain.model.onLoading
 import com.example.domain.model.onSuccess
-import com.example.domain.usecase.GetFilteredSearchPurchaseNotesUseCase
+import com.example.domain.usecase.GetCategoryWithPurchaseNoteStatsUseCase
 import com.kjh.mynote.model.CategoryUiModel
+import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.model.toUiModel
-import com.kjh.mynote.ui.common.uistate.PurchaseNotesUiState
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.getFirstDayOfMonth
 import com.kjh.mynote.utils.extensions.getLastDayOfMonth
 import com.kjh.mynote.utils.extensions.toMillis
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -30,50 +30,72 @@ import javax.inject.Inject
  * Description:
  */
 
+data class PurchaseNameStatsItem(
+    val purchaseName: String,
+    val totalCount: Int,
+    val totalPrice: Long,
+    val maxCount: Int,
+    val color: Int
+)
+
+sealed class CategoryPurchaseNoteStatsUiItems {
+
+    data object Empty: CategoryPurchaseNoteStatsUiItems()
+
+    data class StatsInfoItem(
+        val currentCategory: CategoryUiModel? = null,
+        val totalNoteCount: Int = 0,
+        val totalNotePrice: Long = 0
+    ): CategoryPurchaseNoteStatsUiItems()
+
+    data class PurchaseNameRankingItem(
+        val purchaseNameStatsItems: List<PurchaseNameStatsItem>
+    ): CategoryPurchaseNoteStatsUiItems()
+
+    data class PurchaseNoteDateItem(
+        val date: LocalDate
+    ): CategoryPurchaseNoteStatsUiItems()
+
+    data class PurchaseNoteItem(
+        val purchaseNote: PurchaseNoteUiModel
+    ): CategoryPurchaseNoteStatsUiItems()
+}
+
 data class CategoryPurchaseNoteStatsUiState(
     val isLoading: Boolean = true,
-    val isEmpty: Boolean = false,
     val errorMsg: String? = null,
-    val totalNoteCount: Int = 0,
-    val totalNotePrice: Long = 0,
-    val purchaseNotes: List<PurchaseNotesUiState> = emptyList()
+    val currentCategory: CategoryUiModel? = null,
+    val currentDate: LocalDate = LocalDate.now(),
+    val uiItems: List<CategoryPurchaseNoteStatsUiItems> = emptyList()
 )
 
 @HiltViewModel
 class CategoryPurchaseNoteStatsViewModel @Inject constructor(
-    private val getFilteredSearchPurchaseNotesUseCase: GetFilteredSearchPurchaseNotesUseCase,
+    private val getCategoryWithPurchaseNoteStatsUseCase: GetCategoryWithPurchaseNoteStatsUseCase,
     private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
-    private val _currentCategory = MutableStateFlow(savedStateHandle.get<CategoryUiModel>(AppConstants.INTENT_CATEGORY_ITEM))
-    val currentCategory = _currentCategory.asStateFlow()
-
-    private val _currentDate = MutableStateFlow(LocalDate.now())
-    val currentDate = _currentDate.asStateFlow()
-
-    private val _uiState = MutableStateFlow(CategoryPurchaseNoteStatsUiState())
+    private val _uiState = MutableStateFlow(CategoryPurchaseNoteStatsUiState(
+        currentCategory = savedStateHandle.get<CategoryUiModel>(AppConstants.INTENT_CATEGORY_ITEM)
+    ))
     val uiState = _uiState.asStateFlow()
 
     init {
-        getPurchaseNotes()
+        getCategoryPurchaseNoteStats()
     }
 
-    fun getPurchaseNotes() {
+    fun getCategoryPurchaseNoteStats() {
         viewModelScope.launch {
-            val categoryId = _currentCategory.value?.id ?: return@launch
-            val dateRange = _currentDate.value
+            val categoryId = _uiState.value.currentCategory?.id ?: return@launch
+            val dateRange = _uiState.value.currentDate
 
-            val startDate = dateRange.getFirstDayOfMonth()
-            val endDate = dateRange.getLastDayOfMonth()
+            val startDate = dateRange.getFirstDayOfMonth().toMillis()
+            val endDate = dateRange.getLastDayOfMonth().toMillis()
 
-            getFilteredSearchPurchaseNotesUseCase(
-                queryText = "",
-                startDate = startDate.toMillis(),
-                endDate = endDate.toMillis(),
-                minPrice = AppConstants.PRICE_MIN_LIMIT,
-                maxPrice = AppConstants.PRICE_MAX_LIMIT,
-                categoryIds = listOf(categoryId),
-                sortType = SortType.LATEST
+            getCategoryWithPurchaseNoteStatsUseCase(
+                categoryId = categoryId,
+                startDate = startDate,
+                endDate = endDate
             ).collect { result ->
                 result
                     .onLoading {
@@ -84,51 +106,96 @@ class CategoryPurchaseNoteStatsViewModel @Inject constructor(
                     .onError { error ->
                         _uiState.value = CategoryPurchaseNoteStatsUiState(
                             isLoading = false,
-                            errorMsg = error.message ?: "구매노트 목록 조회가 실패하였습니다."
+                            errorMsg = error.message ?: "카테고리별 구매노트 정보를 불러오는데 실패하였습니다."
                         )
                     }
                     .onSuccess { data ->
-                        val resultItems = data.toUiModel()
+                        val statsInfoItem = makeStatsInfoItem(data)
+                        val purchaseNoteItems = makePurchaseNoteItems(data)
 
-                        when {
-                            resultItems.isEmpty() -> {
-                                _uiState.value = CategoryPurchaseNoteStatsUiState(
-                                    isLoading = false,
-                                    isEmpty = true
-                                )
-                            }
-                            else -> {
-                                val totalCount = resultItems.sumOf { it.purchaseNoteItems.size }
-                                val totalPrice = resultItems.sumOf { it.purchaseNoteItems.sumOf { it.purchasePrice } }
+                        val uiItems = if (data.purchaseNameStatsList.isEmpty()) {
+                            listOf(statsInfoItem) + purchaseNoteItems
+                        } else {
+                            val purchaseNameRankingItem = makePurchaseNameRankingItem(data)
 
-                                _uiState.update {
-                                    it.copy(
-                                        isLoading = false,
-                                        isEmpty = false,
-                                        totalNoteCount = totalCount,
-                                        totalNotePrice = totalPrice,
-                                        purchaseNotes = resultItems.flatMap { model ->
-                                            listOf(PurchaseNotesUiState.DateItem(model.date!!)) +
-                                                    model.purchaseNoteItems.map {
-                                                        PurchaseNotesUiState.PurchaseNoteItem(it)
-                                                    }
-                                        }
-                                    )
-                                }
-                            }
+                            listOf(statsInfoItem) + purchaseNameRankingItem + purchaseNoteItems
+                        }
+
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                uiItems = uiItems
+                            )
                         }
                     }
             }
         }
     }
 
-    fun setCategory(category: CategoryUiModel) {
-        _currentCategory.value = category
-        getPurchaseNotes()
+    fun setCategory(newCategory: CategoryUiModel) {
+        if (_uiState.value.currentCategory?.id == newCategory.id) return
+
+        _uiState.update {
+            it.copy(
+                currentCategory = newCategory
+            )
+        }
+
+        getCategoryPurchaseNoteStats()
     }
 
-    fun setDate(date: LocalDate) {
-        _currentDate.value = date
-        getPurchaseNotes()
+    fun setDate(newDate: LocalDate) {
+        if (_uiState.value.currentDate == newDate) return
+
+        _uiState.update {
+            it.copy(
+                currentDate = newDate
+            )
+        }
+
+        getCategoryPurchaseNoteStats()
+    }
+
+    fun shownError() {
+        _uiState.update {
+            it.copy(errorMsg = null)
+        }
+    }
+
+    private fun makePurchaseNoteItems(data: CategoryPurchaseNoteStats): List<CategoryPurchaseNoteStatsUiItems> {
+        if (data.purchaseNoteList.isEmpty()) {
+            return listOf(CategoryPurchaseNoteStatsUiItems.Empty)
+        }
+
+        return data.purchaseNoteList.toUiModel().flatMap { model ->
+            listOf(CategoryPurchaseNoteStatsUiItems.PurchaseNoteDateItem(model.date!!)) +
+                    model.purchaseNoteItems.map {
+                        CategoryPurchaseNoteStatsUiItems.PurchaseNoteItem(it)
+                    }
+        }
+    }
+
+    private fun makeStatsInfoItem(data: CategoryPurchaseNoteStats) =
+        CategoryPurchaseNoteStatsUiItems.StatsInfoItem(
+            currentCategory = _uiState.value.currentCategory,
+            totalNoteCount = data.categoryTotalCount,
+            totalNotePrice = data.categoryTotalPrice
+        )
+
+    private fun makePurchaseNameRankingItem(data: CategoryPurchaseNoteStats)
+    : CategoryPurchaseNoteStatsUiItems.PurchaseNameRankingItem {
+        val maxCount = data.purchaseNameStatsList.maxOfOrNull { it.totalCount } ?: 0
+
+        return CategoryPurchaseNoteStatsUiItems.PurchaseNameRankingItem(
+            purchaseNameStatsItems = data.purchaseNameStatsList.take(5).mapIndexed { index, item ->
+                PurchaseNameStatsItem(
+                    purchaseName = item.purchaseName,
+                    totalCount = item.totalCount,
+                    totalPrice = item.totalPrice,
+                    maxCount = maxCount,
+                    color = AppConstants.chartColorAlphaList[index]
+                )
+            }
+        )
     }
 }

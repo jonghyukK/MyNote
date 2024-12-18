@@ -1,5 +1,7 @@
 package com.kjh.mynote.utils.constants
 
+import com.kjh.mynote.R
+
 /**
  * Created by kangjonghyuk.
  * Created On 2024. 9. 26..
@@ -30,4 +32,20 @@ object AppConstants {
 
     const val PRICE_MIN_LIMIT = 0L
     const val PRICE_MAX_LIMIT = 10000000L
+
+    val chartColorList = listOf(
+        R.color.pie_color_1,
+        R.color.pie_color_2,
+        R.color.pie_color_3,
+        R.color.pie_color_4,
+        R.color.pie_color_5
+    )
+
+    val chartColorAlphaList = listOf(
+        R.color.pie_color_1_alpha,
+        R.color.pie_color_2_alpha,
+        R.color.pie_color_3_alpha,
+        R.color.pie_color_4_alpha,
+        R.color.pie_color_5_alpha
+    )
 }

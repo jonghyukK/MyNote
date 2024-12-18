@@ -12,14 +12,14 @@ import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.common.dialog.yearmonths.SelectableYearMonthListBSDialog
 import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog
+import com.kjh.mynote.ui.features.category.purchasestats.adapter.CategoryPurchaseNoteStatsUiListAdapter
 import com.kjh.mynote.ui.features.purchase.detail.PurchaseNoteDetailActivity
+import com.kjh.mynote.ui.features.purchase.make.MakePurchaseNoteActivity
 import com.kjh.mynote.utils.constants.AppConstants
-import com.kjh.mynote.utils.decorations.PurchaseNotesUiStateItemDecoration
-import com.kjh.mynote.utils.extensions.addClickAnimation
-import com.kjh.mynote.utils.extensions.highlightText
+import com.kjh.mynote.utils.decorations.PurchaseNotesUiStateItemDecoration2
 import com.kjh.mynote.utils.extensions.registerStartActivityResultLauncher
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
-import com.kjh.mynote.utils.extensions.toComma
+import com.kjh.mynote.utils.extensions.showToast
 import com.kjh.mynote.utils.extensions.toStringWithPattern
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -40,20 +40,22 @@ class CategoryPurchaseNoteStatsActivity
 
     private val viewModel: CategoryPurchaseNoteStatsViewModel by viewModels()
 
-    private val listAdapter: CategoryPurchaseNoteStatsListAdapter by lazy {
-        CategoryPurchaseNoteStatsListAdapter(purchaseNoteItemClickAction)
+    private val listAdapter: CategoryPurchaseNoteStatsUiListAdapter by lazy {
+        CategoryPurchaseNoteStatsUiListAdapter(
+            categoryClickAction = categoryClickAction,
+            purchaseNoteItemClickAction = purchaseNoteItemClickAction,
+            makePurchaseNoteClickAction = makePurchaseNoteClickAction
+        )
     }
 
     override fun onInitView() {
         with(binding) {
             rvPurchaseNotes.apply {
                 itemAnimator = null
-                addItemDecoration(PurchaseNotesUiStateItemDecoration())
+                addItemDecoration(PurchaseNotesUiStateItemDecoration2())
                 adapter = listAdapter
             }
 
-            layoutStatsInfoContainer.clCategory.addClickAnimation()
-            layoutStatsInfoContainer.clCategory.setOnThrottleClickListener(categoryClickListener)
             llDateContainer.setOnThrottleClickListener(dateClickListener)
         }
     }
@@ -62,56 +64,41 @@ class CategoryPurchaseNoteStatsActivity
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.currentCategory.collect { category ->
-                        binding.layoutStatsInfoContainer.tvCategoryName.text = category?.categoryName
-                    }
-                }
-
-                launch {
-                    viewModel.currentDate.collect { date ->
-                        binding.tvDate.text = date.toStringWithPattern("yyyy년 M월")
-                    }
-                }
-
-                launch {
                     viewModel.uiState
-                        .map { it.totalNoteCount }
+                        .map { it.isLoading }
                         .distinctUntilChanged()
-                        .collect {
-                            binding.layoutStatsInfoContainer.tvTotalNoteCount.highlightText(
-                                fullText = "총 ${it}건",
-                                wordToHighlight = it.toString()
-                            )
+                        .collect { isLoading ->
+                            binding.layoutLoading.root.isVisible = isLoading
                         }
                 }
 
                 launch {
                     viewModel.uiState
-                        .map { it.totalNotePrice }
+                        .map { it.errorMsg }
                         .distinctUntilChanged()
-                        .collect {
-                            binding.layoutStatsInfoContainer.tvTotalNotePrice.highlightText(
-                                fullText = "총 금액 ${it.toComma()}원",
-                                wordToHighlight = it.toComma()
-                            )
+                        .collect { errorMsg ->
+                            errorMsg?.let {
+                                showToast(it)
+                                viewModel.shownError()
+                            }
                         }
                 }
 
                 launch {
                     viewModel.uiState
-                        .map { it.isEmpty }
+                        .map { it.currentDate }
                         .distinctUntilChanged()
-                        .collect { isEmpty ->
-                            binding.layoutEmpty.root.isVisible = isEmpty
+                        .collect { date ->
+                            binding.tvDate.text = date.toStringWithPattern("yyyy년 M월")
                         }
                 }
 
                 launch {
                     viewModel.uiState
-                        .map { it.purchaseNotes }
+                        .map { it.uiItems }
                         .distinctUntilChanged()
-                        .collect {
-                            listAdapter.submitList(it)
+                        .collect { uiItems ->
+                            listAdapter.submitList(uiItems)
                         }
                 }
             }
@@ -119,8 +106,22 @@ class CategoryPurchaseNoteStatsActivity
     }
 
     private val purchaseNoteDetailResultLauncher = registerStartActivityResultLauncher(resultOkBlock = {
-        viewModel.getPurchaseNotes()
+        viewModel.getCategoryPurchaseNoteStats()
     })
+
+    private val makeNoteResultLauncher = registerStartActivityResultLauncher(resultOkBlock = {
+        viewModel.getCategoryPurchaseNoteStats()
+    })
+
+    private val categoryClickAction: () -> Unit =  {
+        CategoryListBSDialog.newInstance(
+            isEditable = false,
+            selectedCategoryItem = viewModel.uiState.value.currentCategory,
+            selectCategoryAction = { selectedCategory ->
+                viewModel.setCategory(selectedCategory)
+            }
+        ).show(supportFragmentManager, CategoryListBSDialog.TAG)
+    }
 
     private val purchaseNoteItemClickAction: (PurchaseNoteUiModel) -> Unit = { noteItem ->
         Intent(this, PurchaseNoteDetailActivity::class.java).apply {
@@ -129,21 +130,17 @@ class CategoryPurchaseNoteStatsActivity
         }
     }
 
-    private val dateClickListener = View.OnClickListener {
-        SelectableYearMonthListBSDialog.newInstance(
-            selectedDate = viewModel.currentDate.value,
-            yearsRange = 1
-        ).show(supportFragmentManager, SelectableYearMonthListBSDialog.TAG)
+    private val makePurchaseNoteClickAction: () -> Unit = {
+        Intent(this, MakePurchaseNoteActivity::class.java).apply {
+            makeNoteResultLauncher.launch(this)
+        }
     }
 
-    private val categoryClickListener = View.OnClickListener {
-        CategoryListBSDialog.newInstance(
-            isEditable = false,
-            selectedCategoryItem = viewModel.currentCategory.value,
-            selectCategoryAction = { selectedCategory ->
-                viewModel.setCategory(selectedCategory)
-            }
-        ).show(supportFragmentManager, CategoryListBSDialog.TAG)
+    private val dateClickListener = View.OnClickListener {
+        SelectableYearMonthListBSDialog.newInstance(
+            selectedDate = viewModel.uiState.value.currentDate,
+            yearsRange = 1
+        ).show(supportFragmentManager, SelectableYearMonthListBSDialog.TAG)
     }
 
     override fun onClickYearMonth(date: LocalDate) {

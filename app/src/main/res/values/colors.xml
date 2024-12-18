@@ -8,6 +8,12 @@
     <color name="pie_color_4">#06D6A0</color>
     <color name="pie_color_5">#118AB2</color>
 
+    <color name="pie_color_1_alpha">#AAEF476F</color>
+    <color name="pie_color_2_alpha">#AAF78C6B</color>
+    <color name="pie_color_3_alpha">#AAFFD166</color>
+    <color name="pie_color_4_alpha">#AA06D6A0</color>
+    <color name="pie_color_5_alpha">#AA118AB2</color>
+
     <color name="colorPrimary">#6750A4</color>
     <color name="colorOnPrimary">#FFFFFF</color>
     <color name="colorPrimaryContainer">#EADDFF</color>
