@@ -2,9 +2,11 @@ package com.kjh.mynote.utils.extensions
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.Typeface
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -78,7 +80,7 @@ fun AppCompatImageView.loadImage(url: String) {
         .into(this)
 }
 
-fun AppCompatTextView.highlightText(fullText: String, wordToHighlight: String) {
+fun AppCompatTextView.highlightText(fullText: String, wordToHighlight: String, isBold: Boolean = false) {
     val spannableString = SpannableString(fullText)
     val startIndex = fullText.indexOf(wordToHighlight, ignoreCase = true)
 
@@ -90,6 +92,10 @@ fun AppCompatTextView.highlightText(fullText: String, wordToHighlight: String) {
             startIndex + wordToHighlight.length,
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
         )
+
+        if (isBold) {
+            spannableString.setSpan(StyleSpan(Typeface.BOLD), startIndex, startIndex + wordToHighlight.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
     }
 
     text = spannableString
