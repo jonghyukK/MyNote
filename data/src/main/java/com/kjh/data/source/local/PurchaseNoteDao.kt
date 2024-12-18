@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import com.example.domain.model.PurchaseNameStats
 import com.kjh.data.model.entity.PurchaseNoteEntity
 import com.kjh.data.model.entity.PurchaseNoteWithCategoryEntity
 import kotlinx.coroutines.flow.Flow
@@ -59,8 +60,7 @@ interface PurchaseNoteDao {
             WHEN :sortType = 'HIGH_PRICE' THEN purchasePrice END DESC,
         CASE
             WHEN :sortType = 'LOW_PRICE' THEN purchasePrice END ASC
-    """
-    )
+    """)
     suspend fun getFilteredPurchaseNotes(
         queryText: String,
         startDate: Long,
@@ -79,10 +79,31 @@ interface PurchaseNoteDao {
     @Query("""
         SELECT * FROM purchase
         WHERE purchaseDate = :purchaseDate AND placeName = :placeName
-        """
-    )
+        """)
     suspend fun getPurchaseNotesByDateAndPlaceName(
         purchaseDate: Long,
         placeName: String,
     ): List<PurchaseNoteWithCategoryEntity>
+
+    @Query("""
+        SELECT 
+            purchaseName,
+            COUNT(*) AS totalCount,
+            COALESCE(SUM(purchasePrice), 0) AS totalPrice
+        FROM 
+            purchase
+        WHERE 
+            categoryId = :categoryId AND
+            (:startDate IS NULL OR purchaseDate >= :startDate) AND
+            (:endDate IS NULL OR purchaseDate <= :endDate)
+        GROUP BY 
+            purchaseName
+        ORDER BY 
+            totalCount DESC
+    """)
+    suspend fun getPurchaseNameRankings(
+        categoryId: Int,
+        startDate: Long?,
+        endDate: Long?
+    ): List<PurchaseNameStats>
 }

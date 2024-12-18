@@ -2,6 +2,7 @@ package com.example.domain.repository
 
 import com.example.domain.model.Category
 import com.example.domain.model.FilteredSearchPurchaseNotes
+import com.example.domain.model.PurchaseNameStats
 import com.example.domain.model.PurchaseNote
 import com.example.domain.model.SortType
 import kotlinx.coroutines.flow.Flow
@@ -39,4 +40,10 @@ interface PurchaseNoteRepository {
         placeName: String,
         date: Long
     ): List<PurchaseNote>
+
+    suspend fun getPurchaseNameRankings(
+        categoryId: Int,
+        startDate: Long,
+        endDate: Long
+    ): List<PurchaseNameStats>
 }

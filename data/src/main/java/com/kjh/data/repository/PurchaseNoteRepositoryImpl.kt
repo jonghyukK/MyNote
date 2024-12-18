@@ -2,6 +2,7 @@ package com.kjh.data.repository
 
 import com.example.domain.model.Category
 import com.example.domain.model.FilteredSearchPurchaseNotes
+import com.example.domain.model.PurchaseNameStats
 import com.example.domain.model.PurchaseNote
 import com.example.domain.model.SortType
 import com.example.domain.repository.PurchaseNoteRepository
@@ -98,4 +99,13 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
             purchaseDate = date,
             placeName = placeName
         ).toDomainModel()
+
+
+    override suspend fun getPurchaseNameRankings(
+        categoryId: Int,
+        startDate: Long,
+        endDate: Long
+    ): List<PurchaseNameStats> {
+        return purchaseNoteLocalDateSource.getPurchaseNameRankings(categoryId, startDate, endDate)
+    }
 }
