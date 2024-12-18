@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import com.example.domain.model.CategoryWithPurchaseNotesCountAndTotalPrice
+import com.example.domain.model.CategoryWithStats
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.PieData
@@ -17,7 +17,7 @@ import com.kjh.mynote.R
 import com.kjh.mynote.databinding.LayoutHomePieChartLegendBinding
 import com.kjh.mynote.databinding.VhHomePieChartItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.home.HomeItem
+import com.kjh.mynote.ui.features.home.HomeUiState
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.addClickAnimation
 import com.kjh.mynote.utils.extensions.onThrottleClick
@@ -31,8 +31,8 @@ import com.kjh.mynote.utils.extensions.onThrottleClick
 class HomePurchaseNoteCategoryPieChartViewHolder(
     private val binding: VhHomePieChartItemBinding,
     private val sliceClickAction: (PieEntry?) -> Unit,
-    private val categoryStatsItemClickAction: (CategoryWithPurchaseNotesCountAndTotalPrice) -> Unit
-): BaseViewHolder<HomeItem.HomePurchaseNoteCategoryPirChart>(binding.root) {
+    private val categoryStatsItemClickAction: (CategoryWithStats) -> Unit
+): BaseViewHolder<HomeUiState.PurchaseNoteCategoryPieChartItem>(binding.root) {
 
     private val categoryPurchaseStatsListAdapter = HomeCategoryWithPurchaseStatsListAdapter(categoryStatsItemClickAction)
 
@@ -48,7 +48,6 @@ class HomePurchaseNoteCategoryPieChartViewHolder(
             isHighlightPerTapEnabled = true
             setUsePercentValues(true)
             setDrawEntryLabels(false)
-            setTouchEnabled(true)
             setTransparentCircleAlpha(20)
             setTransparentCircleColor(R.color.black_900)
             setOnChartValueSelectedListener(object: OnChartValueSelectedListener {
@@ -74,7 +73,7 @@ class HomePurchaseNoteCategoryPieChartViewHolder(
         }
     }
 
-    override fun bind(item: HomeItem.HomePurchaseNoteCategoryPirChart) {
+    override fun bind(item: HomeUiState.PurchaseNoteCategoryPieChartItem) {
         super.bind(item)
 
         setupPieChart(item)
@@ -85,7 +84,7 @@ class HomePurchaseNoteCategoryPieChartViewHolder(
         categoryPurchaseStatsListAdapter.submitList(item.categoryWithStatsItems)
     }
 
-    private fun setupPieChart(item: HomeItem.HomePurchaseNoteCategoryPirChart) {
+    private fun setupPieChart(item: HomeUiState.PurchaseNoteCategoryPieChartItem) {
         val pieDataSet = PieDataSet(item.pieEntries, "").apply {
             colors = item.pieColors.map { ContextCompat.getColor(context, it) }
             sliceSpace = 3f
@@ -99,13 +98,13 @@ class HomePurchaseNoteCategoryPieChartViewHolder(
         }
     }
 
-    private fun setupLegendViews(item: HomeItem.HomePurchaseNoteCategoryPirChart) {
+    private fun setupLegendViews(item: HomeUiState.PurchaseNoteCategoryPieChartItem) {
         binding.llLegendContainer.removeAllViews()
         legendViews = makeLegendViews(item)
         legendViews.forEach { binding.llLegendContainer.addView(it) }
     }
 
-    private fun makeLegendViews(chartItem: HomeItem.HomePurchaseNoteCategoryPirChart): List<View> {
+    private fun makeLegendViews(chartItem: HomeUiState.PurchaseNoteCategoryPieChartItem): List<View> {
         return chartItem.pieEntries.indices.map { i ->
             val legendBinding = LayoutHomePieChartLegendBinding.inflate(
                 LayoutInflater.from(context), binding.llLegendContainer, false)

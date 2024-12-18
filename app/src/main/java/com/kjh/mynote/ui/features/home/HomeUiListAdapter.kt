@@ -5,14 +5,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.domain.model.CategoryWithPurchaseNotesCountAndTotalPrice
+import com.example.domain.model.CategoryWithStats
 import com.github.mikephil.charting.data.PieEntry
 import com.kjh.mynote.databinding.VhHomePieChartItemBinding
 import com.kjh.mynote.databinding.VhHomePlaceNoteWeekViewBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.features.home.piechart.HomePurchaseNoteCategoryPieChartViewHolder
 import com.kjh.mynote.ui.features.home.weekview.HomePlaceNoteWeekViewItemViewHolder
-import timber.log.Timber
 import java.time.LocalDate
 
 /**
@@ -25,8 +24,8 @@ class HomeUiListAdapter(
     private val placeNoteClickAction: (PlaceNoteUiModel) -> Unit,
     private val makePlaceNoteClickAction: () -> Unit,
     private val sliceClickAction: (PieEntry?) -> Unit,
-    private val categoryStatsItemClickAction: (CategoryWithPurchaseNotesCountAndTotalPrice) -> Unit
-): ListAdapter<HomeItem, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
+    private val categoryStatsItemClickAction: (CategoryWithStats) -> Unit
+): ListAdapter<HomeUiState, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -55,17 +54,17 @@ class HomeUiListAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = getItem(position)) {
-            is HomeItem.HomePlaceNoteWeekView ->
+            is HomeUiState.PlaceNoteWeekItem ->
                 (holder as HomePlaceNoteWeekViewItemViewHolder).bind(item)
 
-            is HomeItem.HomePurchaseNoteCategoryPirChart ->
+            is HomeUiState.PurchaseNoteCategoryPieChartItem ->
                 (holder as HomePurchaseNoteCategoryPieChartViewHolder).bind(item)
         }
     }
 
     override fun getItemViewType(position: Int) = when (getItem(position)) {
-        is HomeItem.HomePlaceNoteWeekView -> VIEW_TYPE_PLACE_NOTE_WEEK_VIEW
-        is HomeItem.HomePurchaseNoteCategoryPirChart -> VIEW_TYPE_CATEGORY_PIE_CHART
+        is HomeUiState.PlaceNoteWeekItem -> VIEW_TYPE_PLACE_NOTE_WEEK_VIEW
+        is HomeUiState.PurchaseNoteCategoryPieChartItem -> VIEW_TYPE_CATEGORY_PIE_CHART
         else -> 0
     }
 
@@ -73,23 +72,23 @@ class HomeUiListAdapter(
         private const val VIEW_TYPE_PLACE_NOTE_WEEK_VIEW = 1
         private const val VIEW_TYPE_CATEGORY_PIE_CHART = 2
 
-        private val UI_MODEL_COMPARATOR = object : DiffUtil.ItemCallback<HomeItem>() {
+        private val UI_MODEL_COMPARATOR = object : DiffUtil.ItemCallback<HomeUiState>() {
             override fun areItemsTheSame(
-                oldItem: HomeItem,
-                newItem: HomeItem,
+                oldItem: HomeUiState,
+                newItem: HomeUiState,
             ): Boolean = when {
-                oldItem is HomeItem.HomePlaceNoteWeekView && newItem is HomeItem.HomePlaceNoteWeekView -> {
+                oldItem is HomeUiState.PlaceNoteWeekItem && newItem is HomeUiState.PlaceNoteWeekItem -> {
                     true
                 }
-                oldItem is HomeItem.HomePurchaseNoteCategoryPirChart && newItem is HomeItem.HomePurchaseNoteCategoryPirChart -> {
+                oldItem is HomeUiState.PurchaseNoteCategoryPieChartItem && newItem is HomeUiState.PurchaseNoteCategoryPieChartItem -> {
                     oldItem.pieEntries == newItem.pieEntries
                 }
                 else -> false
             }
 
             override fun areContentsTheSame(
-                oldItem: HomeItem,
-                newItem: HomeItem,
+                oldItem: HomeUiState,
+                newItem: HomeUiState,
             ): Boolean {
                 return oldItem == newItem
             }

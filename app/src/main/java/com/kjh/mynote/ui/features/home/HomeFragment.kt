@@ -5,7 +5,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.domain.model.CategoryWithPurchaseNotesCountAndTotalPrice
+import com.example.domain.model.CategoryWithStats
 import com.github.mikephil.charting.data.PieEntry
 import com.kjh.mynote.databinding.FragmentHomeBinding
 import com.kjh.mynote.model.CategoryUiModel
@@ -83,7 +83,7 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>({ FragmentHomeBinding.infl
         viewModel.setHighlightPieEntry(it)
     }
 
-    private val categoryStatsItemClickAction: (CategoryWithPurchaseNotesCountAndTotalPrice) -> Unit = { item ->
+    private val categoryStatsItemClickAction: (CategoryWithStats) -> Unit = { item ->
         Intent(requireContext(), CategoryPurchaseNoteStatsActivity::class.java).apply {
             putExtra(AppConstants.INTENT_CATEGORY_ITEM, CategoryUiModel(item.categoryId, item.categoryName))
             startActivity(this)

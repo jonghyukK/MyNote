@@ -2,13 +2,16 @@ package com.kjh.mynote.ui.features.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.domain.model.CategoryWithPurchaseNotesCountAndTotalPrice
-import com.example.domain.usecase.GetCategoriesWithPurchaseNotesStatsUseCase
+import com.example.domain.model.CategoryWithStats
+import com.example.domain.usecase.GetCategoriesWithStatsByDateUseCase
 import com.example.domain.usecase.GetPlaceNotesByDateRangeUseCase
 import com.github.mikephil.charting.data.PieEntry
 import com.kjh.mynote.R
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.model.toUiModel
+import com.kjh.mynote.utils.constants.AppConstants
+import com.kjh.mynote.utils.extensions.getFirstDayOfMonth
+import com.kjh.mynote.utils.extensions.getLastDayOfMonth
 import com.kjh.mynote.utils.extensions.getWeekStartAndEndDates
 import com.kjh.mynote.utils.extensions.toMillis
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,14 +33,6 @@ import javax.inject.Inject
  * Description:
  */
 
-private val pieColorList = listOf(
-    R.color.red_500,
-    R.color.red_200,
-    R.color.red_100,
-    R.color.black_700,
-    R.color.black_500
-)
-
 sealed class HomePlaceNoteUiState {
     data object Empty: HomePlaceNoteUiState()
     data object More: HomePlaceNoteUiState()
@@ -46,48 +41,49 @@ sealed class HomePlaceNoteUiState {
 
 sealed class HomeCategoryStatsUiState {
     data class CategoryWithStatsItem(
-        val categoryStatsItem: CategoryWithPurchaseNotesCountAndTotalPrice,
+        val categoryWithStatsItem: CategoryWithStats,
         val colors: Int
     ): HomeCategoryStatsUiState()
 
     data object MoreItem: HomeCategoryStatsUiState()
 }
 
-sealed class HomeItem {
-    data class HomePlaceNoteWeekView(
-        val todayDate: LocalDate = LocalDate.now(),
+sealed class HomeUiState {
+    data class PlaceNoteWeekItem(
         val placeNotesByDate: Map<LocalDate, List<PlaceNoteUiModel>> = emptyMap(),
-        val selectedDate: LocalDate = todayDate,
+        val selectedDate: LocalDate = LocalDate.now(),
         val displayedPlaceNotes: List<HomePlaceNoteUiState> = emptyList(),
         val eventDays: List<LocalDate> = emptyList()
-    ): HomeItem()
+    ): HomeUiState()
 
-    data class HomePurchaseNoteCategoryPirChart(
+    data class PurchaseNoteCategoryPieChartItem(
         val categoryWithStatsItems: List<HomeCategoryStatsUiState> = emptyList(),
         val pieEntries: List<PieEntry> = emptyList(),
         val pieColors: List<Int> = emptyList(),
         val highlightedPieEntry: PieEntry? = null
-    ): HomeItem()
+    ): HomeUiState()
 }
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getPlaceNotesByDateRangeUseCase: GetPlaceNotesByDateRangeUseCase,
-    private val getCategoriesWithPurchaseNotesStatsUseCase: GetCategoriesWithPurchaseNotesStatsUseCase
+    private val getCategoriesWithStatsByDateUseCase: GetCategoriesWithStatsByDateUseCase
 ): ViewModel() {
 
+    private val _todayDate: LocalDate = LocalDate.now()
+
     private val _uiState = MutableStateFlow(
-        listOf(HomeItem.HomePlaceNoteWeekView(), HomeItem.HomePurchaseNoteCategoryPirChart()))
+        listOf(HomeUiState.PlaceNoteWeekItem(), HomeUiState.PurchaseNoteCategoryPieChartItem()))
     val uiState = _uiState.asStateFlow()
 
     private val placeNotesWeekViewFlow =
         getPlaceNotesByDateRangeUseCase(
-            startDate = LocalDate.now().getWeekStartAndEndDates().first.toMillis(),
-            endDate = LocalDate.now().getWeekStartAndEndDates().second.toMillis()
+            startDate = _todayDate.getWeekStartAndEndDates().first.toMillis(),
+            endDate = _todayDate.getWeekStartAndEndDates().second.toMillis()
         )
             .map { notes -> notes.toUiModel().groupBy { it.localDate } }
             .map { groupedNoteMap ->
-                HomeItem.HomePlaceNoteWeekView(
+                HomeUiState.PlaceNoteWeekItem(
                     placeNotesByDate = groupedNoteMap,
                     eventDays = groupedNoteMap.keys.toList()
                 )
@@ -95,15 +91,18 @@ class HomeViewModel @Inject constructor(
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
-                initialValue = HomeItem.HomePlaceNoteWeekView()
+                initialValue = HomeUiState.PlaceNoteWeekItem()
             )
 
     private val categoryChartFlow =
-        getCategoriesWithPurchaseNotesStatsUseCase()
+        getCategoriesWithStatsByDateUseCase(
+            startDate = _todayDate.getFirstDayOfMonth().toMillis(),
+            endDate = _todayDate.getLastDayOfMonth().toMillis()
+        )
             .map { results ->
                 val filteredCategoryItems = results
-                    .filter { it.purchaseNoteCount > 0 }
-                    .sortedByDescending { it.purchaseNoteCount }
+                    .filter { it.purchaseNoteTotalCount > 0 }
+                    .sortedByDescending { it.purchaseNoteTotalCount }
 
                 val top5Items = filteredCategoryItems.take(5)
                 val pieColors = makePieColors(top5Items.size)
@@ -111,7 +110,7 @@ class HomeViewModel @Inject constructor(
                 val categoryWithStatsItems: MutableList<HomeCategoryStatsUiState> =
                     top5Items.mapIndexed { index, categoryWithCount ->
                         HomeCategoryStatsUiState.CategoryWithStatsItem(
-                            categoryStatsItem = categoryWithCount,
+                            categoryWithStatsItem = categoryWithCount,
                             colors = pieColors[index]
                         )
                     }.toMutableList()
@@ -120,7 +119,7 @@ class HomeViewModel @Inject constructor(
                     categoryWithStatsItems.add(HomeCategoryStatsUiState.MoreItem)
                 }
 
-                HomeItem.HomePurchaseNoteCategoryPirChart(
+                HomeUiState.PurchaseNoteCategoryPieChartItem(
                     categoryWithStatsItems = categoryWithStatsItems,
                     pieEntries = makePieEntry(top5Items),
                     pieColors = pieColors
@@ -129,7 +128,7 @@ class HomeViewModel @Inject constructor(
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
-                initialValue = HomeItem.HomePurchaseNoteCategoryPirChart()
+                initialValue = HomeUiState.PurchaseNoteCategoryPieChartItem()
             )
 
     init {
@@ -138,7 +137,7 @@ class HomeViewModel @Inject constructor(
                 placeNotesWeekViewFlow,
                 categoryChartFlow
             ) { placeNotesWeekViewFlow, categoryChartFlow ->
-                val currentWeekViewItem = _uiState.value.filterIsInstance<HomeItem.HomePlaceNoteWeekView>().first()
+                val currentWeekViewItem = _uiState.value.filterIsInstance<HomeUiState.PlaceNoteWeekItem>().first()
                 val currentSelectedDate = currentWeekViewItem.selectedDate
                 val placeNotesInSelectedDay = placeNotesWeekViewFlow.placeNotesByDate[currentSelectedDate] ?: emptyList()
 
@@ -157,7 +156,7 @@ class HomeViewModel @Inject constructor(
     fun setHighlightPieEntry(entry: PieEntry?) {
         _uiState.update { uiState ->
             uiState.map { uiList ->
-                if (uiList is HomeItem.HomePurchaseNoteCategoryPirChart) {
+                if (uiList is HomeUiState.PurchaseNoteCategoryPieChartItem) {
                     uiList.copy(
                         highlightedPieEntry = entry,
                     )
@@ -171,7 +170,7 @@ class HomeViewModel @Inject constructor(
     fun changePlaceNoteWeekDay(newDay: LocalDate) {
         _uiState.update { uiState ->
             uiState.map { uiList ->
-                if (uiList is HomeItem.HomePlaceNoteWeekView) {
+                if (uiList is HomeUiState.PlaceNoteWeekItem) {
                     val placeNoteItemsInSelectedDay = uiList.placeNotesByDate[newDay] ?: emptyList()
                     uiList.copy(
                         selectedDate = newDay,
@@ -200,13 +199,13 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun makePieEntry(categoryWithPurchaseNotesStatsItem: List<CategoryWithPurchaseNotesCountAndTotalPrice>): List<PieEntry> {
+    private fun makePieEntry(categoryWithPurchaseNotesStatsItem: List<CategoryWithStats>): List<PieEntry> {
         if (categoryWithPurchaseNotesStatsItem.isEmpty()) {
             return listOf(PieEntry(1f, "없음"))
         }
 
         return categoryWithPurchaseNotesStatsItem.map { data ->
-            PieEntry(data.purchaseNoteCount.toFloat(), data.categoryName)
+            PieEntry(data.purchaseNoteTotalCount.toFloat(), data.categoryName)
         }
     }
 
@@ -216,7 +215,7 @@ class HomeViewModel @Inject constructor(
         }
 
         return (0..< entrySize).mapIndexed { index, _ ->
-            pieColorList[index]
+            AppConstants.chartColorList[index]
         }
     }
 }

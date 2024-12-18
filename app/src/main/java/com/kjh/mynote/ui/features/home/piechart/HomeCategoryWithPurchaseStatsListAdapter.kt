@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.domain.model.CategoryWithPurchaseNotesCountAndTotalPrice
+import com.example.domain.model.CategoryWithStats
 import com.kjh.mynote.databinding.VhHomeCategoryPutchaseStatsItemBinding
 import com.kjh.mynote.databinding.VhHomePlaceNoteWeekViewInnerMoreItemBinding
 import com.kjh.mynote.ui.features.home.HomeCategoryStatsUiState
@@ -17,7 +17,7 @@ import com.kjh.mynote.ui.features.home.weekview.HomePlaceNoteWeekViewInnerMoreIt
  * Description:
  */
 class HomeCategoryWithPurchaseStatsListAdapter(
-    private val categoryStatsItemClickAction: (CategoryWithPurchaseNotesCountAndTotalPrice) -> Unit
+    private val categoryStatsItemClickAction: (CategoryWithStats) -> Unit
 ) : ListAdapter<HomeCategoryStatsUiState, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(
@@ -71,7 +71,7 @@ class HomeCategoryWithPurchaseStatsListAdapter(
                 ): Boolean = when {
                     oldItem is HomeCategoryStatsUiState.CategoryWithStatsItem &&
                             newItem is HomeCategoryStatsUiState.CategoryWithStatsItem -> {
-                        oldItem.categoryStatsItem.categoryId == newItem.categoryStatsItem.categoryId
+                        oldItem.categoryWithStatsItem.categoryId == newItem.categoryWithStatsItem.categoryId
                     }
 
                     oldItem is HomeCategoryStatsUiState.MoreItem &&

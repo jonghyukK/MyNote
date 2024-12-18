@@ -1,7 +1,7 @@
 package com.kjh.mynote.ui.features.home.piechart
 
 import androidx.core.content.ContextCompat
-import com.example.domain.model.CategoryWithPurchaseNotesCountAndTotalPrice
+import com.example.domain.model.CategoryWithStats
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhHomeCategoryPutchaseStatsItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
@@ -17,13 +17,13 @@ import com.kjh.mynote.utils.extensions.toComma
  */
 class HomeCategoryWithPurchaseStatsItemViewHolder(
     private val binding: VhHomeCategoryPutchaseStatsItemBinding,
-    private val categoryStatsItemClickAction: (CategoryWithPurchaseNotesCountAndTotalPrice) -> Unit
+    private val categoryStatsItemClickAction: (CategoryWithStats) -> Unit
 ): BaseViewHolder<HomeCategoryStatsUiState.CategoryWithStatsItem>(binding.root) {
 
     init {
         itemView.addClickAnimation()
         itemView.onThrottleClick {
-            bindItem?.let { item -> categoryStatsItemClickAction(item.categoryStatsItem) }
+            bindItem?.let { item -> categoryStatsItemClickAction(item.categoryWithStatsItem) }
         }
     }
 
@@ -31,9 +31,9 @@ class HomeCategoryWithPurchaseStatsItemViewHolder(
         super.bind(item)
 
         with (binding) {
-            tvCategoryName.text = item.categoryStatsItem.categoryName
-            tvCount.text = "구매노트 ${item.categoryStatsItem.purchaseNoteCount}건"
-            tvTotalPrice.text = context.getString(R.string.format_won, item.categoryStatsItem.totalPurchasePrice.toComma())
+            tvCategoryName.text = item.categoryWithStatsItem.categoryName
+            tvCount.text = "구매노트 ${item.categoryWithStatsItem.purchaseNoteTotalCount}건"
+            tvTotalPrice.text = context.getString(R.string.format_won, item.categoryWithStatsItem.purchaseNoteTotalPrice.toComma())
             vColor.setBackgroundColor(ContextCompat.getColor(context, item.colors))
         }
     }
