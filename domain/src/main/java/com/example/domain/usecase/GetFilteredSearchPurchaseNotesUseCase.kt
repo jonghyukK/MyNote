@@ -18,17 +18,23 @@ class GetFilteredSearchPurchaseNotesUseCase @Inject constructor(
     private val purchaseNoteRepository: PurchaseNoteRepository
 ) {
     suspend operator fun invoke(
-        queryText: String,
-        startDate: Long,
-        endDate: Long,
-        minPrice: Long,
-        maxPrice: Long,
-        categoryIds: List<Int>,
-        sortType: SortType
+        queryText: String? = null,
+        startDate: Long? = null,
+        endDate: Long? = null,
+        minPrice: Long? = null,
+        maxPrice: Long? = null,
+        categoryIds: List<Int> = emptyList(),
+        sortType: SortType = SortType.LATEST
     ): Flow<ApiResult<List<FilteredSearchPurchaseNotes>>> =
         safeApiCall {
             purchaseNoteRepository.getFilteredPurchaseNotes(
-                queryText, startDate, endDate, minPrice, maxPrice, categoryIds, sortType
+                queryText,
+                startDate,
+                endDate,
+                minPrice,
+                maxPrice,
+                categoryIds,
+                sortType
             )
         }
 }

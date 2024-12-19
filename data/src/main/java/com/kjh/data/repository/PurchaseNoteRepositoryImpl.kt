@@ -11,9 +11,11 @@ import com.kjh.data.model.entity.toEntity
 import com.kjh.data.source.local.PurchaseNoteDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 import java.time.Instant
 import java.time.ZoneOffset
 import javax.inject.Inject
+import kotlin.math.min
 
 /**
  * Created by kangjonghyuk.
@@ -50,11 +52,11 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getFilteredPurchaseNotes(
-        queryText: String,
-        startDate: Long,
-        endDate: Long,
-        minPrice: Long,
-        maxPrice: Long,
+        queryText: String?,
+        startDate: Long?,
+        endDate: Long?,
+        minPrice: Long?,
+        maxPrice: Long?,
         categoryIds: List<Int>,
         sortType: SortType
     ): List<FilteredSearchPurchaseNotes> {

@@ -26,13 +26,9 @@ class GetCategoryWithPurchaseNoteStatsUseCase @Inject constructor(
     ): Flow<ApiResult<CategoryPurchaseNoteStats>> =
         combine(
             getFilteredSearchPurchaseNotesUseCase(
-                queryText = "",
                 startDate = startDate,
                 endDate = endDate,
-                minPrice = 0,
-                maxPrice = 10000000,
-                categoryIds = listOf(categoryId),
-                sortType = SortType.LATEST
+                categoryIds = listOf(categoryId)
             ),
             getPurchaseNameRankingsUseCase(
                 categoryId = categoryId,

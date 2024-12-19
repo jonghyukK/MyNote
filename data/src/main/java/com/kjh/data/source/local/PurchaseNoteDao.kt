@@ -45,28 +45,25 @@ interface PurchaseNoteDao {
     @Transaction
     @Query("""
         SELECT * FROM purchase
-        WHERE purchaseName LIKE '%' || :queryText || '%'
-        AND purchaseDate >= :startDate
-        AND purchaseDate <= :endDate
-        AND purchasePrice >= :minPrice
-        AND purchasePrice <= :maxPrice
-        AND (:categoryIdsSize = 0 OR categoryId IN (:categoryIds))
+        WHERE 
+            (:queryText IS NULL OR purchaseName LIKE '%' || :queryText || '%') AND
+        (:startDate IS NULL OR purchaseDate >= :startDate) AND
+        (:endDate IS NULL OR purchaseDate <= :endDate) AND
+        (:minPrice IS NULL OR purchasePrice >= :minPrice) AND
+        (:maxPrice IS NULL OR purchasePrice <= :maxPrice) AND
+        (:categoryIdsSize = 0 OR categoryId IN (:categoryIds))
         ORDER BY
-        CASE
-            WHEN :sortType = 'LATEST' THEN purchaseDate END DESC,
-        CASE
-            WHEN :sortType = 'OLDEST' THEN purchaseDate END ASC,
-        CASE
-            WHEN :sortType = 'HIGH_PRICE' THEN purchasePrice END DESC,
-        CASE
-            WHEN :sortType = 'LOW_PRICE' THEN purchasePrice END ASC
+        CASE WHEN :sortType = 'LATEST' THEN purchaseDate END DESC,
+        CASE WHEN :sortType = 'OLDEST' THEN purchaseDate END ASC,
+        CASE WHEN :sortType = 'HIGH_PRICE' THEN purchasePrice END DESC,
+        CASE WHEN :sortType = 'LOW_PRICE' THEN purchasePrice END ASC
     """)
     suspend fun getFilteredPurchaseNotes(
-        queryText: String,
-        startDate: Long,
-        endDate: Long,
-        minPrice: Long,
-        maxPrice: Long,
+        queryText: String?,
+        startDate: Long?,
+        endDate: Long?,
+        minPrice: Long?,
+        maxPrice: Long?,
         categoryIds: List<Int>,
         categoryIdsSize: Int,
         sortType: String

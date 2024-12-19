@@ -25,11 +25,11 @@ interface PurchaseNoteRepository {
     suspend fun deletePurchaseNoteById(id: Int)
 
     suspend fun getFilteredPurchaseNotes(
-        queryText: String,
-        startDate: Long,
-        endDate: Long,
-        minPrice: Long,
-        maxPrice: Long,
+        queryText: String?,
+        startDate: Long?,
+        endDate: Long?,
+        minPrice: Long?,
+        maxPrice: Long?,
         categoryIds: List<Int>,
         sortType: SortType
     ): List<FilteredSearchPurchaseNotes>
