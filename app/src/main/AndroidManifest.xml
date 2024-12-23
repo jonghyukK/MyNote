@@ -53,6 +53,7 @@
         <activity android:name=".ui.features.purchase.search.PurchaseNoteSearchActivity" />
 
         <activity android:name=".ui.features.category.purchasestats.CategoryPurchaseNoteStatsActivity" />
+        <activity android:name=".ui.features.purchase.statistics.PurchaseNoteStatisticsActivity" />
     </application>
 
 </manifest>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="20dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:background="?attr/selectableItemBackground"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold"
+            tools:text="2024년 12월"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            app:tint="@color/black_800"
+            app:srcCompat="@drawable/ic_arrow_drop_down"
+            app:layout_constraintTop_toTopOf="@+id/tv_date"
+            app:layout_constraintStart_toEndOf="@+id/tv_date"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_date" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:text="작성한 구매노트는"
+        android:textSize="16sp"
+        android:textColor="@color/black_800"
+        app:layout_constraintTop_toTopOf="@+id/cl_date"
+        app:layout_constraintStart_toEndOf="@+id/cl_date"
+        app:layout_constraintBottom_toBottomOf="@id/cl_date" />
+
+    <!-- 구매노트 총 갯수 -->
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_total_note_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textColor="@color/black_900"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintTop_toBottomOf="@+id/cl_date"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="총 16건이고" />
+
+    <!-- 구매노트 총 금액 -->
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_total_note_price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textColor="@color/black_900"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintTop_toBottomOf="@+id/tv_total_note_count"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="총 금액은 188,000원이에요!" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="10dp"
+        android:background="@color/black_50"
+        android:layout_marginTop="20dp"
+        app:layout_constraintTop_toBottomOf="@+id/tv_total_note_price"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

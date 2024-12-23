@@ -24,6 +24,7 @@ object AppConstants {
     const val INTENT_PURCHASE_NOTE_ID = "INTENT_PURCHASE_NOTE_ID"
     const val INTENT_CATEGORY_ITEM = "INTENT_CATEGORY_ITEM"
     const val INTENT_QUERY_TEXT = "INTENT_QUERY_TEXT"
+    const val INTENT_DATE = "INTENT_DATE"
 
     const val DEFAULT_ZOOM_LEVEL = 13.0
     const val MAX_SELECTABLE_IMAGE_COUNT = 10
@@ -38,7 +39,8 @@ object AppConstants {
         R.color.pie_color_2,
         R.color.pie_color_3,
         R.color.pie_color_4,
-        R.color.pie_color_5
+        R.color.pie_color_5,
+        R.color.black_400
     )
 
     val chartColorAlphaList = listOf(

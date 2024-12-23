@@ -1,7 +1,10 @@
 package com.example.domain.model
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 
 /**
  * Created by kangjonghyuk.
@@ -9,10 +12,10 @@ import kotlinx.coroutines.flow.flow
  * Description:
  */
 
-sealed class ApiResult<out T> {
-    data object Loading: ApiResult<Nothing>()
-    data class Success<T>(val data: T) : ApiResult<T>()
-    data class Error<T>(val error: Throwable) : ApiResult<T>()
+sealed interface ApiResult<out T> {
+    data object Loading: ApiResult<Nothing>
+    data class Success<T>(val data: T) : ApiResult<T>
+    data class Error<T>(val error: Throwable) : ApiResult<T>
 }
 
 inline fun <T, R> ApiResult<T>.getResult(
@@ -56,3 +59,7 @@ inline fun <T> safeApiCall(crossinline call: suspend () -> T): Flow<ApiResult<T>
         emit(ApiResult.Error(e))
     }
 }
+
+fun <T> Flow<T>.asResult(): Flow<ApiResult<T>> = map<T, ApiResult<T>> { ApiResult.Success(it) }
+    .onStart { emit(ApiResult.Loading) }
+    .catch { emit(ApiResult.Error(it)) }

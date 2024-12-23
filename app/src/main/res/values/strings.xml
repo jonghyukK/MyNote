@@ -118,4 +118,5 @@
     <string name="nothing_place_note">등록된 장소노트가 없어요!</string>
     <string name="most_of_purchase_name_ranking">가장 많이 쓴 구매노트명 순위</string>
     <string name="u_can_see_max_5_purchase_name_ranking">가장 많이 쓴 구매노트명순으로 최대 5개까지 볼 수 있어요!</string>
+    <string name="purchase_note_statistics">구매노트 통계</string>
 </resources>
