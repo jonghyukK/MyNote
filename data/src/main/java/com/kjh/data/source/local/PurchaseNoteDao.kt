@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import com.example.domain.model.CategoryStats
 import com.example.domain.model.PurchaseNameStats
 import com.kjh.data.model.entity.PurchaseNoteEntity
 import com.kjh.data.model.entity.PurchaseNoteWithCategoryEntity
@@ -103,4 +104,22 @@ interface PurchaseNoteDao {
         startDate: Long?,
         endDate: Long?
     ): List<PurchaseNameStats>
+
+    @Query("""
+        SELECT
+            categories.id AS categoryId,
+            categories.categoryName AS categoryName,
+            COUNT(purchase.id) AS purchaseNoteTotalCount,
+            COALESCE(SUM(purchase.purchasePrice), 0) AS purchaseNoteTotalPrice
+        FROM
+            categories
+        LEFT JOIN
+            purchase ON categories.id = purchase.categoryId
+        WHERE
+            (:startDate IS NULL OR purchase.purchaseDate >= :startDate) AND
+            (:endDate IS NULL OR purchase.purchaseDate <= :endDate)
+        GROUP BY
+            categories.id, categories.categoryName
+    """)
+    fun getCategoryStatsByDate(startDate: Long?, endDate: Long?): Flow<List<CategoryStats>>
 }

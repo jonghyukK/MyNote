@@ -4,6 +4,7 @@ import com.example.domain.model.Category
 import com.example.domain.model.FilteredSearchPurchaseNotes
 import com.example.domain.model.PurchaseNameStats
 import com.example.domain.model.PurchaseNote
+import com.example.domain.model.PurchaseNoteStatistics
 import com.example.domain.model.SortType
 import com.example.domain.repository.PurchaseNoteRepository
 import com.kjh.data.model.entity.toDomainModel
@@ -11,11 +12,9 @@ import com.kjh.data.model.entity.toEntity
 import com.kjh.data.source.local.PurchaseNoteDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import timber.log.Timber
 import java.time.Instant
 import java.time.ZoneOffset
 import javax.inject.Inject
-import kotlin.math.min
 
 /**
  * Created by kangjonghyuk.
@@ -110,4 +109,19 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
     ): List<PurchaseNameStats> {
         return purchaseNoteLocalDateSource.getPurchaseNameRankings(categoryId, startDate, endDate)
     }
+
+    override fun getPurchaseNotesStatistics(
+        startDate: Long?,
+        endDate: Long?,
+    ): Flow<PurchaseNoteStatistics> =
+        purchaseNoteLocalDateSource.getCategoryStatsByDate(startDate, endDate)
+            .map { categoryStats ->
+                PurchaseNoteStatistics(
+                    totalNoteCount = categoryStats.sumOf { it.purchaseNoteTotalCount },
+                    totalPurchasePrice = categoryStats.sumOf { it.purchaseNoteTotalPrice },
+                    categoryStatsList = categoryStats
+                        .filter { it.purchaseNoteTotalCount > 0 }
+                        .sortedByDescending { it.purchaseNoteTotalCount }
+                )
+            }
 }

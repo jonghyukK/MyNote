@@ -4,6 +4,7 @@ import com.example.domain.model.Category
 import com.example.domain.model.FilteredSearchPurchaseNotes
 import com.example.domain.model.PurchaseNameStats
 import com.example.domain.model.PurchaseNote
+import com.example.domain.model.PurchaseNoteStatistics
 import com.example.domain.model.SortType
 import kotlinx.coroutines.flow.Flow
 
@@ -46,4 +47,9 @@ interface PurchaseNoteRepository {
         startDate: Long,
         endDate: Long
     ): List<PurchaseNameStats>
+
+    fun getPurchaseNotesStatistics(
+        startDate: Long?,
+        endDate: Long?
+    ): Flow<PurchaseNoteStatistics>
 }
