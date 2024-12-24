@@ -5,17 +5,22 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.domain.model.CategoryWithStats
+import com.example.domain.model.CategoryStats
 import com.github.mikephil.charting.data.PieEntry
 import com.kjh.mynote.databinding.FragmentHomeBinding
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseFragment
 import com.kjh.mynote.ui.features.category.purchasestats.CategoryPurchaseNoteStatsActivity
+import com.kjh.mynote.ui.features.home.adapter.HomeUiListAdapter
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
 import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
+import com.kjh.mynote.ui.features.purchase.statistics.PurchaseNoteStatisticsActivity
 import com.kjh.mynote.utils.constants.AppConstants
+import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -35,8 +40,10 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>({ FragmentHomeBinding.infl
             weekDayClickAction = weekDayClickAction,
             placeNoteClickAction = placeNoteClickAction,
             makePlaceNoteClickAction = makePlaceNoteClickAction,
+            seeAllPlaceNotesClickAction = seeAllPlaceNotesClickAction,
             sliceClickAction = sliceClickAction,
-            categoryStatsItemClickAction = categoryStatsItemClickAction
+            categoryStatsItemClickAction = categoryStatsItemClickAction,
+            seeAllPurchaseStatsClickAction = seeAllPurchaseStatsClickAction
         )
     }
 
@@ -50,20 +57,37 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>({ FragmentHomeBinding.infl
     }
 
     override fun onInitData() {
+        viewModel.getHomeData()
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
                 launch {
-                    viewModel.uiState.collect {
-                        placeNoteWeekViewAdapter.submitList(it)
-                    }
+                    viewModel.uiState
+                        .map { it.uiItems }
+                        .distinctUntilChanged()
+                        .collect {
+                            placeNoteWeekViewAdapter.submitList(it)
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.errorMsg }
+                        .distinctUntilChanged()
+                        .collect {
+                            it?.let {
+                                showToast(it)
+                                viewModel.shownError()
+                            }
+                        }
                 }
             }
         }
     }
 
     private val weekDayClickAction: (LocalDate) -> Unit = { localDate ->
-        viewModel.changePlaceNoteWeekDay(localDate)
+        viewModel.updatePlaceNoteWeekDay(localDate)
     }
 
     private val placeNoteClickAction: (PlaceNoteUiModel) -> Unit = { placeItem ->
@@ -80,14 +104,25 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>({ FragmentHomeBinding.infl
     }
 
     private val sliceClickAction: (PieEntry?) -> Unit = {
-        viewModel.setHighlightPieEntry(it)
+        viewModel.updateHighlightPieEntry(it)
     }
 
-    private val categoryStatsItemClickAction: (CategoryWithStats) -> Unit = { item ->
+    private val categoryStatsItemClickAction: (CategoryStats) -> Unit = { item ->
         Intent(requireContext(), CategoryPurchaseNoteStatsActivity::class.java).apply {
             putExtra(AppConstants.INTENT_CATEGORY_ITEM, CategoryUiModel(item.categoryId, item.categoryName))
             startActivity(this)
         }
+    }
+
+    private val seeAllPurchaseStatsClickAction: () -> Unit = {
+        Intent(requireContext(), PurchaseNoteStatisticsActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_DATE, LocalDate.now())
+            startActivity(this)
+        }
+    }
+
+    private val seeAllPlaceNotesClickAction: () -> Unit = {
+
     }
 
     companion object {

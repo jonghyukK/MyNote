@@ -1,11 +1,11 @@
-package com.kjh.mynote.ui.features.home.piechart
+package com.kjh.mynote.ui.features.home.adapter.statistics
 
 import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import com.example.domain.model.CategoryWithStats
+import com.example.domain.model.CategoryStats
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.PieData
@@ -17,7 +17,7 @@ import com.kjh.mynote.R
 import com.kjh.mynote.databinding.LayoutHomePieChartLegendBinding
 import com.kjh.mynote.databinding.VhHomePieChartItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.home.HomeUiState
+import com.kjh.mynote.ui.features.home.HomeUiItem
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.addClickAnimation
 import com.kjh.mynote.utils.extensions.onThrottleClick
@@ -28,17 +28,25 @@ import com.kjh.mynote.utils.extensions.onThrottleClick
  * Description:
  */
 
-class HomePurchaseNoteCategoryPieChartViewHolder(
+class HomePurchaseNoteStatisticsSectionItemViewHolder(
     private val binding: VhHomePieChartItemBinding,
     private val sliceClickAction: (PieEntry?) -> Unit,
-    private val categoryStatsItemClickAction: (CategoryWithStats) -> Unit
-): BaseViewHolder<HomeUiState.PurchaseNoteCategoryPieChartItem>(binding.root) {
+    private val categoryStatsItemClickAction: (CategoryStats) -> Unit,
+    private val seeAllPurchaseStatsClickAction: () -> Unit
+): BaseViewHolder<HomeUiItem.HomeMonthlyPurchaseStatisticsItem>(binding.root) {
 
-    private val categoryPurchaseStatsListAdapter = HomeCategoryWithPurchaseStatsListAdapter(categoryStatsItemClickAction)
+    private val categoryPurchaseStatsListAdapter = HomeCategoryStatsListAdapter(
+        categoryStatsItemClickAction = categoryStatsItemClickAction,
+        seeAllPurchaseStatsClickAction = seeAllPurchaseStatsClickAction
+    )
 
     private var legendViews: List<View> = emptyList()
 
     init {
+        binding.clShowAll.onThrottleClick {
+            bindItem?.let { seeAllPurchaseStatsClickAction() }
+        }
+
         binding.chart.apply {
             description.isEnabled = false
             legend.isEnabled = false
@@ -73,18 +81,18 @@ class HomePurchaseNoteCategoryPieChartViewHolder(
         }
     }
 
-    override fun bind(item: HomeUiState.PurchaseNoteCategoryPieChartItem) {
+    override fun bind(item: HomeUiItem.HomeMonthlyPurchaseStatisticsItem) {
         super.bind(item)
 
         setupPieChart(item)
         setupLegendViews(item)
         updateLegendHighlight(item.highlightedPieEntry)
 
-        binding.rvCategories.isVisible = item.categoryWithStatsItems.isNotEmpty()
-        categoryPurchaseStatsListAdapter.submitList(item.categoryWithStatsItems)
+        binding.rvCategories.isVisible = item.categoryStatsUiItems.isNotEmpty()
+        categoryPurchaseStatsListAdapter.submitList(item.categoryStatsUiItems)
     }
 
-    private fun setupPieChart(item: HomeUiState.PurchaseNoteCategoryPieChartItem) {
+    private fun setupPieChart(item: HomeUiItem.HomeMonthlyPurchaseStatisticsItem) {
         val pieDataSet = PieDataSet(item.pieEntries, "").apply {
             colors = item.pieColors.map { ContextCompat.getColor(context, it) }
             sliceSpace = 3f
@@ -93,18 +101,18 @@ class HomePurchaseNoteCategoryPieChartViewHolder(
 
         with (binding) {
             chart.centerText = item.highlightedPieEntry?.let { "구매노트 ${it.value.toInt()}건" }
+            chart.isHighlightPerTapEnabled = item.categoryStatsUiItems.isNotEmpty()
             chart.data = PieData(pieDataSet)
-            chart.isHighlightPerTapEnabled = item.categoryWithStatsItems.isNotEmpty()
         }
     }
 
-    private fun setupLegendViews(item: HomeUiState.PurchaseNoteCategoryPieChartItem) {
+    private fun setupLegendViews(item: HomeUiItem.HomeMonthlyPurchaseStatisticsItem) {
         binding.llLegendContainer.removeAllViews()
         legendViews = makeLegendViews(item)
         legendViews.forEach { binding.llLegendContainer.addView(it) }
     }
 
-    private fun makeLegendViews(chartItem: HomeUiState.PurchaseNoteCategoryPieChartItem): List<View> {
+    private fun makeLegendViews(chartItem: HomeUiItem.HomeMonthlyPurchaseStatisticsItem): List<View> {
         return chartItem.pieEntries.indices.map { i ->
             val legendBinding = LayoutHomePieChartLegendBinding.inflate(
                 LayoutInflater.from(context), binding.llLegendContainer, false)
@@ -116,7 +124,7 @@ class HomePurchaseNoteCategoryPieChartViewHolder(
                 viewLegendColor.setBackgroundColor(
                     ContextCompat.getColor(context, chartItem.pieColors[i]))
 
-                if (chartItem.categoryWithStatsItems.isNotEmpty()) {
+                if (chartItem.categoryStatsUiItems.isNotEmpty()) {
                     root.tag = categoryName
                     root.addClickAnimation()
                     root.onThrottleClick {

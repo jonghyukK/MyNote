@@ -1,9 +1,5 @@
-package com.kjh.mynote.ui.features.home.weekview
+package com.kjh.mynote.ui.features.home.adapter.weeklyplacenotes
 
-import android.view.View
-import androidx.core.view.marginTop
-import androidx.core.view.setPadding
-import androidx.core.view.updatePadding
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.LayoutEmptyMyPlacesBinding
 import com.kjh.mynote.databinding.VhHomePlaceNoteWeekViewInnerMoreItemBinding
@@ -85,6 +81,13 @@ class HomePlaceNoteWeekViewInnerEmptyItemViewHolder(
  */
 class HomePlaceNoteWeekViewInnerMoreItemViewHolder(
     private val binding: VhHomePlaceNoteWeekViewInnerMoreItemBinding,
+    private val seeAllPlaceNotesClickAction: () -> Unit
 ): BaseViewHolder<Unit>(binding.root) {
 
+    init {
+        binding.tvMore.addClickAnimation()
+        binding.tvMore.onThrottleClick {
+            bindItem?.let { seeAllPlaceNotesClickAction() }
+        }
+    }
 }

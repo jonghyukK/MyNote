@@ -24,6 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="12dp"
+        android:background="?attr/selectableItemBackground"
         app:layout_constraintTop_toTopOf="@+id/tv_section_title"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -69,7 +70,7 @@
             app:isOnlyThisWeek="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_section_title" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <!-- 장소노트 목록 -->
         <androidx.recyclerview.widget.RecyclerView

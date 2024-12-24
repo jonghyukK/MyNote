@@ -6,8 +6,8 @@ package com.kjh.mynote.model
  * Description:
  */
 sealed class UiState<out T: Any> {
-    object Init: UiState<Nothing>()
-    object Loading: UiState<Nothing>()
+    data object Init: UiState<Nothing>()
+    data object Loading: UiState<Nothing>()
 
     data class Success<T: Any>(val data: T): UiState<T>()
 

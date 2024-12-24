@@ -5,7 +5,7 @@ package com.example.domain.model
  * Created On 2024. 12. 12..
  * Description:
  */
-data class CategoryWithStats(
+data class CategoryStats(
     val categoryId: Int,
     val categoryName: String,
     val purchaseNoteTotalCount: Int,
