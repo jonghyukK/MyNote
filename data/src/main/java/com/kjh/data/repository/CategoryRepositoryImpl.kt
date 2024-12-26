@@ -2,7 +2,6 @@ package com.kjh.data.repository
 
 import com.example.domain.model.Category
 import com.example.domain.model.CategoryWithPurchaseNoteCount
-import com.example.domain.model.CategoryWithStats
 import com.example.domain.repository.CategoryRepository
 import com.kjh.data.model.entity.toDomainModel
 import com.kjh.data.model.entity.toEntity
@@ -46,10 +45,4 @@ class CategoryRepositoryImpl @Inject constructor(
     override suspend fun deleteCategoryById(id: Int) {
         categoryLocalDataSource.deleteCategoryById(id)
     }
-
-    override fun getCategoriesWithStats(
-        startDate: Long,
-        endDate: Long
-    ): Flow<List<CategoryWithStats>> =
-        categoryLocalDataSource.getCategoriesWithStatsByDate(startDate, endDate)
 }
