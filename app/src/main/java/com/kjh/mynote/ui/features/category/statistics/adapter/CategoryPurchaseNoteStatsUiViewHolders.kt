@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.category.purchasestats.adapter
+package com.kjh.mynote.ui.features.category.statistics.adapter
 
 import androidx.core.content.ContextCompat
 import com.kjh.mynote.R
@@ -6,7 +6,7 @@ import com.kjh.mynote.databinding.LayoutEmptyMyPurchasesBinding
 import com.kjh.mynote.databinding.VhCategoryPurchaseNoteStatsRankingSectionItemBinding
 import com.kjh.mynote.databinding.VhCategoryPurchaseNotesStatsInfoItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.category.purchasestats.CategoryPurchaseNoteStatsUiItems
+import com.kjh.mynote.ui.features.category.statistics.CategoryPurchaseNoteStatsUiItems
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.highlightText
 import com.kjh.mynote.utils.extensions.onThrottleClick

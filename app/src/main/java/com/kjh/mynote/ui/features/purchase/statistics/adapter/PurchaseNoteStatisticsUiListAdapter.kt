@@ -10,9 +10,8 @@ import com.kjh.mynote.databinding.LayoutEmptyMyPurchasesBinding
 import com.kjh.mynote.databinding.VhHomeCategoryPutchaseStatsItemBinding
 import com.kjh.mynote.databinding.VhPurchaseNoteStatsInfoItemBinding
 import com.kjh.mynote.databinding.VhPurchaseNoteStatsPieChartItemBinding
-import com.kjh.mynote.ui.features.category.purchasestats.adapter.PurchaseNotesEmptyItemViewHolder
+import com.kjh.mynote.ui.features.category.statistics.adapter.PurchaseNotesEmptyItemViewHolder
 import com.kjh.mynote.ui.features.purchase.statistics.PurchaseNoteStaticsUiItem
-import java.time.LocalDate
 
 /**
  * Created by kangjonghyuk.

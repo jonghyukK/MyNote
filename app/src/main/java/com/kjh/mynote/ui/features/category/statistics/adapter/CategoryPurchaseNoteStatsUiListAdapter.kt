@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.category.purchasestats.adapter
+package com.kjh.mynote.ui.features.category.statistics.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -13,7 +13,7 @@ import com.kjh.mynote.databinding.VhPurchaseNoteSearchResultItemBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.ui.common.vh.PurchaseNoteDateItemViewHolder
 import com.kjh.mynote.ui.common.vh.PurchaseNoteItemViewHolder
-import com.kjh.mynote.ui.features.category.purchasestats.CategoryPurchaseNoteStatsUiItems
+import com.kjh.mynote.ui.features.category.statistics.CategoryPurchaseNoteStatsUiItems
 
 /**
  * Created by kangjonghyuk.
