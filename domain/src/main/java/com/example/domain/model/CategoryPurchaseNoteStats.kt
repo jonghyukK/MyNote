@@ -9,6 +9,5 @@ package com.example.domain.model
 data class CategoryPurchaseNoteStats(
     val categoryTotalCount: Int = 0,
     val categoryTotalPrice: Long = 0,
-    val purchaseNameStatsList: List<PurchaseNameStats>,
-    val purchaseNoteList: List<FilteredSearchPurchaseNotes>
+    val purchaseNameStats: List<PurchaseNameStats>
 )

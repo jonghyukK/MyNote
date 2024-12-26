@@ -1,8 +1,9 @@
 package com.example.domain.repository
 
+import com.example.domain.model.ApiResult
 import com.example.domain.model.Category
+import com.example.domain.model.CategoryPurchaseNoteStats
 import com.example.domain.model.FilteredSearchPurchaseNotes
-import com.example.domain.model.PurchaseNameStats
 import com.example.domain.model.PurchaseNote
 import com.example.domain.model.PurchaseNoteStatistics
 import com.example.domain.model.SortType
@@ -25,7 +26,7 @@ interface PurchaseNoteRepository {
 
     suspend fun deletePurchaseNoteById(id: Int)
 
-    suspend fun getFilteredPurchaseNotes(
+    fun getFilteredPurchaseNotes(
         queryText: String?,
         startDate: Long?,
         endDate: Long?,
@@ -33,7 +34,7 @@ interface PurchaseNoteRepository {
         maxPrice: Long?,
         categoryIds: List<Int>,
         sortType: SortType
-    ): List<FilteredSearchPurchaseNotes>
+    ): Flow<ApiResult<List<FilteredSearchPurchaseNotes>>>
 
     val getMaxPurchasePrice: Flow<Long?>
 
@@ -42,14 +43,14 @@ interface PurchaseNoteRepository {
         date: Long
     ): List<PurchaseNote>
 
-    suspend fun getPurchaseNameRankings(
-        categoryId: Int,
-        startDate: Long,
-        endDate: Long
-    ): List<PurchaseNameStats>
-
     fun getPurchaseNotesStatistics(
         startDate: Long?,
         endDate: Long?
     ): Flow<PurchaseNoteStatistics>
+
+    fun getCategoryStatistics(
+        categoryId: Int,
+        startDate: Long,
+        endDate: Long
+    ): Flow<ApiResult<CategoryPurchaseNoteStats>>
 }

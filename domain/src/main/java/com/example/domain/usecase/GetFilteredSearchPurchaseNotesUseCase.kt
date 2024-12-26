@@ -3,7 +3,6 @@ package com.example.domain.usecase
 import com.example.domain.model.ApiResult
 import com.example.domain.model.FilteredSearchPurchaseNotes
 import com.example.domain.model.SortType
-import com.example.domain.model.safeApiCall
 import com.example.domain.repository.PurchaseNoteRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -17,7 +16,7 @@ import javax.inject.Inject
 class GetFilteredSearchPurchaseNotesUseCase @Inject constructor(
     private val purchaseNoteRepository: PurchaseNoteRepository
 ) {
-    suspend operator fun invoke(
+    operator fun invoke(
         queryText: String? = null,
         startDate: Long? = null,
         endDate: Long? = null,
@@ -26,15 +25,13 @@ class GetFilteredSearchPurchaseNotesUseCase @Inject constructor(
         categoryIds: List<Int> = emptyList(),
         sortType: SortType = SortType.LATEST
     ): Flow<ApiResult<List<FilteredSearchPurchaseNotes>>> =
-        safeApiCall {
-            purchaseNoteRepository.getFilteredPurchaseNotes(
-                queryText,
-                startDate,
-                endDate,
-                minPrice,
-                maxPrice,
-                categoryIds,
-                sortType
-            )
-        }
+        purchaseNoteRepository.getFilteredPurchaseNotes(
+            queryText,
+            startDate,
+            endDate,
+            minPrice,
+            maxPrice,
+            categoryIds,
+            sortType
+        )
 }
