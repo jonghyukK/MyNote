@@ -123,7 +123,7 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
     override fun getPurchaseNotesStatistics(
         startDate: Long?,
         endDate: Long?,
-    ): Flow<PurchaseNoteStatistics> {
+    ): Flow<ApiResult<PurchaseNoteStatistics>> {
         val purchaseNoteTotalStats =
             purchaseNoteLocalDateSource.getPurchaseNoteTotalStats(startDate = startDate, endDate = endDate)
         val categoryStatsList =
@@ -140,7 +140,7 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
                     .filter { it.purchaseNoteTotalCount > 0 }
                     .sortedByDescending { it.purchaseNoteTotalCount }
             )
-        }
+        }.asResult()
     }
 
     /**

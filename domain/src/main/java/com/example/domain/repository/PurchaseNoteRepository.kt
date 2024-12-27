@@ -16,15 +16,20 @@ import kotlinx.coroutines.flow.Flow
  */
 interface PurchaseNoteRepository {
 
-    suspend fun insertAndGetPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote
-
     val getPurchaseNotesWithCategory: Flow<List<PurchaseNote>>
 
-    fun getPurchaseNotesByCategories(categories: List<Category>): Flow<List<PurchaseNote>>
+    val getMaxPurchasePrice: Flow<Long?>
+
+    suspend fun insertAndGetPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote
 
     suspend fun getPurchaseNoteById(id: Int): PurchaseNote
 
     suspend fun deletePurchaseNoteById(id: Int)
+
+    suspend fun getPurchaseNotesByPlaceAndDate(
+        placeName: String,
+        date: Long
+    ): List<PurchaseNote>
 
     fun getFilteredPurchaseNotes(
         queryText: String?,
@@ -36,17 +41,12 @@ interface PurchaseNoteRepository {
         sortType: SortType
     ): Flow<ApiResult<List<FilteredSearchPurchaseNotes>>>
 
-    val getMaxPurchasePrice: Flow<Long?>
-
-    suspend fun getPurchaseNotesByPlaceAndDate(
-        placeName: String,
-        date: Long
-    ): List<PurchaseNote>
+    fun getPurchaseNotesByCategories(categories: List<Category>): Flow<List<PurchaseNote>>
 
     fun getPurchaseNotesStatistics(
         startDate: Long?,
         endDate: Long?
-    ): Flow<PurchaseNoteStatistics>
+    ): Flow<ApiResult<PurchaseNoteStatistics>>
 
     fun getCategoryStatistics(
         categoryId: Int,
