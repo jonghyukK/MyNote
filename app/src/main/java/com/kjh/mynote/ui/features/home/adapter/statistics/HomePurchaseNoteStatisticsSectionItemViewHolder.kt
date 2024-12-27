@@ -21,6 +21,7 @@ import com.kjh.mynote.ui.features.home.HomeUiItem
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.addClickAnimation
 import com.kjh.mynote.utils.extensions.onThrottleClick
+import com.kjh.mynote.utils.extensions.toComma
 
 /**
  * Created by kangjonghyuk.
@@ -88,7 +89,10 @@ class HomePurchaseNoteStatisticsSectionItemViewHolder(
         setupLegendViews(item)
         updateLegendHighlight(item.highlightedPieEntry)
 
+        binding.tvTotalNoteCount.text = "전체 ${item.totalNoteCount}건"
+        binding.tvTotalNotePrice.text = "총 ${item.totalNotePrice.toComma()}원"
         binding.rvCategories.isVisible = item.categoryStatsUiItems.isNotEmpty()
+
         categoryPurchaseStatsListAdapter.submitList(item.categoryStatsUiItems)
     }
 

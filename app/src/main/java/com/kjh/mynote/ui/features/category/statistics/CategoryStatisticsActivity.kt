@@ -15,7 +15,7 @@ import com.kjh.mynote.ui.features.category.statistics.adapter.CategoryPurchaseNo
 import com.kjh.mynote.ui.features.purchase.detail.PurchaseNoteDetailActivity
 import com.kjh.mynote.ui.features.purchase.make.MakePurchaseNoteActivity
 import com.kjh.mynote.utils.constants.AppConstants
-import com.kjh.mynote.utils.decorations.PurchaseNotesUiStateItemDecoration2
+import com.kjh.mynote.ui.features.category.statistics.adapter.decoration.CategoryStatisticsListItemDecoration
 import com.kjh.mynote.utils.extensions.makeGone
 import com.kjh.mynote.utils.extensions.makeVisible
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
@@ -50,11 +50,12 @@ class CategoryStatisticsActivity
         with(binding) {
             rvPurchaseNotes.apply {
                 itemAnimator = null
-                addItemDecoration(PurchaseNotesUiStateItemDecoration2())
+                addItemDecoration(CategoryStatisticsListItemDecoration())
                 adapter = listAdapter
             }
 
             llDateContainer.setOnThrottleClickListener(dateClickListener)
+            ivBack.setOnThrottleClickListener(backButtonClickListener)
         }
     }
 
@@ -118,6 +119,10 @@ class CategoryStatisticsActivity
             selectedDate = viewModel.currentDate.value,
             yearsRange = 1
         ).show(supportFragmentManager, SelectableYearMonthListBSDialog.TAG)
+    }
+
+    private val backButtonClickListener = View.OnClickListener {
+        finish()
     }
 
     override fun onClickYearMonth(date: LocalDate) {

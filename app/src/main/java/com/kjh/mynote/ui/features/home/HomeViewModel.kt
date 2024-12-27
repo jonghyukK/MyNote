@@ -181,7 +181,8 @@ class HomeViewModel @Inject constructor(
                         MonthlyPurchaseStatisticsUiState.Error(purchaseNoteStatisticsResult.error)
                     }
                     is ApiResult.Success -> {
-                        val top5Items = purchaseNoteStatisticsResult.data.categoryStatsList.take(5)
+                        val purchaseNoteStats = purchaseNoteStatisticsResult.data
+                        val top5Items = purchaseNoteStats.categoryStatsList.take(5)
                         val pieColors = makePieColors(top5Items.size)
 
                         val categoryStatsUiItems: MutableList<MonthlyCategoryStatsUiItem> =
@@ -192,12 +193,14 @@ class HomeViewModel @Inject constructor(
                                 )
                             }.toMutableList()
 
-                        if (purchaseNoteStatisticsResult.data.categoryStatsList.size > 5) {
+                        if (purchaseNoteStats.categoryStatsList.size > 5) {
                             categoryStatsUiItems.add(MonthlyCategoryStatsUiItem.More)
                         }
 
                         MonthlyPurchaseStatisticsUiState.Success(
                             data = HomeUiItem.HomeMonthlyPurchaseStatisticsItem(
+                                totalNoteCount = purchaseNoteStats.totalNoteCount,
+                                totalNotePrice = purchaseNoteStats.totalPurchasePrice,
                                 pieEntries = makePieEntry(top5Items),
                                 pieColors = pieColors,
                                 categoryStatsUiItems = categoryStatsUiItems
@@ -280,6 +283,8 @@ sealed class HomeUiItem {
     ): HomeUiItem()
 
     data class HomeMonthlyPurchaseStatisticsItem(
+        val totalNoteCount: Int,
+        val totalNotePrice: Long,
         val pieEntries: List<PieEntry>,
         val pieColors: List<Int>,
         val highlightedPieEntry: PieEntry? = null,

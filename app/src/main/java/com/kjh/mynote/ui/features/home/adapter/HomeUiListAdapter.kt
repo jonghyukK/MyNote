@@ -79,10 +79,12 @@ class HomeUiListAdapter(
                 oldItem: HomeUiItem,
                 newItem: HomeUiItem,
             ): Boolean = when {
-                oldItem is HomeUiItem.HomeWeeklyPurchaseNoteItem && newItem is HomeUiItem.HomeWeeklyPurchaseNoteItem -> {
+                oldItem is HomeUiItem.HomeWeeklyPurchaseNoteItem
+                        && newItem is HomeUiItem.HomeWeeklyPurchaseNoteItem -> {
                     true
                 }
-                oldItem is HomeUiItem.HomeMonthlyPurchaseStatisticsItem && newItem is HomeUiItem.HomeMonthlyPurchaseStatisticsItem -> {
+                oldItem is HomeUiItem.HomeMonthlyPurchaseStatisticsItem
+                        && newItem is HomeUiItem.HomeMonthlyPurchaseStatisticsItem -> {
                     oldItem.pieEntries == newItem.pieEntries
                 }
                 else -> false
