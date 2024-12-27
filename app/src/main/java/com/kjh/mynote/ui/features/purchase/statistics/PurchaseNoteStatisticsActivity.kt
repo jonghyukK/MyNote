@@ -11,10 +11,7 @@ import com.kjh.mynote.ui.common.dialog.yearmonths.SelectableYearMonthListBSDialo
 import com.kjh.mynote.ui.features.purchase.statistics.adapter.PurchaseNoteStatisticsUiListAdapter
 import com.kjh.mynote.ui.features.purchase.statistics.decoration.PurchaseNoteStatisticsItemDecoration
 import com.kjh.mynote.utils.extensions.showToast
-import com.kjh.mynote.utils.extensions.toStringWithPattern
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -50,29 +47,23 @@ class PurchaseNoteStatisticsActivity:
     }
 
     override fun onInitUiData() {
-        viewModel.fetchPurchaseNoteStatistics()
+        viewModel.getPurchaseNoteStatistics()
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    viewModel.uiState
-                        .map { it.errorMsg }
-                        .distinctUntilChanged()
-                        .collect {
-                            it?.let {
+                viewModel.uiState.collect { uiState ->
+                    when (uiState) {
+                        is PurchaseNoteStatisticsUiState.Loading -> {}
+                        is PurchaseNoteStatisticsUiState.Error -> {
+                            uiState.error.message?.let {
                                 showToast(it)
-                                viewModel.shownError()
                             }
                         }
-                }
 
-                launch {
-                    viewModel.uiState
-                        .map { it.uiItems }
-                        .distinctUntilChanged()
-                        .collect {
-                            listAdapter.submitList(it)
+                        is PurchaseNoteStatisticsUiState.Success -> {
+                            listAdapter.submitList(uiState.uiItems)
                         }
+                    }
                 }
             }
         }
@@ -84,7 +75,7 @@ class PurchaseNoteStatisticsActivity:
 
     private val dateClickAction: () -> Unit = {
         SelectableYearMonthListBSDialog.newInstance(
-            selectedDate = viewModel.uiState.value.currentDate,
+            selectedDate = viewModel.currentDate.value,
             yearsRange = 1
         ).show(supportFragmentManager, SelectableYearMonthListBSDialog.TAG)
     }

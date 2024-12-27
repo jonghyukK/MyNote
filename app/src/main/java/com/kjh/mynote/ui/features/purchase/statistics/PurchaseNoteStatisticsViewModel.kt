@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
 import com.example.domain.model.CategoryStats
 import com.example.domain.model.PurchaseNoteStatistics
-import com.example.domain.model.asResult
 import com.example.domain.usecase.GetPurchaseNoteStatisticsUseCase
 import com.github.mikephil.charting.data.PieEntry
 import com.kjh.mynote.R
@@ -17,7 +16,8 @@ import com.kjh.mynote.utils.extensions.toMillis
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -28,124 +28,72 @@ import javax.inject.Inject
  * Description:
  */
 
-sealed class PurchaseNoteStaticsUiItem {
-    data object Empty: PurchaseNoteStaticsUiItem()
-
-    data class StatsInfoItem(
-        val purchaseNoteTotalCount: Int,
-        val purchaseNoteTotalPrice: Long,
-        val currentDate: LocalDate
-    ): PurchaseNoteStaticsUiItem()
-
-    data class PieChartItem(
-        val isEmpty: Boolean = true,
-        val pieEntries: List<PieEntry> = emptyList(),
-        val pieColors: List<Int> = emptyList(),
-        val highlightedPieEntry: PieEntry? = null
-    ): PurchaseNoteStaticsUiItem()
-
-    data class CategoryStatsItem(
-        val categoryStatsItem: CategoryStats,
-        val color: Int
-    ): PurchaseNoteStaticsUiItem()
-}
-
-data class PurchaseNoteStatisticsUiState(
-    val isLoading: Boolean = true,
-    val errorMsg: String? = null,
-    val currentDate: LocalDate = LocalDate.now(),
-    val uiItems: List<PurchaseNoteStaticsUiItem> = emptyList()
-)
-
 @HiltViewModel
 class PurchaseNoteStatisticsViewModel @Inject constructor(
     private val getPurchaseNoteStatisticsUseCase: GetPurchaseNoteStatisticsUseCase,
     private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
-    private val _initDate = savedStateHandle[AppConstants.INTENT_DATE] ?: LocalDate.now()
+    private val _currentDate = MutableStateFlow(savedStateHandle[AppConstants.INTENT_DATE] ?: LocalDate.now())
+    val currentDate = _currentDate.asStateFlow()
 
-    private val _uiState = MutableStateFlow(PurchaseNoteStatisticsUiState(currentDate = _initDate))
+    private val _uiState = MutableStateFlow<PurchaseNoteStatisticsUiState>(PurchaseNoteStatisticsUiState.Loading)
     val uiState = _uiState.asStateFlow()
 
-    fun fetchPurchaseNoteStatistics() {
+    fun getPurchaseNoteStatistics() {
         viewModelScope.launch {
-            val currentDate = _uiState.value.currentDate
-            val startDate = currentDate.getFirstDayOfMonth().toMillis()
-            val endDate = currentDate.getLastDayOfMonth().toMillis()
-
-            getPurchaseNoteStatisticsUseCase(startDate, endDate)
-                .asResult()
-                .collect { purchaseNoteStatisticsResult ->
-                    when (purchaseNoteStatisticsResult) {
+            currentDate.flatMapLatest { date ->
+                getPurchaseNoteStatisticsUseCase(
+                    startDate = date.getFirstDayOfMonth().toMillis(),
+                    endDate =  date.getLastDayOfMonth().toMillis()
+                ).map { result ->
+                    when (result) {
                         is ApiResult.Loading -> {
-                            _uiState.update {
-                                it.copy(isLoading = true)
-                            }
+                            PurchaseNoteStatisticsUiState.Loading
                         }
                         is ApiResult.Error -> {
-                            _uiState.update {
-                                it.copy(
-                                    isLoading = false,
-                                    errorMsg = purchaseNoteStatisticsResult.error.message ?: "구매노트 통계 데이터를 가져오는데 실패하였습니다.",
-                                    uiItems = emptyList()
-                                )
-                            }
+                            PurchaseNoteStatisticsUiState.Error(result.error)
                         }
                         is ApiResult.Success -> {
-                            val categoryStatsList = purchaseNoteStatisticsResult.data.categoryStatsList
+                            val categoryStatsList = result.data.categoryStatsList
 
-                            val statsInfoUiItem = makeStatsInfoUiItem(currentDate, purchaseNoteStatisticsResult.data)
+                            val statsInfoUiItem = makeStatsInfoUiItem(date, result.data)
                             val pieChartUiItem = makePieChartUiItem(categoryStatsList)
 
                             val uiItems = if (categoryStatsList.isEmpty()) {
                                 listOf(statsInfoUiItem, pieChartUiItem) + PurchaseNoteStaticsUiItem.Empty
                             } else {
                                 val categoryStatsUiItems = makeCategoryStatsUiItems(categoryStatsList)
-
                                 listOf(statsInfoUiItem, pieChartUiItem) + categoryStatsUiItems
                             }
 
-                            _uiState.update {
-                                it.copy(
-                                    isLoading = false,
-                                    uiItems = uiItems
-                                )
-                            }
+                            PurchaseNoteStatisticsUiState.Success(uiItems)
                         }
                     }
                 }
+            }.collect {
+                _uiState.value = it
+            }
         }
     }
 
     fun setDate(newDate: LocalDate) {
-        if (newDate == _uiState.value.currentDate) return
+        if (newDate == _currentDate.value) return
 
-        _uiState.update {
-            it.copy(currentDate = newDate)
-        }
-
-        fetchPurchaseNoteStatistics()
+        _currentDate.value = newDate
     }
 
     fun updateHighlightEntry(pieEntry: PieEntry?) {
-        _uiState.update { uiState ->
-            uiState.copy(
-                uiItems = uiState.uiItems.map { uiItem ->
-                    if (uiItem is PurchaseNoteStaticsUiItem.PieChartItem) {
-                        uiItem.copy(highlightedPieEntry = pieEntry)
-                    } else {
-                        uiItem
-                    }
-                }
-            )
-        }
-    }
+        val uiState = _uiState.value as? PurchaseNoteStatisticsUiState.Success ?: return
 
-    fun shownError() {
-        _uiState.update {
-            it.copy(errorMsg = null)
+        val updatedUiItems = uiState.uiItems.map { uiItem ->
+            when (uiItem) {
+                is PurchaseNoteStaticsUiItem.PieChartItem -> uiItem.copy(highlightedPieEntry = pieEntry)
+                else -> uiItem
+            }
         }
+
+        _uiState.value = uiState.copy(uiItems = updatedUiItems)
     }
 
     private fun makeStatsInfoUiItem(
@@ -204,4 +152,32 @@ class PurchaseNoteStatisticsViewModel @Inject constructor(
             AppConstants.chartColorList[index]
         }
     }
+}
+
+sealed class PurchaseNoteStaticsUiItem {
+    data object Empty: PurchaseNoteStaticsUiItem()
+
+    data class StatsInfoItem(
+        val purchaseNoteTotalCount: Int,
+        val purchaseNoteTotalPrice: Long,
+        val currentDate: LocalDate
+    ): PurchaseNoteStaticsUiItem()
+
+    data class PieChartItem(
+        val isEmpty: Boolean = true,
+        val pieEntries: List<PieEntry> = emptyList(),
+        val pieColors: List<Int> = emptyList(),
+        val highlightedPieEntry: PieEntry? = null
+    ): PurchaseNoteStaticsUiItem()
+
+    data class CategoryStatsItem(
+        val categoryStatsItem: CategoryStats,
+        val color: Int
+    ): PurchaseNoteStaticsUiItem()
+}
+
+sealed interface PurchaseNoteStatisticsUiState {
+    data object Loading: PurchaseNoteStatisticsUiState
+    data class Error(val error: Throwable): PurchaseNoteStatisticsUiState
+    data class Success(val uiItems: List<PurchaseNoteStaticsUiItem>): PurchaseNoteStatisticsUiState
 }
