@@ -19,8 +19,6 @@ import com.kjh.mynote.ui.features.purchase.statistics.PurchaseNoteStatisticsActi
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -35,7 +33,7 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>({ FragmentHomeBinding.infl
 
     private val viewModel: HomeViewModel by viewModels()
 
-    private val placeNoteWeekViewAdapter: HomeUiListAdapter by lazy {
+    private val homeUiListAdapter: HomeUiListAdapter by lazy {
         HomeUiListAdapter(
             weekDayClickAction = weekDayClickAction,
             placeNoteClickAction = placeNoteClickAction,
@@ -51,7 +49,7 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>({ FragmentHomeBinding.infl
         with (binding) {
             rvHomeUis.apply {
                 itemAnimator = null
-                adapter = placeNoteWeekViewAdapter
+                adapter = homeUiListAdapter
             }
         }
     }
@@ -61,26 +59,20 @@ class HomeFragment: BaseFragment<FragmentHomeBinding>({ FragmentHomeBinding.infl
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-
                 launch {
-                    viewModel.uiState
-                        .map { it.uiItems }
-                        .distinctUntilChanged()
-                        .collect {
-                            placeNoteWeekViewAdapter.submitList(it)
-                        }
-                }
-
-                launch {
-                    viewModel.uiState
-                        .map { it.errorMsg }
-                        .distinctUntilChanged()
-                        .collect {
-                            it?.let {
-                                showToast(it)
-                                viewModel.shownError()
+                    viewModel.uiState.collect { uiState ->
+                        when (uiState) {
+                            is HomeUiState.Loading -> {}
+                            is HomeUiState.Error -> {
+                                uiState.error.message?.let {
+                                    showToast(it)
+                                }
+                            }
+                            is HomeUiState.HomeUi -> {
+                                homeUiListAdapter.submitList(uiState.uiItems)
                             }
                         }
+                    }
                 }
             }
         }

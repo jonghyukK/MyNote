@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
 import com.example.domain.model.CategoryStats
-import com.example.domain.model.asResult
 import com.example.domain.usecase.GetPlaceNotesByDateRangeUseCase
 import com.example.domain.usecase.GetPurchaseNoteStatisticsUseCase
 import com.github.mikephil.charting.data.PieEntry
@@ -25,7 +24,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -36,54 +34,6 @@ import javax.inject.Inject
  * Description:
  */
 
-sealed interface WeeklyPlaceNotesUiState {
-    data object Loading: WeeklyPlaceNotesUiState
-    data class Error(val error: Throwable): WeeklyPlaceNotesUiState
-    data class Success(val data: HomeUiItem.HomeWeeklyPurchaseNoteItem): WeeklyPlaceNotesUiState
-}
-
-sealed interface MonthlyPurchaseStatisticsUiState {
-    data object Loading: MonthlyPurchaseStatisticsUiState
-    data class Error(val error: Throwable): MonthlyPurchaseStatisticsUiState
-    data class Success(val data: HomeUiItem.HomeMonthlyPurchaseStatisticsItem) : MonthlyPurchaseStatisticsUiState
-}
-
-sealed class WeeklyPlaceNoteUiItem {
-    data object Empty: WeeklyPlaceNoteUiItem()
-    data object More: WeeklyPlaceNoteUiItem()
-    data class PlaceNote(val item: PlaceNoteUiModel): WeeklyPlaceNoteUiItem()
-}
-
-sealed class MonthlyCategoryStatsUiItem {
-    data object More: MonthlyCategoryStatsUiItem()
-    data class CategoryStatsItem(
-        val item: CategoryStats,
-        val color: Int
-    ): MonthlyCategoryStatsUiItem()
-}
-
-sealed class HomeUiItem {
-    data class HomeWeeklyPurchaseNoteItem(
-        val selectedDate: LocalDate,
-        val groupedNoteMap: Map<LocalDate, List<PlaceNoteUiModel>>,
-        val placeNoteUiItems: List<WeeklyPlaceNoteUiItem>,
-        val eventExistingDays: List<LocalDate>
-    ): HomeUiItem()
-
-    data class HomeMonthlyPurchaseStatisticsItem(
-        val pieEntries: List<PieEntry>,
-        val pieColors: List<Int>,
-        val highlightedPieEntry: PieEntry? = null,
-        val categoryStatsUiItems: List<MonthlyCategoryStatsUiItem>
-    ): HomeUiItem()
-}
-
-data class HomeUiState(
-    val isLoading: Boolean = true,
-    val errorMsg: String? = null,
-    val uiItems: List<HomeUiItem> = emptyList()
-)
-
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getPlaceNotesByDateRangeUseCase: GetPlaceNotesByDateRangeUseCase,
@@ -93,7 +43,7 @@ class HomeViewModel @Inject constructor(
     private val _todayDate: LocalDate = LocalDate.now()
     private val _selectedDate = MutableStateFlow(LocalDate.now())
 
-    private val _uiState = MutableStateFlow(HomeUiState())
+    private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState = _uiState.asStateFlow()
 
     fun getHomeData() {
@@ -110,52 +60,27 @@ class HomeViewModel @Inject constructor(
     }
 
     fun updateHighlightPieEntry(entry: PieEntry?) {
-        _uiState.update { uiState ->
-            uiState.copy(
-                uiItems = uiState.uiItems.map { uiItem ->
-                    if (uiItem is HomeUiItem.HomeMonthlyPurchaseStatisticsItem) {
-                        uiItem.copy(highlightedPieEntry = entry)
-                    } else {
-                        uiItem
-                    }
-                }
-            )
+        val uiState = _uiState.value as? HomeUiState.HomeUi ?: return
+
+        val updatedUiItems = uiState.uiItems.map { uiItem ->
+            when(uiItem) {
+                is HomeUiItem.HomeMonthlyPurchaseStatisticsItem -> uiItem.copy(highlightedPieEntry = entry)
+                else -> uiItem
+            }
         }
+
+        _uiState.value = uiState.copy(uiItems = updatedUiItems)
     }
 
     fun updatePlaceNoteWeekDay(newDay: LocalDate) {
         _selectedDate.value = newDay
-
-        _uiState.update { uiState ->
-            uiState.copy(
-                uiItems = uiState.uiItems.map { uiItem ->
-                    if (uiItem is HomeUiItem.HomeWeeklyPurchaseNoteItem) {
-                        val placeNoteItemsInSelectedDay = uiItem.groupedNoteMap[newDay] ?: emptyList()
-                        uiItem.copy(
-                            selectedDate = newDay,
-                            placeNoteUiItems = makeHomePlaceNoteUiItems(placeNoteItemsInSelectedDay)
-                        )
-                    } else {
-                        uiItem
-                    }
-                }
-            )
-        }
-    }
-
-    fun shownError() {
-        _uiState.update {
-            it.copy(
-                errorMsg = null
-            )
-        }
     }
 
     private val weeklyPlaceNotesUiState: StateFlow<WeeklyPlaceNotesUiState> =
         weeklyPlaceNotesUiState(
             startDate = _todayDate.getWeekStartAndEndDates().first.toMillis(),
             endDate = _todayDate.getWeekStartAndEndDates().second.toMillis(),
-            selectedDate = _selectedDate.value
+            selectedDate = _selectedDate
         )
             .stateIn(
                 scope = viewModelScope,
@@ -181,81 +106,65 @@ class HomeViewModel @Inject constructor(
         return when {
             weeklyPurchaseNoteState is WeeklyPlaceNotesUiState.Loading ||
                     monthlyPurchaseStatisticsUiState is MonthlyPurchaseStatisticsUiState.Loading -> {
-                HomeUiState(
-                    isLoading = true,
-                    errorMsg = null,
-                    uiItems = emptyList()
-                )
+                HomeUiState.Loading
             }
 
             weeklyPurchaseNoteState is WeeklyPlaceNotesUiState.Error -> {
-                HomeUiState(
-                    isLoading = false,
-                    errorMsg = weeklyPurchaseNoteState.error.message
-                        ?: "주간 구매노트 목록을 불러오는데 실패하였습니다.",
-                    uiItems = emptyList()
-                )
+                HomeUiState.Error(weeklyPurchaseNoteState.error)
             }
 
             monthlyPurchaseStatisticsUiState is MonthlyPurchaseStatisticsUiState.Error -> {
-                HomeUiState(
-                    isLoading = false,
-                    errorMsg = monthlyPurchaseStatisticsUiState.error.message
-                        ?: "월간 구매노트 통계 데이터를 불러오는데 실패하였습니다.",
-                    uiItems = emptyList()
-                )
+                HomeUiState.Error(monthlyPurchaseStatisticsUiState.error)
             }
 
             monthlyPurchaseStatisticsUiState is MonthlyPurchaseStatisticsUiState.Success &&
                     weeklyPurchaseNoteState is WeeklyPlaceNotesUiState.Success -> {
-                HomeUiState(
-                    isLoading = false,
-                    errorMsg = null,
-                    uiItems = listOf(
-                        weeklyPurchaseNoteState.data,
-                        monthlyPurchaseStatisticsUiState.data
-                    )
+                val uiItems = listOf(
+                    weeklyPurchaseNoteState.data,
+                    monthlyPurchaseStatisticsUiState.data
                 )
+
+                HomeUiState.HomeUi(uiItems)
             }
 
-            else -> HomeUiState(
-                isLoading = false, errorMsg = null, uiItems = emptyList()
-            )
+            else -> HomeUiState.HomeUi(emptyList())
         }
     }
+
 
     private fun weeklyPlaceNotesUiState(
         startDate: Long,
         endDate: Long,
-        selectedDate: LocalDate,
+        selectedDate: StateFlow<LocalDate>,
     ): Flow<WeeklyPlaceNotesUiState> {
-        return getPlaceNotesByDateRangeUseCase(startDate, endDate)
-            .asResult()
-            .map { placeNotesResult ->
-                when (placeNotesResult) {
-                    is ApiResult.Loading -> {
-                        WeeklyPlaceNotesUiState.Loading
-                    }
-                    is ApiResult.Error -> {
-                        WeeklyPlaceNotesUiState.Error(placeNotesResult.error)
-                    }
-                    is ApiResult.Success -> {
-                        val groupedNoteMap = placeNotesResult.data.toUiModel()
-                            .groupBy { it.localDate }
+        return combine(
+            selectedDate,
+            getPlaceNotesByDateRangeUseCase(startDate, endDate)
+        ) { date, placeNotesResult ->
+            when (placeNotesResult) {
+                is ApiResult.Loading -> {
+                    WeeklyPlaceNotesUiState.Loading
+                }
+                is ApiResult.Error -> {
+                    WeeklyPlaceNotesUiState.Error(placeNotesResult.error)
+                }
+                is ApiResult.Success -> {
+                    val groupedNoteMap = placeNotesResult.data.toUiModel()
+                        .groupBy { it.localDate }
 
-                        val noteInSelectedDay = groupedNoteMap[selectedDate] ?: emptyList()
+                    val noteInSelectedDay = groupedNoteMap[date] ?: emptyList()
 
-                        WeeklyPlaceNotesUiState.Success(
-                            data = HomeUiItem.HomeWeeklyPurchaseNoteItem(
-                                selectedDate = selectedDate,
-                                groupedNoteMap = groupedNoteMap,
-                                placeNoteUiItems = makeHomePlaceNoteUiItems(noteInSelectedDay),
-                                eventExistingDays = groupedNoteMap.keys.toList()
-                            )
+                    WeeklyPlaceNotesUiState.Success(
+                        data = HomeUiItem.HomeWeeklyPurchaseNoteItem(
+                            selectedDate = date,
+                            groupedNoteMap = groupedNoteMap,
+                            placeNoteUiItems = makeHomePlaceNoteUiItems(noteInSelectedDay),
+                            eventExistingDays = groupedNoteMap.keys.toList()
                         )
-                    }
+                    )
                 }
             }
+        }
     }
 
     private fun monthlyPurchaseStatisticsUiState(
@@ -263,7 +172,6 @@ class HomeViewModel @Inject constructor(
         endDate: Long
     ): Flow<MonthlyPurchaseStatisticsUiState> {
         return getPurchaseNoteStatisticsUseCase(startDate, endDate)
-            .asResult()
             .map { purchaseNoteStatisticsResult ->
                 when (purchaseNoteStatisticsResult) {
                     is ApiResult.Loading -> {
@@ -335,4 +243,52 @@ class HomeViewModel @Inject constructor(
             AppConstants.chartColorList[index]
         }
     }
+}
+
+sealed interface WeeklyPlaceNotesUiState {
+    data object Loading: WeeklyPlaceNotesUiState
+    data class Error(val error: Throwable): WeeklyPlaceNotesUiState
+    data class Success(val data: HomeUiItem.HomeWeeklyPurchaseNoteItem): WeeklyPlaceNotesUiState
+}
+
+sealed interface MonthlyPurchaseStatisticsUiState {
+    data object Loading: MonthlyPurchaseStatisticsUiState
+    data class Error(val error: Throwable): MonthlyPurchaseStatisticsUiState
+    data class Success(val data: HomeUiItem.HomeMonthlyPurchaseStatisticsItem) : MonthlyPurchaseStatisticsUiState
+}
+
+sealed class WeeklyPlaceNoteUiItem {
+    data object Empty: WeeklyPlaceNoteUiItem()
+    data object More: WeeklyPlaceNoteUiItem()
+    data class PlaceNote(val item: PlaceNoteUiModel): WeeklyPlaceNoteUiItem()
+}
+
+sealed class MonthlyCategoryStatsUiItem {
+    data object More: MonthlyCategoryStatsUiItem()
+    data class CategoryStatsItem(
+        val item: CategoryStats,
+        val color: Int
+    ): MonthlyCategoryStatsUiItem()
+}
+
+sealed class HomeUiItem {
+    data class HomeWeeklyPurchaseNoteItem(
+        val selectedDate: LocalDate,
+        val groupedNoteMap: Map<LocalDate, List<PlaceNoteUiModel>>,
+        val placeNoteUiItems: List<WeeklyPlaceNoteUiItem>,
+        val eventExistingDays: List<LocalDate>
+    ): HomeUiItem()
+
+    data class HomeMonthlyPurchaseStatisticsItem(
+        val pieEntries: List<PieEntry>,
+        val pieColors: List<Int>,
+        val highlightedPieEntry: PieEntry? = null,
+        val categoryStatsUiItems: List<MonthlyCategoryStatsUiItem>
+    ): HomeUiItem()
+}
+
+sealed interface HomeUiState {
+    data object Loading: HomeUiState
+    data class Error(val error: Throwable): HomeUiState
+    data class HomeUi(val uiItems: List<HomeUiItem>): HomeUiState
 }
