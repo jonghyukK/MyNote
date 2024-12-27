@@ -39,10 +39,12 @@ class CategoryStatisticsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
-    private val _currentCategory = MutableStateFlow(savedStateHandle.get<CategoryUiModel>(AppConstants.INTENT_CATEGORY_ITEM)!!)
+    private val _currentCategory = MutableStateFlow(
+        savedStateHandle.get<CategoryUiModel>(AppConstants.INTENT_CATEGORY_ITEM)!!)
     val currentCategory = _currentCategory.asStateFlow()
 
-    private val _currentDate = MutableStateFlow(LocalDate.now())
+    private val _currentDate = MutableStateFlow(
+        savedStateHandle.get<LocalDate>(AppConstants.INTENT_DATE) ?: LocalDate.now())
     val currentDate = _currentDate.asStateFlow()
 
     private val categoryStatsFlow = getCategoryStatsFlow(
@@ -115,6 +117,38 @@ class CategoryStatisticsViewModel @Inject constructor(
 
         _currentDate.value = newDate
     }
+
+    private fun makeStatsInfoUiItem(data: CategoryPurchaseNoteStats, currentCategory: CategoryUiModel) =
+        CategoryPurchaseNoteStatsUiItems.StatsInfoItem(
+            currentCategory = currentCategory,
+            totalNoteCount = data.categoryTotalCount,
+            totalNotePrice = data.categoryTotalPrice
+        )
+
+    private fun makePurchaseNameStatsUiItem(data: CategoryPurchaseNoteStats) =
+        CategoryPurchaseNoteStatsUiItems.PurchaseNameRankingItem(
+            purchaseNameStatsItems = data.purchaseNameStats.take(5).mapIndexed { index, item ->
+                PurchaseNameStatsItem(
+                    purchaseName = item.purchaseName,
+                    totalCount = item.totalCount,
+                    totalPrice = item.totalPrice,
+                    maxCount = data.purchaseNameStats.maxOfOrNull { it.totalCount } ?: 0,
+                    color = AppConstants.chartColorAlphaList[index]
+                )
+            }
+        )
+
+    private fun makePurchaseNoteUiItems(purchaseNotes: List<FilteredSearchPurchaseNotes>) =
+        if (purchaseNotes.isEmpty()) {
+            listOf(CategoryPurchaseNoteStatsUiItems.Empty)
+        } else {
+            purchaseNotes.toUiModel().flatMap { model ->
+                listOf(CategoryPurchaseNoteStatsUiItems.PurchaseNoteDateItem(model.date!!)) +
+                        model.purchaseNoteItems.map {
+                            CategoryPurchaseNoteStatsUiItems.PurchaseNoteItem(it)
+                        }
+            }
+        }
 }
 
 private fun getPurchaseNotesFlow(
@@ -144,38 +178,6 @@ private fun getCategoryStatsFlow(
         endDate = date.getLastDayOfMonth().toMillis()
     )
 }
-
-private fun makeStatsInfoUiItem(data: CategoryPurchaseNoteStats, currentCategory: CategoryUiModel) =
-    CategoryPurchaseNoteStatsUiItems.StatsInfoItem(
-        currentCategory = currentCategory,
-        totalNoteCount = data.categoryTotalCount,
-        totalNotePrice = data.categoryTotalPrice
-    )
-
-private fun makePurchaseNameStatsUiItem(data: CategoryPurchaseNoteStats) =
-    CategoryPurchaseNoteStatsUiItems.PurchaseNameRankingItem(
-        purchaseNameStatsItems = data.purchaseNameStats.take(5).mapIndexed { index, item ->
-            PurchaseNameStatsItem(
-                purchaseName = item.purchaseName,
-                totalCount = item.totalCount,
-                totalPrice = item.totalPrice,
-                maxCount = data.purchaseNameStats.maxOfOrNull { it.totalCount } ?: 0,
-                color = AppConstants.chartColorAlphaList[index]
-            )
-        }
-    )
-
-private fun makePurchaseNoteUiItems(purchaseNotes: List<FilteredSearchPurchaseNotes>) =
-    if (purchaseNotes.isEmpty()) {
-        listOf(CategoryPurchaseNoteStatsUiItems.Empty)
-    } else {
-        purchaseNotes.toUiModel().flatMap { model ->
-            listOf(CategoryPurchaseNoteStatsUiItems.PurchaseNoteDateItem(model.date!!)) +
-                    model.purchaseNoteItems.map {
-                        CategoryPurchaseNoteStatsUiItems.PurchaseNoteItem(it)
-                    }
-        }
-    }
 
 data class PurchaseNameStatsItem(
     val purchaseName: String,

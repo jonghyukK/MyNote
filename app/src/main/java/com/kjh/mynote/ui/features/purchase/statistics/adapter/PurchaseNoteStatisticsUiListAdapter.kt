@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.domain.model.CategoryStats
 import com.github.mikephil.charting.data.PieEntry
 import com.kjh.mynote.databinding.LayoutEmptyMyPurchasesBinding
 import com.kjh.mynote.databinding.VhHomeCategoryPutchaseStatsItemBinding
@@ -21,6 +22,7 @@ import com.kjh.mynote.ui.features.purchase.statistics.PurchaseNoteStaticsUiItem
 class PurchaseNoteStatisticsUiListAdapter(
     private val dateClickAction: () -> Unit,
     private val sliceClickAction: (PieEntry?) -> Unit,
+    private val categoryStatsClickAction: (CategoryStats) -> Unit
 ): ListAdapter<PurchaseNoteStaticsUiItem, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
@@ -43,7 +45,7 @@ class PurchaseNoteStatisticsUiListAdapter(
                 CategoryStatsItemViewHolder(
                     VhHomeCategoryPutchaseStatsItemBinding.inflate(
                         LayoutInflater.from(parent.context), parent, false
-                    )
+                    ), categoryStatsClickAction
                 )
             }
             VIEW_TYPE_EMPTY -> {

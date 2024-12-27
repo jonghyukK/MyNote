@@ -1,15 +1,20 @@
 package com.kjh.mynote.ui.features.purchase.statistics
 
+import android.content.Intent
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.domain.model.CategoryStats
 import com.github.mikephil.charting.data.PieEntry
 import com.kjh.mynote.databinding.ActivityPurchaseNoteStatisticsBinding
+import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.common.dialog.yearmonths.SelectableYearMonthListBSDialog
+import com.kjh.mynote.ui.features.category.statistics.CategoryStatisticsActivity
 import com.kjh.mynote.ui.features.purchase.statistics.adapter.PurchaseNoteStatisticsUiListAdapter
 import com.kjh.mynote.ui.features.purchase.statistics.decoration.PurchaseNoteStatisticsItemDecoration
+import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -32,7 +37,8 @@ class PurchaseNoteStatisticsActivity:
     private val listAdapter: PurchaseNoteStatisticsUiListAdapter by lazy {
         PurchaseNoteStatisticsUiListAdapter(
             dateClickAction = dateClickAction,
-            sliceClickAction = sliceClickAction
+            sliceClickAction = sliceClickAction,
+            categoryStatsClickAction = categoryStatsClickAction
         )
     }
 
@@ -78,6 +84,14 @@ class PurchaseNoteStatisticsActivity:
             selectedDate = viewModel.currentDate.value,
             yearsRange = 1
         ).show(supportFragmentManager, SelectableYearMonthListBSDialog.TAG)
+    }
+
+    private val categoryStatsClickAction: (CategoryStats) -> Unit = { item ->
+        Intent(this, CategoryStatisticsActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_CATEGORY_ITEM, CategoryUiModel(item.categoryId, item.categoryName))
+            putExtra(AppConstants.INTENT_DATE, viewModel.currentDate.value)
+            startActivity(this)
+        }
     }
 
     override fun onClickYearMonth(date: LocalDate) {

@@ -4,6 +4,7 @@ import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import androidx.core.content.ContextCompat
+import com.example.domain.model.CategoryStats
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.PieData
@@ -189,8 +190,16 @@ class PieChartItemViewHolder(
  * @property binding
  */
 class CategoryStatsItemViewHolder(
-    private val binding: VhHomeCategoryPutchaseStatsItemBinding
+    private val binding: VhHomeCategoryPutchaseStatsItemBinding,
+    private val categoryStatsClickAction: (CategoryStats) -> Unit
 ): BaseViewHolder<PurchaseNoteStaticsUiItem.CategoryStatsItem>(binding.root) {
+
+    init {
+        itemView.addClickAnimation()
+        itemView.onThrottleClick {
+            bindItem?.let { item -> categoryStatsClickAction(item.categoryStatsItem) }
+        }
+    }
 
     override fun bind(item: PurchaseNoteStaticsUiItem.CategoryStatsItem) {
         super.bind(item)
