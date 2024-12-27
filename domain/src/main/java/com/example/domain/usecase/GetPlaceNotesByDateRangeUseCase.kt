@@ -1,5 +1,6 @@
 package com.example.domain.usecase
 
+import com.example.domain.model.ApiResult
 import com.example.domain.model.PlaceNote
 import com.example.domain.repository.PlaceNoteRepository
 import kotlinx.coroutines.flow.Flow
@@ -16,5 +17,5 @@ class GetPlaceNotesByDateRangeUseCase @Inject constructor(
     operator fun invoke(
         startDate: Long,
         endDate: Long
-    ): Flow<List<PlaceNote>> = placeNoteRepository.getPlaceNotesWithinDateRange(startDate, endDate)
+    ): Flow<ApiResult<List<PlaceNote>>> = placeNoteRepository.getPlaceNotesWithinDateRange(startDate, endDate)
 }

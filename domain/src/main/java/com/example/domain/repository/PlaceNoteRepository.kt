@@ -1,5 +1,6 @@
 package com.example.domain.repository
 
+import com.example.domain.model.ApiResult
 import com.example.domain.model.FilteredSearchPlaceNotes
 import com.example.domain.model.PlaceNote
 import com.example.domain.model.SearchPlaceNoteWithCount
@@ -34,5 +35,5 @@ interface PlaceNoteRepository {
         isDescending: Boolean
     ): List<FilteredSearchPlaceNotes>
 
-    fun getPlaceNotesWithinDateRange(startDate: Long, endDate: Long): Flow<List<PlaceNote>>
+    fun getPlaceNotesWithinDateRange(startDate: Long, endDate: Long): Flow<ApiResult<List<PlaceNote>>>
 }

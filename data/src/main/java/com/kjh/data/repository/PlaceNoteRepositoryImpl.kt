@@ -1,8 +1,10 @@
 package com.kjh.data.repository
 
+import com.example.domain.model.ApiResult
 import com.example.domain.model.FilteredSearchPlaceNotes
 import com.example.domain.model.PlaceNote
 import com.example.domain.model.SearchPlaceNoteWithCount
+import com.example.domain.model.asResult
 import com.example.domain.repository.PlaceNoteRepository
 import com.kjh.data.model.entity.PlaceNoteEntity
 import com.kjh.data.model.entity.toDomainModel
@@ -118,8 +120,8 @@ class PlaceNoteRepositoryImpl @Inject constructor(
             }
     }
 
-    override fun getPlaceNotesWithinDateRange(startDate: Long, endDate: Long): Flow<List<PlaceNote>> =
+    override fun getPlaceNotesWithinDateRange(startDate: Long, endDate: Long): Flow<ApiResult<List<PlaceNote>>> =
         noteLocalDataSource.getPlaceNotesWithinDateRange(startDate, endDate).map {
             it.toDomainModel()
-        }
+        }.asResult()
 }
