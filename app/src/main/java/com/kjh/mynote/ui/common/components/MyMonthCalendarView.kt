@@ -40,6 +40,20 @@ class MyMonthCalendarView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ): FrameLayout(context, attrs, defStyleAttr) {
 
+    var selectedDayTextColorRes = R.color.white
+    var unselectedDayTextColorRes = R.color.black_900
+    var afterDayTextColorRes = R.color.black_500
+
+    var selectedDayBgRes = R.drawable.shape_oval_s_purple_200_wh_30
+    var unselectedDayBgRes = R.drawable.ripple_white
+    var todayBgRes = R.drawable.shape_c_999_l_purple
+
+    var customDayViewResource: Int = R.layout.calendar_day
+        set(value) {
+            binding.calendarView.dayViewResource = value
+            field = value
+        }
+
     private val binding = CommonLayoutMyMonthCalendarBinding.inflate(LayoutInflater.from(context), this, true)
 
     private val todayDate: LocalDate = LocalDate.now()
@@ -47,12 +61,6 @@ class MyMonthCalendarView @JvmOverloads constructor(
 
     private var selectedDate: LocalDate = LocalDate.now()
     private var hasEventDates: List<LocalDate> = emptyList()
-
-    var customDayViewResource: Int = R.layout.calendar_day
-        set(value) {
-            binding.calendarView.dayViewResource = value
-            field = value
-        }
 
     init {
         onInitCalendarMonthView()
@@ -99,9 +107,9 @@ class MyMonthCalendarView @JvmOverloads constructor(
                 val dayTextColor = if (isAfterDayFromToday) {
                     afterDayTextColorRes
                 } else if (isSelectedDate) {
-                    selectedDayTextColor
+                    selectedDayTextColorRes
                 } else {
-                    unselectedDayTextColor
+                    unselectedDayTextColorRes
                 }
 
                 val dayBgRes = if (isSelectedDate) {
@@ -182,14 +190,5 @@ class MyMonthCalendarView @JvmOverloads constructor(
     companion object {
         private val dayOfWeekSundayTextColorRes = R.color.red_500
         private val dayOfWeekNormalTextColorRes = R.color.black_800
-
-        private val selectedDayTextColor = R.color.white
-        private val unselectedDayTextColor = R.color.black_900
-
-        private val selectedDayBgRes = R.drawable.shape_oval_s_purple_200_wh_30
-        private val unselectedDayBgRes = R.drawable.ripple_white
-        private val todayBgRes = R.drawable.shape_c_999_l_purple
-
-        private val afterDayTextColorRes = R.color.black_500
     }
 }
