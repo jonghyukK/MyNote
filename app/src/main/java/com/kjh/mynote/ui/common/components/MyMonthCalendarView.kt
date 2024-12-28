@@ -48,6 +48,12 @@ class MyMonthCalendarView @JvmOverloads constructor(
     private var selectedDate: LocalDate = LocalDate.now()
     private var hasEventDates: List<LocalDate> = emptyList()
 
+    var customDayViewResource: Int = R.layout.calendar_day
+        set(value) {
+            binding.calendarView.dayViewResource = value
+            field = value
+        }
+
     init {
         onInitCalendarMonthView()
     }
@@ -167,6 +173,10 @@ class MyMonthCalendarView @JvmOverloads constructor(
 
     fun setMonthScrollListener(listener: MonthScrollListener) {
         binding.calendarView.monthScrollListener = listener
+    }
+
+    fun smoothScrollToMonth(month: LocalDate) {
+        binding.calendarView.smoothScrollToMonth(month.yearMonth)
     }
 
     companion object {
