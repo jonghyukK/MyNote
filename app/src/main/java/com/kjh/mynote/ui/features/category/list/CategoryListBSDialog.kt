@@ -10,16 +10,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.mynote.databinding.BsdCategoryListDialogBinding
 import com.kjh.mynote.model.CategoryUiModel
-import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
+import com.kjh.mynote.ui.common.dialog.categorymanage.CategoryAddOrDeleteOrEditDialog
+import com.kjh.mynote.ui.common.dialog.categorymanage.CategoryDialogType
 import com.kjh.mynote.ui.features.category.list.adapter.CategoryListAdapter
-import com.kjh.mynote.ui.features.category.list.dialog.CategoryAddOrDeleteOrEditDialog
-import com.kjh.mynote.ui.features.category.list.dialog.CategoryDialogType
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
-import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
@@ -29,7 +26,8 @@ import kotlinx.coroutines.launch
  */
 
 @AndroidEntryPoint
-class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialogBinding>({ BsdCategoryListDialogBinding.inflate(it) }) {
+class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialogBinding>({ BsdCategoryListDialogBinding.inflate(it) }),
+CategoryAddOrDeleteOrEditDialog.CategoryManageEventCallback {
 
     private val viewModel: CategoryListViewModel by viewModels()
 
@@ -72,42 +70,6 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
                         listAdapter.submitList(categoryItems)
                     }
                 }
-
-                launch {
-                    viewModel.makeCategoryEventState.collectLatest { event ->
-                        when (event) {
-                            is UiState.Error -> showToast(event.errorMsg)
-                            is UiState.Success -> dialogDismissAndSetNull()
-                            else -> {}
-                        }
-                    }
-                }
-
-                launch {
-                    viewModel.updateCategoryNameEventState.collectLatest { event ->
-                        when (event) {
-                            is UiState.Error -> showToast(event.errorMsg)
-                            is UiState.Success -> {
-                                updateCategoryNameAction(event.data)
-                                dialogDismissAndSetNull()
-                            }
-                            else -> {}
-                        }
-                    }
-                }
-
-                launch {
-                    viewModel.deleteCategoryEventState.collectLatest { event ->
-                        when (event) {
-                            is UiState.Error -> showToast(event.errorMsg)
-                            is UiState.Success -> {
-                                deleteCategoryAction(event.data)
-                                dialogDismissAndSetNull()
-                            }
-                            else -> {}
-                        }
-                    }
-                }
             }
         }
     }
@@ -148,6 +110,20 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
             dialogType = CategoryDialogType.ADD
         )
         categoryEditDialog?.show(childFragmentManager, CategoryAddOrDeleteOrEditDialog.TAG)
+    }
+
+    override fun addEventCallback() {
+        dialogDismissAndSetNull()
+    }
+
+    override fun editEventCallback(category: CategoryUiModel) {
+        updateCategoryNameAction(category)
+        dialogDismissAndSetNull()
+    }
+
+    override fun deleteEventCallback(categoryId: Int) {
+        deleteCategoryAction(categoryId)
+        dialogDismissAndSetNull()
     }
 
     companion object {
