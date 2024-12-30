@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
  */
 interface PlaceNoteRepository {
 
-    val placeNotesFlow: Flow<List<PlaceNote>>
+    fun getAllPlaceNotes(): Flow<List<PlaceNote>>
 
     suspend fun upsertAndGetPlaceNote(
         placeNote: PlaceNote,

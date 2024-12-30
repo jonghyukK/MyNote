@@ -6,7 +6,6 @@ import com.example.domain.model.PlaceNote
 import com.example.domain.model.SearchPlaceNoteWithCount
 import com.example.domain.model.asResult
 import com.example.domain.repository.PlaceNoteRepository
-import com.kjh.data.model.entity.PlaceNoteEntity
 import com.kjh.data.model.entity.toDomainModel
 import com.kjh.data.model.entity.toEntity
 import com.kjh.data.source.local.PlaceNoteDao
@@ -31,8 +30,9 @@ class PlaceNoteRepositoryImpl @Inject constructor(
      *
      *  return Flow<List<PlaceNote>>
      */
-    override val placeNotesFlow: Flow<List<PlaceNote>>
-        get() = noteLocalDataSource.observeAll().map(List<PlaceNoteEntity>::toDomainModel)
+    override fun getAllPlaceNotes(): Flow<List<PlaceNote>> =
+        noteLocalDataSource.getAllPlaceNotes()
+            .map { it.toDomainModel() }
 
     /**
      *  장소노트 Insert Or Update 후, 장소노트 반환.
