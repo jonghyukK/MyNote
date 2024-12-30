@@ -6,4 +6,6 @@
     <dimen name="dialog_side_space">80dp</dimen>
     <dimen name="home_place_note_empty_height">120dp</dimen>
     <dimen name="purchase_note_empty_view_height">300dp</dimen>
+
+    <dimen name="fab_button_size">46dp</dimen>
 </resources>
