@@ -54,6 +54,8 @@
 
         <activity android:name=".ui.features.category.statistics.CategoryStatisticsActivity" />
         <activity android:name=".ui.features.purchase.statistics.PurchaseNoteStatisticsActivity" />
+
+        <activity android:name=".ui.features.mypage.category.CategoryManageActivity" />
     </application>
 
 </manifest>

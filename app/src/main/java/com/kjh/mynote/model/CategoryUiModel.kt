@@ -16,7 +16,9 @@ data class CategoryUiModel(
     val id: Int,
     val categoryName: String,
     val purchaseNoteCount: Int = 0
-): Parcelable
+): Parcelable {
+    fun isDefaultCategory() = id == 999
+}
 
 /**
  *  Category (domain) -> CategoryUiModel (presentation)
@@ -25,6 +27,11 @@ fun Category.toUiModel() = CategoryUiModel(
     id = id,
     categoryName = categoryName
 )
+
+/**
+ *  List<Category> (domain) -> List<CategoryUiModel> (presentation)
+ */
+fun List<Category>.toUiModel() = map(Category::toUiModel)
 
 /**
  *  CategoryUiModel (presentation) -> Category (domain)
