@@ -6,7 +6,7 @@ import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityMainBinding
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.features.home.HomeFragment
-import com.kjh.mynote.ui.features.place.calendar.PlaceNoteCalendarHomeFragment
+import com.kjh.mynote.ui.features.place.home.PlaceNoteHomeFragment
 import com.kjh.mynote.ui.features.purchase.home.PurchaseHomeFragment
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -51,7 +51,7 @@ class MainActivity: BaseActivity<ActivityMainBinding>({ ActivityMainBinding.infl
 
     private fun getFragmentBy(tag: String) = when (tag) {
         HomeFragment.TAG -> HomeFragment.newInstance()
-        PlaceNoteCalendarHomeFragment.TAG -> PlaceNoteCalendarHomeFragment.newInstance()
+        PlaceNoteHomeFragment.TAG -> PlaceNoteHomeFragment.newInstance()
         PurchaseHomeFragment.TAG -> PurchaseHomeFragment.newInstance()
         else -> throw Exception("Wrong Fragment Tag")
     }
@@ -59,8 +59,8 @@ class MainActivity: BaseActivity<ActivityMainBinding>({ ActivityMainBinding.infl
     private val bnvOnItemSelectedListener = OnItemSelectedListener { item ->
         val tag = when (item.itemId) {
             R.id.nav_home -> MainFragments.HOME_FRAGMENT.tag
-            R.id.nav_place -> MainFragments.CALENDAR_WITH_PLACES_FRAGMENT.tag
-            R.id.nav_purchase -> MainFragments.PURCHASE_FRAGMENT.tag
+            R.id.nav_place -> MainFragments.PLACE_NOTE_HOME_FRAGMENT.tag
+            R.id.nav_purchase -> MainFragments.PURCHASE_NOTE_HOME_FRAGMENT.tag
             else -> throw Exception("Wrong MenuItem Id")
         }
 
@@ -71,8 +71,8 @@ class MainActivity: BaseActivity<ActivityMainBinding>({ ActivityMainBinding.infl
     companion object {
         enum class MainFragments(val tag: String) {
             HOME_FRAGMENT(HomeFragment.TAG),
-            CALENDAR_WITH_PLACES_FRAGMENT(PlaceNoteCalendarHomeFragment.TAG),
-            PURCHASE_FRAGMENT(PurchaseHomeFragment.TAG)
+            PLACE_NOTE_HOME_FRAGMENT(PlaceNoteHomeFragment.TAG),
+            PURCHASE_NOTE_HOME_FRAGMENT(PurchaseHomeFragment.TAG)
         }
     }
 }

@@ -1,12 +1,12 @@
-package com.kjh.mynote.ui.features.place.calendar
+package com.kjh.mynote.ui.features.place.home
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -14,15 +14,17 @@ import com.kjh.mynote.R
 import com.kjh.mynote.databinding.FragmentPlaceNoteCalendarBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseFragment
-import com.kjh.mynote.ui.features.place.calendar.list.PlaceNoteListTypeFragment
-import com.kjh.mynote.ui.features.place.calendar.weekview.PlaceNoteWeekViewTypeFragment
+import com.kjh.mynote.ui.features.place.home.list.PlaceNoteListTypeFragment
+import com.kjh.mynote.ui.features.place.home.weekview.PlaceNoteWeekViewTypeFragment
 import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
 import com.kjh.mynote.utils.constants.AppConstants
+import com.kjh.mynote.utils.extensions.makeGone
+import com.kjh.mynote.utils.extensions.makeVisible
 import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
+import com.kjh.mynote.utils.extensions.showToast
+import com.kjh.mynote.utils.extensions.toMillis
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /**
@@ -32,9 +34,9 @@ import kotlinx.coroutines.launch
  */
 
 @AndroidEntryPoint
-class PlaceNoteCalendarHomeFragment: BaseFragment<FragmentPlaceNoteCalendarBinding>({ FragmentPlaceNoteCalendarBinding.inflate(it) }) {
+class PlaceNoteHomeFragment: BaseFragment<FragmentPlaceNoteCalendarBinding>({ FragmentPlaceNoteCalendarBinding.inflate(it) }) {
 
-    private val viewModel: PlaceNoteCalendarHomeViewModel by activityViewModels()
+    private val viewModel: PlaceNoteHomeViewModel by viewModels()
 
     override fun onInitView() {
         with (binding) {
@@ -46,9 +48,30 @@ class PlaceNoteCalendarHomeFragment: BaseFragment<FragmentPlaceNoteCalendarBindi
     override fun onInitData() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.displayType.collect { viewType ->
-                    changeFragmentBy(viewType)
-                    changeToggleDisplayTypeFabIcon(viewType)
+                launch {
+                    viewModel.placeNotesUiState.collect { uiState ->
+                        when (uiState) {
+                            is PlaceNotesUiState.Loading -> {
+                                binding.layoutLoading.root.makeVisible()
+                            }
+                            is PlaceNotesUiState.Error -> {
+                                binding.layoutLoading.root.makeGone()
+                                uiState.error.message?.let {
+                                    showToast(it)
+                                }
+                            }
+                            is PlaceNotesUiState.Success -> {
+                                binding.layoutLoading.root.makeGone()
+                            }
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.displayType.collect { viewType ->
+                        changeFragmentBy(viewType)
+                        toggleDisplayTypeFabIcon(viewType)
+                    }
                 }
             }
         }
@@ -87,7 +110,7 @@ class PlaceNoteCalendarHomeFragment: BaseFragment<FragmentPlaceNoteCalendarBindi
         }
     }
 
-    private fun changeToggleDisplayTypeFabIcon(viewType: DisplayType) {
+    private fun toggleDisplayTypeFabIcon(viewType: DisplayType) {
         val icon = when (viewType) {
             DisplayType.WEEK_VIEW ->
                 ContextCompat.getDrawable(requireContext(), R.drawable.ic_list_24)
@@ -106,7 +129,7 @@ class PlaceNoteCalendarHomeFragment: BaseFragment<FragmentPlaceNoteCalendarBindi
                 AppConstants.INTENT_PLACE_NOTE_ITEM
             ) ?: return@registerForActivityResult
 
-            viewModel.setSelectedDate(insertedPlaceNoteItem.localDate)
+            viewModel.updateCurrentDate(insertedPlaceNoteItem.localDate)
         }
     }
 
@@ -115,7 +138,10 @@ class PlaceNoteCalendarHomeFragment: BaseFragment<FragmentPlaceNoteCalendarBindi
     }
 
     private val makeNoteFabButtonClickListener = View.OnClickListener {
+        val currentDate = viewModel.currentDate.value
+
         Intent(requireContext(), MakeOrModifyPlaceNoteActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_PLACE_VISIT_DATE, currentDate.toMillis())
             makeNoteResultLauncher.launch(this)
         }
     }
@@ -128,8 +154,8 @@ class PlaceNoteCalendarHomeFragment: BaseFragment<FragmentPlaceNoteCalendarBindi
             WEEK_VIEW_TYPE_FRAGMENT(PlaceNoteWeekViewTypeFragment.TAG)
         }
 
-        fun newInstance(): PlaceNoteCalendarHomeFragment {
-            return PlaceNoteCalendarHomeFragment()
+        fun newInstance(): PlaceNoteHomeFragment {
+            return PlaceNoteHomeFragment()
         }
     }
 }

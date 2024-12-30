@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.place.calendar.weekview.adapter
+package com.kjh.mynote.ui.features.place.home.weekview.adapter
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
@@ -12,7 +12,7 @@ import com.kjh.mynote.databinding.VhPlaceNoteInCalendarThreePictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarTwoPictureItemBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.place.calendar.WeekViewTypeCalendarPlaceNoteUI
+import com.kjh.mynote.ui.features.place.home.weekview.PlaceNoteWeekViewUiItem
 import com.kjh.mynote.utils.extensions.loadImage
 import com.kjh.mynote.utils.extensions.onThrottleClick
 
@@ -26,7 +26,7 @@ class CalendarPlaceNoteOnePictureItemViewHolder(
     private val binding: VhPlaceNoteInCalendarOnePictureItemBinding,
     private val placeClickAction: (PlaceNoteUiModel) -> Unit,
     private val imageClickAction: (List<String>, String) -> Unit
-): BaseViewHolder<WeekViewTypeCalendarPlaceNoteUI.OnePicturePlaceNoteItem>(binding.root) {
+): BaseViewHolder<PlaceNoteWeekViewUiItem.OnePicturePlaceNoteItem>(binding.root) {
 
     init {
         itemView.onThrottleClick {
@@ -39,7 +39,7 @@ class CalendarPlaceNoteOnePictureItemViewHolder(
         }
     }
 
-    override fun bind(item: WeekViewTypeCalendarPlaceNoteUI.OnePicturePlaceNoteItem) {
+    override fun bind(item: PlaceNoteWeekViewUiItem.OnePicturePlaceNoteItem) {
         super.bind(item)
 
         with (binding) {
@@ -57,7 +57,7 @@ class CalendarPlaceNoteTwoPictureItemViewHolder(
     private val binding: VhPlaceNoteInCalendarTwoPictureItemBinding,
     private val placeClickAction: (PlaceNoteUiModel) -> Unit,
     private val imageClickAction: (List<String>, String) -> Unit
-): BaseViewHolder<WeekViewTypeCalendarPlaceNoteUI.TwoPicturePlaceNoteItem>(binding.root) {
+): BaseViewHolder<PlaceNoteWeekViewUiItem.TwoPicturePlaceNoteItem>(binding.root) {
 
     init {
         itemView.onThrottleClick {
@@ -75,7 +75,7 @@ class CalendarPlaceNoteTwoPictureItemViewHolder(
         }
     }
 
-    override fun bind(item: WeekViewTypeCalendarPlaceNoteUI.TwoPicturePlaceNoteItem) {
+    override fun bind(item: PlaceNoteWeekViewUiItem.TwoPicturePlaceNoteItem) {
         super.bind(item)
 
         with (binding) {
@@ -94,7 +94,7 @@ class CalendarPlaceNoteThreePictureItemViewHolder(
     private val binding: VhPlaceNoteInCalendarThreePictureItemBinding,
     private val placeClickAction: (PlaceNoteUiModel) -> Unit,
     private val imageClickAction: (List<String>, String) -> Unit
-): BaseViewHolder<WeekViewTypeCalendarPlaceNoteUI.ThreePicturePlaceNoteItem>(binding.root) {
+): BaseViewHolder<PlaceNoteWeekViewUiItem.ThreePicturePlaceNoteItem>(binding.root) {
 
     init {
         itemView.onThrottleClick {
@@ -117,7 +117,7 @@ class CalendarPlaceNoteThreePictureItemViewHolder(
         }
     }
 
-    override fun bind(item: WeekViewTypeCalendarPlaceNoteUI.ThreePicturePlaceNoteItem) {
+    override fun bind(item: PlaceNoteWeekViewUiItem.ThreePicturePlaceNoteItem) {
         super.bind(item)
 
         with (binding) {
@@ -137,7 +137,7 @@ class CalendarPlaceNoteFourPictureItemViewHolder(
     private val binding: VhPlaceNoteInCalendarFourPictureItemBinding,
     private val placeClickAction: (PlaceNoteUiModel) -> Unit,
     private val imageClickAction: (List<String>, String) -> Unit
-): BaseViewHolder<WeekViewTypeCalendarPlaceNoteUI.FourPicturePlaceNoteItem>(binding.root) {
+): BaseViewHolder<PlaceNoteWeekViewUiItem.FourPicturePlaceNoteItem>(binding.root) {
 
     init {
         itemView.onThrottleClick {
@@ -165,7 +165,7 @@ class CalendarPlaceNoteFourPictureItemViewHolder(
         }
     }
 
-    override fun bind(item: WeekViewTypeCalendarPlaceNoteUI.FourPicturePlaceNoteItem) {
+    override fun bind(item: PlaceNoteWeekViewUiItem.FourPicturePlaceNoteItem) {
         super.bind(item)
 
         with (binding) {
@@ -187,7 +187,7 @@ class CalendarPlaceNoteOverPictureItemViewHolder(
     private val binding: VhPlaceNoteInCalendarOverPictureItemBinding,
     private val placeClickAction: (PlaceNoteUiModel) -> Unit,
     private val imageClickAction: (List<String>, String) -> Unit
-): BaseViewHolder<WeekViewTypeCalendarPlaceNoteUI.OverPicturePlaceNoteItem>(binding.root) {
+): BaseViewHolder<PlaceNoteWeekViewUiItem.OverPicturePlaceNoteItem>(binding.root) {
 
     init {
         itemView.onThrottleClick {
@@ -220,7 +220,7 @@ class CalendarPlaceNoteOverPictureItemViewHolder(
         }
     }
 
-    override fun bind(item: WeekViewTypeCalendarPlaceNoteUI.OverPicturePlaceNoteItem) {
+    override fun bind(item: PlaceNoteWeekViewUiItem.OverPicturePlaceNoteItem) {
         super.bind(item)
 
         with (binding) {

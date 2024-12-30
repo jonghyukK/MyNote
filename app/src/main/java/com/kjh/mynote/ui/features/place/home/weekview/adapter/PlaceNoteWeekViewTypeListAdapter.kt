@@ -1,11 +1,10 @@
-package com.kjh.mynote.ui.features.place.calendar.weekview.adapter
+package com.kjh.mynote.ui.features.place.home.weekview.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.kjh.mynote.R
 import com.kjh.mynote.databinding.LayoutEmptyMyPlacesBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarFourPictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarOnePictureItemBinding
@@ -14,7 +13,7 @@ import com.kjh.mynote.databinding.VhPlaceNoteInCalendarThreePictureItemBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarTwoPictureItemBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.common.components.vh.CommonPlaceNotesEmptyItemViewHolder
-import com.kjh.mynote.ui.features.place.calendar.WeekViewTypeCalendarPlaceNoteUI
+import com.kjh.mynote.ui.features.place.home.weekview.PlaceNoteWeekViewUiItem
 
 /**
  * Created by kangjonghyuk.
@@ -25,13 +24,13 @@ class PlaceNoteWeekViewTypeListAdapter(
     private val placeClickAction: (PlaceNoteUiModel) -> Unit,
     private val imageClickAction: (List<String>, String) -> Unit,
     private val makeNoteClickAction: () -> Unit
-): ListAdapter<WeekViewTypeCalendarPlaceNoteUI, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
+): ListAdapter<PlaceNoteWeekViewUiItem, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
     ) = when (viewType) {
-        R.layout.layout_empty_my_places -> {
+        VIEW_TYPE_EMPTY -> {
             CommonPlaceNotesEmptyItemViewHolder(
                 LayoutEmptyMyPlacesBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
@@ -39,7 +38,7 @@ class PlaceNoteWeekViewTypeListAdapter(
             )
         }
 
-        R.layout.vh_place_note_in_calendar_one_picture_item -> {
+        VIEW_TYPE_ONE_PICTURE -> {
             CalendarPlaceNoteOnePictureItemViewHolder(
                 VhPlaceNoteInCalendarOnePictureItemBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
@@ -47,7 +46,7 @@ class PlaceNoteWeekViewTypeListAdapter(
             )
         }
 
-        R.layout.vh_place_note_in_calendar_two_picture_item -> {
+        VIEW_TYPE_TWO_PICTURE -> {
             CalendarPlaceNoteTwoPictureItemViewHolder(
                 VhPlaceNoteInCalendarTwoPictureItemBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
@@ -55,7 +54,7 @@ class PlaceNoteWeekViewTypeListAdapter(
             )
         }
 
-        R.layout.vh_place_note_in_calendar_three_picture_item -> {
+        VIEW_TYPE_THREE_PICTURE -> {
             CalendarPlaceNoteThreePictureItemViewHolder(
                 VhPlaceNoteInCalendarThreePictureItemBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
@@ -63,7 +62,7 @@ class PlaceNoteWeekViewTypeListAdapter(
             )
         }
 
-        R.layout.vh_place_note_in_calendar_four_picture_item -> {
+        VIEW_TYPE_FOUR_PICTURE -> {
             CalendarPlaceNoteFourPictureItemViewHolder(
                 VhPlaceNoteInCalendarFourPictureItemBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
@@ -71,7 +70,7 @@ class PlaceNoteWeekViewTypeListAdapter(
             )
         }
 
-        R.layout.vh_place_note_in_calendar_over_picture_item -> {
+        VIEW_TYPE_OVER_PICTURE -> {
             CalendarPlaceNoteOverPictureItemViewHolder(
                 VhPlaceNoteInCalendarOverPictureItemBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
@@ -83,70 +82,66 @@ class PlaceNoteWeekViewTypeListAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = getItem(position)) {
-            is WeekViewTypeCalendarPlaceNoteUI.EmptyItem ->
+            is PlaceNoteWeekViewUiItem.EmptyItem ->
                 (holder as CommonPlaceNotesEmptyItemViewHolder).bind(Unit)
 
-            is WeekViewTypeCalendarPlaceNoteUI.OnePicturePlaceNoteItem ->
+            is PlaceNoteWeekViewUiItem.OnePicturePlaceNoteItem ->
                 (holder as CalendarPlaceNoteOnePictureItemViewHolder).bind(item)
 
-            is WeekViewTypeCalendarPlaceNoteUI.TwoPicturePlaceNoteItem ->
+            is PlaceNoteWeekViewUiItem.TwoPicturePlaceNoteItem ->
                 (holder as CalendarPlaceNoteTwoPictureItemViewHolder).bind(item)
 
-            is WeekViewTypeCalendarPlaceNoteUI.ThreePicturePlaceNoteItem ->
+            is PlaceNoteWeekViewUiItem.ThreePicturePlaceNoteItem ->
                 (holder as CalendarPlaceNoteThreePictureItemViewHolder).bind(item)
 
-            is WeekViewTypeCalendarPlaceNoteUI.FourPicturePlaceNoteItem ->
+            is PlaceNoteWeekViewUiItem.FourPicturePlaceNoteItem ->
                 (holder as CalendarPlaceNoteFourPictureItemViewHolder).bind(item)
 
-            is WeekViewTypeCalendarPlaceNoteUI.OverPicturePlaceNoteItem ->
+            is PlaceNoteWeekViewUiItem.OverPicturePlaceNoteItem ->
                 (holder as CalendarPlaceNoteOverPictureItemViewHolder).bind(item)
         }
     }
 
     override fun getItemViewType(position: Int) = when (getItem(position)) {
-        is WeekViewTypeCalendarPlaceNoteUI.EmptyItem ->
-            R.layout.layout_empty_my_places
-
-        is WeekViewTypeCalendarPlaceNoteUI.OnePicturePlaceNoteItem ->
-            R.layout.vh_place_note_in_calendar_one_picture_item
-
-        is WeekViewTypeCalendarPlaceNoteUI.TwoPicturePlaceNoteItem ->
-            R.layout.vh_place_note_in_calendar_two_picture_item
-
-        is WeekViewTypeCalendarPlaceNoteUI.ThreePicturePlaceNoteItem ->
-            R.layout.vh_place_note_in_calendar_three_picture_item
-
-        is WeekViewTypeCalendarPlaceNoteUI.FourPicturePlaceNoteItem ->
-            R.layout.vh_place_note_in_calendar_four_picture_item
-
-        is WeekViewTypeCalendarPlaceNoteUI.OverPicturePlaceNoteItem ->
-            R.layout.vh_place_note_in_calendar_over_picture_item
+        is PlaceNoteWeekViewUiItem.EmptyItem -> VIEW_TYPE_EMPTY
+        is PlaceNoteWeekViewUiItem.OnePicturePlaceNoteItem -> VIEW_TYPE_ONE_PICTURE
+        is PlaceNoteWeekViewUiItem.TwoPicturePlaceNoteItem -> VIEW_TYPE_TWO_PICTURE
+        is PlaceNoteWeekViewUiItem.ThreePicturePlaceNoteItem -> VIEW_TYPE_THREE_PICTURE
+        is PlaceNoteWeekViewUiItem.FourPicturePlaceNoteItem -> VIEW_TYPE_FOUR_PICTURE
+        is PlaceNoteWeekViewUiItem.OverPicturePlaceNoteItem -> VIEW_TYPE_OVER_PICTURE
     }
 
     companion object {
-        private val UI_MODEL_COMPARATOR = object : DiffUtil.ItemCallback<WeekViewTypeCalendarPlaceNoteUI>() {
+        private const val VIEW_TYPE_ONE_PICTURE = 1
+        private const val VIEW_TYPE_TWO_PICTURE = 2
+        private const val VIEW_TYPE_THREE_PICTURE = 3
+        private const val VIEW_TYPE_FOUR_PICTURE = 4
+        private const val VIEW_TYPE_OVER_PICTURE = 5
+        private const val VIEW_TYPE_EMPTY = 6
+
+        private val UI_MODEL_COMPARATOR = object : DiffUtil.ItemCallback<PlaceNoteWeekViewUiItem>() {
             override fun areItemsTheSame(
-                oldItem: WeekViewTypeCalendarPlaceNoteUI,
-                newItem: WeekViewTypeCalendarPlaceNoteUI
+                oldItem: PlaceNoteWeekViewUiItem,
+                newItem: PlaceNoteWeekViewUiItem
             ): Boolean =
-                if (oldItem is WeekViewTypeCalendarPlaceNoteUI.OnePicturePlaceNoteItem
-                    && newItem is WeekViewTypeCalendarPlaceNoteUI.OnePicturePlaceNoteItem
+                if (oldItem is PlaceNoteWeekViewUiItem.OnePicturePlaceNoteItem
+                    && newItem is PlaceNoteWeekViewUiItem.OnePicturePlaceNoteItem
                 ) {
                     oldItem.item.id == newItem.item.id
-                } else if (oldItem is WeekViewTypeCalendarPlaceNoteUI.TwoPicturePlaceNoteItem
-                    && newItem is WeekViewTypeCalendarPlaceNoteUI.TwoPicturePlaceNoteItem
+                } else if (oldItem is PlaceNoteWeekViewUiItem.TwoPicturePlaceNoteItem
+                    && newItem is PlaceNoteWeekViewUiItem.TwoPicturePlaceNoteItem
                 ) {
                     oldItem.item.id == newItem.item.id
-                } else if (oldItem is WeekViewTypeCalendarPlaceNoteUI.ThreePicturePlaceNoteItem
-                    && newItem is WeekViewTypeCalendarPlaceNoteUI.ThreePicturePlaceNoteItem
+                } else if (oldItem is PlaceNoteWeekViewUiItem.ThreePicturePlaceNoteItem
+                    && newItem is PlaceNoteWeekViewUiItem.ThreePicturePlaceNoteItem
                 ) {
                     oldItem.item.id == newItem.item.id
-                } else if (oldItem is WeekViewTypeCalendarPlaceNoteUI.FourPicturePlaceNoteItem
-                    && newItem is WeekViewTypeCalendarPlaceNoteUI.FourPicturePlaceNoteItem
+                } else if (oldItem is PlaceNoteWeekViewUiItem.FourPicturePlaceNoteItem
+                    && newItem is PlaceNoteWeekViewUiItem.FourPicturePlaceNoteItem
                 ) {
                     oldItem.item.id == newItem.item.id
-                } else if (oldItem is WeekViewTypeCalendarPlaceNoteUI.OverPicturePlaceNoteItem
-                    && newItem is WeekViewTypeCalendarPlaceNoteUI.OverPicturePlaceNoteItem
+                } else if (oldItem is PlaceNoteWeekViewUiItem.OverPicturePlaceNoteItem
+                    && newItem is PlaceNoteWeekViewUiItem.OverPicturePlaceNoteItem
                 ) {
                     oldItem.item.id == newItem.item.id
                 } else {
@@ -154,8 +149,8 @@ class PlaceNoteWeekViewTypeListAdapter(
                 }
 
             override fun areContentsTheSame(
-                oldItem: WeekViewTypeCalendarPlaceNoteUI,
-                newItem: WeekViewTypeCalendarPlaceNoteUI
+                oldItem: PlaceNoteWeekViewUiItem,
+                newItem: PlaceNoteWeekViewUiItem
             ): Boolean = oldItem == newItem
         }
     }

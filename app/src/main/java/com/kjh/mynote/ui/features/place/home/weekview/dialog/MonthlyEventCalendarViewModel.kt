@@ -1,16 +1,14 @@
-package com.kjh.mynote.ui.features.place.calendar.weekview.dialog
+package com.kjh.mynote.ui.features.place.home.weekview.dialog
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.domain.usecase.GetPlaceNotesUseCase
 import com.kjh.mynote.utils.constants.AppConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -22,7 +20,7 @@ import javax.inject.Inject
  */
 
 @HiltViewModel
-class CalendarMonthViewModel @Inject constructor(
+class MonthlyEventCalendarViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
 

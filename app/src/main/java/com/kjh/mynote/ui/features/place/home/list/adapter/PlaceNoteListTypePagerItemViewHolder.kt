@@ -1,9 +1,9 @@
-package com.kjh.mynote.ui.features.place.calendar.list.adapter
+package com.kjh.mynote.ui.features.place.home.list.adapter
 
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarListTypeBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.place.calendar.MonthWithPlaceNotesItem
+import com.kjh.mynote.ui.features.place.home.list.MonthWithPlaceNoteUiItem
 
 /**
  * Created by kangjonghyuk.
@@ -11,11 +11,11 @@ import com.kjh.mynote.ui.features.place.calendar.MonthWithPlaceNotesItem
  * Description:
  */
 
-class PlaceNoteListTypeOuterItemViewHolder(
+class PlaceNoteListTypePagerItemViewHolder(
     val binding: VhPlaceNoteInCalendarListTypeBinding,
     private val placeItemClickAction: (PlaceNoteUiModel) -> Unit,
     private val makeNoteClickAction: () -> Unit
-): BaseViewHolder<MonthWithPlaceNotesItem>(binding.root) {
+): BaseViewHolder<MonthWithPlaceNoteUiItem>(binding.root) {
 
     private val innerListAdapter = PlaceNoteListTypeInnerAdapter(placeItemClickAction, makeNoteClickAction)
 
@@ -26,8 +26,8 @@ class PlaceNoteListTypeOuterItemViewHolder(
         }
     }
 
-    override fun bind(item: MonthWithPlaceNotesItem) {
+    override fun bind(item: MonthWithPlaceNoteUiItem) {
         super.bind(item)
-        innerListAdapter.submitList(item.placeNoteItems)
+        innerListAdapter.submitList(item.uiItems)
     }
 }

@@ -1,17 +1,16 @@
-package com.kjh.mynote.ui.features.place.calendar.list.adapter
+package com.kjh.mynote.ui.features.place.home.list.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.kjh.mynote.R
 import com.kjh.mynote.databinding.LayoutEmptyMyPlacesBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarHeaderBinding
 import com.kjh.mynote.databinding.VhPlaceNoteInCalendarListTypePlaceItemBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.common.components.vh.CommonPlaceNotesEmptyItemViewHolder
-import com.kjh.mynote.ui.features.place.calendar.ListTypeCalendarPlaceNoteUI
+import com.kjh.mynote.ui.features.place.home.list.PlaceNoteListTypeUiItem
 
 /**
  * Created by kangjonghyuk.
@@ -22,24 +21,24 @@ import com.kjh.mynote.ui.features.place.calendar.ListTypeCalendarPlaceNoteUI
 class PlaceNoteListTypeInnerAdapter(
     private val placeItemClickAction: (PlaceNoteUiModel) -> Unit,
     private val makeNoteClickAction: () -> Unit
-): ListAdapter<ListTypeCalendarPlaceNoteUI, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
+): ListAdapter<PlaceNoteListTypeUiItem, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
-        R.layout.vh_place_note_in_calendar_header -> {
+        VIEW_TYPE_DATE -> {
             PlaceNoteListTypeInnerHeaderItemViewHolder(
                 VhPlaceNoteInCalendarHeaderBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
                 )
             )
         }
-        R.layout.vh_place_note_in_calendar_list_type_place_item -> {
+        VIEW_TYPE_PLACE_NOTE -> {
             PlaceNoteListTypeInnerContentsItemViewHolder(
                 VhPlaceNoteInCalendarListTypePlaceItemBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
                 ), placeItemClickAction
             )
         }
-        R.layout.layout_empty_my_places -> {
+        VIEW_TYPE_EMPTY -> {
             CommonPlaceNotesEmptyItemViewHolder(
                 LayoutEmptyMyPlacesBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
@@ -51,50 +50,52 @@ class PlaceNoteListTypeInnerAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = getItem(position)) {
-            is ListTypeCalendarPlaceNoteUI.HeaderItem -> {
+            is PlaceNoteListTypeUiItem.DateItem -> {
                 (holder as PlaceNoteListTypeInnerHeaderItemViewHolder).bind(item)
             }
-            is ListTypeCalendarPlaceNoteUI.PlaceNoteItem -> {
+            is PlaceNoteListTypeUiItem.PlaceNoteItem -> {
                 (holder as PlaceNoteListTypeInnerContentsItemViewHolder).bind(item)
             }
-            is ListTypeCalendarPlaceNoteUI.EmptyItem -> {
+            is PlaceNoteListTypeUiItem.EmptyItem -> {
                 (holder as CommonPlaceNotesEmptyItemViewHolder).bind(Unit)
             }
         }
     }
 
     override fun getItemViewType(position: Int) = when (getItem(position)) {
-        is ListTypeCalendarPlaceNoteUI.HeaderItem ->
-            R.layout.vh_place_note_in_calendar_header
-
-        is ListTypeCalendarPlaceNoteUI.PlaceNoteItem ->
-            R.layout.vh_place_note_in_calendar_list_type_place_item
-
-        is ListTypeCalendarPlaceNoteUI.EmptyItem ->
-            R.layout.layout_empty_my_places
+        is PlaceNoteListTypeUiItem.DateItem -> VIEW_TYPE_DATE
+        is PlaceNoteListTypeUiItem.PlaceNoteItem -> VIEW_TYPE_PLACE_NOTE
+        is PlaceNoteListTypeUiItem.EmptyItem -> VIEW_TYPE_EMPTY
     }
 
     companion object {
-        private val UI_MODEL_COMPARATOR = object : DiffUtil.ItemCallback<ListTypeCalendarPlaceNoteUI>() {
+        private const val VIEW_TYPE_DATE = 1
+        private const val VIEW_TYPE_PLACE_NOTE = 2
+        private const val VIEW_TYPE_EMPTY = 3
+
+        private val UI_MODEL_COMPARATOR = object : DiffUtil.ItemCallback<PlaceNoteListTypeUiItem>() {
             override fun areItemsTheSame(
-                oldItem: ListTypeCalendarPlaceNoteUI,
-                newItem: ListTypeCalendarPlaceNoteUI
-            ): Boolean = if (oldItem is ListTypeCalendarPlaceNoteUI.HeaderItem
-                && newItem is ListTypeCalendarPlaceNoteUI.HeaderItem) {
-                oldItem.localDate == newItem.localDate
-            } else if (oldItem is ListTypeCalendarPlaceNoteUI.PlaceNoteItem
-                && newItem is ListTypeCalendarPlaceNoteUI.PlaceNoteItem) {
-                oldItem.item.id == newItem.item.id
-            } else if (oldItem is ListTypeCalendarPlaceNoteUI.EmptyItem
-                && newItem is ListTypeCalendarPlaceNoteUI.EmptyItem) {
-              true
-            } else {
-                false
+                oldItem: PlaceNoteListTypeUiItem,
+                newItem: PlaceNoteListTypeUiItem
+            ): Boolean = when {
+                oldItem is PlaceNoteListTypeUiItem.DateItem
+                        && newItem is PlaceNoteListTypeUiItem.DateItem -> {
+                            oldItem.localDate == newItem.localDate
+                        }
+                oldItem is PlaceNoteListTypeUiItem.PlaceNoteItem
+                        && newItem is PlaceNoteListTypeUiItem.PlaceNoteItem -> {
+                            oldItem.item.id == newItem.item.id
+                        }
+                oldItem is PlaceNoteListTypeUiItem.EmptyItem
+                        && newItem is PlaceNoteListTypeUiItem.EmptyItem -> {
+                            true
+                        }
+                else -> false
             }
 
             override fun areContentsTheSame(
-                oldItem: ListTypeCalendarPlaceNoteUI,
-                newItem: ListTypeCalendarPlaceNoteUI
+                oldItem: PlaceNoteListTypeUiItem,
+                newItem: PlaceNoteListTypeUiItem
             ): Boolean = oldItem == newItem
         }
     }

@@ -11,7 +11,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:name="com.kjh.mynote.ui.features.place.home.weekview.PlaceNoteWeekViewTypeFragment"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_change_view_type"
@@ -39,4 +40,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
+    <include
+        android:id="@+id/layout_loading"
+        layout="@layout/layout_loading" />
 </androidx.constraintlayout.widget.ConstraintLayout>
