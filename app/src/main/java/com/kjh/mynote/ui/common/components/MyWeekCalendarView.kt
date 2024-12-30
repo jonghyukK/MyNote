@@ -14,7 +14,7 @@ import com.kizitonwose.calendar.core.yearMonth
 import com.kizitonwose.calendar.view.ViewContainer
 import com.kizitonwose.calendar.view.WeekDayBinder
 import com.kjh.mynote.R
-import com.kjh.mynote.databinding.CalendarDayBinding
+import com.kjh.mynote.databinding.CalendarWeekViewDayBinding
 import com.kjh.mynote.databinding.CommonLayoutMyWeekCalendarBinding
 import com.kjh.mynote.utils.extensions.addClickAnimation
 import com.kjh.mynote.utils.extensions.getDrawableCompat
@@ -61,7 +61,7 @@ class MyWeekCalendarView @JvmOverloads constructor(
 
     private fun initWeekView() {
         class DayViewContainer(view: View) : ViewContainer(view) {
-            val dayBinding = CalendarDayBinding.bind(view)
+            val dayBinding = CalendarWeekViewDayBinding.bind(view)
             lateinit var day: WeekDay
 
             init {
@@ -108,7 +108,7 @@ class MyWeekCalendarView @JvmOverloads constructor(
     }
 
     private fun bindDay(
-        dayBinding: CalendarDayBinding,
+        dayBinding: CalendarWeekViewDayBinding,
         data: WeekDay,
         selectedDate: LocalDate,
         hasNoteItem: Boolean

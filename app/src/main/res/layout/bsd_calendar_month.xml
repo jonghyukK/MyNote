@@ -59,7 +59,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:cv_daySize="rectangle"
-        app:cv_dayViewResource="@layout/calendar_day"
+        app:cv_dayViewResource="@layout/calendar_month_view_day"
         app:cv_monthHeaderResource="@layout/calendar_header"
         app:layout_constraintTop_toBottomOf="@+id/cl_year_month"
         app:layout_constraintStart_toStartOf="parent"

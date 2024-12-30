@@ -18,7 +18,7 @@ import com.kizitonwose.calendar.view.MonthScrollListener
 import com.kizitonwose.calendar.view.ViewContainer
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.CalendarHeaderBinding
-import com.kjh.mynote.databinding.CalendarPurchaseNoteDayBinding
+import com.kjh.mynote.databinding.CalendarMonthViewDayBinding
 import com.kjh.mynote.databinding.CommonLayoutMyMonthCalendarBinding
 import com.kjh.mynote.utils.extensions.getDrawableCompat
 import com.kjh.mynote.utils.extensions.makeInVisible
@@ -44,11 +44,11 @@ class MyMonthCalendarView @JvmOverloads constructor(
     var unselectedDayTextColorRes = R.color.black_900
     var afterDayTextColorRes = R.color.black_500
 
-    var selectedDayBgRes = R.drawable.shape_oval_s_purple_200_wh_30
+    var selectedDayBgRes = R.drawable.shape_s_black_900_c_999
     var unselectedDayBgRes = R.drawable.ripple_white
     var todayBgRes = R.drawable.shape_c_999_l_purple
 
-    var customDayViewResource: Int = R.layout.calendar_day
+    var customDayViewResource: Int = R.layout.calendar_month_view_day
         set(value) {
             binding.calendarView.dayViewResource = value
             field = value
@@ -81,7 +81,7 @@ class MyMonthCalendarView @JvmOverloads constructor(
     private fun configureBinders(daysOfWeek: List<DayOfWeek>) {
         class DayViewContainer(view: View): ViewContainer(view) {
             lateinit var day: CalendarDay
-            val binding = CalendarPurchaseNoteDayBinding.bind(view)
+            val binding = CalendarMonthViewDayBinding.bind(view)
 
             init {
                 view.setOnClickListener {

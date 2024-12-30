@@ -60,6 +60,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="@+id/tv_current_year_month" />
 
+    <!-- Month Calendar -->
     <com.kjh.mynote.ui.common.components.MyMonthCalendarView
         android:id="@+id/calendar_month_view"
         android:layout_width="0dp"

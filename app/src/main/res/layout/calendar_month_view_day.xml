@@ -14,7 +14,7 @@
         android:textStyle="bold"
         android:textColor="@color/white"
         android:gravity="center"
-        android:background="@drawable/shape_oval_s_purple_200_wh_30"
+        android:background="@drawable/shape_s_black_900_c_999"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -25,7 +25,7 @@
         android:layout_width="8dp"
         android:layout_height="8dp"
         android:layout_marginTop="6dp"
-        android:background="@drawable/shape_s_color_primary_c_999"
+        android:background="@drawable/shape_s_red_500_c_999"
         app:layout_constraintTop_toBottomOf="@+id/tv_date_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

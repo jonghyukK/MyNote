@@ -46,9 +46,6 @@ class MonthlyEventCalendarBSDialog
 
     override fun onInitView() {
         with(binding) {
-            calendarMonthView.customDayViewResource = R.layout.calendar_day
-            calendarMonthView.selectedDayBgRes = R.drawable.shape_s_black_900_c_999
-
             calendarMonthView.updateCalendarUI(viewModel.selectedDate to viewModel.eventDays)
             calendarMonthView.setMonthScrollListener(monthScrollListener)
             calendarMonthView.setDayClickAction(monthDayClickAction)
