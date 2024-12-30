@@ -6,6 +6,7 @@ import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityMainBinding
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.features.home.HomeFragment
+import com.kjh.mynote.ui.features.mypage.MyPageFragment
 import com.kjh.mynote.ui.features.place.home.PlaceNoteHomeFragment
 import com.kjh.mynote.ui.features.purchase.home.PurchaseHomeFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -53,6 +54,7 @@ class MainActivity: BaseActivity<ActivityMainBinding>({ ActivityMainBinding.infl
         HomeFragment.TAG -> HomeFragment.newInstance()
         PlaceNoteHomeFragment.TAG -> PlaceNoteHomeFragment.newInstance()
         PurchaseHomeFragment.TAG -> PurchaseHomeFragment.newInstance()
+        MyPageFragment.TAG -> MyPageFragment.newInstance()
         else -> throw Exception("Wrong Fragment Tag")
     }
 
@@ -61,6 +63,7 @@ class MainActivity: BaseActivity<ActivityMainBinding>({ ActivityMainBinding.infl
             R.id.nav_home -> MainFragments.HOME_FRAGMENT.tag
             R.id.nav_place -> MainFragments.PLACE_NOTE_HOME_FRAGMENT.tag
             R.id.nav_purchase -> MainFragments.PURCHASE_NOTE_HOME_FRAGMENT.tag
+            R.id.nav_my_page -> MainFragments.MY_PAGE_FRAGMENT.tag
             else -> throw Exception("Wrong MenuItem Id")
         }
 
@@ -72,7 +75,8 @@ class MainActivity: BaseActivity<ActivityMainBinding>({ ActivityMainBinding.infl
         enum class MainFragments(val tag: String) {
             HOME_FRAGMENT(HomeFragment.TAG),
             PLACE_NOTE_HOME_FRAGMENT(PlaceNoteHomeFragment.TAG),
-            PURCHASE_NOTE_HOME_FRAGMENT(PurchaseHomeFragment.TAG)
+            PURCHASE_NOTE_HOME_FRAGMENT(PurchaseHomeFragment.TAG),
+            MY_PAGE_FRAGMENT(MyPageFragment.TAG)
         }
     }
 }

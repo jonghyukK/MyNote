@@ -3,7 +3,7 @@
     <string name="bnv_menu_home">홈</string>
     <string name="bnv_menu_place_note">장소노트</string>
     <string name="bnv_menu_purchase_note">구매노트</string>
-    <string name="bnv_menu_search">검색</string>
+    <string name="bnv_menu_my_page">마이페이지</string>
 
     <string name="make_purchase_note">구매노트 작성</string>
     <string name="empty">내용이 없어요</string>
@@ -119,4 +119,5 @@
     <string name="most_of_purchase_name_ranking">가장 많이 쓴 구매노트명 순위</string>
     <string name="u_can_see_max_5_purchase_name_ranking">가장 많이 쓴 구매노트명순으로 최대 5개까지 볼 수 있어요!</string>
     <string name="purchase_note_statistics">구매노트 통계</string>
+    <string name="my_page">마이페이지</string>
 </resources>

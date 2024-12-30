@@ -15,4 +15,9 @@
         android:id="@+id/nav_purchase"
         android:icon="@drawable/ic_calendar_24_purple"
         android:title="@string/bnv_menu_purchase_note" />
+
+    <item
+        android:id="@+id/nav_my_page"
+        android:icon="@drawable/ic_person"
+        android:title="@string/bnv_menu_my_page" />
 </menu>
