@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.category.filter
+package com.kjh.mynote.ui.features.category.filter.adapter
 
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhFilterCategoryItemBinding

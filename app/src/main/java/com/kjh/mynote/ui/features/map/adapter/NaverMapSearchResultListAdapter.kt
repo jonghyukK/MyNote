@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.map
+package com.kjh.mynote.ui.features.map.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

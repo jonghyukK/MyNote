@@ -18,6 +18,7 @@ import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityNaverMapSearchBinding
 import com.kjh.mynote.model.PlaceInfoUiModel
 import com.kjh.mynote.ui.base.BaseNaverMapActivity
+import com.kjh.mynote.ui.features.map.adapter.NaverMapSearchResultListAdapter
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.constants.AppConstants.DEFAULT_ZOOM_LEVEL
 import com.kjh.mynote.utils.extensions.hideKeyboard

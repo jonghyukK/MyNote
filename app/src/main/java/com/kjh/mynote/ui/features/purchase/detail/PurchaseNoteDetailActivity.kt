@@ -16,6 +16,7 @@ import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.common.dialog.DefaultDialog
 import com.kjh.mynote.ui.common.dialog.DefaultDialog.MyDefaultDialogEventListener
 import com.kjh.mynote.ui.features.place.map.PlaceMapActivity
+import com.kjh.mynote.ui.features.purchase.detail.adapter.PurchaseNoteDetailImageListAdapter
 import com.kjh.mynote.ui.features.purchase.edit.EditPurchaseNoteActivity
 import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration

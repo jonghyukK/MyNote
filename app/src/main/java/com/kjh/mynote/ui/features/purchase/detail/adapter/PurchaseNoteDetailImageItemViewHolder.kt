@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase.detail
+package com.kjh.mynote.ui.features.purchase.detail.adapter
 
 import com.kjh.mynote.databinding.VhPurchaseNoteDetailImageItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder

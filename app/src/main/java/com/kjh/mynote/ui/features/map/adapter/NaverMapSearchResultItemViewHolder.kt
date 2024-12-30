@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.map
+package com.kjh.mynote.ui.features.map.adapter
 
 import com.kjh.mynote.databinding.VhNaverMapSearchResultItemBinding
 import com.kjh.mynote.model.PlaceInfoUiModel
