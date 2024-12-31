@@ -6,6 +6,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.kjh.data.db.NoteDataBase
 import com.kjh.data.source.local.CategoryDao
+import com.kjh.data.source.local.PaymentMethodDao
 import com.kjh.data.source.local.PlaceNoteDao
 import com.kjh.data.source.local.PurchaseNoteDao
 import dagger.Module
@@ -37,6 +38,7 @@ object DatabaseModule {
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     super.onCreate(db)
                     db.execSQL("INSERT INTO categories (id, categoryName) VALUES (999, '기타')")
+                    db.execSQL("INSERT INTO paymentMethod (paymentMethodId, paymentMethodName) VALUES (999, '현금')")
                 }
             })
             .build()
@@ -53,4 +55,8 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideCategoryDao(dataBase: NoteDataBase): CategoryDao = dataBase.categoryDao()
+
+    @Provides
+    @Singleton
+    fun providePaymentMethodDao(dataBase: NoteDataBase): PaymentMethodDao = dataBase.paymentMethodDao()
 }

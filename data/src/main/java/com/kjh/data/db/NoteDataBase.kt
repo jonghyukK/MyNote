@@ -3,13 +3,12 @@ package com.kjh.data.db
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.domain.model.PurchaseNote
 import com.kjh.data.model.entity.CategoryEntity
+import com.kjh.data.model.entity.PaymentMethodEntity
 import com.kjh.data.model.entity.PlaceNoteEntity
 import com.kjh.data.model.entity.PurchaseNoteEntity
 import com.kjh.data.source.local.CategoryDao
+import com.kjh.data.source.local.PaymentMethodDao
 import com.kjh.data.source.local.PlaceNoteDao
 import com.kjh.data.source.local.PurchaseNoteDao
 
@@ -23,7 +22,8 @@ import com.kjh.data.source.local.PurchaseNoteDao
     entities = [
         PlaceNoteEntity::class,
         PurchaseNoteEntity::class,
-        CategoryEntity::class
+        CategoryEntity::class,
+        PaymentMethodEntity::class
     ],
     version = 2,
     exportSchema = false
@@ -36,4 +36,6 @@ abstract class NoteDataBase: RoomDatabase() {
     abstract fun purchaseNoteDao(): PurchaseNoteDao
 
     abstract fun categoryDao(): CategoryDao
+
+    abstract fun paymentMethodDao(): PaymentMethodDao
 }
