@@ -13,12 +13,20 @@ import com.example.domain.model.PurchaseNote
 
 @Entity(
     tableName = "purchase",
-    foreignKeys = [ForeignKey(
-        entity = CategoryEntity::class,
-        parentColumns = ["id"],
-        childColumns = ["categoryId"],
-        onDelete = ForeignKey.SET_NULL
-    )]
+    foreignKeys = [
+        ForeignKey(
+            entity = CategoryEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["categoryId"],
+            onDelete = ForeignKey.SET_NULL
+        ),
+        ForeignKey(
+            entity = PaymentMethodEntity::class,
+            parentColumns = ["paymentMethodId"],
+            childColumns = ["paymentMethodId"],
+            onDelete = ForeignKey.SET_NULL
+        )
+    ]
 )
 data class PurchaseNoteEntity(
     @PrimaryKey(autoGenerate = true)
@@ -28,6 +36,7 @@ data class PurchaseNoteEntity(
     val purchaseName: String,
     val images: List<String>? = null,
     val categoryId: Int?,
+    val paymentMethodId: Int?,
     val placeId: String?,
     val placeName: String?,
     val placeAddress: String?,
@@ -46,6 +55,7 @@ fun PurchaseNote.toEntity(): PurchaseNoteEntity {
         purchasePrice = purchasePrice,
         purchaseName = purchaseName,
         categoryId = category?.id,
+        paymentMethodId = paymentMethod?.paymentMethodId,
         images = images,
         placeId = placeInfo?.id,
         placeName = placeInfo?.name,

@@ -9,8 +9,8 @@ import com.example.domain.model.PurchaseNoteStatistics
 import com.example.domain.model.SortType
 import com.example.domain.model.asResult
 import com.example.domain.repository.PurchaseNoteRepository
-import com.kjh.data.model.entity.toDomainModel
 import com.kjh.data.model.entity.toEntity
+import com.kjh.data.model.toDomainModel
 import com.kjh.data.source.local.PurchaseNoteDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -28,15 +28,8 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
     private val purchaseNoteLocalDateSource: PurchaseNoteDao
 ): PurchaseNoteRepository {
 
-    override suspend fun insertAndGetPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote {
-        val purchaseNoteEntity = purchaseNote.toEntity()
-        val newId = purchaseNoteLocalDateSource.insertPurchaseNote(purchaseNoteEntity).toInt()
-
-        return purchaseNoteLocalDateSource.getPurchaseNoteById(newId).toDomainModel()
-    }
-
-    override val getPurchaseNotesWithCategory: Flow<List<PurchaseNote>>
-        get() = purchaseNoteLocalDateSource.getPurchaseNotesWithCategory()
+    override fun getAllPurchaseNotes(): Flow<List<PurchaseNote>> =
+        purchaseNoteLocalDateSource.getAllPurchaseNotes()
             .map { data -> data.map { it.toDomainModel() } }
 
     override fun getPurchaseNotesByCategories(categories: List<Category>): Flow<List<PurchaseNote>> {
@@ -48,13 +41,6 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
     override suspend fun getPurchaseNoteById(id: Int): PurchaseNote {
         return purchaseNoteLocalDateSource.getPurchaseNoteById(id).toDomainModel()
     }
-
-    override suspend fun deletePurchaseNoteById(id: Int) {
-        purchaseNoteLocalDateSource.deletePurchaseNoteById(id)
-    }
-
-    override val getMaxPurchasePrice: Flow<Long?>
-        get() = purchaseNoteLocalDateSource.getMaxPurchasePrice()
 
     override suspend fun getPurchaseNotesByPlaceAndDate(
         placeName: String,
@@ -112,6 +98,20 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
                 }
             }
         }.asResult()
+
+    override suspend fun insertAndGetPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote {
+        val purchaseNoteEntity = purchaseNote.toEntity()
+        val newId = purchaseNoteLocalDateSource.insertPurchaseNote(purchaseNoteEntity).toInt()
+
+        return purchaseNoteLocalDateSource.getPurchaseNoteById(newId).toDomainModel()
+    }
+
+    override suspend fun deletePurchaseNoteById(id: Int) {
+        purchaseNoteLocalDateSource.deletePurchaseNoteById(id)
+    }
+
+    override fun getMaxPurchasePrice(): Flow<Long?> =
+        purchaseNoteLocalDateSource.getMaxPurchasePrice()
 
     /**
      * 구매노트 통계 데이터 조회.

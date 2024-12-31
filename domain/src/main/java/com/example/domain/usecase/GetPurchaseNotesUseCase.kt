@@ -13,7 +13,6 @@ import javax.inject.Inject
 class GetPurchaseNotesUseCase @Inject constructor(
     private val purchaseNoteRepository: PurchaseNoteRepository
 ) {
-
     operator fun invoke(): Flow<List<PurchaseNote>> =
-        purchaseNoteRepository.getPurchaseNotesWithCategory
+        purchaseNoteRepository.getAllPurchaseNotes()
 }

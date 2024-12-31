@@ -12,6 +12,7 @@ data class PurchaseNote(
     val purchasePrice: Long,
     val purchaseName: String,
     val category: Category?,
+    val paymentMethod: PaymentMethod?,
     val images: List<String>? = null,
     val placeInfo: PlaceInfo? = null
 )

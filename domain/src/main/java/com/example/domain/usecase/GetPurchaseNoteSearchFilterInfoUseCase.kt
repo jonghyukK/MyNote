@@ -18,7 +18,7 @@ class GetPurchaseNoteSearchFilterInfoUseCase @Inject constructor(
     operator fun invoke(): Flow<PurchaseNoteSearchFilterInfo> {
         return combine(
             getAllCategoriesUseCase(),
-            purchaseNoteRepository.getMaxPurchasePrice
+            purchaseNoteRepository.getMaxPurchasePrice()
         ) { allCategories, maxPurchasePrice ->
             PurchaseNoteSearchFilterInfo(
                 categories = allCategories,
