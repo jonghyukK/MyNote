@@ -1,6 +1,8 @@
 package com.kjh.data.repository
 
+import com.example.domain.model.ApiResult
 import com.example.domain.model.PaymentMethod
+import com.example.domain.model.safeApiCall
 import com.example.domain.repository.PaymentMethodRepository
 import com.kjh.data.model.entity.toDomainModel
 import com.kjh.data.model.entity.toEntity
@@ -22,18 +24,33 @@ class PaymentMethodRepositoryImpl @Inject constructor(
         paymentMethodLocalDataSource.getAllPaymentMethods()
             .map { it.toDomainModel() }
 
-    override suspend fun makePaymentMethod(paymentMethod: PaymentMethod): Long {
-        return paymentMethodLocalDataSource.insert(paymentMethod.toEntity())
+    override suspend fun makePaymentMethod(paymentMethod: PaymentMethod): Flow<ApiResult<Long>> {
+        return safeApiCall {
+            validateUniquePaymentMethodName(paymentMethod.paymentMethodName)
+
+            paymentMethodLocalDataSource.insert(paymentMethod.toEntity())
+        }
     }
 
-    override suspend fun updatePaymentMethod(paymentMethod: PaymentMethod) {
-        return paymentMethodLocalDataSource.updatePaymentMethod(
-            id = paymentMethod.paymentMethodId,
-            newPaymentMethodName = paymentMethod.paymentMethodName
-        )
+    override suspend fun updatePaymentMethod(paymentMethod: PaymentMethod): Flow<ApiResult<Unit>> {
+        return safeApiCall {
+            validateUniquePaymentMethodName(paymentMethod.paymentMethodName)
+
+            paymentMethodLocalDataSource.updatePaymentMethod(
+                id = paymentMethod.paymentMethodId,
+                newPaymentMethodName = paymentMethod.paymentMethodName
+            )
+        }
     }
 
     override suspend fun deletePaymentMethod(paymentMethodId: Int) {
         return paymentMethodLocalDataSource.deletePaymentMethod(paymentMethodId)
+    }
+
+    private suspend fun validateUniquePaymentMethodName(name: String) {
+        val paymentMethodByName = paymentMethodLocalDataSource.getPaymentMethodByName(name)
+        if (paymentMethodByName != null) {
+            throw Exception("같은 이름을 가진 결제수단이 존재합니다.")
+        }
     }
 }

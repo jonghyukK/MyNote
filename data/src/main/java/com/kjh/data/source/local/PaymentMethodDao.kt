@@ -25,6 +25,15 @@ interface PaymentMethodDao {
     fun getAllPaymentMethods(): Flow<List<PaymentMethodEntity>>
 
     /**
+     * 결제수단 조회 (by PaymentMethodName)
+     *
+     * @param paymentMethodName
+     * @return
+     */
+    @Query("SELECT * FROM paymentMethod WHERE paymentMethodName = :paymentMethodName")
+    suspend fun getPaymentMethodByName(paymentMethodName: String): PaymentMethodEntity?
+
+    /**
      * 결제수단 등록.
      *
      * @param paymentMethodEntity

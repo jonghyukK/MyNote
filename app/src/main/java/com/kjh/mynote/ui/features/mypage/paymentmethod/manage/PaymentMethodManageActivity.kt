@@ -8,6 +8,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.mynote.databinding.ActivityPaymentMethodManageBinding
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.ui.base.BaseActivity
+import com.kjh.mynote.ui.features.mypage.paymentmethod.edit.EditPaymentMethodDialogFragment
+import com.kjh.mynote.ui.features.mypage.paymentmethod.make.MakePaymentMethodDialogFragment
 import com.kjh.mynote.ui.features.mypage.paymentmethod.manage.adapter.PaymentMethodManageListAdapter
 import com.kjh.mynote.utils.decorations.UnderLineDecoration
 import com.kjh.mynote.utils.extensions.makeGone
@@ -67,7 +69,9 @@ class PaymentMethodManageActivity: BaseActivity<ActivityPaymentMethodManageBindi
     }
 
     private val editClickAction: (PaymentMethodUiModel) -> Unit = { item ->
-
+        EditPaymentMethodDialogFragment.newInstance(
+            paymentMethodItem = item
+        ).show(supportFragmentManager, EditPaymentMethodDialogFragment.TAG)
     }
 
     private val deleteClickAction: (PaymentMethodUiModel) -> Unit = { item ->
@@ -75,6 +79,7 @@ class PaymentMethodManageActivity: BaseActivity<ActivityPaymentMethodManageBindi
     }
 
     private val addClickListener = View.OnClickListener {
-
+        MakePaymentMethodDialogFragment.newInstance()
+            .show(supportFragmentManager, MakePaymentMethodDialogFragment.TAG)
     }
 }

@@ -122,4 +122,19 @@
     <string name="my_page">마이페이지</string>
     <string name="title_manage_category">카테고리 관리</string>
     <string name="manage_payment_method">결제수단 관리</string>
+    <string name="make_payment_method">결제수단 등록</string>
+    <string name="payment_method_name">결제수단명</string>
+    <string name="hint_input_payment_method_name">결제수단명 혹은 별명을 입력해주세요</string>
+    <string name="do_register">등록하기</string>
+
+    <string name="desc_input_payment_method_name">* 여러 결제수단을 사용하실 경우 구분이 잘 되도록 이름을 작성해주세요.</string>
+    <string name="desc_recommend_payment_method_name">이런 식으로 만들면 좋아요!</string>
+    <string name="desc_payment_method_name_example1_title">은행명 + 체크/신용카드 + 카드번호 뒷자리 이용</string>
+    <string name="desc_payment_method_name_example1">예) 국민 체크카드(0544), 신한 신용카드(0999)</string>
+    <string name="payment_method_name_example1_highlight_text">국민 체크카드(0544), 신한 신용카드(0999)</string>
+
+    <string name="desc_payment_method_name_example2_title">구분할 수 있는 별명</string>
+    <string name="desc_payment_method_name_example2">예) 생활비카드, 용돈카드, 월급통장</string>
+    <string name="payment_method_name_example2_highlight_text">생활비카드, 용돈카드, 월급통장</string>
+    <string name="edit_payment_method">결제수단 수정</string>
 </resources>
