@@ -8,6 +8,12 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * Created by kangjonghyuk.
@@ -52,4 +58,13 @@ fun ComponentActivity.setLightStatusBar() {
     } else
         window.decorView.systemUiVisibility =
             window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+}
+
+fun LifecycleOwner.launchRepeatOnLifecycle(
+    state: Lifecycle.State = Lifecycle.State.STARTED,
+    block: suspend CoroutineScope.() -> Unit
+) {
+    lifecycleScope.launch {
+        repeatOnLifecycle(state, block)
+    }
 }

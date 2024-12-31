@@ -1,5 +1,8 @@
 package com.example.domain.usecase
 
+import com.example.domain.model.PaymentMethod
+import com.example.domain.repository.PaymentMethodRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
@@ -8,6 +11,8 @@ import javax.inject.Inject
  * Description:
  */
 class GetPaymentMethodsUseCase @Inject constructor(
-
+    private val paymentMethodRepository: PaymentMethodRepository
 ) {
+    operator fun invoke(): Flow<List<PaymentMethod>> =
+        paymentMethodRepository.getAllPaymentMethods()
 }

@@ -8,15 +8,15 @@
         android:id="@+id/tb_toolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:rightFirstImage="@drawable/ic_add_24"
         app:isShowBackButton="true"
-        app:leftTitle="@string/title_manage_category"
+        app:leftTitle="@string/manage_payment_method"
+        app:rightFirstImage="@drawable/ic_add_24"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_categories"
+        android:id="@+id/rv_payment_methods"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@color/black_50"

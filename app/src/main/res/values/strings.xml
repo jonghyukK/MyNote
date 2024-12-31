@@ -121,4 +121,5 @@
     <string name="purchase_note_statistics">구매노트 통계</string>
     <string name="my_page">마이페이지</string>
     <string name="title_manage_category">카테고리 관리</string>
+    <string name="manage_payment_method">결제수단 관리</string>
 </resources>

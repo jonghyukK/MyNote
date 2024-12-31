@@ -227,6 +227,7 @@ class MakeOrModifyPlaceNoteViewModel @Inject constructor(
                 purchasePrice = tempPurchaseNoteItem.purchasePrice,
                 purchaseName = tempPurchaseNoteItem.purchaseName,
                 category = tempPurchaseNoteItem.categoryItem?.toDomainModel(),
+                paymentMethod = tempPurchaseNoteItem.paymentMethod,
                 images = tempPurchaseNoteItem.tempImageUrls.ifEmpty { null },
                 placeInfo = _uiState.value.tempPlaceItem?.toDomainModel()
             )

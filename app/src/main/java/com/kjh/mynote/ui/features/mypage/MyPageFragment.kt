@@ -5,6 +5,7 @@ import android.view.View
 import com.kjh.mynote.databinding.FragmentMyPageBinding
 import com.kjh.mynote.ui.base.BaseFragment
 import com.kjh.mynote.ui.features.mypage.category.CategoryManageActivity
+import com.kjh.mynote.ui.features.mypage.paymentmethod.manage.PaymentMethodManageActivity
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,6 +21,7 @@ class MyPageFragment: BaseFragment<FragmentMyPageBinding>({ FragmentMyPageBindin
     override fun onInitView() {
         with (binding) {
             clMyCategories.setOnThrottleClickListener(categoryManageClickListener)
+            clMyPaymentMethod.setOnThrottleClickListener(paymentManageClickListener)
         }
     }
 
@@ -29,6 +31,12 @@ class MyPageFragment: BaseFragment<FragmentMyPageBinding>({ FragmentMyPageBindin
 
     private val categoryManageClickListener = View.OnClickListener {
         Intent(requireContext(), CategoryManageActivity::class.java).apply {
+            startActivity(this)
+        }
+    }
+
+    private val paymentManageClickListener = View.OnClickListener {
+        Intent(requireContext(), PaymentMethodManageActivity::class.java).apply {
             startActivity(this)
         }
     }

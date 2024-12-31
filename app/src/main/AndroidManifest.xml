@@ -56,6 +56,7 @@
         <activity android:name=".ui.features.purchase.statistics.PurchaseNoteStatisticsActivity" />
 
         <activity android:name=".ui.features.mypage.category.CategoryManageActivity" />
+        <activity android:name=".ui.features.mypage.paymentmethod.manage.PaymentMethodManageActivity" />
     </application>
 
 </manifest>

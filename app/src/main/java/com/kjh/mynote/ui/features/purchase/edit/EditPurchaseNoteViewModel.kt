@@ -3,6 +3,7 @@ package com.kjh.mynote.ui.features.purchase.edit
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.domain.model.PaymentMethod
 import com.example.domain.model.PurchaseNote
 import com.example.domain.model.Result
 import com.example.domain.usecase.MakeAndGetPurchaseNoteUseCase
@@ -35,6 +36,7 @@ import javax.inject.Inject
 data class EditPurchaseNoteUiState(
     val purchaseName: String = "",
     val categoryItem: CategoryUiModel? = null,
+    val paymentMethod: PaymentMethod? = null,
     val purchaseDate: Long = -1,
     val purchaseDateText: String = "",
     val purchasePrice: Long = 0,
@@ -201,6 +203,7 @@ class EditPurchaseNoteViewModel @Inject constructor(
             purchasePrice = purchasePrice,
             purchaseName = purchaseName,
             category = categoryItem?.toDomainModel(),
+            paymentMethod = paymentMethod,
             images = tempImageUrls.ifEmpty { null },
             placeInfo = tempPlaceItem?.toDomainModel()
         )

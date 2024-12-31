@@ -2,6 +2,7 @@ package com.kjh.mynote.ui.features.place.make
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.domain.model.PaymentMethod
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.utils.constants.AppConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,6 +25,7 @@ data class TempPurchaseNoteItem(
     val purchasePrice: Long = 0L,
     val purchaseName: String = "",
     val categoryItem: CategoryUiModel? = null,
+    val paymentMethod: PaymentMethod? = null,
     val tempImageUrls: List<String> = emptyList()
 )
 
