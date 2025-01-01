@@ -25,12 +25,6 @@ import javax.inject.Inject
  * Description:
  */
 
-sealed interface EditPaymentMethodEventState {
-    data object Loading: EditPaymentMethodEventState
-    data class Error(val error: Throwable): EditPaymentMethodEventState
-    data object Success: EditPaymentMethodEventState
-}
-
 @HiltViewModel
 class EditPaymentMethodViewModel @Inject constructor(
     private val updatePaymentMethodUseCase: UpdatePaymentMethodUseCase,
@@ -75,4 +69,10 @@ class EditPaymentMethodViewModel @Inject constructor(
     fun setPaymentMethodName(name: String) {
         _paymentMethodNameText.value = name
     }
+}
+
+sealed interface EditPaymentMethodEventState {
+    data object Loading: EditPaymentMethodEventState
+    data class Error(val error: Throwable): EditPaymentMethodEventState
+    data object Success: EditPaymentMethodEventState
 }

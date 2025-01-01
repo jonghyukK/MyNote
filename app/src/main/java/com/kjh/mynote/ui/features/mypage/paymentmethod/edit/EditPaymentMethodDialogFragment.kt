@@ -49,6 +49,10 @@ class EditPaymentMethodDialogFragment: BaseDialogFragment<DialogFragmentEditPaym
 
             etPaymentMethodName.addCustomTextWatcher(paymentMethodNameTextWatcher)
             btnBottom.setOnThrottleClickListener(modifyClickListener)
+
+            etPaymentMethodName.post {
+                etPaymentMethodName.setFocus()
+            }
         }
     }
 

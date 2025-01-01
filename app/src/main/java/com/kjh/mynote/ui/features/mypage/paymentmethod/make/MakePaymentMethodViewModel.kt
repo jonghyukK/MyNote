@@ -19,12 +19,6 @@ import javax.inject.Inject
  * Description:
  */
 
-sealed interface MakePaymentMethodEventState {
-    data object Loading: MakePaymentMethodEventState
-    data class Error(val error: Throwable): MakePaymentMethodEventState
-    data class Success(val madePaymentMethodId: Int): MakePaymentMethodEventState
-}
-
 @HiltViewModel
 class MakePaymentMethodViewModel @Inject constructor(
     private val makePaymentMethodUseCase: MakePaymentMethodUseCase
@@ -57,4 +51,10 @@ class MakePaymentMethodViewModel @Inject constructor(
     fun setPaymentMethodName(name: String) {
         _paymentMethodNameText.value = name
     }
+}
+
+sealed interface MakePaymentMethodEventState {
+    data object Loading: MakePaymentMethodEventState
+    data class Error(val error: Throwable): MakePaymentMethodEventState
+    data class Success(val madePaymentMethodId: Int): MakePaymentMethodEventState
 }

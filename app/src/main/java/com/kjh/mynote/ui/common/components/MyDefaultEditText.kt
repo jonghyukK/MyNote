@@ -13,6 +13,7 @@ import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ComponentsMyDefaultEditTextBinding
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
+import com.kjh.mynote.utils.extensions.showKeyboard
 
 /**
  * Created by kangjonghyuk.
@@ -118,5 +119,16 @@ class MyDefaultEditText @JvmOverloads constructor(
      */
     fun setSelection(index: Int) {
         binding.etText.setSelection(index)
+    }
+
+    /**
+     * requestFocus to EditText.
+     *
+     */
+    fun setFocus() = with (binding.etText) {
+        val textLength = text?.length ?: 0
+
+        showKeyboard()
+        setSelection(textLength)
     }
 }
