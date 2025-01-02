@@ -75,6 +75,11 @@ class MonthlyEventCalendarBSDialog
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        calendarDayClickListener = null
+    }
+
     private val monthDayClickAction: (LocalDate) -> Unit = { date ->
         calendarDayClickListener?.onClickDay(date)
         dialog?.dismiss()

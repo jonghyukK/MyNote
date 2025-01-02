@@ -114,6 +114,11 @@ class CategoryAddOrDeleteOrEditDialog :
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        eventCallback = null
+    }
+
     private fun isValidCategoryName(): Boolean {
         if (binding.etCategory.text.toString().isBlank()) {
             showToast(getString(R.string.title_input_category_for_add))
