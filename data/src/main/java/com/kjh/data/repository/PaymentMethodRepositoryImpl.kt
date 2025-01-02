@@ -43,8 +43,10 @@ class PaymentMethodRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deletePaymentMethod(paymentMethodId: Int) {
-        return paymentMethodLocalDataSource.deletePaymentMethod(paymentMethodId)
+    override suspend fun deletePaymentMethod(paymentMethodId: Int): Flow<ApiResult<Unit>> {
+        return safeApiCall {
+            paymentMethodLocalDataSource.deletePaymentMethod(paymentMethodId)
+        }
     }
 
     private suspend fun validateUniquePaymentMethodName(name: String) {

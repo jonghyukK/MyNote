@@ -24,7 +24,7 @@ import com.example.domain.model.PurchaseNote
             entity = PaymentMethodEntity::class,
             parentColumns = ["paymentMethodId"],
             childColumns = ["paymentMethodId"],
-            onDelete = ForeignKey.SET_NULL
+            onDelete = ForeignKey.CASCADE
         )
     ]
 )

@@ -209,7 +209,7 @@ class PlaceNoteDetailActivity :
 
     override fun onClickDeleteMenu() {
         DefaultDialog.newInstance(
-            contents = getString(R.string.will_you_delete),
+            title = getString(R.string.will_you_delete),
             posBtnText = getString(R.string.yes_i_will_delete),
             negBtnText = getString(R.string.cancel)
         ).show(supportFragmentManager, DefaultDialog.TAG)
@@ -227,9 +227,10 @@ class PlaceNoteDetailActivity :
         }
     }
 
-    override fun onClickPositive() {
+    override fun onDialogPositiveClick() {
         viewModel.deletePlaceNote()
     }
 
-    override fun onClickNegative() {}
+    override fun onDialogNegativeClick() {}
+    override fun onDialogDismiss() {}
 }

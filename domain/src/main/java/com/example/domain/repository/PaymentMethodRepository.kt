@@ -17,5 +17,5 @@ interface PaymentMethodRepository {
 
     suspend fun updatePaymentMethod(paymentMethod: PaymentMethod): Flow<ApiResult<Unit>>
 
-    suspend fun deletePaymentMethod(paymentMethodId: Int)
+    suspend fun deletePaymentMethod(paymentMethodId: Int): Flow<ApiResult<Unit>>
 }

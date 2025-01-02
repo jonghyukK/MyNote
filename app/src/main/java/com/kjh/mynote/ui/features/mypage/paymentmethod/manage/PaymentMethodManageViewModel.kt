@@ -4,13 +4,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
 import com.example.domain.model.asResult
+import com.example.domain.usecase.DeletePaymentMethodUseCase
 import com.example.domain.usecase.GetPaymentMethodsUseCase
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -18,6 +23,12 @@ import javax.inject.Inject
  * Created On 2024. 12. 31..
  * Description:
  */
+
+sealed interface DeletePaymentMethodEventState {
+    data object Loading: DeletePaymentMethodEventState
+    data class Error(val errorMsg: String): DeletePaymentMethodEventState
+    data object Success: DeletePaymentMethodEventState
+}
 
 sealed interface PaymentMethodManageUiState {
     data object Loading: PaymentMethodManageUiState
@@ -27,8 +38,14 @@ sealed interface PaymentMethodManageUiState {
 
 @HiltViewModel
 class PaymentMethodManageViewModel @Inject constructor(
-    private val getPaymentMethodsUseCase: GetPaymentMethodsUseCase
+    private val getPaymentMethodsUseCase: GetPaymentMethodsUseCase,
+    private val deletePaymentMethodUseCase: DeletePaymentMethodUseCase
 ): ViewModel() {
+
+    var tempDeleteItem: PaymentMethodUiModel? = null
+
+    private val _deletePaymentMethodEvent = MutableSharedFlow<DeletePaymentMethodEventState>()
+    val deletePaymentMethodEvent = _deletePaymentMethodEvent.asSharedFlow()
 
     val uiState = getPaymentMethodsUseCase()
         .asResult()
@@ -50,5 +67,26 @@ class PaymentMethodManageViewModel @Inject constructor(
             initialValue = PaymentMethodManageUiState.Loading
         )
 
+    fun deletePaymentMethod() {
+        val deletePaymentMethodId = tempDeleteItem?.paymentMethodId ?: return
 
+        viewModelScope.launch {
+            deletePaymentMethodUseCase(deletePaymentMethodId).collect { result ->
+                when (result) {
+                    is ApiResult.Loading ->
+                        _deletePaymentMethodEvent.emit(DeletePaymentMethodEventState.Loading)
+
+                    is ApiResult.Error ->
+                        _deletePaymentMethodEvent.emit(
+                            DeletePaymentMethodEventState.Error(
+                                result.error.message ?: "결제수단 삭제가 실패하였습니다."
+                            )
+                        )
+
+                    is ApiResult.Success ->
+                        _deletePaymentMethodEvent.emit(DeletePaymentMethodEventState.Success)
+                }
+            }
+        }
+    }
 }

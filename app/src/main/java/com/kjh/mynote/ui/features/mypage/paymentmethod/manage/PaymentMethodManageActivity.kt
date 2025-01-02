@@ -5,15 +5,18 @@ import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityPaymentMethodManageBinding
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.ui.base.BaseActivity
+import com.kjh.mynote.ui.common.dialog.DefaultDialog
 import com.kjh.mynote.ui.features.mypage.paymentmethod.edit.EditPaymentMethodDialogFragment
 import com.kjh.mynote.ui.features.mypage.paymentmethod.make.MakePaymentMethodDialogFragment
 import com.kjh.mynote.ui.features.mypage.paymentmethod.manage.adapter.PaymentMethodManageListAdapter
 import com.kjh.mynote.utils.decorations.UnderLineDecoration
 import com.kjh.mynote.utils.extensions.makeGone
 import com.kjh.mynote.utils.extensions.makeVisible
+import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -24,7 +27,8 @@ import kotlinx.coroutines.launch
  */
 
 @AndroidEntryPoint
-class PaymentMethodManageActivity: BaseActivity<ActivityPaymentMethodManageBinding>({ ActivityPaymentMethodManageBinding.inflate(it) }) {
+class PaymentMethodManageActivity :
+    BaseActivity<ActivityPaymentMethodManageBinding>({ ActivityPaymentMethodManageBinding.inflate(it) }), DefaultDialog.MyDefaultDialogEventListener {
 
     private val viewModel: PaymentMethodManageViewModel by viewModels()
 
@@ -36,7 +40,7 @@ class PaymentMethodManageActivity: BaseActivity<ActivityPaymentMethodManageBindi
     }
 
     override fun onInitView() {
-        with (binding) {
+        with(binding) {
             rvPaymentMethods.apply {
                 itemAnimator = null
                 addItemDecoration(UnderLineDecoration(this@PaymentMethodManageActivity, height = 1))
@@ -50,17 +54,41 @@ class PaymentMethodManageActivity: BaseActivity<ActivityPaymentMethodManageBindi
     override fun onInitUiData() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { uiState ->
-                    when (uiState) {
-                        is PaymentMethodManageUiState.Loading -> {
-                            binding.layoutLoading.root.makeVisible()
+                launch {
+                    viewModel.uiState.collect { uiState ->
+                        when (uiState) {
+                            is PaymentMethodManageUiState.Loading -> {
+                                binding.layoutLoading.root.makeVisible()
+                            }
+
+                            is PaymentMethodManageUiState.Error -> {
+                                binding.layoutLoading.root.makeGone()
+                                uiState.error.message?.let {
+                                    showToast(it)
+                                }
+                            }
+
+                            is PaymentMethodManageUiState.PaymentMethods -> {
+                                binding.layoutLoading.root.makeGone()
+                                listAdapter.submitList(uiState.items)
+                            }
                         }
-                        is PaymentMethodManageUiState.Error -> {
-                            binding.layoutLoading.root.makeGone()
-                        }
-                        is PaymentMethodManageUiState.PaymentMethods -> {
-                            binding.layoutLoading.root.makeGone()
-                            listAdapter.submitList(uiState.items)
+                    }
+                }
+
+                launch {
+                    viewModel.deletePaymentMethodEvent.collect { event ->
+                        when (event) {
+                            is DeletePaymentMethodEventState.Loading -> {
+                                binding.layoutLoading.root.makeVisible()
+                            }
+                            is DeletePaymentMethodEventState.Error -> {
+                                binding.layoutLoading.root.makeGone()
+                                showToast(event.errorMsg)
+                            }
+                            is DeletePaymentMethodEventState.Success -> {
+                                binding.layoutLoading.root.makeGone()
+                            }
                         }
                     }
                 }
@@ -75,11 +103,32 @@ class PaymentMethodManageActivity: BaseActivity<ActivityPaymentMethodManageBindi
     }
 
     private val deleteClickAction: (PaymentMethodUiModel) -> Unit = { item ->
+        viewModel.tempDeleteItem = item
 
+        DefaultDialog.newInstance(
+            title = getString(R.string.will_you_delete),
+            desc = getString(R.string.desc_payment_method_remove),
+            descColorRes = R.color.red_500,
+            posBtnText = getString(R.string.yes_i_will_delete),
+            negBtnText = getString(R.string.cancel)
+        )
+            .show(supportFragmentManager, DefaultDialog.TAG)
     }
 
     private val addClickListener = View.OnClickListener {
         MakePaymentMethodDialogFragment.newInstance()
             .show(supportFragmentManager, MakePaymentMethodDialogFragment.TAG)
+    }
+
+    override fun onDialogPositiveClick() {
+        viewModel.deletePaymentMethod()
+    }
+
+    override fun onDialogNegativeClick() {
+        viewModel.tempDeleteItem = null
+    }
+
+    override fun onDialogDismiss() {
+        viewModel.tempDeleteItem = null
     }
 }

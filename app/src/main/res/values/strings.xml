@@ -137,4 +137,5 @@
     <string name="desc_payment_method_name_example2">예) 생활비카드, 용돈카드, 월급통장</string>
     <string name="payment_method_name_example2_highlight_text">생활비카드, 용돈카드, 월급통장</string>
     <string name="edit_payment_method">결제수단 수정</string>
+    <string name="desc_payment_method_remove">해당 결제수단으로 등록된 구매노트가\n전부 삭제돼요!\n그래도 삭제하시겠어요?</string>
 </resources>

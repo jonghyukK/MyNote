@@ -138,7 +138,7 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
 
     private val deleteNoteClickListener = OnClickListener {
         DefaultDialog.newInstance(
-            contents = getString(R.string.will_you_delete_this_purchase_note),
+            title = getString(R.string.will_you_delete_this_purchase_note),
             posBtnText = getString(R.string.yes_i_will_delete),
             negBtnText = getString(R.string.cancel)
         ).show(supportFragmentManager, DefaultDialog.TAG)
@@ -158,9 +158,10 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
         }
     }
 
-    override fun onClickPositive() {
+    override fun onDialogPositiveClick() {
         viewModel.deletePurchaseNote()
     }
 
-    override fun onClickNegative() {}
+    override fun onDialogNegativeClick() {}
+    override fun onDialogDismiss() {}
 }
