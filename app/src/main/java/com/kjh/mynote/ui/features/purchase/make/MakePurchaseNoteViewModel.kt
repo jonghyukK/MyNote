@@ -1,5 +1,6 @@
 package com.kjh.mynote.ui.features.purchase.make
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.PaymentMethod
@@ -7,9 +8,11 @@ import com.example.domain.model.PurchaseNote
 import com.example.domain.model.Result
 import com.example.domain.usecase.MakeAndGetPurchaseNoteUseCase
 import com.kjh.mynote.model.CategoryUiModel
+import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.PlaceInfoUiModel
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.model.UiState
+import com.kjh.mynote.model.toDomainModal
 import com.kjh.mynote.model.toDomainModel
 import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.utils.constants.AppConstants
@@ -35,7 +38,7 @@ import javax.inject.Inject
 data class MakePurchaseNoteUiState(
     val purchaseName: String = "",
     val categoryItem: CategoryUiModel? = null,
-    val paymentMethod: PaymentMethod? = null,
+    val paymentMethod: PaymentMethodUiModel? = null,
     val purchaseDate: Long = -1,
     val purchaseDateText: String = "",
     val purchasePrice: Long = 0,
@@ -45,10 +48,16 @@ data class MakePurchaseNoteUiState(
 
 @HiltViewModel
 class MakePurchaseNoteViewModel @Inject constructor(
-    private val makeAndGetPurchaseNoteUseCase: MakeAndGetPurchaseNoteUseCase
+    private val makeAndGetPurchaseNoteUseCase: MakeAndGetPurchaseNoteUseCase,
+    private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
-    private val _uiState = MutableStateFlow(MakePurchaseNoteUiState())
+    private val initDate = savedStateHandle.get<Long>(AppConstants.INTENT_PURCHASE_DATE)
+
+    private val _uiState = MutableStateFlow(MakePurchaseNoteUiState(
+        purchaseDate = initDate ?: -1,
+        purchaseDateText = initDate?.toStringWithFormat(DATE_PATTERN) ?: ""
+    ))
     val uiState = _uiState.asStateFlow()
 
     private val _makePurchaseNoteEventState = MutableSharedFlow<UiState<PurchaseNoteUiModel>>()
@@ -58,6 +67,7 @@ class MakePurchaseNoteViewModel @Inject constructor(
         it.purchaseDate > 0
                 && it.purchasePrice > 0
                 && it.categoryItem != null
+                && it.paymentMethod != null
                 && it.purchaseName.isNotBlank()
     }.stateIn(
         scope = viewModelScope,
@@ -168,13 +178,30 @@ class MakePurchaseNoteViewModel @Inject constructor(
         }
     }
 
+    fun setPaymentMethod(paymentMethod: PaymentMethodUiModel) {
+        _uiState.update {
+            it.copy(paymentMethod = paymentMethod)
+        }
+    }
+
+    fun updateSelectedPaymentNameWhenChanged(paymentMethod: PaymentMethodUiModel) {
+        val currentItem = _uiState.value.paymentMethod
+        currentItem?.let {
+            if (it.paymentMethodId == paymentMethod.paymentMethodId) {
+                _uiState.update {
+                    it.copy(paymentMethod = paymentMethod)
+                }
+            }
+        }
+    }
+
     private fun convertUiStateToPurchaseNoteModel() = with(_uiState.value) {
         PurchaseNote(
             purchaseDate = purchaseDate,
             purchasePrice = purchasePrice,
             purchaseName = purchaseName,
             category = categoryItem?.toDomainModel(),
-            paymentMethod = paymentMethod,
+            paymentMethod = paymentMethod?.toDomainModal(),
             images = tempImageUrls.ifEmpty { null },
             placeInfo = tempPlaceItem?.toDomainModel()
         )

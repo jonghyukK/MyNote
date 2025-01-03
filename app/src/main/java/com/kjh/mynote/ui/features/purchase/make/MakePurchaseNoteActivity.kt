@@ -1,21 +1,25 @@
 package com.kjh.mynote.ui.features.purchase.make
 
 import android.content.Intent
+import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View.OnClickListener
 import androidx.activity.viewModels
+import androidx.fragment.app.FragmentResultListener
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityEditOrMakePurchaseNoteBinding
+import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.PlaceInfoUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog
 import com.kjh.mynote.ui.features.map.NaverMapSearchActivity
+import com.kjh.mynote.ui.features.paymentmethod.PaymentMethodListBSDialog
 import com.kjh.mynote.ui.features.place.make.adapter.TempImageListAdapter
 import com.kjh.mynote.utils.DatePickerManager
 import com.kjh.mynote.utils.constants.AppConstants
@@ -39,7 +43,9 @@ import java.time.ZoneOffset
  */
 
 @AndroidEntryPoint
-class MakePurchaseNoteActivity: BaseActivity<ActivityEditOrMakePurchaseNoteBinding>({ ActivityEditOrMakePurchaseNoteBinding.inflate(it) }) {
+class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBinding>({
+    ActivityEditOrMakePurchaseNoteBinding.inflate(it)
+}), FragmentResultListener {
 
     private val viewModel: MakePurchaseNoteViewModel by viewModels()
 
@@ -63,6 +69,7 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityEditOrMakePurchaseNoteBindi
             etPurchasePrice.addMyTextWatcher(priceTextWatcher)
 
             tvCategory.setTextClickListener(categoryClickListener)
+            tvPaymentMethod.setTextClickListener(paymentMethodClickListener)
             tvPurchaseDate.setTextClickListener(purchaseDateClickListener)
             tvPurchasePlace.setTextClickListener(searchMapClickListener)
 
@@ -72,10 +79,9 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityEditOrMakePurchaseNoteBindi
     }
 
     override fun onInitUiData() {
-        val selectedPurchaseDate = intent.getLongExtra(AppConstants.INTENT_PURCHASE_DATE, -1)
-        if (selectedPurchaseDate > 0) {
-            viewModel.setPurchaseDate(selectedPurchaseDate)
-        }
+        supportFragmentManager.setFragmentResultListener(
+            PaymentMethodListBSDialog.REQUEST_KEY, this, this
+        )
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -84,12 +90,27 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityEditOrMakePurchaseNoteBindi
                         .map { it.categoryItem }
                         .distinctUntilChanged()
                         .collect { categoryItem ->
-                            categoryItem?.let {
-                                binding.tvCategory.text = it.categoryName
-                                binding.tvCategory.textColor = R.color.black_800
-                            } ?: run {
+                            if (categoryItem == null) {
                                 binding.tvCategory.text = getString(R.string.select_category)
                                 binding.tvCategory.textColor = R.color.black_400
+                            } else {
+                                binding.tvCategory.text = categoryItem.categoryName
+                                binding.tvCategory.textColor = R.color.black_800
+                            }
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.paymentMethod }
+                        .distinctUntilChanged()
+                        .collect { paymentMethodItem ->
+                            if (paymentMethodItem == null) {
+                                binding.tvPaymentMethod.text = getString(R.string.select_payment_method)
+                                binding.tvPaymentMethod.textColor = R.color.black_400
+                            } else {
+                                binding.tvPaymentMethod.text = paymentMethodItem.paymentMethodName
+                                binding.tvPaymentMethod.textColor = R.color.black_800
                             }
                         }
                 }
@@ -292,6 +313,14 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityEditOrMakePurchaseNoteBindi
         ).show(supportFragmentManager, CategoryListBSDialog.TAG)
     }
 
+    private val paymentMethodClickListener = OnClickListener {
+        clearFocus()
+
+        PaymentMethodListBSDialog.newInstance(
+            selectedPaymentMethodItem = viewModel.uiState.value.paymentMethod
+        ).show(supportFragmentManager, PaymentMethodListBSDialog.TAG)
+    }
+
     private val purchaseDateClickListener = OnClickListener {
         clearFocus()
 
@@ -323,6 +352,22 @@ class MakePurchaseNoteActivity: BaseActivity<ActivityEditOrMakePurchaseNoteBindi
         if (binding.btnBottom.isEnable) {
             clearFocus()
             viewModel.makePurchaseNote()
+        }
+    }
+
+    override fun onFragmentResult(requestKey: String, result: Bundle) {
+        if (requestKey == PaymentMethodListBSDialog.REQUEST_KEY) {
+            val selectedItem =
+                result.parcelable<PaymentMethodUiModel>(PaymentMethodListBSDialog.RES_KEY_SELECTED_ITEM)
+            selectedItem?.let {
+                viewModel.setPaymentMethod(selectedItem)
+            }
+
+            val updatedItem =
+                result.parcelable<PaymentMethodUiModel>(PaymentMethodListBSDialog.RES_KEY_UPDATED_ITEM)
+            updatedItem?.let {
+                viewModel.updateSelectedPaymentNameWhenChanged(updatedItem)
+            }
         }
     }
 }

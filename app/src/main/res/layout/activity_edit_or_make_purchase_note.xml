@@ -50,6 +50,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
+        <!-- 결제 수단 -->
+        <com.kjh.mynote.ui.common.components.MyTitleWithSelectableTextView
+            android:id="@+id/tv_payment_method"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:title="@string/payment_method"
+            app:isRequired="true"
+            app:layout_constraintTop_toBottomOf="@+id/tv_category"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
         <!-- 구매 날짜 -->
         <com.kjh.mynote.ui.common.components.MyTitleWithSelectableTextView
             android:id="@+id/tv_purchase_date"
@@ -57,7 +68,7 @@
             android:layout_height="wrap_content"
             app:title="@string/purchase_date"
             app:isRequired="true"
-            app:layout_constraintTop_toBottomOf="@+id/tv_category"
+            app:layout_constraintTop_toBottomOf="@+id/tv_payment_method"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
