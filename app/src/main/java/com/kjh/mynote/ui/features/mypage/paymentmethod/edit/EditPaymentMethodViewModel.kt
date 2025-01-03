@@ -4,12 +4,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
-import com.example.domain.model.PaymentMethod
 import com.example.domain.usecase.UpdatePaymentMethodUseCase
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.toDomainModal
 import com.kjh.mynote.ui.features.mypage.paymentmethod.edit.EditPaymentMethodDialogFragment.Companion.ARG_PAYMENT_METHOD_ITEM
-import com.kjh.mynote.ui.features.mypage.paymentmethod.make.MakePaymentMethodEventState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,18 +46,20 @@ class EditPaymentMethodViewModel @Inject constructor(
 
     fun editPaymentMethod() {
         viewModelScope.launch {
-            val paymentMethodDomainModel = _initPaymentMethodItem.value.copy(
+            val targetPaymentMethodItem = _initPaymentMethodItem.value.copy(
                 paymentMethodName = _paymentMethodNameText.value
-            ).toDomainModal()
+            )
 
-            updatePaymentMethodUseCase(paymentMethodDomainModel).collect { result ->
+            updatePaymentMethodUseCase(
+                paymentMethod = targetPaymentMethodItem.toDomainModal()
+            ).collect { result ->
                 when (result) {
                     is ApiResult.Loading ->
                         _editPaymentMethodEvent.emit(EditPaymentMethodEventState.Loading)
                     is ApiResult.Error ->
                         _editPaymentMethodEvent.emit(EditPaymentMethodEventState.Error(result.error))
                     is ApiResult.Success -> {
-                        _editPaymentMethodEvent.emit(EditPaymentMethodEventState.Success)
+                        _editPaymentMethodEvent.emit(EditPaymentMethodEventState.Success(targetPaymentMethodItem))
                     }
                 }
             }
@@ -74,5 +74,5 @@ class EditPaymentMethodViewModel @Inject constructor(
 sealed interface EditPaymentMethodEventState {
     data object Loading: EditPaymentMethodEventState
     data class Error(val error: Throwable): EditPaymentMethodEventState
-    data object Success: EditPaymentMethodEventState
+    data class Success(val paymentMethodItem: PaymentMethodUiModel): EditPaymentMethodEventState
 }

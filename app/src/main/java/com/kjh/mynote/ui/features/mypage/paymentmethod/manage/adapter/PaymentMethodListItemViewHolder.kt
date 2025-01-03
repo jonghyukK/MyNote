@@ -31,9 +31,10 @@ class PaymentMethodListItemViewHolder(
         super.bind(item)
 
         with (binding) {
-            binding.tvName.text = item.paymentMethodName
-            binding.ivEdit.isVisible = item.isDefaultMethod().not()
-            binding.ivDelete.isVisible = item.isDefaultMethod().not()
+            ivCheck.isVisible = false
+            tvName.text = item.paymentMethodName
+            ivEdit.isVisible = item.isDefaultMethod().not()
+            ivDelete.isVisible = item.isDefaultMethod().not()
         }
     }
 }

@@ -26,6 +26,7 @@ object AppConstants {
     const val INTENT_QUERY_TEXT = "INTENT_QUERY_TEXT"
     const val INTENT_DATE = "INTENT_DATE"
     const val INTENT_DATE_LIST = "INTENT_DATE_LIST"
+    const val INTENT_PAYMENT_METHOD_ITEM = "INTENT_PAYMENT_METHOD_ITEM"
 
     const val DEFAULT_ZOOM_LEVEL = 13.0
     const val MAX_SELECTABLE_IMAGE_COUNT = 10

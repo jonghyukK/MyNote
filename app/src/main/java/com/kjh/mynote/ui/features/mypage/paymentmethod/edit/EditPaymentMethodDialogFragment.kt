@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -71,6 +73,12 @@ class EditPaymentMethodDialogFragment: BaseDialogFragment<DialogFragmentEditPaym
                             }
                             is EditPaymentMethodEventState.Success -> {
                                 binding.btnBottom.isLoading = false
+
+                                setFragmentResult(
+                                    REQUEST_KEY,
+                                    bundleOf(RES_KEY_UPDATED_ITEM to event.paymentMethodItem)
+                                )
+
                                 dismiss()
                             }
                         }
@@ -110,7 +118,11 @@ class EditPaymentMethodDialogFragment: BaseDialogFragment<DialogFragmentEditPaym
 
     companion object {
         const val TAG = "EditPaymentMethodDialogFragment"
+
         const val ARG_PAYMENT_METHOD_ITEM = "ARG_PAYMENT_METHOD_ITEM"
+
+        const val REQUEST_KEY = "REQUEST_KEY"
+        const val RES_KEY_UPDATED_ITEM = "RES_KEY_UPDATED_ITEM"
 
         fun newInstance(
             paymentMethodItem: PaymentMethodUiModel
