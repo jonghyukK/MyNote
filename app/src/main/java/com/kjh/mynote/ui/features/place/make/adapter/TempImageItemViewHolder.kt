@@ -16,17 +16,12 @@ import com.kjh.mynote.utils.extensions.onThrottleClick
 
 class TempImageItemViewHolder(
     private val binding: VhTempImageItemBinding,
-    private val deleteImageClickAction: (String) -> Unit,
-    private val tempImageClickAction: (String) -> Unit
+    private val deleteImageClickAction: (String) -> Unit
 ): BaseViewHolder<String>(binding.root) {
 
     init {
         binding.ivDelete.onThrottleClick {
             bindItem?.let { item -> deleteImageClickAction.invoke(item)}
-        }
-
-        binding.ivPreview.onThrottleClick {
-            bindItem?.let { item -> tempImageClickAction.invoke(item) }
         }
     }
 

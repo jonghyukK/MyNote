@@ -1,22 +1,29 @@
 package com.kjh.mynote.ui.features.purchase.edit
 
+import android.content.Context
 import android.content.Intent
+import android.graphics.Rect
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnClickListener
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
+import androidx.appcompat.widget.AppCompatEditText
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityEditOrMakePurchaseNoteBinding
+import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.PlaceInfoUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog
 import com.kjh.mynote.ui.features.map.NaverMapSearchActivity
+import com.kjh.mynote.ui.features.paymentmethod.PaymentMethodListBSDialog
 import com.kjh.mynote.ui.features.place.make.adapter.TempImageListAdapter
 import com.kjh.mynote.utils.DatePickerManager
 import com.kjh.mynote.utils.constants.AppConstants
@@ -39,15 +46,14 @@ import java.time.ZoneOffset
  */
 
 @AndroidEntryPoint
-class EditPurchaseNoteActivity: BaseActivity<ActivityEditOrMakePurchaseNoteBinding>({ ActivityEditOrMakePurchaseNoteBinding.inflate(it) }) {
+class EditPurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBinding>({
+    ActivityEditOrMakePurchaseNoteBinding.inflate(it)
+}) {
 
     private val viewModel: EditPurchaseNoteViewModel by viewModels()
 
     private val tempImageListAdapter: TempImageListAdapter by lazy {
-        TempImageListAdapter(
-            deleteImageClickAction = deleteTempImageClickAction,
-            tempImageClickAction = tempImageClickAction
-        )
+        TempImageListAdapter(deleteTempImageClickAction)
     }
 
     override fun onInitView() {
@@ -63,12 +69,15 @@ class EditPurchaseNoteActivity: BaseActivity<ActivityEditOrMakePurchaseNoteBindi
             etPurchasePrice.addMyTextWatcher(priceTextWatcher)
 
             tvCategory.setTextClickListener(categoryClickListener)
+            tvPaymentMethod.setTextClickListener(paymentMethodClickListener)
             tvPurchaseDate.setTextClickListener(purchaseDateClickListener)
             tvPurchasePlace.setTextClickListener(searchMapClickListener)
 
             clAttachImages.setOnThrottleClickListener(photoAttachClickListener)
             btnBottom.setOnThrottleClickListener(editButtonClickListener)
         }
+
+        setPaymentMethodBSDialogFragmentResult()
     }
 
     override fun onInitUiData() {
@@ -96,6 +105,21 @@ class EditPurchaseNoteActivity: BaseActivity<ActivityEditOrMakePurchaseNoteBindi
                             } ?: run {
                                 binding.tvCategory.text = getString(R.string.select_category)
                                 binding.tvCategory.textColor = R.color.black_400
+                            }
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.paymentMethod }
+                        .distinctUntilChanged()
+                        .collect { paymentMethodItem ->
+                            if (paymentMethodItem == null) {
+                                binding.tvPaymentMethod.text = getString(R.string.select_payment_method)
+                                binding.tvPaymentMethod.textColor = R.color.black_400
+                            } else {
+                                binding.tvPaymentMethod.text = paymentMethodItem.paymentMethodName
+                                binding.tvPaymentMethod.textColor = R.color.black_800
                             }
                         }
                 }
@@ -193,9 +217,22 @@ class EditPurchaseNoteActivity: BaseActivity<ActivityEditOrMakePurchaseNoteBindi
         }
     }
 
-    private fun clearFocus() {
-        binding.etPurchaseName.hideKeyboard()
-        binding.etPurchasePrice.hideKeyboard()
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        if (ev?.action == MotionEvent.ACTION_DOWN) {
+            val v = currentFocus
+
+            if (v is AppCompatEditText) {
+                val outRect = Rect()
+                v.getGlobalVisibleRect(outRect)
+                if (!outRect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
+                    v.clearFocus()
+                    val imm: InputMethodManager =
+                        getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0)
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev)
     }
 
     private fun showDatePicker(positiveBtnClickAction: (Long) -> Unit) {
@@ -285,17 +322,10 @@ class EditPurchaseNoteActivity: BaseActivity<ActivityEditOrMakePurchaseNoteBindi
     )
 
     private val deleteTempImageClickAction: (String) -> Unit = { uri ->
-        clearFocus()
         viewModel.deleteTempImageByUrl(uri)
     }
 
-    private val tempImageClickAction: (String) -> Unit = {
-        showToast("개발 예정..")
-    }
-
     private val categoryClickListener = View.OnClickListener {
-        clearFocus()
-
         CategoryListBSDialog.newInstance(
             selectedCategoryItem = viewModel.uiState.value.categoryItem,
             selectCategoryAction = { categoryItem ->
@@ -310,17 +340,19 @@ class EditPurchaseNoteActivity: BaseActivity<ActivityEditOrMakePurchaseNoteBindi
         ).show(supportFragmentManager, CategoryListBSDialog.TAG)
     }
 
-    private val purchaseDateClickListener = View.OnClickListener {
-        clearFocus()
+    private val paymentMethodClickListener = OnClickListener {
+        PaymentMethodListBSDialog.newInstance(
+            selectedPaymentMethodItem = viewModel.uiState.value.paymentMethod
+        ).show(supportFragmentManager, PaymentMethodListBSDialog.TAG)
+    }
 
+    private val purchaseDateClickListener = View.OnClickListener {
         showDatePicker(positiveBtnClickAction = { timeInMillis ->
             viewModel.setPurchaseDate(timeInMillis)
         })
     }
 
     private val searchMapClickListener = View.OnClickListener {
-        clearFocus()
-
         val intent = Intent(this, NaverMapSearchActivity::class.java).apply {
             putExtra(AppConstants.INTENT_TEMP_PLACE_ITEM, viewModel.getTempPlaceItem())
         }
@@ -328,8 +360,6 @@ class EditPurchaseNoteActivity: BaseActivity<ActivityEditOrMakePurchaseNoteBindi
     }
 
     private val photoAttachClickListener = View.OnClickListener {
-        clearFocus()
-
         val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
             type = "image/*"
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
@@ -339,8 +369,25 @@ class EditPurchaseNoteActivity: BaseActivity<ActivityEditOrMakePurchaseNoteBindi
 
     private val editButtonClickListener = OnClickListener {
         if (binding.btnBottom.isEnable) {
-            clearFocus()
             viewModel.requestEditPurchaseNote()
+        }
+    }
+
+    private fun setPaymentMethodBSDialogFragmentResult() {
+        supportFragmentManager.setFragmentResultListener(
+            PaymentMethodListBSDialog.REQUEST_KEY, this
+        ) { _, result ->
+            val selectedItem =
+                result.parcelable<PaymentMethodUiModel>(PaymentMethodListBSDialog.RES_KEY_SELECTED_ITEM)
+            selectedItem?.let {
+                viewModel.setPaymentMethod(selectedItem)
+            }
+
+            val updatedItem =
+                result.parcelable<PaymentMethodUiModel>(PaymentMethodListBSDialog.RES_KEY_UPDATED_ITEM)
+            updatedItem?.let {
+                viewModel.updateSelectedPaymentNameWhenChanged(updatedItem)
+            }
         }
     }
 }

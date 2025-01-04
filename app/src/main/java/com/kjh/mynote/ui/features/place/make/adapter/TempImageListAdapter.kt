@@ -13,8 +13,7 @@ import com.kjh.mynote.databinding.VhTempImageItemBinding
  */
 
 class TempImageListAdapter(
-    private val deleteImageClickAction: (String) -> Unit,
-    private val tempImageClickAction: (String) -> Unit
+    private val deleteImageClickAction: (String) -> Unit
 ): ListAdapter<String, TempImageItemViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(
@@ -23,7 +22,7 @@ class TempImageListAdapter(
     ) = TempImageItemViewHolder(
         VhTempImageItemBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
-        ), deleteImageClickAction, tempImageClickAction
+        ), deleteImageClickAction
     )
 
     override fun onBindViewHolder(holder: TempImageItemViewHolder, position: Int) {

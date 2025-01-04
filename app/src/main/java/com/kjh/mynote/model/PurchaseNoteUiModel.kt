@@ -20,6 +20,7 @@ data class PurchaseNoteUiModel(
     val purchasePrice: Long,
     val purchaseName: String,
     val category: CategoryUiModel? = null,
+    val paymentMethod: PaymentMethodUiModel? = null,
     val images: List<String>? = null,
     val placeInfo: PlaceInfoUiModel? = null,
 ): Parcelable
@@ -34,6 +35,7 @@ fun PurchaseNote.toUiModel() = PurchaseNoteUiModel(
     purchasePrice = purchasePrice,
     purchaseName = purchaseName,
     category = category?.toUiModel(),
+    paymentMethod = paymentMethod?.toUiModel(),
     images = images,
     placeInfo = placeInfo?.toUiModel()
 )

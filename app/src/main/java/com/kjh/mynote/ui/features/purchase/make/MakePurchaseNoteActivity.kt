@@ -1,11 +1,16 @@
 package com.kjh.mynote.ui.features.purchase.make
 
+import android.content.Context
 import android.content.Intent
+import android.graphics.Rect
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.MotionEvent
 import android.view.View.OnClickListener
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
+import androidx.appcompat.widget.AppCompatEditText
 import androidx.fragment.app.FragmentResultListener
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -50,10 +55,7 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
     private val viewModel: MakePurchaseNoteViewModel by viewModels()
 
     private val tempImageListAdapter: TempImageListAdapter by lazy {
-        TempImageListAdapter(
-            deleteImageClickAction = deleteTempImageClickAction,
-            tempImageClickAction = tempImageClickAction
-        )
+        TempImageListAdapter(deleteTempImageClickAction)
     }
 
     override fun onInitView() {
@@ -195,9 +197,22 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
         }
     }
 
-    private fun clearFocus() {
-        binding.etPurchaseName.hideKeyboard()
-        binding.etPurchasePrice.hideKeyboard()
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        if (ev?.action == MotionEvent.ACTION_DOWN) {
+            val v = currentFocus
+
+            if (v is AppCompatEditText) {
+                val outRect = Rect()
+                v.getGlobalVisibleRect(outRect)
+                if (!outRect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
+                    v.clearFocus()
+                    val imm: InputMethodManager =
+                        getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0)
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev)
     }
 
     private fun showDatePicker(positiveBtnClickAction: (Long) -> Unit) {
@@ -287,18 +302,10 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
     )
 
     private val deleteTempImageClickAction: (String) -> Unit = { uri ->
-        clearFocus()
-
         viewModel.deleteTempImageByUrl(uri)
     }
 
-    private val tempImageClickAction: (String) -> Unit = {
-        showToast("개발 예정..")
-    }
-
     private val categoryClickListener = OnClickListener {
-        clearFocus()
-
         CategoryListBSDialog.newInstance(
             selectedCategoryItem = viewModel.uiState.value.categoryItem,
             selectCategoryAction = { categoryItem ->
@@ -314,24 +321,18 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
     }
 
     private val paymentMethodClickListener = OnClickListener {
-        clearFocus()
-
         PaymentMethodListBSDialog.newInstance(
             selectedPaymentMethodItem = viewModel.uiState.value.paymentMethod
         ).show(supportFragmentManager, PaymentMethodListBSDialog.TAG)
     }
 
     private val purchaseDateClickListener = OnClickListener {
-        clearFocus()
-
         showDatePicker(positiveBtnClickAction = { timeInMillis ->
             viewModel.setPurchaseDate(timeInMillis)
         })
     }
 
     private val searchMapClickListener = OnClickListener {
-        clearFocus()
-
         val intent = Intent(this@MakePurchaseNoteActivity, NaverMapSearchActivity::class.java).apply {
             putExtra(AppConstants.INTENT_TEMP_PLACE_ITEM, viewModel.getTempPlaceItem())
         }
@@ -339,8 +340,6 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
     }
 
     private val photoAttachClickListener = OnClickListener {
-        clearFocus()
-
         val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
             type = "image/*"
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
@@ -350,7 +349,6 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
 
     private val saveBtnClickListener = OnClickListener {
         if (binding.btnBottom.isEnable) {
-            clearFocus()
             viewModel.makePurchaseNote()
         }
     }

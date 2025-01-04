@@ -8,9 +8,11 @@ import com.example.domain.model.PurchaseNote
 import com.example.domain.model.Result
 import com.example.domain.usecase.MakeAndGetPurchaseNoteUseCase
 import com.kjh.mynote.model.CategoryUiModel
+import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.PlaceInfoUiModel
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.model.UiState
+import com.kjh.mynote.model.toDomainModal
 import com.kjh.mynote.model.toDomainModel
 import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.utils.constants.AppConstants
@@ -36,7 +38,7 @@ import javax.inject.Inject
 data class EditPurchaseNoteUiState(
     val purchaseName: String = "",
     val categoryItem: CategoryUiModel? = null,
-    val paymentMethod: PaymentMethod? = null,
+    val paymentMethod: PaymentMethodUiModel? = null,
     val purchaseDate: Long = -1,
     val purchaseDateText: String = "",
     val purchasePrice: Long = 0,
@@ -63,6 +65,7 @@ class EditPurchaseNoteViewModel @Inject constructor(
         it.purchaseDate > 0
                 && it.purchasePrice > 0
                 && it.categoryItem != null
+                && it.paymentMethod != null
                 && it.purchaseName.isNotBlank()
     }.stateIn(
         scope = viewModelScope,
@@ -134,6 +137,23 @@ class EditPurchaseNoteViewModel @Inject constructor(
         }
     }
 
+    fun setPaymentMethod(paymentMethod: PaymentMethodUiModel) {
+        _uiState.update {
+            it.copy(paymentMethod = paymentMethod)
+        }
+    }
+
+    fun updateSelectedPaymentNameWhenChanged(paymentMethod: PaymentMethodUiModel) {
+        val currentItem = _uiState.value.paymentMethod
+        currentItem?.let {
+            if (it.paymentMethodId == paymentMethod.paymentMethodId) {
+                _uiState.update {
+                    it.copy(paymentMethod = paymentMethod)
+                }
+            }
+        }
+    }
+
     fun setPurchasePrice(price: String) {
         _uiState.update {
             it.copy(purchasePrice = price.toLong())
@@ -189,6 +209,7 @@ class EditPurchaseNoteViewModel @Inject constructor(
         EditPurchaseNoteUiState(
             purchaseName = purchaseName,
             categoryItem = category,
+            paymentMethod = paymentMethod,
             purchaseDate = purchaseDate,
             purchaseDateText = purchaseDate.toStringWithFormat(DATE_PATTERN),
             purchasePrice = purchasePrice,
@@ -203,7 +224,7 @@ class EditPurchaseNoteViewModel @Inject constructor(
             purchasePrice = purchasePrice,
             purchaseName = purchaseName,
             category = categoryItem?.toDomainModel(),
-            paymentMethod = paymentMethod,
+            paymentMethod = paymentMethod?.toDomainModal(),
             images = tempImageUrls.ifEmpty { null },
             placeInfo = tempPlaceItem?.toDomainModel()
         )

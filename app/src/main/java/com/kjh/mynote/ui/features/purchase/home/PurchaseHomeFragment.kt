@@ -167,7 +167,10 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
     }
 
     private val makePurchaseFabClickListener = View.OnClickListener {
+        val selectedDay = viewModel.uiState.value.selectedDay.toMillis()
+
         Intent(requireContext(), MakePurchaseNoteActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_PURCHASE_DATE, selectedDay)
             makeNoteResultLauncher.launch(this)
         }
     }
