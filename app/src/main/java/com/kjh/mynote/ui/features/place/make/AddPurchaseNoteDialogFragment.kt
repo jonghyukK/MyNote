@@ -13,13 +13,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.DialogFragmentAddPurchaseNoteBinding
+import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.ui.base.BaseDialogFragment
 import com.kjh.mynote.ui.base.DialogType
 import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog
+import com.kjh.mynote.ui.features.paymentmethod.PaymentMethodListBSDialog
 import com.kjh.mynote.ui.features.place.make.adapter.TempImageListAdapter
 import com.kjh.mynote.utils.constants.AppConstants
+import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
-import com.kjh.mynote.utils.extensions.showToast
 import com.kjh.mynote.utils.extensions.toComma
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -42,30 +44,11 @@ class AddPurchaseNoteDialogFragment : BaseDialogFragment<DialogFragmentAddPurcha
     private val viewModel: AddPurchaseNoteDialogViewModel by viewModels()
 
     private val tempImageListAdapter: TempImageListAdapter by lazy {
-        TempImageListAdapter(
-            deleteImageClickAction = deleteTempImageClickAction,
-            tempImageClickAction = tempImageClickAction
-        )
-    }
-
-    private var addedTempPurchaseNoteId: Long = -1
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        arguments?.let {
-            addedTempPurchaseNoteId = it.getLong(ARG_LONG_TEMP_PURCHASE_NOTE_ID)
-        }
+        TempImageListAdapter(deleteTempImageClickAction)
     }
 
     override fun onInitView() {
         with(binding) {
-            btnBottom.btnTitle = if (addedTempPurchaseNoteId > 0) {
-                getString(R.string.do_modify)
-            } else {
-                getString(R.string.do_add)
-            }
-
             rvTempImages.apply {
                 adapter = tempImageListAdapter
             }
@@ -74,20 +57,30 @@ class AddPurchaseNoteDialogFragment : BaseDialogFragment<DialogFragmentAddPurcha
             etPurchasePrice.addMyTextWatcher(priceTextWatcher)
 
             tvCategory.setTextClickListener(categoryClickListener)
+            tvPaymentMethod.setTextClickListener(paymentMethodClickListener)
 
+            ivClose.setOnThrottleClickListener(closeClickListener)
             clAttachImages.setOnThrottleClickListener(photoAttachClickListener)
             btnBottom.setOnThrottleClickListener(addBtnClickListener)
         }
+
+        childFragmentManager.setFragmentResultListener(
+            PaymentMethodListBSDialog.REQUEST_KEY, this, paymentMethodBSDResultListener)
     }
 
     override fun onInitData() {
-        if (addedTempPurchaseNoteId > 0) {
-            val tempPurchaseNoteItem = parentViewModel.getTempPurchaseNoteItemById(addedTempPurchaseNoteId)
-            viewModel.setInitItem(tempPurchaseNoteItem)
-        }
-
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.tempPurchaseNoteItem.collect { tempPurchaseNoteItem ->
+                        binding.btnBottom.btnTitle = if (tempPurchaseNoteItem == null) {
+                            getString(R.string.do_add)
+                        } else {
+                            getString(R.string.do_modify)
+                        }
+                    }
+                }
+
                 launch {
                     viewModel.uiState
                         .map { it.purchaseName }
@@ -123,6 +116,21 @@ class AddPurchaseNoteDialogFragment : BaseDialogFragment<DialogFragmentAddPurcha
                             } ?: run {
                                 binding.tvCategory.text = getString(R.string.select_category)
                                 binding.tvCategory.textColor = R.color.black_400
+                            }
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.paymentMethod }
+                        .distinctUntilChanged()
+                        .collect { paymentMethodItem ->
+                            if (paymentMethodItem == null) {
+                                binding.tvPaymentMethod.text = getString(R.string.select_payment_method)
+                                binding.tvPaymentMethod.textColor = R.color.black_400
+                            } else {
+                                binding.tvPaymentMethod.text = paymentMethodItem.paymentMethodName
+                                binding.tvPaymentMethod.textColor = R.color.black_800
                             }
                         }
                 }
@@ -214,10 +222,28 @@ class AddPurchaseNoteDialogFragment : BaseDialogFragment<DialogFragmentAddPurcha
             }
         }
 
+    private val paymentMethodBSDResultListener: (String, Bundle) -> Unit = { _, result ->
+        val selectedPaymentItem =
+            result.parcelable<PaymentMethodUiModel>(PaymentMethodListBSDialog.RES_KEY_SELECTED_ITEM)
+        selectedPaymentItem?.let {
+            viewModel.setPaymentMethod(selectedPaymentItem)
+        }
+
+        val updatedItem =
+            result.parcelable<PaymentMethodUiModel>(PaymentMethodListBSDialog.RES_KEY_UPDATED_ITEM)
+        updatedItem?.let {
+            viewModel.updateSelectedPaymentNameWhenChanged(updatedItem)
+        }
+    }
+
     private val deleteTempImageClickAction: (String) -> Unit = { uri ->
         clearFocus()
 
         viewModel.deleteTempImageByUrl(uri)
+    }
+
+    private val closeClickListener = View.OnClickListener {
+        dismiss()
     }
 
     private val categoryClickListener = View.OnClickListener {
@@ -237,8 +263,10 @@ class AddPurchaseNoteDialogFragment : BaseDialogFragment<DialogFragmentAddPurcha
         ).show(childFragmentManager, CategoryListBSDialog.TAG)
     }
 
-    private val tempImageClickAction: (String) -> Unit = {
-        showToast("개발 예정..")
+    private val paymentMethodClickListener = View.OnClickListener {
+        PaymentMethodListBSDialog.newInstance(
+            selectedPaymentMethodItem = viewModel.uiState.value.paymentMethod
+        ).show(childFragmentManager, PaymentMethodListBSDialog.TAG)
     }
 
     private val photoAttachClickListener = View.OnClickListener {
@@ -262,13 +290,12 @@ class AddPurchaseNoteDialogFragment : BaseDialogFragment<DialogFragmentAddPurcha
 
     companion object {
         const val TAG = "AddPurchaseNoteDialogFragment"
-        private const val ARG_LONG_TEMP_PURCHASE_NOTE_ID = "ARG_LONG_TEMP_PURCHASE_NOTE_ID"
 
         fun newInstance(
-            tempPurchaseNoteId: Long? = null
+            tempPurchaseNoteItem: TempPurchaseNoteItem? = null
         ) = AddPurchaseNoteDialogFragment().apply {
             arguments = Bundle().apply {
-                putLong(ARG_LONG_TEMP_PURCHASE_NOTE_ID, tempPurchaseNoteId ?: -1)
+                putParcelable(AppConstants.INTENT_PURCHASE_NOTE_ITEM, tempPurchaseNoteItem)
             }
         }
     }

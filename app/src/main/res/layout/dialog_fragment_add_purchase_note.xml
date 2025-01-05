@@ -57,19 +57,9 @@
             android:layout_height="wrap_content"
             app:title="@string/purchase_name"
             app:isRequired="true"
+            android:imeOptions="actionNext"
             android:hint="@string/hint_input_purchase_name"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- 카테고리 -->
-        <com.kjh.mynote.ui.common.components.MyTitleWithSelectableTextView
-            android:id="@+id/tv_category"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:title="@string/category"
-            app:isRequired="true"
-            app:layout_constraintTop_toBottomOf="@+id/et_purchase_name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -84,7 +74,29 @@
             android:imeOptions="actionDone"
             android:hint="@string/hint_input_purchase_price"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/et_purchase_name"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- 카테고리 -->
+        <com.kjh.mynote.ui.common.components.MyTitleWithSelectableTextView
+            android:id="@+id/tv_category"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:title="@string/category"
+            app:isRequired="true"
+            app:layout_constraintTop_toBottomOf="@+id/et_purchase_price"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- 결제수단 -->
+        <com.kjh.mynote.ui.common.components.MyTitleWithSelectableTextView
+            android:id="@+id/tv_payment_method"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:title="@string/payment_method"
+            app:isRequired="true"
             app:layout_constraintTop_toBottomOf="@+id/tv_category"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- 사진 첨부 -->
@@ -97,7 +109,7 @@
             android:textColor="@color/black_800"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/et_purchase_price" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_payment_method" />
 
         <!-- 사진 첨부 Layout -->
         <androidx.constraintlayout.widget.ConstraintLayout
