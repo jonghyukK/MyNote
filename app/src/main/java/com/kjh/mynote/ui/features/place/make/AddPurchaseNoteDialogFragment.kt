@@ -6,7 +6,9 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -40,7 +42,6 @@ class AddPurchaseNoteDialogFragment : BaseDialogFragment<DialogFragmentAddPurcha
     DialogFragmentAddPurchaseNoteBinding.inflate(it)
 }, DialogType.FULL_SCREEN) {
 
-    private val parentViewModel: MakeOrModifyPlaceNoteViewModel by activityViewModels()
     private val viewModel: AddPurchaseNoteDialogViewModel by viewModels()
 
     private val tempImageListAdapter: TempImageListAdapter by lazy {
@@ -283,13 +284,15 @@ class AddPurchaseNoteDialogFragment : BaseDialogFragment<DialogFragmentAddPurcha
         if (binding.btnBottom.isEnable) {
             clearFocus()
 
-            parentViewModel.addOrUpdatePurchaseNoteItem(viewModel.uiState.value)
+            val tempPurchaseNoteItem = viewModel.uiState.value
+            setFragmentResult(REQUEST_KEY, bundleOf(AppConstants.INTENT_PURCHASE_NOTE_ITEM to tempPurchaseNoteItem))
             dismiss()
         }
     }
 
     companion object {
         const val TAG = "AddPurchaseNoteDialogFragment"
+        const val REQUEST_KEY = "REQUEST_KEY"
 
         fun newInstance(
             tempPurchaseNoteItem: TempPurchaseNoteItem? = null

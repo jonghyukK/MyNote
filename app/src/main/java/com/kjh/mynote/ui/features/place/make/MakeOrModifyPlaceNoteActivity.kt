@@ -1,11 +1,17 @@
 package com.kjh.mynote.ui.features.place.make
 
+import android.content.Context
 import android.content.Intent
+import android.graphics.Rect
+import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnClickListener
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
+import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -14,17 +20,14 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityMakePlaceNoteBinding
 import com.kjh.mynote.model.PlaceInfoUiModel
-import com.kjh.mynote.model.PlaceNoteUiModel
-import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.ui.features.map.NaverMapSearchActivity
 import com.kjh.mynote.ui.features.place.make.adapter.TempImageListAdapter
 import com.kjh.mynote.ui.features.place.make.adapter.TempPurchaseNoteListAdapter
 import com.kjh.mynote.utils.DatePickerManager
-import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
-import com.kjh.mynote.utils.extensions.hideKeyboard
+import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.registerStartActivityResultLauncher
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
@@ -46,10 +49,7 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
     }
 
     private val tempImageListAdapter: TempImageListAdapter by lazy {
-        TempImageListAdapter(
-            deleteImageClickAction = deleteTempImageClickAction,
-            tempImageClickAction = tempImageClickAction
-        )
+        TempImageListAdapter(deleteImageClickAction = deleteTempImageClickAction)
     }
 
     private val tempPurchaseNoteListAdapter: TempPurchaseNoteListAdapter by lazy {
@@ -59,36 +59,32 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
         )
     }
 
-    override fun onInitView() = with (binding) {
-        rvTempImages.apply {
-            adapter = tempImageListAdapter
+    override fun onInitView() {
+        with (binding) {
+            rvTempImages.apply {
+                adapter = tempImageListAdapter
+            }
+
+            rvPurchaseNotes.apply {
+                itemAnimator = null
+                addItemDecoration(SpacingItemDecoration(top = 6, exceptFirstItem = true))
+                adapter = tempPurchaseNoteListAdapter
+            }
+
+            clAttachImages.setOnThrottleClickListener(photoAttachClickListener)
+            tvVisitPlace.setTextClickListener(searchMapClickListener)
+            tvVisitDate.setTextClickListener(visitDateClickListener)
+            etNoteContents.addTextChangedListener(contentsTextWatcher)
+            clAddPurchaseNote.setOnThrottleClickListener(addPurchaseNoteClickListener)
+            btnSave.setOnThrottleClickListener(saveBtnClickListener)
         }
 
-        rvPurchaseNotes.apply {
-            itemAnimator = null
-            addItemDecoration(SpacingItemDecoration(top = 6, exceptFirstItem = true))
-            adapter = tempPurchaseNoteListAdapter
-        }
-
-        clAttachImages.setOnThrottleClickListener(photoAttachClickListener)
-        tvVisitPlace.setTextClickListener(searchMapClickListener)
-        tvVisitDate.setTextClickListener(visitDateClickListener)
-        etNoteContents.addTextChangedListener(contentsTextWatcher)
-        clAddPurchaseNote.setOnThrottleClickListener(addPurchaseNoteClickListener)
-        btnSave.setOnThrottleClickListener(saveBtnClickListener)
+        supportFragmentManager.setFragmentResultListener(
+            AddPurchaseNoteDialogFragment.REQUEST_KEY, this, addPurchaseNoteFragmentResultListener
+        )
     }
 
     override fun onInitUiData() {
-        val tempVisitDate = intent.getLongExtra(AppConstants.INTENT_PLACE_VISIT_DATE, -1)
-        if (tempVisitDate > 0) {
-            viewModel.setVisitDate(tempVisitDate)
-        }
-
-        val placeNoteItem = intent.parcelable<PlaceNoteUiModel>(AppConstants.INTENT_PLACE_NOTE_ITEM)
-        placeNoteItem?.let {
-            viewModel.setPlaceNoteItemForModifying(it)
-        }
-
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
@@ -167,24 +163,23 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
                 }
 
                 launch {
-                    viewModel.upsertPlaceNoteEvent.collect { upsertResult ->
-                        when (upsertResult) {
-                            is UiState.Loading -> {
+                    viewModel.upsertPlaceNoteEvent.collect { event ->
+                        when (event) {
+                            is UpsertPlaceNoteEventState.Loading -> {
                                 binding.btnSave.isLoading = true
                             }
-                            is UiState.Error -> {
+                            is UpsertPlaceNoteEventState.Error -> {
                                 binding.btnSave.isLoading = false
-                                showToast(upsertResult.errorMsg)
+                                showToast(event.errorMsg)
                             }
-                            is UiState.Success -> {
+                            is UpsertPlaceNoteEventState.Success -> {
                                 binding.btnSave.isLoading = false
                                 Intent().apply {
-                                    putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, upsertResult.data)
+                                    putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, event.placeNote)
                                     setResult(RESULT_OK, this)
                                     finish()
                                 }
                             }
-                            else -> {}
                         }
                     }
                 }
@@ -198,30 +193,22 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
         }
     }
 
-    override fun onDestroy() {
-        binding.etNoteContents.removeTextChangedListener(contentsTextWatcher)
-        super.onDestroy()
-    }
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        if (ev?.action == MotionEvent.ACTION_DOWN) {
+            val v = currentFocus
 
-    private fun clearFocus() {
-        binding.etNoteContents.hideKeyboard()
-    }
-
-    private fun showDatePicker(positiveBtnClickAction: (Long) -> Unit) {
-        val selection = if (viewModel.getVisitDateTimeMills() > 0) {
-            viewModel.getVisitDateTimeMills().toLocalDate()
-                .atStartOfDay(ZoneOffset.UTC)
-                .toInstant()
-                .toEpochMilli()
-        } else {
-            MaterialDatePicker.todayInUtcMilliseconds()
+            if (v is AppCompatEditText) {
+                val outRect = Rect()
+                v.getGlobalVisibleRect(outRect)
+                if (!outRect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
+                    v.clearFocus()
+                    val imm: InputMethodManager =
+                        getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0)
+                }
+            }
         }
-
-        DatePickerManager.build(
-            title = getString(R.string.select_visit_date),
-            selection = selection,
-            positiveButtonClickAction = positiveBtnClickAction
-        ).show(supportFragmentManager, "DATE_PICKER")
+        return super.dispatchTouchEvent(ev)
     }
 
     private val contentsTextWatcher = object: TextWatcher {
@@ -262,17 +249,12 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
         })
 
     private val deleteTempImageClickAction: (String) -> Unit = { uri ->
-        clearFocus()
         viewModel.deleteTempImageByUrl(uri)
     }
 
-    private val tempImageClickAction: (String) -> Unit = {
-        showToast("개발 예정..")
-    }
-
-    private val tempPurchaseNoteItemClickAction: (TempPurchaseNoteItem) -> Unit = {
+    private val tempPurchaseNoteItemClickAction: (TempPurchaseNoteItem) -> Unit = { tempPurchaseNoteItem ->
         AddPurchaseNoteDialogFragment.newInstance(
-            tempPurchaseNoteId = it.tempId
+            tempPurchaseNoteItem = tempPurchaseNoteItem
         ).show(supportFragmentManager, AddPurchaseNoteDialogFragment.TAG)
     }
 
@@ -281,25 +263,31 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
     }
 
     private val searchMapClickListener = View.OnClickListener {
-        clearFocus()
-        val intent = Intent(this@MakeOrModifyPlaceNoteActivity, NaverMapSearchActivity::class.java).apply {
-            putExtra(AppConstants.INTENT_TEMP_PLACE_ITEM, viewModel.getTempPlaceItem())
+        val tempPlaceItem = viewModel.uiState.value.tempPlaceItem
+        val intent = Intent(this, NaverMapSearchActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_TEMP_PLACE_ITEM, tempPlaceItem)
         }
         searchPlaceResultLauncher.launch(intent)
     }
 
     private val visitDateClickListener = OnClickListener {
-        clearFocus()
-        showDatePicker(positiveBtnClickAction = datePickerPositiveBtnClickAction)
-    }
+        val selection = if (viewModel.getVisitDateTimeMills() > 0) {
+            viewModel.getVisitDateTimeMills().toLocalDate()
+                .atStartOfDay(ZoneOffset.UTC)
+                .toInstant()
+                .toEpochMilli()
+        } else {
+            MaterialDatePicker.todayInUtcMilliseconds()
+        }
 
-    private val datePickerPositiveBtnClickAction: (Long) -> Unit = { long ->
-        clearFocus()
-        viewModel.setVisitDate(long)
+        DatePickerManager.build(
+            title = getString(R.string.select_visit_date),
+            selection = selection,
+            positiveButtonClickAction = { long -> viewModel.setVisitDate(long) }
+        ).show(supportFragmentManager, "DATE_PICKER")
     }
 
     private val photoAttachClickListener = View.OnClickListener {
-        clearFocus()
         val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
             type = "image/*"
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
@@ -314,8 +302,14 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
 
     private val saveBtnClickListener = View.OnClickListener {
         if (binding.btnSave.isEnable) {
-            clearFocus()
             viewModel.upsertPlaceNote()
+        }
+    }
+
+    private val addPurchaseNoteFragmentResultListener: (String, Bundle) -> Unit =  { _, data ->
+        val purchaseNoteItem = data.parcelable<TempPurchaseNoteItem>(AppConstants.INTENT_PURCHASE_NOTE_ITEM)
+        purchaseNoteItem?.let {
+            viewModel.addOrUpdatePurchaseNoteItem(it)
         }
     }
 }
