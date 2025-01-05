@@ -5,6 +5,7 @@ import com.example.domain.model.FilteredSearchPlaceNotes
 import com.example.domain.model.PlaceNote
 import com.example.domain.model.SearchPlaceNoteWithCount
 import com.example.domain.model.asResult
+import com.example.domain.model.safeApiCall
 import com.example.domain.repository.PlaceNoteRepository
 import com.kjh.data.model.entity.toDomainModel
 import com.kjh.data.model.entity.toEntity
@@ -42,16 +43,17 @@ class PlaceNoteRepositoryImpl @Inject constructor(
     override suspend fun upsertAndGetPlaceNote(
         placeNote: PlaceNote,
         noteId: Int
-    ): PlaceNote {
-        var placeNoteEntity = placeNote.toEntity()
-        if (noteId > 0) {
-            placeNoteEntity = placeNoteEntity.copy(id = noteId)
-        }
+    ): Flow<ApiResult<PlaceNote>> =
+        safeApiCall {
+            var placeNoteEntity = placeNote.toEntity()
+            if (noteId > 0) {
+                placeNoteEntity = placeNoteEntity.copy(id = noteId)
+            }
 
-        return noteLocalDataSource.insert(placeNoteEntity).run {
-            noteLocalDataSource.getPlaceNoteById(this.toInt())!!
-        }.toDomainModel()
-    }
+            noteLocalDataSource.insert(placeNoteEntity).run {
+                noteLocalDataSource.getPlaceNoteById(this.toInt())!!
+            }.toDomainModel()
+        }
 
     /**
      *  장소노트 삭제.
