@@ -21,6 +21,8 @@ import com.kjh.mynote.ui.features.purchase.edit.EditPurchaseNoteActivity
 import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
+import com.kjh.mynote.utils.extensions.makeGone
+import com.kjh.mynote.utils.extensions.makeVisible
 import com.kjh.mynote.utils.extensions.registerStartActivityResultLauncher
 import com.kjh.mynote.utils.extensions.showToast
 import com.kjh.mynote.utils.extensions.toComma
@@ -64,32 +66,43 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
     }
 
     override fun onInitUiData() {
-        viewModel.getPurchaseNoteById()
-
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.uiState
-                        .map { it.purchaseNoteItem }
-                        .filterNotNull()
-                        .collect { purchaseNoteItem ->
-                            setupPurchaseNoteUi(purchaseNoteItem)
+                    viewModel.uiState.collect { uiState ->
+                        when (uiState) {
+                            is PurchaseNoteDetailUiState.Loading -> {
+                                binding.layoutLoading.root.makeVisible()
+                            }
+                            is PurchaseNoteDetailUiState.Error -> {
+                                binding.layoutLoading.root.makeGone()
+                                showToast(uiState.errorMsg)
+                            }
+                            is PurchaseNoteDetailUiState.PurchaseNoteDetail -> {
+                                binding.layoutLoading.root.makeGone()
+                                setupPurchaseNoteUi(uiState.item)
+                            }
                         }
+                    }
                 }
 
                 launch {
-                    viewModel.deleteEventState.collectLatest { deleteEventState ->
+                    viewModel.deleteEventState.collect { deleteEventState ->
                         when (deleteEventState) {
-                            is UiState.Error -> {
+                            is DeletePurchaseNoteEvent.Loading -> {
+                                binding.layoutLoading.root.makeVisible()
+                            }
+                            is DeletePurchaseNoteEvent.Error -> {
+                                binding.layoutLoading.root.makeGone()
                                 showToast(deleteEventState.errorMsg)
                             }
-                            is UiState.Success -> {
+                            is DeletePurchaseNoteEvent.Success -> {
+                                binding.layoutLoading.root.makeGone()
                                 Intent().apply {
                                     setResult(RESULT_OK, this)
                                     finish()
                                 }
                             }
-                            else -> {}
                         }
                     }
                 }
@@ -100,6 +113,7 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
     private fun setupPurchaseNoteUi(purchaseNoteItem: PurchaseNoteUiModel) = with (binding) {
         tvPurchaseName.text = purchaseNoteItem.purchaseName
         tvCategory.text = purchaseNoteItem.category?.categoryName ?: "카테고리 없음"
+        tvPaymentMethod.text = purchaseNoteItem.paymentMethod?.paymentMethodName ?: "결제수단 없음"
         tvPurchaseDate.text = purchaseNoteItem.purchaseDate.toStringWithFormat("yyyy년 M월 d일 (E)")
         tvPurchasePrice.text = getString(R.string.format_won, purchaseNoteItem.purchasePrice.toComma())
 
@@ -119,20 +133,19 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
     }
 
     private val editNoteResultLauncher = registerStartActivityResultLauncher(resultOkBlock = {
-        viewModel.getPurchaseNoteById()
-
         Intent().apply {
             setResult(RESULT_OK, this)
         }
     })
 
     private val imageClickAction: (String) -> Unit = { clickedImage ->
-        val images = viewModel.uiState.value.purchaseNoteItem?.images ?: emptyList()
-
-        Intent(this, ImagesViewerActivity::class.java).apply {
-            putExtra(AppConstants.INTENT_IMAGE_LIST, ArrayList(images))
-            putExtra(AppConstants.INTENT_URL, clickedImage)
-            startActivity(this)
+        val uiState = viewModel.uiState.value as? PurchaseNoteDetailUiState.PurchaseNoteDetail
+        uiState?.let {
+            Intent(this, ImagesViewerActivity::class.java).apply {
+                putExtra(AppConstants.INTENT_IMAGE_LIST, ArrayList(uiState.item.images ?: emptyList()))
+                putExtra(AppConstants.INTENT_URL, clickedImage)
+                startActivity(this)
+            }
         }
     }
 
@@ -145,16 +158,22 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
     }
 
     private val editNoteClickListener = OnClickListener {
-        Intent(this, EditPurchaseNoteActivity::class.java).apply {
-            putExtra(AppConstants.INTENT_PURCHASE_NOTE_ITEM, viewModel.uiState.value.purchaseNoteItem)
-            editNoteResultLauncher.launch(this)
+        val uiState = viewModel.uiState.value as? PurchaseNoteDetailUiState.PurchaseNoteDetail
+        uiState?.let {
+            Intent(this, EditPurchaseNoteActivity::class.java).apply {
+                putExtra(AppConstants.INTENT_PURCHASE_NOTE_ITEM, uiState.item)
+                editNoteResultLauncher.launch(this)
+            }
         }
     }
 
     private val placeClickListener = OnClickListener {
-        Intent(this, PlaceMapActivity::class.java).apply {
-            putExtra(AppConstants.INTENT_PLACE_INFO_ITEM, viewModel.uiState.value.purchaseNoteItem?.placeInfo)
-            startActivity(this)
+        val uiState = viewModel.uiState.value as? PurchaseNoteDetailUiState.PurchaseNoteDetail
+        uiState?.let {
+            Intent(this, PlaceMapActivity::class.java).apply {
+                putExtra(AppConstants.INTENT_PLACE_INFO_ITEM, uiState.item.placeInfo)
+                startActivity(this)
+            }
         }
     }
 
