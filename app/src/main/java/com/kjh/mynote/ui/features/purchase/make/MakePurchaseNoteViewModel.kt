@@ -3,15 +3,13 @@ package com.kjh.mynote.ui.features.purchase.make
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.domain.model.PaymentMethod
+import com.example.domain.model.ApiResult
 import com.example.domain.model.PurchaseNote
-import com.example.domain.model.Result
 import com.example.domain.usecase.MakeAndGetPurchaseNoteUseCase
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.PlaceInfoUiModel
 import com.kjh.mynote.model.PurchaseNoteUiModel
-import com.kjh.mynote.model.UiState
 import com.kjh.mynote.model.toDomainModal
 import com.kjh.mynote.model.toDomainModel
 import com.kjh.mynote.model.toUiModel
@@ -35,17 +33,6 @@ import javax.inject.Inject
  * Description:
  */
 
-data class MakePurchaseNoteUiState(
-    val purchaseName: String = "",
-    val categoryItem: CategoryUiModel? = null,
-    val paymentMethod: PaymentMethodUiModel? = null,
-    val purchaseDate: Long = -1,
-    val purchaseDateText: String = "",
-    val purchasePrice: Long = 0,
-    val tempPlaceItem: PlaceInfoUiModel? = null,
-    val tempImageUrls: List<String> = emptyList()
-)
-
 @HiltViewModel
 class MakePurchaseNoteViewModel @Inject constructor(
     private val makeAndGetPurchaseNoteUseCase: MakeAndGetPurchaseNoteUseCase,
@@ -60,7 +47,7 @@ class MakePurchaseNoteViewModel @Inject constructor(
     ))
     val uiState = _uiState.asStateFlow()
 
-    private val _makePurchaseNoteEventState = MutableSharedFlow<UiState<PurchaseNoteUiModel>>()
+    private val _makePurchaseNoteEventState = MutableSharedFlow<MakePurchaseNoteEventUiState>()
     val makePurchaseNoteEventState = _makePurchaseNoteEventState.asSharedFlow()
 
     val saveValidateFlow = _uiState.map {
@@ -79,14 +66,16 @@ class MakePurchaseNoteViewModel @Inject constructor(
         viewModelScope.launch {
             makeAndGetPurchaseNoteUseCase(convertUiStateToPurchaseNoteModel()).collect { result ->
                 when (result) {
-                    is Result.Loading -> {
-                        _makePurchaseNoteEventState.emit(UiState.Loading)
+                    is ApiResult.Loading -> {
+                        _makePurchaseNoteEventState.emit(MakePurchaseNoteEventUiState.Loading)
                     }
-                    is Result.Error -> {
-                        _makePurchaseNoteEventState.emit(UiState.Error(result.msg ?: ""))
+                    is ApiResult.Error -> {
+                        val errorMsg = result.error.message ?: "구매노트 생성이 실패하였습니다."
+                        _makePurchaseNoteEventState.emit(MakePurchaseNoteEventUiState.Error(errorMsg))
                     }
-                    is Result.Success -> {
-                        _makePurchaseNoteEventState.emit(UiState.Success(result.data!!.toUiModel()))
+                    is ApiResult.Success -> {
+                        val madeItem = result.data.toUiModel()
+                        _makePurchaseNoteEventState.emit(MakePurchaseNoteEventUiState.Success(madeItem))
                     }
                 }
             }
@@ -229,3 +218,20 @@ class MakePurchaseNoteViewModel @Inject constructor(
         private const val DATE_PATTERN = "yyyy년 M월 d일 (E)"
     }
 }
+
+sealed interface MakePurchaseNoteEventUiState {
+    data object Loading: MakePurchaseNoteEventUiState
+    data class Error(val errorMsg: String): MakePurchaseNoteEventUiState
+    data class Success(val purchaseNoteItem: PurchaseNoteUiModel): MakePurchaseNoteEventUiState
+}
+
+data class MakePurchaseNoteUiState(
+    val purchaseName: String = "",
+    val categoryItem: CategoryUiModel? = null,
+    val paymentMethod: PaymentMethodUiModel? = null,
+    val purchaseDate: Long = -1,
+    val purchaseDateText: String = "",
+    val purchasePrice: Long = 0,
+    val tempPlaceItem: PlaceInfoUiModel? = null,
+    val tempImageUrls: List<String> = emptyList()
+)

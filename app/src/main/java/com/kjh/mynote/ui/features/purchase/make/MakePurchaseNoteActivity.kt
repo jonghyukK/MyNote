@@ -174,18 +174,17 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
                 launch {
                     viewModel.makePurchaseNoteEventState.collectLatest { event ->
                         when (event) {
-                            is UiState.Init -> {}
-                            is UiState.Loading -> {
+                            is MakePurchaseNoteEventUiState.Loading -> {
                                 binding.btnBottom.isLoading = true
                             }
-                            is UiState.Error -> {
+                            is MakePurchaseNoteEventUiState.Error -> {
                                 binding.btnBottom.isLoading = false
                                 showToast(event.errorMsg)
                             }
-                            is UiState.Success -> {
+                            is MakePurchaseNoteEventUiState.Success -> {
                                 binding.btnBottom.isLoading = false
                                 Intent().apply {
-                                    putExtra(AppConstants.INTENT_PURCHASE_NOTE_ITEM, event.data)
+                                    putExtra(AppConstants.INTENT_PURCHASE_NOTE_ITEM, event.purchaseNoteItem)
                                     setResult(RESULT_OK, this)
                                     finish()
                                 }
