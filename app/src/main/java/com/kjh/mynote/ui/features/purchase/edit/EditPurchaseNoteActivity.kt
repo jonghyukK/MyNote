@@ -19,7 +19,6 @@ import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityEditOrMakePurchaseNoteBinding
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.PlaceInfoUiModel
-import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog
 import com.kjh.mynote.ui.features.map.NaverMapSearchActivity
@@ -190,27 +189,23 @@ class EditPurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
                 }
 
                 launch {
-                    viewModel.editPurchaseNoteEventState.collect { state ->
-                        when (state) {
-                            is UiState.Init -> {}
-                            is UiState.Loading -> {
+                    viewModel.editPurchaseNoteEventState.collect { event ->
+                        when (event) {
+                            is EditPurchaseNoteEventState.Loading -> {
                                 binding.btnBottom.isLoading = true
                             }
-                            is UiState.Error -> {
+                            is EditPurchaseNoteEventState.Error -> {
                                 binding.btnBottom.isLoading = false
-
-                                showToast(state.errorMsg)
+                                showToast(event.errorMsg)
                             }
-                            is UiState.Success -> {
+                            is EditPurchaseNoteEventState.Success -> {
                                 binding.btnBottom.isLoading = false
-
                                 Intent().apply {
                                     setResult(RESULT_OK, this)
                                     finish()
                                 }
                             }
                         }
-
                     }
                 }
             }

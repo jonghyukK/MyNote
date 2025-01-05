@@ -3,18 +3,15 @@ package com.kjh.mynote.ui.features.purchase.edit
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.domain.model.PaymentMethod
+import com.example.domain.model.ApiResult
 import com.example.domain.model.PurchaseNote
-import com.example.domain.model.Result
 import com.example.domain.usecase.MakeAndGetPurchaseNoteUseCase
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.PlaceInfoUiModel
 import com.kjh.mynote.model.PurchaseNoteUiModel
-import com.kjh.mynote.model.UiState
 import com.kjh.mynote.model.toDomainModal
 import com.kjh.mynote.model.toDomainModel
-import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.toStringWithFormat
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,17 +32,6 @@ import javax.inject.Inject
  * Description:
  */
 
-data class EditPurchaseNoteUiState(
-    val purchaseName: String = "",
-    val categoryItem: CategoryUiModel? = null,
-    val paymentMethod: PaymentMethodUiModel? = null,
-    val purchaseDate: Long = -1,
-    val purchaseDateText: String = "",
-    val purchasePrice: Long = 0,
-    val tempPlaceItem: PlaceInfoUiModel? = null,
-    val tempImageUrls: List<String> = emptyList()
-)
-
 @HiltViewModel
 class EditPurchaseNoteViewModel @Inject constructor(
     private val makeAndGetPurchaseNoteUseCase: MakeAndGetPurchaseNoteUseCase,
@@ -55,10 +41,10 @@ class EditPurchaseNoteViewModel @Inject constructor(
     private val _purchaseNoteItem =
         savedStateHandle.getStateFlow<PurchaseNoteUiModel?>(AppConstants.INTENT_PURCHASE_NOTE_ITEM, null)
 
-    private val _uiState = MutableStateFlow(EditPurchaseNoteUiState())
+    private val _uiState = MutableStateFlow(_purchaseNoteItem.value?.toUiState() ?: EditPurchaseNoteUiState())
     val uiState = _uiState.asStateFlow()
 
-    private val _editPurchaseNoteEventState = MutableSharedFlow<UiState<PurchaseNoteUiModel>>()
+    private val _editPurchaseNoteEventState = MutableSharedFlow<EditPurchaseNoteEventState>()
     val editPurchaseNoteEventState = _editPurchaseNoteEventState.asSharedFlow()
 
     val editValidateFlow = _uiState.map {
@@ -73,30 +59,21 @@ class EditPurchaseNoteViewModel @Inject constructor(
         initialValue = false
     )
 
-    init {
-        initData()
-    }
-
-    private fun initData() {
-        _purchaseNoteItem.value?.let { item ->
-            _uiState.value = item.toUiState()
-        }
-    }
-
     fun requestEditPurchaseNote() {
         viewModelScope.launch {
             makeAndGetPurchaseNoteUseCase(
                 purchaseNote = convertUiStateToPurchaseNoteModel()
             ).collect { result ->
                 when (result) {
-                    is Result.Loading -> {
-                        _editPurchaseNoteEventState.emit(UiState.Loading)
+                    is ApiResult.Loading -> {
+                        _editPurchaseNoteEventState.emit(EditPurchaseNoteEventState.Loading)
                     }
-                    is Result.Error -> {
-                        _editPurchaseNoteEventState.emit(UiState.Error(result.msg ?: "구매노트 수정이 실패했어요."))
+                    is ApiResult.Error -> {
+                        val errorMsg = result.error.message ?: "구매노트 수정이 실패하였습니다."
+                        _editPurchaseNoteEventState.emit(EditPurchaseNoteEventState.Error(errorMsg))
                     }
-                    is Result.Success -> {
-                        _editPurchaseNoteEventState.emit(UiState.Success(result.data!!.toUiModel()))
+                    is ApiResult.Success -> {
+                        _editPurchaseNoteEventState.emit(EditPurchaseNoteEventState.Success)
                     }
                 }
             }
@@ -252,3 +229,20 @@ class EditPurchaseNoteViewModel @Inject constructor(
         private const val DATE_PATTERN = "yyyy년 M월 d일 (E)"
     }
 }
+
+sealed interface EditPurchaseNoteEventState {
+    data object Loading: EditPurchaseNoteEventState
+    data class Error(val errorMsg: String): EditPurchaseNoteEventState
+    data object Success: EditPurchaseNoteEventState
+}
+
+data class EditPurchaseNoteUiState(
+    val purchaseName: String = "",
+    val categoryItem: CategoryUiModel? = null,
+    val paymentMethod: PaymentMethodUiModel? = null,
+    val purchaseDate: Long = -1,
+    val purchaseDateText: String = "",
+    val purchasePrice: Long = 0,
+    val tempPlaceItem: PlaceInfoUiModel? = null,
+    val tempImageUrls: List<String> = emptyList()
+)
