@@ -20,7 +20,7 @@ interface PurchaseNoteRepository {
 
     fun getPurchaseNotesByCategories(categories: List<Category>): Flow<List<PurchaseNote>>
 
-    suspend fun getPurchaseNoteById(id: Int): PurchaseNote
+    fun getPurchaseNoteById(id: Int): Flow<ApiResult<PurchaseNote>>
 
     suspend fun getPurchaseNotesByPlaceAndDate(
         placeName: String,
@@ -37,9 +37,11 @@ interface PurchaseNoteRepository {
         sortType: SortType
     ): Flow<ApiResult<List<FilteredSearchPurchaseNotes>>>
 
-    suspend fun insertAndGetPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote
+    suspend fun insertPurchaseNotes(purchaseNotes: List<PurchaseNote>): Flow<ApiResult<Unit>>
 
-    suspend fun deletePurchaseNoteById(id: Int)
+    suspend fun insertAndGetPurchaseNote(purchaseNote: PurchaseNote): Flow<ApiResult<PurchaseNote>>
+
+    suspend fun deletePurchaseNoteById(id: Int): Flow<ApiResult<Unit>>
 
     fun getMaxPurchasePrice(): Flow<Long?>
 

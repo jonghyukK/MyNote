@@ -8,6 +8,7 @@ import com.example.domain.model.PurchaseNote
 import com.example.domain.model.PurchaseNoteStatistics
 import com.example.domain.model.SortType
 import com.example.domain.model.asResult
+import com.example.domain.model.safeApiCall
 import com.example.domain.repository.PurchaseNoteRepository
 import com.kjh.data.model.entity.toEntity
 import com.kjh.data.model.toDomainModel
@@ -38,9 +39,10 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
             .map { data -> data.map { it.toDomainModel() } }
     }
 
-    override suspend fun getPurchaseNoteById(id: Int): PurchaseNote {
-        return purchaseNoteLocalDateSource.getPurchaseNoteById(id).toDomainModel()
-    }
+    override fun getPurchaseNoteById(id: Int): Flow<ApiResult<PurchaseNote>> =
+        purchaseNoteLocalDateSource.getPurchaseNoteFlowById(id)
+            .map { data -> data.toDomainModel() }
+            .asResult()
 
     override suspend fun getPurchaseNotesByPlaceAndDate(
         placeName: String,
@@ -99,16 +101,24 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
             }
         }.asResult()
 
-    override suspend fun insertAndGetPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote {
-        val purchaseNoteEntity = purchaseNote.toEntity()
-        val newId = purchaseNoteLocalDateSource.insertPurchaseNote(purchaseNoteEntity).toInt()
+    override suspend fun insertPurchaseNotes(purchaseNotes: List<PurchaseNote>): Flow<ApiResult<Unit>> =
+        safeApiCall {
+            purchaseNoteLocalDateSource.insertPurchaseNotes(purchaseNotes.map { it.toEntity() })
+        }
 
-        return purchaseNoteLocalDateSource.getPurchaseNoteById(newId).toDomainModel()
-    }
+    override suspend fun insertAndGetPurchaseNote(purchaseNote: PurchaseNote): Flow<ApiResult<PurchaseNote>> =
+        safeApiCall {
+            val purchaseNoteEntity = purchaseNote.toEntity()
+            val newId = purchaseNoteLocalDateSource.insertPurchaseNote(purchaseNoteEntity).toInt()
 
-    override suspend fun deletePurchaseNoteById(id: Int) {
-        purchaseNoteLocalDateSource.deletePurchaseNoteById(id)
-    }
+            purchaseNoteLocalDateSource.getPurchaseNoteById(newId).toDomainModel()
+        }
+
+    override suspend fun deletePurchaseNoteById(id: Int): Flow<ApiResult<Unit>> =
+        safeApiCall {
+            purchaseNoteLocalDateSource.deletePurchaseNoteById(id)
+        }
+
 
     override fun getMaxPurchasePrice(): Flow<Long?> =
         purchaseNoteLocalDateSource.getMaxPurchasePrice()

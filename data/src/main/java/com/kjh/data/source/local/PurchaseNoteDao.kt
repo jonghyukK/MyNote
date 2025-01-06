@@ -32,6 +32,10 @@ interface PurchaseNoteDao {
 
     @Transaction
     @Query("SELECT * FROM purchase WHERE id = :id")
+    fun getPurchaseNoteFlowById(id: Int): Flow<PurchaseNoteModel>
+
+    @Transaction
+    @Query("SELECT * FROM purchase WHERE id = :id")
     suspend fun getPurchaseNoteById(id: Int): PurchaseNoteModel
 
     @Transaction
@@ -73,6 +77,9 @@ interface PurchaseNoteDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPurchaseNote(purchaseNoteEntity: PurchaseNoteEntity): Long
+
+    @Insert
+    suspend fun insertPurchaseNotes(notes: List<PurchaseNoteEntity>)
 
     @Query("UPDATE purchase SET categoryId = :etcCategoryId WHERE categoryId = :categoryId")
     suspend fun updateCategoryIdForPurchaseNote(etcCategoryId: Int, categoryId: Int)
