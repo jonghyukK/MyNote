@@ -1,5 +1,6 @@
 package com.example.domain.repository
 
+import com.example.domain.model.ApiResult
 import com.example.domain.model.Category
 import com.example.domain.model.CategoryWithPurchaseNoteCount
 import kotlinx.coroutines.flow.Flow
@@ -11,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
  */
 interface CategoryRepository {
 
-    fun allCategoriesFlow(): Flow<List<Category>>
+    fun allCategoriesFlow(): Flow<ApiResult<List<Category>>>
 
     fun getCategoriesWithPurchaseNoteCount(): Flow<List<CategoryWithPurchaseNoteCount>>
 

@@ -1,5 +1,6 @@
 package com.example.domain.usecase
 
+import com.example.domain.model.ApiResult
 import com.example.domain.model.Category
 import com.example.domain.repository.CategoryRepository
 import kotlinx.coroutines.flow.Flow
@@ -13,6 +14,6 @@ import javax.inject.Inject
 class GetAllCategoriesUseCase @Inject constructor(
     private val categoryRepository: CategoryRepository
 ) {
-    operator fun invoke(): Flow<List<Category>> =
+    operator fun invoke(): Flow<ApiResult<List<Category>>> =
         categoryRepository.allCategoriesFlow()
 }

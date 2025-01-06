@@ -1,7 +1,9 @@
 package com.kjh.data.repository
 
+import com.example.domain.model.ApiResult
 import com.example.domain.model.Category
 import com.example.domain.model.CategoryWithPurchaseNoteCount
+import com.example.domain.model.asResult
 import com.example.domain.repository.CategoryRepository
 import com.kjh.data.model.entity.toDomainModel
 import com.kjh.data.model.entity.toEntity
@@ -19,8 +21,10 @@ class CategoryRepositoryImpl @Inject constructor(
     private val categoryLocalDataSource: CategoryDao
 ): CategoryRepository {
 
-    override fun allCategoriesFlow(): Flow<List<Category>> =
-        categoryLocalDataSource.getAllCategories().map { it.toDomainModel() }
+    override fun allCategoriesFlow(): Flow<ApiResult<List<Category>>> =
+        categoryLocalDataSource.getAllCategories()
+            .map { it.toDomainModel() }
+            .asResult()
 
     override fun getCategoriesWithPurchaseNoteCount(): Flow<List<CategoryWithPurchaseNoteCount>> {
         return categoryLocalDataSource.getCategoriesWithPurchaseNoteCount()
