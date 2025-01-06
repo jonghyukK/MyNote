@@ -1,5 +1,6 @@
 package com.example.domain.usecase
 
+import com.example.domain.model.ApiResult
 import com.example.domain.model.PaymentMethod
 import com.example.domain.repository.PaymentMethodRepository
 import kotlinx.coroutines.flow.Flow
@@ -13,6 +14,6 @@ import javax.inject.Inject
 class GetPaymentMethodsUseCase @Inject constructor(
     private val paymentMethodRepository: PaymentMethodRepository
 ) {
-    operator fun invoke(): Flow<List<PaymentMethod>> =
+    operator fun invoke(): Flow<ApiResult<List<PaymentMethod>>> =
         paymentMethodRepository.getAllPaymentMethods()
 }

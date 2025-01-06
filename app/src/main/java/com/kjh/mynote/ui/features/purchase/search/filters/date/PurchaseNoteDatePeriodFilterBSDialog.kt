@@ -14,6 +14,8 @@ import com.kjh.mynote.databinding.BsdDateRangeFilterDialogBinding
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
 import com.kjh.mynote.ui.common.dialog.yearmonths.SelectableYearMonthListBSDialog
 import com.kjh.mynote.ui.features.place.search.result.DateRangeFilter
+import com.kjh.mynote.ui.features.purchase.search.FilterUiState
+import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteFilters
 import com.kjh.mynote.ui.features.purchase.search.filters.whole.PurchaseNoteSearchWholeFilterViewModel
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchViewModel
 import com.kjh.mynote.utils.DatePickerManager
@@ -61,8 +63,9 @@ class PurchaseNoteDatePeriodFilterBSDialog :
     }
 
     override fun onInitData() {
-        val appliedFilter = parentViewModel.filtersUiState.value
-        viewModel.setInitFilterUiState(appliedFilter)
+        val parentFilterState =
+            (parentViewModel.filterUiState.value as? FilterUiState.Success)?.filters ?: PurchaseNoteFilters()
+        viewModel.setInitFilterUiState(parentFilterState)
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {

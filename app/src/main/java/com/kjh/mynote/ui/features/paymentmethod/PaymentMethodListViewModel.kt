@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
-import com.example.domain.model.asResult
 import com.example.domain.usecase.GetPaymentMethodsUseCase
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.toUiModel
@@ -43,7 +42,7 @@ class PaymentMethodListViewModel @Inject constructor(
         savedStateHandle.getStateFlow(AppConstants.INTENT_PAYMENT_METHOD_ITEM, null)
 
     val uiState = combine(
-        _initPaymentMethodItem, getPaymentMethodsUseCase().asResult()
+        _initPaymentMethodItem, getPaymentMethodsUseCase()
     ) { initItem, paymentMethodsResult ->
         when (paymentMethodsResult) {
             is ApiResult.Loading -> PaymentMethodListUiState.Loading

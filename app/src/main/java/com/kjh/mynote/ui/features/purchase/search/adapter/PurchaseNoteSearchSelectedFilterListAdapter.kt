@@ -42,6 +42,9 @@ class PurchaseNoteSearchSelectedFilterListAdapter(
                     oldItem is Filters.Category && newItem is Filters.Category -> {
                         oldItem.categoryItem.id == newItem.categoryItem.id
                     }
+                    oldItem is Filters.PaymentMethod && newItem is Filters.PaymentMethod -> {
+                        oldItem.paymentMethod.paymentMethodId == newItem.paymentMethod.paymentMethodId
+                    }
                     oldItem is Filters.PurchaseName && newItem is Filters.PurchaseName -> {
                         oldItem.purchaseName == newItem.purchaseName
                     }

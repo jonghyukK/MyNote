@@ -56,6 +56,46 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- 결제수단 -->
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_title_payment_method"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="0dp"
+        android:text="@string/payment_method"
+        android:textColor="@color/black_900"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toStartOf="@+id/gl_guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider1" />
+
+    <!-- 결제수단 목록 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_payment_methods"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:nestedScrollingEnabled="false"
+        android:orientation="horizontal"
+        android:overScrollMode="never"
+        android:paddingHorizontal="2dp"
+        android:clipToPadding="false"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_title_payment_method"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/gl_guideline"
+        app:layout_constraintTop_toTopOf="@+id/tv_title_payment_method" />
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/black_50"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title_payment_method"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- 구매명 -->
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_title_purchase_name"
@@ -69,7 +109,7 @@
         android:textSize="15sp"
         app:layout_constraintEnd_toStartOf="@+id/gl_guideline"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/divider1" />
+        app:layout_constraintTop_toBottomOf="@+id/divider2" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_purchase_name"
@@ -89,7 +129,7 @@
         tools:text="hello?"/>
 
     <View
-        android:id="@+id/divider2"
+        android:id="@+id/divider3"
         android:layout_width="0dp"
         android:layout_height="1dp"
         android:background="@color/black_50"
@@ -111,7 +151,7 @@
         android:layout_marginBottom="10dp"
         app:layout_constraintEnd_toStartOf="@+id/gl_guideline"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/divider2"
+        app:layout_constraintTop_toBottomOf="@+id/divider3"
         app:layout_constraintBottom_toTopOf="@+id/divider_bottom"/>
 
     <androidx.appcompat.widget.AppCompatTextView

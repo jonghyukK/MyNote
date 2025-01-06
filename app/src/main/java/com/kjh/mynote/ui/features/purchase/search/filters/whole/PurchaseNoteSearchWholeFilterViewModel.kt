@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kjh.mynote.ui.features.place.search.result.DateRangeFilter
 import com.kjh.mynote.ui.features.purchase.search.Filters
-import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchFilterUiState
+import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteFilters
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,9 +32,9 @@ sealed class PriceValidateEvent {
 @HiltViewModel
 class PurchaseNoteSearchWholeFilterViewModel @Inject constructor(): ViewModel() {
 
-    private val _initFilterUiState = MutableStateFlow(PurchaseNoteSearchFilterUiState())
+    private val _initFilterUiState = MutableStateFlow(PurchaseNoteFilters())
 
-    private val _tempFilterUiState = MutableStateFlow(PurchaseNoteSearchFilterUiState())
+    private val _tempFilterUiState = MutableStateFlow(PurchaseNoteFilters())
     val tempFilterUiState = _tempFilterUiState.asStateFlow()
 
     private val _priceValidateEventState = MutableSharedFlow<PriceValidateEvent>()
@@ -44,6 +44,17 @@ class PurchaseNoteSearchWholeFilterViewModel @Inject constructor(): ViewModel() 
         _initFilterUiState, _tempFilterUiState
     ) { initFilter, tempFilter ->
         initFilter.categoryFilters != tempFilter.categoryFilters
+    }
+        .stateIn(
+            viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            false
+        )
+
+    val isChangedPaymentMethodFilters: StateFlow<Boolean> = combine(
+        _initFilterUiState, _tempFilterUiState
+    ) { initFilter, tempFilter ->
+        initFilter.paymentMethodFilters != tempFilter.paymentMethodFilters
     }
         .stateIn(
             viewModelScope,
@@ -88,17 +99,18 @@ class PurchaseNoteSearchWholeFilterViewModel @Inject constructor(): ViewModel() 
 
     val isChangedFilters = combine(
         isChangedCategoryFilters,
+        isChangedPaymentMethodFilters,
         isChangedPurchaseNameFilter,
         isChangedPriceFilter
-    ) { changedCategory, changedPurchaseName, changedPrice ->
-        changedCategory || changedPurchaseName || changedPrice
+    ) { changedCategory, changedPaymentMethod, changedPurchaseName, changedPrice ->
+        changedCategory || changedPaymentMethod || changedPurchaseName || changedPrice
     } .stateIn(
         viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         false
     )
 
-    fun setInitFilterUiState(state: PurchaseNoteSearchFilterUiState) {
+    fun setInitFilterUiState(state: PurchaseNoteFilters) {
         _initFilterUiState.value = state
         _tempFilterUiState.value = state
     }
@@ -113,6 +125,22 @@ class PurchaseNoteSearchWholeFilterViewModel @Inject constructor(): ViewModel() 
                         )
                     } else {
                         categoryFilter
+                    }
+                }
+            )
+        }
+    }
+
+    fun updatePaymentMethodFilter(paymentMethodId: Int) {
+        _tempFilterUiState.update { state ->
+            state.copy(
+                paymentMethodFilters = state.paymentMethodFilters.map { paymentMethod ->
+                    if (paymentMethod.paymentMethod.paymentMethodId == paymentMethodId) {
+                        paymentMethod.copy(
+                            isSelected = !paymentMethod.isSelected
+                        )
+                    } else {
+                        paymentMethod
                     }
                 }
             )
@@ -213,6 +241,9 @@ class PurchaseNoteSearchWholeFilterViewModel @Inject constructor(): ViewModel() 
             tempState.copy(
                 categoryFilters = tempState.categoryFilters.map { categoryFilter ->
                     categoryFilter.copy(isSelected = false)
+                },
+                paymentMethodFilters = tempState.paymentMethodFilters.map { paymentMethodFilter ->
+                    paymentMethodFilter.copy(isSelected = false)
                 },
                 purchaseNameFilter = Filters.PurchaseName(),
                 priceFilter = tempState.priceFilter.copy(

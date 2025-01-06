@@ -3,7 +3,6 @@ package com.kjh.mynote.ui.features.mypage.category
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
-import com.example.domain.model.asResult
 import com.example.domain.usecase.GetAllCategoriesUseCase
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.toUiModel
@@ -31,7 +30,6 @@ class CategoryManageViewModel @Inject constructor(
 ): ViewModel() {
 
     val uiState = getAllCategoriesUseCase()
-        .asResult()
         .map { result ->
             when (result) {
                 is ApiResult.Loading -> CategoryManageUiState.Loading

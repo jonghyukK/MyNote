@@ -31,6 +31,9 @@ class PurchaseNoteSearchSelectedFilterItemViewHolder(
             is Filters.Category -> {
                 binding.tvFilterName.text = item.categoryItem.categoryName
             }
+            is Filters.PaymentMethod -> {
+                binding.tvFilterName.text = item.paymentMethod.paymentMethodName
+            }
             is Filters.DateRange -> {
                 binding.tvFilterName.text = item.dateRangeFilter.getUiText()
             }

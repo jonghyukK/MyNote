@@ -48,7 +48,6 @@ class PaymentMethodManageViewModel @Inject constructor(
     val deletePaymentMethodEvent = _deletePaymentMethodEvent.asSharedFlow()
 
     val uiState = getPaymentMethodsUseCase()
-        .asResult()
         .map { result ->
             when (result) {
                 is ApiResult.Loading ->

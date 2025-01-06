@@ -17,7 +17,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.BsdPurchaseNoteSearchFilterBinding
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
+import com.kjh.mynote.ui.features.purchase.search.FilterUiState
 import com.kjh.mynote.ui.features.purchase.search.Filters
+import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteFilters
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchViewModel
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.setBackgroundRes
@@ -44,6 +46,12 @@ class PurchaseNoteSearchWholeFilterBSDialog: BaseBottomSheetDialogFragment<BsdPu
     private val categoryFilterAdapter: PurchaseNoteSearchFlexboxCategoryAdapter by lazy {
         PurchaseNoteSearchFlexboxCategoryAdapter(
             categoryItemClickAction = categoryItemClickAction
+        )
+    }
+
+    private val paymentMethodFilterAdapter: PurchaseNoteSearchFlexboxPaymentMethodAdapter by lazy {
+        PurchaseNoteSearchFlexboxPaymentMethodAdapter(
+            paymentMethodItemClickAction = paymentMethodItemClickAction
         )
     }
 
@@ -75,6 +83,17 @@ class PurchaseNoteSearchWholeFilterBSDialog: BaseBottomSheetDialogFragment<BsdPu
                 adapter = categoryFilterAdapter
             }
 
+            rvPaymentMethods.apply {
+                itemAnimator = null
+                layoutManager = FlexboxLayoutManager(requireContext()).apply {
+                    flexDirection = FlexDirection.ROW
+                    flexWrap = FlexWrap.WRAP
+                    justifyContent = JustifyContent.FLEX_START
+                }
+                addItemDecoration(SpacingItemDecoration(right = 10, bottom = 10, exceptFirstItem = false))
+                adapter = paymentMethodFilterAdapter
+            }
+
             etPurchaseName.addCustomTextWatcher(purchaseNameTextWatcher)
             etPurchaseName.setClearButtonClickListener(purchaseNameClearBtnClickListener)
 
@@ -88,8 +107,9 @@ class PurchaseNoteSearchWholeFilterBSDialog: BaseBottomSheetDialogFragment<BsdPu
     }
 
     override fun onInitData() {
-        val appliedFilterState = parentViewModel.filtersUiState.value
-        viewModel.setInitFilterUiState(appliedFilterState)
+        val parentFilterState =
+            (parentViewModel.filterUiState.value as? FilterUiState.Success)?.filters ?: PurchaseNoteFilters()
+        viewModel.setInitFilterUiState(parentFilterState)
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -99,6 +119,15 @@ class PurchaseNoteSearchWholeFilterBSDialog: BaseBottomSheetDialogFragment<BsdPu
                         .distinctUntilChanged()
                         .collect { categoryFilters ->
                             categoryFilterAdapter.submitList(categoryFilters)
+                        }
+                }
+
+                launch {
+                    viewModel.tempFilterUiState
+                        .map { it.paymentMethodFilters }
+                        .distinctUntilChanged()
+                        .collect { paymentFilters ->
+                            paymentMethodFilterAdapter.submitList(paymentFilters)
                         }
                 }
 
@@ -232,6 +261,10 @@ class PurchaseNoteSearchWholeFilterBSDialog: BaseBottomSheetDialogFragment<BsdPu
 
     private val categoryItemClickAction: (Filters.Category) -> Unit = { categoryItem ->
         viewModel.updateCategoryFilter(categoryItem.categoryItem.id)
+    }
+
+    private val paymentMethodItemClickAction: (Filters.PaymentMethod) -> Unit = { paymentMethodItem ->
+        viewModel.updatePaymentMethodFilter(paymentMethodItem.paymentMethod.paymentMethodId)
     }
 
     private val purchaseNameClearBtnClickListener = View.OnClickListener {

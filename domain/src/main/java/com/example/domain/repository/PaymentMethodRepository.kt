@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
  */
 interface PaymentMethodRepository {
 
-    fun getAllPaymentMethods(): Flow<List<PaymentMethod>>
+    fun getAllPaymentMethods(): Flow<ApiResult<List<PaymentMethod>>>
 
     suspend fun makePaymentMethod(paymentMethod: PaymentMethod): Flow<ApiResult<Long>>
 

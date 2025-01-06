@@ -2,6 +2,7 @@ package com.kjh.data.repository
 
 import com.example.domain.model.ApiResult
 import com.example.domain.model.PaymentMethod
+import com.example.domain.model.asResult
 import com.example.domain.model.safeApiCall
 import com.example.domain.repository.PaymentMethodRepository
 import com.kjh.data.model.entity.toDomainModel
@@ -20,9 +21,10 @@ class PaymentMethodRepositoryImpl @Inject constructor(
     private val paymentMethodLocalDataSource: PaymentMethodDao
 ): PaymentMethodRepository {
 
-    override fun getAllPaymentMethods(): Flow<List<PaymentMethod>> =
+    override fun getAllPaymentMethods(): Flow<ApiResult<List<PaymentMethod>>> =
         paymentMethodLocalDataSource.getAllPaymentMethods()
             .map { it.toDomainModel() }
+            .asResult()
 
     override suspend fun makePaymentMethod(paymentMethod: PaymentMethod): Flow<ApiResult<Long>> {
         return safeApiCall {
