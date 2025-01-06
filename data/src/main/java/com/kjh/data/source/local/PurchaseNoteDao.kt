@@ -56,7 +56,8 @@ interface PurchaseNoteDao {
         (:endDate IS NULL OR purchaseDate <= :endDate) AND
         (:minPrice IS NULL OR purchasePrice >= :minPrice) AND
         (:maxPrice IS NULL OR purchasePrice <= :maxPrice) AND
-        (:categoryIdsSize = 0 OR categoryId IN (:categoryIds))
+        (:categoryIdsSize = 0 OR categoryId IN (:categoryIds)) AND
+        (:paymentMethodSize = 0 OR paymentMethodId IN (:paymentMethodIds))
         ORDER BY
         CASE WHEN :sortType = 'LATEST' THEN purchaseDate END DESC,
         CASE WHEN :sortType = 'OLDEST' THEN purchaseDate END ASC,
@@ -71,6 +72,8 @@ interface PurchaseNoteDao {
         maxPrice: Long? = null,
         categoryIds: List<Int> = emptyList(),
         categoryIdsSize: Int = 0,
+        paymentMethodIds: List<Int> = emptyList(),
+        paymentMethodSize: Int = 0,
         sortType: String = SortType.LATEST.name
     ): Flow<List<PurchaseNoteModel>>
 

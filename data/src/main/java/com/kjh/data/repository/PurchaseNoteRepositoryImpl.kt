@@ -72,6 +72,7 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
         minPrice: Long?,
         maxPrice: Long?,
         categoryIds: List<Int>,
+        paymentMethodIds: List<Int>,
         sortType: SortType
     ): Flow<ApiResult<List<FilteredSearchPurchaseNotes>>> =
         purchaseNoteLocalDateSource.getFilteredPurchaseNotes(
@@ -82,6 +83,8 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
             maxPrice,
             categoryIds,
             categoryIdsSize = categoryIds.size,
+            paymentMethodIds,
+            paymentMethodSize = paymentMethodIds.size,
             sortType.name
         ).map { filteredNotes ->
             when (sortType) {
@@ -120,8 +123,8 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
         }
 
 
-    override fun getMaxPurchasePrice(): Flow<Long?> =
-        purchaseNoteLocalDateSource.getMaxPurchasePrice()
+    override fun getMaxPurchasePrice(): Flow<ApiResult<Long?>> =
+        purchaseNoteLocalDateSource.getMaxPurchasePrice().asResult()
 
     /**
      * 구매노트 통계 데이터 조회.

@@ -34,6 +34,7 @@ interface PurchaseNoteRepository {
         minPrice: Long?,
         maxPrice: Long?,
         categoryIds: List<Int>,
+        paymentMethodIds: List<Int>,
         sortType: SortType
     ): Flow<ApiResult<List<FilteredSearchPurchaseNotes>>>
 
@@ -43,7 +44,7 @@ interface PurchaseNoteRepository {
 
     suspend fun deletePurchaseNoteById(id: Int): Flow<ApiResult<Unit>>
 
-    fun getMaxPurchasePrice(): Flow<Long?>
+    fun getMaxPurchasePrice(): Flow<ApiResult<Long?>>
 
     fun getPurchaseNotesStatistics(
         startDate: Long?,

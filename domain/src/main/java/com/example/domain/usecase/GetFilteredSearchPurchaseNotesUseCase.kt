@@ -23,6 +23,7 @@ class GetFilteredSearchPurchaseNotesUseCase @Inject constructor(
         minPrice: Long? = null,
         maxPrice: Long? = null,
         categoryIds: List<Int> = emptyList(),
+        paymentMethodIds: List<Int> = emptyList(),
         sortType: SortType = SortType.LATEST
     ): Flow<ApiResult<List<FilteredSearchPurchaseNotes>>> =
         purchaseNoteRepository.getFilteredPurchaseNotes(
@@ -32,6 +33,7 @@ class GetFilteredSearchPurchaseNotesUseCase @Inject constructor(
             minPrice,
             maxPrice,
             categoryIds,
+            paymentMethodIds,
             sortType
         )
 }
