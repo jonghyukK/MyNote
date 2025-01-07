@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
 import com.example.domain.model.CategoryPurchaseNoteStats
-import com.example.domain.model.FilteredSearchPurchaseNotes
+import com.example.domain.model.PurchaseNote
 import com.example.domain.usecase.GetCategoryStatisticsUseCase
 import com.example.domain.usecase.GetFilteredSearchPurchaseNotesUseCase
 import com.kjh.mynote.model.CategoryUiModel
@@ -138,16 +138,17 @@ class CategoryStatisticsViewModel @Inject constructor(
             }
         )
 
-    private fun makePurchaseNoteUiItems(purchaseNotes: List<FilteredSearchPurchaseNotes>) =
+    private fun makePurchaseNoteUiItems(purchaseNotes: List<PurchaseNote>) =
         if (purchaseNotes.isEmpty()) {
             listOf(CategoryPurchaseNoteStatsUiItems.Empty)
         } else {
-            purchaseNotes.toUiModel().flatMap { model ->
-                listOf(CategoryPurchaseNoteStatsUiItems.PurchaseNoteDateItem(model.date!!)) +
-                        model.purchaseNoteItems.map {
-                            CategoryPurchaseNoteStatsUiItems.PurchaseNoteItem(it)
-                        }
-            }
+            purchaseNotes.toUiModel().groupBy { it.localDate }
+                .flatMap { (date, items) ->
+                    listOf(CategoryPurchaseNoteStatsUiItems.PurchaseNoteDateItem(date)) +
+                            items.map {
+                                CategoryPurchaseNoteStatsUiItems.PurchaseNoteItem(it)
+                            }
+                }
         }
 }
 

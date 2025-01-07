@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.kjh.mynote.databinding.VhPurchaseNoteSearchSelectedFilterItemBinding
-import com.kjh.mynote.ui.features.purchase.search.Filters
+import com.kjh.mynote.model.Filters
 
 /**
  * Created by kangjonghyuk.

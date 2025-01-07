@@ -2,12 +2,13 @@ package com.kjh.mynote.ui.features.purchase.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.domain.usecase.GetPurchaseNotesByCategoriesUseCase
-import com.example.domain.usecase.GetPurchaseNotesUseCase
+import com.example.domain.model.ApiResult
+import com.example.domain.usecase.GetFilteredSearchPurchaseNotesUseCase
 import com.kizitonwose.calendar.core.yearMonth
-import com.kjh.mynote.model.CategoryUiModel
+import com.kjh.mynote.model.Filters
 import com.kjh.mynote.model.PurchaseNoteUiModel
-import com.kjh.mynote.model.toDomainModel
+import com.kjh.mynote.model.getAppliedCategoryIds
+import com.kjh.mynote.model.getAppliedPaymentMethodIds
 import com.kjh.mynote.model.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -36,48 +38,66 @@ data class PurchaseNoteHomeUiState(
     val selectedDayTotalPrice: Long = 0
 )
 
+sealed interface PurchaseNotesUiState {
+    data object Loading: PurchaseNotesUiState
+    data class Error(val errorMsg: String): PurchaseNotesUiState
+    data class Success(val groupedNotesMap: Map<LocalDate, List<PurchaseNoteUiModel>>): PurchaseNotesUiState
+}
 @HiltViewModel
 class PurchaseHomeViewModel @Inject constructor(
-    private val getPurchaseNotesUseCase: GetPurchaseNotesUseCase,
-    private val getPurchaseNotesByCategoriesUseCase: GetPurchaseNotesByCategoriesUseCase
+    private val getFilteredPurchaseNotesUseCase: GetFilteredSearchPurchaseNotesUseCase
 ): ViewModel() {
 
-    private val _appliedCategoryItems = MutableStateFlow<List<CategoryUiModel>>(emptyList())
-    val appliedCategoryItems = _appliedCategoryItems.asStateFlow()
+    private val _appliedFilterItems = MutableStateFlow<List<Filters>>(emptyList())
+    val appliedFilterItems = _appliedFilterItems.asStateFlow()
 
     private val _currentMonth = MutableStateFlow(LocalDate.now().yearMonth)
     val currentMonth = _currentMonth.asStateFlow()
 
     private val _selectedDay = MutableStateFlow(LocalDate.now())
 
-    private val purchaseNotesFlow = _appliedCategoryItems.flatMapLatest { appliedCategoryItems ->
-        if (appliedCategoryItems.isEmpty()) {
-            getPurchaseNotesUseCase()
-                .map { it.toUiModel().groupBy { it.purchaseLocalDate } }
-        } else {
-            getPurchaseNotesByCategoriesUseCase(appliedCategoryItems.map { it.toDomainModel() })
-                .map { it.toUiModel().groupBy { it.purchaseLocalDate } }
-        }
-    }.stateIn(
-        viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        emptyMap()
-    )
-
-    val uiState: StateFlow<PurchaseNoteHomeUiState> = combine(
-        purchaseNotesFlow, _selectedDay
-    ) { notesMap, selectedDay ->
-        PurchaseNoteHomeUiState(
-            selectedDay = selectedDay,
-            hasEventDays = notesMap.keys.toList(),
-            selectedDayPurchaseNotes = notesMap[selectedDay] ?: emptyList(),
-            selectedDayTotalPrice = notesMap[selectedDay]?.sumOf { it.purchasePrice } ?: 0
+    private val purchaseNotesFlow = _appliedFilterItems.flatMapLatest { appliedFilterItems ->
+        getFilteredPurchaseNotesUseCase(
+            categoryIds = appliedFilterItems.getAppliedCategoryIds(),
+            paymentMethodIds = appliedFilterItems.getAppliedPaymentMethodIds()
         )
-    }.stateIn(
-        viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        PurchaseNoteHomeUiState()
-    )
+            .map { result ->
+                when (result) {
+                    is ApiResult.Loading -> {
+                        PurchaseNotesUiState.Loading
+                    }
+                    is ApiResult.Error -> {
+                        PurchaseNotesUiState.Error("구매노트 목록을 불러오는데 실패하였습니다.")
+                    }
+                    is ApiResult.Success -> {
+                        val purchaseNotesMap = result.data.toUiModel().groupBy { it.localDate }
+                        PurchaseNotesUiState.Success(purchaseNotesMap)
+                    }
+                }
+            }
+    }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            PurchaseNotesUiState.Loading
+        )
+
+        val uiState: StateFlow<PurchaseNoteHomeUiState> = combine(
+            purchaseNotesFlow
+                .filterIsInstance<PurchaseNotesUiState.Success>()
+                .map { it.groupedNotesMap }, _selectedDay
+        ) { notesMap, selectedDay ->
+            PurchaseNoteHomeUiState(
+                selectedDay = selectedDay,
+                hasEventDays = notesMap.keys.toList(),
+                selectedDayPurchaseNotes = notesMap[selectedDay] ?: emptyList(),
+                selectedDayTotalPrice = notesMap[selectedDay]?.sumOf { it.purchasePrice } ?: 0
+            )
+        }.stateIn(
+            viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            PurchaseNoteHomeUiState()
+        )
 
     fun setCurrentMonth(date: YearMonth) {
         _currentMonth.value = date
@@ -87,7 +107,7 @@ class PurchaseHomeViewModel @Inject constructor(
         _selectedDay.value = day
     }
 
-    fun setCategoryFilterItems(items: List<CategoryUiModel>) {
-        _appliedCategoryItems.value = items
+    fun setFilters(items: List<Filters>) {
+        _appliedFilterItems.value = items
     }
 }

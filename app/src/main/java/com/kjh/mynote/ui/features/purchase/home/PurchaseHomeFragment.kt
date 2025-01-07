@@ -16,7 +16,7 @@ import com.kjh.mynote.R
 import com.kjh.mynote.databinding.FragmentPurchaseBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.ui.base.BaseFragment
-import com.kjh.mynote.ui.features.category.filter.CategoryFilterDialogFragment
+import com.kjh.mynote.ui.features.purchase.filter.PurchaseNoteHomeFilterBSDFragment
 import com.kjh.mynote.ui.features.purchase.detail.PurchaseNoteDetailActivity
 import com.kjh.mynote.ui.features.purchase.home.adapter.PurchaseHomeListAdapter
 import com.kjh.mynote.ui.features.purchase.make.MakePurchaseNoteActivity
@@ -110,7 +110,7 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
                 }
 
                 launch {
-                    viewModel.appliedCategoryItems.collect { appliedFilterItems ->
+                    viewModel.appliedFilterItems.collect { appliedFilterItems ->
                         with (binding) {
                             if (appliedFilterItems.isEmpty()) {
                                 tvFilteredCount.isVisible = false
@@ -155,9 +155,8 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
     }
 
     private val filterClickListener = OnClickListener {
-        CategoryFilterDialogFragment.newInstance(
-            appliedFilterItems = viewModel.appliedCategoryItems.value
-        ).show(childFragmentManager, CategoryFilterDialogFragment.TAG)
+        PurchaseNoteHomeFilterBSDFragment.newInstance()
+            .show(childFragmentManager, PurchaseNoteHomeFilterBSDFragment.TAG)
     }
 
     private val searchClickListener = OnClickListener {

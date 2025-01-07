@@ -4,14 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
 import com.example.domain.model.Category
-import com.example.domain.model.FilteredSearchPurchaseNotes
 import com.example.domain.model.PaymentMethod
+import com.example.domain.model.PurchaseNote
 import com.example.domain.model.SortType
 import com.example.domain.usecase.GetAllCategoriesUseCase
 import com.example.domain.usecase.GetFilteredSearchPurchaseNotesUseCase
 import com.example.domain.usecase.GetMaxPurchasePriceUseCase
 import com.example.domain.usecase.GetPaymentMethodsUseCase
 import com.kjh.mynote.model.CategoryUiModel
+import com.kjh.mynote.model.Filters
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.ui.common.uistate.PurchaseNotesUiState
@@ -41,45 +42,6 @@ import javax.inject.Inject
  * Created On 2024. 11. 21..
  * Description:
  */
-
-sealed class Filters {
-    abstract fun isApplied(): Boolean
-
-    data class PurchaseName(
-        val purchaseName: String = "",
-    ) : Filters() {
-        override fun isApplied(): Boolean = purchaseName.isNotBlank()
-    }
-
-    data class Category(
-        val categoryItem: CategoryUiModel,
-        val isSelected: Boolean = false,
-    ) : Filters() {
-        override fun isApplied(): Boolean = isSelected
-    }
-
-    data class PaymentMethod(
-        val paymentMethod: PaymentMethodUiModel,
-        val isSelected: Boolean = false,
-    ) : Filters() {
-        override fun isApplied(): Boolean = isSelected
-    }
-
-    data class DateRange(
-        val dateRangeFilter: DateRangeFilter = DateRangeFilter.Monthly(),
-    ) : Filters() {
-        override fun isApplied(): Boolean = true
-    }
-
-    data class Price(
-        val minPrice: Long? = null,
-        val maxPrice: Long? = null,
-        val myMaxPrice: Long = AppConstants.PRICE_MAX_LIMIT,
-    ) : Filters() {
-        override fun isApplied(): Boolean =
-            minPrice != null || maxPrice != null
-    }
-}
 
 @HiltViewModel
 class PurchaseNoteSearchViewModel @Inject constructor(
@@ -327,7 +289,7 @@ class PurchaseNoteSearchViewModel @Inject constructor(
     }
 
     private fun handlePurchaseNotesResult(
-        result: ApiResult<List<FilteredSearchPurchaseNotes>>,
+        result: ApiResult<List<PurchaseNote>>,
         filters: PurchaseNoteFilters,
     ): FilteredPurchaseNotesUiState {
         return when (result) {
@@ -341,25 +303,27 @@ class PurchaseNoteSearchViewModel @Inject constructor(
                 shouldScrollToTop = true
 
                 val resultItems = result.data.toUiModel()
-                val totalCount = resultItems.sumOf { it.purchaseNoteItems.size }
+                val totalCount = resultItems.size
 
                 if (resultItems.isEmpty()) {
                     return FilteredPurchaseNotesUiState.PurchaseNotes(listOf(PurchaseNotesUiState.Empty))
                 }
 
-                val items = if (filters.sortType in listOf(SortType.HIGH_PRICE, SortType.LOW_PRICE)) {
-                    resultItems.flatMap { model ->
-                        model.purchaseNoteItems.map {
-                            listOf(PurchaseNotesUiState.DateItem(it.purchaseLocalDate)) + PurchaseNotesUiState.PurchaseNoteItem(it)
-                        }.flatten()
-                    }
-                } else {
-                    resultItems.flatMap { model ->
-                        listOf(PurchaseNotesUiState.DateItem(model.date!!)) + model.purchaseNoteItems.map {
-                            PurchaseNotesUiState.PurchaseNoteItem(it)
+                val items =
+                    if (filters.sortType in listOf(SortType.HIGH_PRICE, SortType.LOW_PRICE)) {
+                        resultItems.flatMap { item ->
+                            listOf(PurchaseNotesUiState.DateItem(item.localDate)) + PurchaseNotesUiState.PurchaseNoteItem(
+                                item
+                            )
                         }
+                    } else {
+                        resultItems.groupBy { it.localDate }
+                            .flatMap { (date, items) ->
+                                listOf(PurchaseNotesUiState.DateItem(date)) + items.map {
+                                    PurchaseNotesUiState.PurchaseNoteItem(it)
+                                }
+                            }
                     }
-                }
 
                 FilteredPurchaseNotesUiState.PurchaseNotes(items, totalCount)
             }
@@ -399,7 +363,7 @@ class PurchaseNoteSearchViewModel @Inject constructor(
                 FilterUiState.Success(purchaseNoteFilterItem)
             }
 
-            else -> FilterUiState.Error("구매노트 검색 정볼르 불러오는데 실패하였습니다.")
+            else -> FilterUiState.Error("구매노트 검색 정보를 불러오는데 실패하였습니다.")
         }
     }
 

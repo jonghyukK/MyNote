@@ -2,8 +2,8 @@ package com.kjh.mynote.ui.features.purchase.search.filters.whole
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kjh.mynote.model.Filters
 import com.kjh.mynote.ui.features.place.search.result.DateRangeFilter
-import com.kjh.mynote.ui.features.purchase.search.Filters
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteFilters
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow

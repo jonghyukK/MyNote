@@ -2,9 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Toolbar Layout -->
+    <!-- Toolbar -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_toolbar_container"
         android:layout_width="0dp"
@@ -13,75 +14,100 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Title -->
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_title_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/filter"
+            android:textSize="18sp"
+            android:textColor="@color/black_800"
+            android:textStyle="bold"
+            android:layout_marginStart="20dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <!-- Reset Layout -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_reset_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:layout_marginEnd="6dp"
+            android:background="?attr/selectableItemBackground"
+            app:layout_constraintTop_toTopOf="@+id/iv_close"
+            app:layout_constraintEnd_toStartOf="@+id/iv_close"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_close" >
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_reset"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                app:srcCompat="@drawable/ic_reset_24"
+                app:tint="@color/black_400"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/tv_reset"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_reset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/reset"
+                android:textSize="14sp"
+                android:textColor="@color/black_800"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Close Button -->
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/iv_close"
             android:layout_width="44dp"
             android:layout_height="44dp"
             android:padding="8dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginEnd="4dp"
+            android:background="?attr/selectableItemBackground"
             app:srcCompat="@drawable/ic_close_24_white"
             app:tint="@color/black_800"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/category_filter"
-            android:textSize="16sp"
-            android:textColor="@color/black_800"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- Reset Layout -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_reset_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:layout_marginEnd="12dp"
-        android:background="?attr/selectableItemBackground"
-        app:layout_constraintTop_toTopOf="@+id/cl_toolbar_container"
-        app:layout_constraintBottom_toBottomOf="@+id/cl_toolbar_container"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/iv_reset"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            app:srcCompat="@drawable/ic_reset_24"
-            app:tint="@color/black_400"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/tv_reset"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tv_reset"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/reset"
-            android:textSize="14sp"
-            android:textColor="@color/black_800"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tv_title_filter"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_title_filter"
             app:layout_constraintEnd_toEndOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Filter List -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_categories"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="20dp"
-        android:paddingVertical="12dp"
+    <!-- Tab Layout -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tl_filters"
+        android:layout_width="wrap_content"
+        android:layout_height="44dp"
+        android:background="@color/white"
+        app:tabMode="fixed"
+        app:tabGravity="start"
+        android:paddingStart="8dp"
         app:layout_constraintTop_toBottomOf="@+id/cl_toolbar_container"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="카테고리" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="결제수단" />
+    </com.google.android.material.tabs.TabLayout>
+
+    <!-- ViewPager2 -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vp_pager"
+        android:layout_width="0dp"
+        android:layout_height="300dp"
+        app:layout_constraintTop_toBottomOf="@+id/tl_filters"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/btn_apply" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Bottom Button -->
     <com.kjh.mynote.ui.common.components.MyBottomButton
@@ -89,18 +115,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:btnTitle="@string/do_apply"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/vp_pager"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-
-    <include
-        android:id="@+id/layout_empty_view"
-        layout="@layout/layout_empty_my_categories"
-        android:layout_width="0dp"
-        android:layout_height="150dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/cl_toolbar_container"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

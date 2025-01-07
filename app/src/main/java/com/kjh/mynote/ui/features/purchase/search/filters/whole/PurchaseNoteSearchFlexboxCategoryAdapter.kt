@@ -6,8 +6,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhFilterCategoryItemBinding
+import com.kjh.mynote.model.Filters
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.purchase.search.Filters
 import com.kjh.mynote.utils.extensions.getDrawableCompat
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.setTextColorRes

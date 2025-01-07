@@ -11,6 +11,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.domain.model.SortType
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityPurchaseNoteSearchBinding
+import com.kjh.mynote.model.Filters
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.common.dialog.sort.SortBSDialog

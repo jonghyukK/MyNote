@@ -16,9 +16,9 @@ import com.google.android.flexbox.JustifyContent
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.BsdPurchaseNoteSearchFilterBinding
+import com.kjh.mynote.model.Filters
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
 import com.kjh.mynote.ui.features.purchase.search.FilterUiState
-import com.kjh.mynote.ui.features.purchase.search.Filters
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteFilters
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchViewModel
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration

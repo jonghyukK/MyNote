@@ -4,8 +4,8 @@ import android.graphics.Typeface
 import androidx.core.view.isVisible
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhPurchaseNoteSearchCategoryListItemBinding
+import com.kjh.mynote.model.Filters
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.purchase.search.Filters
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.setTextColorRes
 

@@ -2,8 +2,8 @@ package com.kjh.mynote.ui.features.purchase.search.adapter
 
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhPurchaseNoteSearchSelectedFilterItemBinding
+import com.kjh.mynote.model.Filters
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.purchase.search.Filters
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.toComma
 

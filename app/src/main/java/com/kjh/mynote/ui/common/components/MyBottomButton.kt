@@ -38,7 +38,7 @@ class MyBottomButton @JvmOverloads constructor(
     var isEnable: Boolean = false
         set(value) {
             binding.clBottomBtnContainer.background = if (value) {
-                ContextCompat.getDrawable(context, R.drawable.ripple_shape_s_purple_c_8)
+                ContextCompat.getDrawable(context, R.drawable.ripple_shape_s_color_primary_c_8)
             } else {
                 ContextCompat.getDrawable(context, R.drawable.shape_s_black_500_c_8)
             }

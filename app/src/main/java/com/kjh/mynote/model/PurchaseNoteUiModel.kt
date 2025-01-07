@@ -23,7 +23,9 @@ data class PurchaseNoteUiModel(
     val paymentMethod: PaymentMethodUiModel? = null,
     val images: List<String>? = null,
     val placeInfo: PlaceInfoUiModel? = null,
-): Parcelable
+): Parcelable {
+    val localDate: LocalDate = purchaseDate.toLocalDate()
+}
 
 /**
  *  PurchaseNote (domain) -> PurchaseNoteUiModel (presentation)
