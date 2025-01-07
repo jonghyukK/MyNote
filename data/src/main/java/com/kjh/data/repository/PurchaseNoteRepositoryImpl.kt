@@ -3,7 +3,6 @@ package com.kjh.data.repository
 import com.example.domain.model.ApiResult
 import com.example.domain.model.Category
 import com.example.domain.model.CategoryPurchaseNoteStats
-import com.example.domain.model.FilteredSearchPurchaseNotes
 import com.example.domain.model.PurchaseNote
 import com.example.domain.model.PurchaseNoteStatistics
 import com.example.domain.model.SortType
@@ -16,8 +15,6 @@ import com.kjh.data.source.local.PurchaseNoteDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import java.time.Instant
-import java.time.ZoneOffset
 import javax.inject.Inject
 
 /**
@@ -29,9 +26,10 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
     private val purchaseNoteLocalDateSource: PurchaseNoteDao
 ): PurchaseNoteRepository {
 
-    override fun getAllPurchaseNotes(): Flow<List<PurchaseNote>> =
+    override fun getAllPurchaseNotes(): Flow<ApiResult<List<PurchaseNote>>> =
         purchaseNoteLocalDateSource.getAllPurchaseNotes()
             .map { data -> data.map { it.toDomainModel() } }
+            .asResult()
 
     override fun getPurchaseNotesByCategories(categories: List<Category>): Flow<List<PurchaseNote>> {
         val categoryIds = categories.map { it.id }
@@ -74,7 +72,7 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
         categoryIds: List<Int>,
         paymentMethodIds: List<Int>,
         sortType: SortType
-    ): Flow<ApiResult<List<FilteredSearchPurchaseNotes>>> =
+    ): Flow<ApiResult<List<PurchaseNote>>> =
         purchaseNoteLocalDateSource.getFilteredPurchaseNotes(
             queryText,
             startDate,
@@ -86,23 +84,8 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
             paymentMethodIds,
             paymentMethodSize = paymentMethodIds.size,
             sortType.name
-        ).map { filteredNotes ->
-            when (sortType) {
-                SortType.HIGH_PRICE, SortType.LOW_PRICE -> listOf(
-                    FilteredSearchPurchaseNotes(null, filteredNotes.toDomainModel())
-                )
-                else -> {
-                    filteredNotes
-                        .groupBy { purchaseNote ->
-                            Instant.ofEpochMilli(purchaseNote.purchaseNote.purchaseDate)
-                                .atZone(ZoneOffset.UTC).toLocalDate()
-                        }
-                        .map { (date, notes) ->
-                            FilteredSearchPurchaseNotes(date, notes.toDomainModel())
-                        }
-                }
-            }
-        }.asResult()
+        ).map { it.toDomainModel() }
+            .asResult()
 
     override suspend fun insertPurchaseNotes(purchaseNotes: List<PurchaseNote>): Flow<ApiResult<Unit>> =
         safeApiCall {

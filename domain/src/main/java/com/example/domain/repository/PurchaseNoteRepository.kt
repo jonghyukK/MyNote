@@ -3,7 +3,6 @@ package com.example.domain.repository
 import com.example.domain.model.ApiResult
 import com.example.domain.model.Category
 import com.example.domain.model.CategoryPurchaseNoteStats
-import com.example.domain.model.FilteredSearchPurchaseNotes
 import com.example.domain.model.PurchaseNote
 import com.example.domain.model.PurchaseNoteStatistics
 import com.example.domain.model.SortType
@@ -16,7 +15,7 @@ import kotlinx.coroutines.flow.Flow
  */
 interface PurchaseNoteRepository {
 
-    fun getAllPurchaseNotes(): Flow<List<PurchaseNote>>
+    fun getAllPurchaseNotes(): Flow<ApiResult<List<PurchaseNote>>>
 
     fun getPurchaseNotesByCategories(categories: List<Category>): Flow<List<PurchaseNote>>
 
@@ -36,7 +35,7 @@ interface PurchaseNoteRepository {
         categoryIds: List<Int>,
         paymentMethodIds: List<Int>,
         sortType: SortType
-    ): Flow<ApiResult<List<FilteredSearchPurchaseNotes>>>
+    ): Flow<ApiResult<List<PurchaseNote>>>
 
     suspend fun insertPurchaseNotes(purchaseNotes: List<PurchaseNote>): Flow<ApiResult<Unit>>
 

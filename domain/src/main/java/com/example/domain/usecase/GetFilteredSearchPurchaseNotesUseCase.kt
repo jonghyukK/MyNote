@@ -1,7 +1,7 @@
 package com.example.domain.usecase
 
 import com.example.domain.model.ApiResult
-import com.example.domain.model.FilteredSearchPurchaseNotes
+import com.example.domain.model.PurchaseNote
 import com.example.domain.model.SortType
 import com.example.domain.repository.PurchaseNoteRepository
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +25,7 @@ class GetFilteredSearchPurchaseNotesUseCase @Inject constructor(
         categoryIds: List<Int> = emptyList(),
         paymentMethodIds: List<Int> = emptyList(),
         sortType: SortType = SortType.LATEST
-    ): Flow<ApiResult<List<FilteredSearchPurchaseNotes>>> =
+    ): Flow<ApiResult<List<PurchaseNote>>> =
         purchaseNoteRepository.getFilteredPurchaseNotes(
             queryText,
             startDate,

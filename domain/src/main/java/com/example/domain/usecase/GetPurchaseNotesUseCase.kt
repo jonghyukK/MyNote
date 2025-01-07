@@ -1,5 +1,6 @@
 package com.example.domain.usecase
 
+import com.example.domain.model.ApiResult
 import com.example.domain.model.PurchaseNote
 import com.example.domain.repository.PurchaseNoteRepository
 import kotlinx.coroutines.flow.Flow
@@ -13,6 +14,6 @@ import javax.inject.Inject
 class GetPurchaseNotesUseCase @Inject constructor(
     private val purchaseNoteRepository: PurchaseNoteRepository
 ) {
-    operator fun invoke(): Flow<List<PurchaseNote>> =
+    operator fun invoke(): Flow<ApiResult<List<PurchaseNote>>> =
         purchaseNoteRepository.getAllPurchaseNotes()
 }
