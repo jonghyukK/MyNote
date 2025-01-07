@@ -301,7 +301,7 @@ class PurchaseNoteSearchViewModel @Inject constructor(
     private fun filteredPurchaseNotesUiState(): Flow<FilteredPurchaseNotesUiState> {
         return _filterUiState.flatMapLatest { filterUiState ->
             if (filterUiState !is FilterUiState.Success) {
-                return@flatMapLatest flowOf(FilteredPurchaseNotesUiState.Empty)
+                return@flatMapLatest flowOf(FilteredPurchaseNotesUiState.PurchaseNotes(listOf(PurchaseNotesUiState.Empty)))
             }
 
             val filters = filterUiState.filters
@@ -344,7 +344,7 @@ class PurchaseNoteSearchViewModel @Inject constructor(
                 val totalCount = resultItems.sumOf { it.purchaseNoteItems.size }
 
                 if (resultItems.isEmpty()) {
-                    FilteredPurchaseNotesUiState.Empty
+                    return FilteredPurchaseNotesUiState.PurchaseNotes(listOf(PurchaseNotesUiState.Empty))
                 }
 
                 val items = if (filters.sortType in listOf(SortType.HIGH_PRICE, SortType.LOW_PRICE)) {
@@ -410,21 +410,28 @@ class PurchaseNoteSearchViewModel @Inject constructor(
     ): PurchaseNoteFilters {
         val currentFilter = (_filterUiState.value as? FilterUiState.Success)?.filters ?: PurchaseNoteFilters()
 
-        val selectedCategories = currentFilter.categoryFilters.filter { it.isSelected }
-        val selectedPaymentMethods = currentFilter.paymentMethodFilters.filter { it.isSelected }
+        val selectedCategories = currentFilter.categoryFilters
+            .filter { it.isSelected }
+            .map { it.categoryItem.id }
+            .toSet()
+
+        val selectedPaymentMethods = currentFilter.paymentMethodFilters
+            .filter { it.isSelected }
+            .map { it.paymentMethod.paymentMethodId }
+            .toSet()
 
         return PurchaseNoteFilters(
             dateRangeFilter = currentFilter.dateRangeFilter,
             categoryFilters = categories.map { category ->
                 Filters.Category(
                     categoryItem = category,
-                    isSelected = selectedCategories.any { it.categoryItem.id == category.id }
+                    isSelected = category.id in selectedCategories
                 )
             },
             paymentMethodFilters = paymentMethods.map { paymentMethod ->
                 Filters.PaymentMethod(
                     paymentMethod = paymentMethod,
-                    isSelected = selectedPaymentMethods.any { it.paymentMethod.paymentMethodId == paymentMethod.paymentMethodId}
+                    isSelected = paymentMethod.paymentMethodId in selectedPaymentMethods
                 )
             },
             purchaseNameFilter = currentFilter.purchaseNameFilter,
@@ -451,7 +458,6 @@ sealed interface FilterUiState {
 
 sealed interface FilteredPurchaseNotesUiState {
     data object Loading : FilteredPurchaseNotesUiState
-    data object Empty : FilteredPurchaseNotesUiState
     data class Error(val errorMsg: String) : FilteredPurchaseNotesUiState
     data class PurchaseNotes(
         val items: List<PurchaseNotesUiState>,

@@ -9,8 +9,7 @@ import java.time.LocalDate
  * Description:ø
  */
 sealed class PurchaseNotesUiState {
-
+    data object Empty: PurchaseNotesUiState()
     data class DateItem(val date: LocalDate): PurchaseNotesUiState()
-
     data class PurchaseNoteItem(val purchaseNote: PurchaseNoteUiModel): PurchaseNotesUiState()
 }

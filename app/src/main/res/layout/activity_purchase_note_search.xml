@@ -158,13 +158,4 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <include
-        layout="@layout/layout_empty_search_results"
-        android:id="@+id/layout_empty"
-        android:visibility="gone"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

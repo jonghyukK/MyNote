@@ -34,6 +34,9 @@ import com.kjh.mynote.utils.extensions.setTextColorRes
 import com.kjh.mynote.utils.extensions.showToast
 import com.kjh.mynote.utils.extensions.toComma
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /**
@@ -111,22 +114,68 @@ class PurchaseNoteSearchActivity :
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.filterUiState.collect { filterUiState ->
-                        when (filterUiState) {
-                            is FilterUiState.Loading -> {}
-                            is FilterUiState.Error -> {}
-                            is FilterUiState.Success -> {
-                                val filterItem = filterUiState.filters
-
-                                binding.tvDate.text = filterItem.dateRangeFilter.dateRangeFilter.getUiText()
-                                binding.layoutFilterInfoSection.tvSort.text = filterItem.sortType.title
-                                categoryListAdapter.submitList(filterItem.categoryFilters)
-                                paymentMethodListAdapter.submitList(filterItem.paymentMethodFilters)
-
-                                updatePurchaseNameFilterUi(filterItem.purchaseNameFilter)
-                                updatePriceFilterUi(filterItem.priceFilter)
-                            }
+                    viewModel.filterUiState
+                        .filterIsInstance<FilterUiState.Success>()
+                        .map { it.filters.dateRangeFilter }
+                        .distinctUntilChanged()
+                        .collect { dateFilter ->
+                            binding.tvDate.text = dateFilter.dateRangeFilter.getUiText()
                         }
+                }
+
+                launch {
+                    viewModel.filterUiState
+                        .filterIsInstance<FilterUiState.Success>()
+                        .map { it.filters.sortType }
+                        .distinctUntilChanged()
+                        .collect { sortType ->
+                            binding.layoutFilterInfoSection.tvSort.text = sortType.title
+                        }
+                }
+
+                launch {
+                    viewModel.filterUiState
+                        .filterIsInstance<FilterUiState.Success>()
+                        .map { it.filters.categoryFilters }
+                        .distinctUntilChanged()
+                        .collect { categories ->
+                            categoryListAdapter.submitList(categories)
+                        }
+                }
+
+                launch {
+                    viewModel.filterUiState
+                        .filterIsInstance<FilterUiState.Success>()
+                        .map { it.filters.paymentMethodFilters }
+                        .distinctUntilChanged()
+                        .collect { paymentMethods ->
+                            paymentMethodListAdapter.submitList(paymentMethods)
+                        }
+                }
+
+                launch {
+                    viewModel.filterUiState
+                        .filterIsInstance<FilterUiState.Success>()
+                        .map { it.filters.purchaseNameFilter }
+                        .distinctUntilChanged()
+                        .collect(::updatePurchaseNameFilterUi)
+                }
+
+                launch {
+                    viewModel.filterUiState
+                        .filterIsInstance<FilterUiState.Success>()
+                        .map { it.filters.priceFilter }
+                        .distinctUntilChanged()
+                        .collect(::updatePriceFilterUi)
+                }
+
+                launch {
+                    viewModel.appliedFilterItems.collect {
+                        with (binding) {
+                            clSelectedFilters.isVisible = it.isNotEmpty()
+                            layoutFilterInfoSection.ivNoti.isVisible = it.isNotEmpty()
+                        }
+                        selectedFilterListAdapter.submitList(it)
                     }
                 }
 
@@ -135,20 +184,13 @@ class PurchaseNoteSearchActivity :
                         when (notesUiState) {
                             is FilteredPurchaseNotesUiState.Loading -> {
                                 binding.layoutLoading.root.makeVisible()
-                                binding.layoutEmpty.root.makeGone()
-                            }
-                            is FilteredPurchaseNotesUiState.Empty -> {
-                                binding.layoutLoading.root.makeGone()
-                                binding.layoutEmpty.root.makeVisible()
                             }
                             is FilteredPurchaseNotesUiState.Error -> {
                                 binding.layoutLoading.root.makeGone()
-                                binding.layoutEmpty.root.makeGone()
                                 showToast(notesUiState.errorMsg)
                             }
                             is FilteredPurchaseNotesUiState.PurchaseNotes -> {
                                 binding.layoutLoading.root.makeGone()
-                                binding.layoutEmpty.root.makeGone()
                                 binding.layoutFilterInfoSection.tvResultsCount.text =
                                     getString(R.string.format_total_count, notesUiState.totalCount)
 
@@ -162,56 +204,47 @@ class PurchaseNoteSearchActivity :
                         }
                     }
                 }
-
-                launch {
-                    viewModel.appliedFilterItems.collect {
-                        binding.clSelectedFilters.isVisible = it.isNotEmpty()
-                        binding.layoutFilterInfoSection.ivNoti.isVisible = it.isNotEmpty()
-
-                        selectedFilterListAdapter.submitList(it)
-                    }
-                }
             }
         }
     }
 
-    private fun updatePurchaseNameFilterUi(
-        purchaseNameFilter: Filters.PurchaseName,
-    ) = with(binding.layoutFilterContainer) {
-        tvPurchaseName.text = purchaseNameFilter.purchaseName
+    private fun updatePurchaseNameFilterUi(purchaseNameFilter: Filters.PurchaseName) =
+        with(binding.layoutFilterContainer) {
+            tvPurchaseName.text = purchaseNameFilter.purchaseName
 
-        if (purchaseNameFilter.isApplied()) {
-            tvPurchaseName.setTextColorRes(appliedTextColor)
-            tvPurchaseName.setTypeface(null, Typeface.BOLD)
-        } else {
-            tvPurchaseName.setTextColorRes(normalTextColor)
-            tvPurchaseName.setTypeface(null, Typeface.NORMAL)
-        }
-    }
-
-    private fun updatePriceFilterUi(priceFilter: Filters.Price) = with (binding.layoutFilterContainer) {
-        if (priceFilter.isApplied()) {
-            tvPrice.setTypeface(null, Typeface.BOLD)
-            tvPrice.setTextColorRes(appliedTextColor)
-        } else {
-            tvPrice.setTypeface(null, Typeface.NORMAL)
-            tvPrice.setTextColorRes(normalTextColor)
+            if (purchaseNameFilter.isApplied()) {
+                tvPurchaseName.setTextColorRes(appliedTextColor)
+                tvPurchaseName.setTypeface(null, Typeface.BOLD)
+            } else {
+                tvPurchaseName.setTextColorRes(normalTextColor)
+                tvPurchaseName.setTypeface(null, Typeface.NORMAL)
+            }
         }
 
-        val (minPrice, maxPrice, myMaxPrice) = priceFilter
+    private fun updatePriceFilterUi(priceFilter: Filters.Price) =
+        with(binding.layoutFilterContainer) {
+            if (priceFilter.isApplied()) {
+                tvPrice.setTypeface(null, Typeface.BOLD)
+                tvPrice.setTextColorRes(appliedTextColor)
+            } else {
+                tvPrice.setTypeface(null, Typeface.NORMAL)
+                tvPrice.setTextColorRes(normalTextColor)
+            }
 
-        tvPrice.text = if (minPrice == null && maxPrice != null) {
-            getString(R.string.format_won_below, maxPrice.toComma())
-        } else if (minPrice != null && maxPrice == null) {
-            getString(R.string.format_won_up, minPrice.toComma())
-        } else {
-            getString(
-                R.string.format_min_price_until_max_price,
-                minPrice?.toComma() ?: "0",
-                maxPrice?.toComma() ?: myMaxPrice.toComma()
-            )
+            val (minPrice, maxPrice, myMaxPrice) = priceFilter
+
+            tvPrice.text = if (minPrice == null && maxPrice != null) {
+                getString(R.string.format_won_below, maxPrice.toComma())
+            } else if (minPrice != null && maxPrice == null) {
+                getString(R.string.format_won_up, minPrice.toComma())
+            } else {
+                getString(
+                    R.string.format_min_price_until_max_price,
+                    minPrice?.toComma() ?: "0",
+                    maxPrice?.toComma() ?: myMaxPrice.toComma()
+                )
+            }
         }
-    }
 
     private val categoryFilterClickAction: (Int) -> Unit = { categoryId ->
         viewModel.addOrDeleteCategoryItemBy(categoryId)
