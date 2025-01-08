@@ -86,8 +86,10 @@ class PlaceNoteRepositoryImpl @Inject constructor(
      *
      *  return List<SearchPlaceNoteWithCount>
      */
-    override suspend fun searchByQueryFlow(query: String): List<SearchPlaceNoteWithCount> =
-        noteLocalDataSource.searchByQuery(query).toDomainModel()
+    override suspend fun searchByQueryFlow(query: String): Flow<ApiResult<List<SearchPlaceNoteWithCount>>> =
+        safeApiCall {
+            noteLocalDataSource.searchByQuery(query).toDomainModel()
+        }
 
     override suspend fun getFilteredPlaceNotes(
         query: String,

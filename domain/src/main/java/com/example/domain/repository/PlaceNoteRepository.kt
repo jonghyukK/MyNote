@@ -26,7 +26,7 @@ interface PlaceNoteRepository {
 
     suspend fun getPlaceNotesByPlaceName(placeName: String): List<PlaceNote>
 
-    suspend fun searchByQueryFlow(query: String): List<SearchPlaceNoteWithCount>
+    suspend fun searchByQueryFlow(query: String): Flow<ApiResult<List<SearchPlaceNoteWithCount>>>
 
     suspend fun getFilteredPlaceNotes(
         query: String,

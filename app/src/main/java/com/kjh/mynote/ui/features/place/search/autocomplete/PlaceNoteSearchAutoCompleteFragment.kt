@@ -72,7 +72,7 @@ class PlaceNoteSearchAutoCompleteFragment
                 }
 
                 launch {
-                    viewModel.uiState.collect { uiState ->
+                    viewModel.searchAutoCompleteUiState.collect { uiState ->
                         updateVisibilityBy(uiState)
 
                         when (uiState) {
@@ -86,7 +86,6 @@ class PlaceNoteSearchAutoCompleteFragment
 
                                 uiState.msg?.let {
                                     showToast(it)
-                                    viewModel.shownErrorMessage()
                                 }
                             }
                             is SearchAutoCompleteUiState.Success -> {

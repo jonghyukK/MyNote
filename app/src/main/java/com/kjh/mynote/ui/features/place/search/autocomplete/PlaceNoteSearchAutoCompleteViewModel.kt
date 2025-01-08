@@ -2,18 +2,18 @@ package com.kjh.mynote.ui.features.place.search.autocomplete
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.domain.model.Result
+import com.example.domain.model.ApiResult
 import com.example.domain.model.SearchPlaceNoteWithCount
 import com.example.domain.usecase.SearchPlaceNotesWithCountUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 /**
@@ -29,62 +29,49 @@ class PlaceNoteSearchAutoCompleteViewModel @Inject constructor(
 
     private val _searchQuery = MutableStateFlow("")
 
-    private val _uiState = MutableStateFlow<SearchAutoCompleteUiState>(SearchAutoCompleteUiState.Init)
-    val uiState = _uiState.asStateFlow()
+    val searchAutoCompleteUiState = _searchQuery
+        .debounce(300)
+        .distinctUntilChanged()
+        .flatMapLatest { query ->
+            if (query.isEmpty()) {
+                return@flatMapLatest flowOf(SearchAutoCompleteUiState.Init)
+            }
 
-    init {
-        viewModelScope.launch {
-            _searchQuery
-                .debounce(300)
-                .distinctUntilChanged()
-                .flatMapLatest { query ->
-                    if (query.isNotBlank()) {
-                        searchPlaceNotesWithCountUseCase(query).map { result ->
-                            when (result) {
-                                is Result.Loading -> {
-                                    SearchAutoCompleteUiState.Loading
-                                }
-                                is Result.Error -> {
-                                    SearchAutoCompleteUiState.Error(result.msg)
-                                }
-                                is Result.Success -> {
-                                    val items = result.data ?: emptyList()
-                                    if (items.isEmpty()) {
-                                        SearchAutoCompleteUiState.Empty
-                                    } else {
-                                        val resultItems = items.map { item ->
-                                            PlaceNoteSearchAutoCompleteItem(
-                                                queryText = query,
-                                                item = item,
-                                                count = item.count
-                                            )
-                                        }
-
-                                        SearchAutoCompleteUiState.Success(resultItems)
-                                    }
-                                }
+            searchPlaceNotesWithCountUseCase(query).map { result ->
+                when (result) {
+                    is ApiResult.Loading -> {
+                        SearchAutoCompleteUiState.Loading
+                    }
+                    is ApiResult.Error -> {
+                        SearchAutoCompleteUiState.Error(result.error.message)
+                    }
+                    is ApiResult.Success -> {
+                        val items = result.data
+                        if (items.isEmpty()) {
+                            SearchAutoCompleteUiState.Empty
+                        } else {
+                            val resultItems = items.map { item ->
+                                PlaceNoteSearchAutoCompleteItem(
+                                    queryText = query,
+                                    item = item,
+                                    count = item.count
+                                )
                             }
+
+                            SearchAutoCompleteUiState.Success(resultItems)
                         }
-                    } else {
-                        flowOf(SearchAutoCompleteUiState.Init)
                     }
                 }
-                .collect { state ->
-                    _uiState.value = state
-                }
+            }
         }
-    }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = SearchAutoCompleteUiState.Init
+        )
 
     fun setSearchQuery(text: String) {
-        if (text.isBlank()) {
-            _uiState.value = SearchAutoCompleteUiState.Init
-        }
-
         _searchQuery.value = text
-    }
-
-    fun shownErrorMessage() {
-        _uiState.value = SearchAutoCompleteUiState.Init
     }
 }
 
@@ -94,10 +81,10 @@ data class PlaceNoteSearchAutoCompleteItem(
     val count: Int
 )
 
-sealed class SearchAutoCompleteUiState {
-    data object Init: SearchAutoCompleteUiState()
-    data object Loading: SearchAutoCompleteUiState()
-    data object Empty: SearchAutoCompleteUiState()
-    data class Error(val msg: String?): SearchAutoCompleteUiState()
-    data class Success(val data: List<PlaceNoteSearchAutoCompleteItem>): SearchAutoCompleteUiState()
+sealed interface SearchAutoCompleteUiState {
+    data object Init: SearchAutoCompleteUiState
+    data object Loading: SearchAutoCompleteUiState
+    data object Empty: SearchAutoCompleteUiState
+    data class Error(val msg: String?): SearchAutoCompleteUiState
+    data class Success(val data: List<PlaceNoteSearchAutoCompleteItem>): SearchAutoCompleteUiState
 }
