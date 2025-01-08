@@ -14,8 +14,10 @@ import com.example.domain.usecase.GetPaymentMethodsUseCase
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.Filters
 import com.kjh.mynote.model.PaymentMethodUiModel
+import com.kjh.mynote.model.copyIfNeeded
 import com.kjh.mynote.model.getAppliedCategoryIds
 import com.kjh.mynote.model.getAppliedPaymentMethodIds
+import com.kjh.mynote.model.matchesFilter
 import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.ui.common.uistate.PurchaseNotesUiState
 import com.kjh.mynote.ui.features.place.search.result.DateRangeFilter
@@ -24,6 +26,7 @@ import com.kjh.mynote.utils.extensions.getFirstDayOfMonth
 import com.kjh.mynote.utils.extensions.getLastDayOfMonth
 import com.kjh.mynote.utils.extensions.toMillis
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -35,6 +38,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -56,7 +60,11 @@ class PurchaseNoteSearchViewModel @Inject constructor(
     private val _filterUiState = MutableStateFlow<FilterUiState>(FilterUiState.Loading)
     val filterUiState = _filterUiState.asStateFlow()
 
-    var shouldScrollToTop: Boolean = false
+    private val _appliedFilterItems = MutableStateFlow<List<Filters>>(emptyList())
+    val appliedFilterItems = _appliedFilterItems.asStateFlow()
+
+    var shouldNotesScrollToTop: Boolean = false
+    var shouldSelectedFilterScrollToEnd: Boolean = false
 
     fun getFilterUiState() {
         viewModelScope.launch {
@@ -80,103 +88,68 @@ class PurchaseNoteSearchViewModel @Inject constructor(
                 initialValue = FilteredPurchaseNotesUiState.Loading
             )
 
-    val appliedFilterItems: StateFlow<List<Filters>> =
-        getAppliedFilters()
-        .stateIn(
-            viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            emptyList()
-        )
-
     fun setSortType(type: SortType) {
-        val filterUiState = _filterUiState.value as? FilterUiState.Success ?: return
-        val updateFilterState = filterUiState.copy(
-            filters = filterUiState.filters.copy(
-                sortType = type
-            )
-        )
-
-        _filterUiState.value = updateFilterState
+        updateFilterState { it.copy(sortType = type) }
     }
 
     fun setDateRangeFilter(dateRangeFilter: Filters.DateRange) {
-        val filterUiState = _filterUiState.value as? FilterUiState.Success ?: return
-        val updatedFilterState = filterUiState.copy(
-            filters = filterUiState.filters.copy(
-                dateRangeFilter = dateRangeFilter
-            )
-        )
-
-        _filterUiState.value = updatedFilterState
+        updateFilterState { it.copy(dateRangeFilter = dateRangeFilter) }
     }
 
-    fun addOrDeleteCategoryItemBy(categoryId: Int) {
-        val filterUiState = _filterUiState.value as? FilterUiState.Success ?: return
-        val updatedCategoryItem =
-            filterUiState.filters.categoryFilters.map { currentCategoryItem ->
-                if (currentCategoryItem.categoryItem.id == categoryId) {
-                    currentCategoryItem.copy(
-                        isSelected = !currentCategoryItem.isSelected
-                    )
-                } else {
-                    currentCategoryItem
+    fun addOrDeleteCategoryFilter(filter: Filters.Category) {
+        updateFilterState {
+            it.copy(
+                categoryFilters = it.categoryFilters.map { currentCategoryItem ->
+                    if (currentCategoryItem.categoryItem.id == filter.categoryItem.id) {
+                        currentCategoryItem.copy(isSelected = !currentCategoryItem.isSelected)
+                    } else {
+                        currentCategoryItem
+                    }
                 }
-            }
-
-        _filterUiState.value = filterUiState.copy(
-            filters = filterUiState.filters.copy(
-                categoryFilters = updatedCategoryItem
             )
-        )
+        }
+        updateSelectedFilters(filter)
     }
 
-    fun addOrDeletePaymentMethodItemBy(paymentMethodId: Int) {
-        val filterUiState = _filterUiState.value as? FilterUiState.Success ?: return
-        val updatePaymentItem =
-            filterUiState.filters.paymentMethodFilters.map { currentPaymentItem ->
-                if (currentPaymentItem.paymentMethod.paymentMethodId == paymentMethodId) {
-                    currentPaymentItem.copy(
-                        isSelected = !currentPaymentItem.isSelected
-                    )
-                } else {
-                    currentPaymentItem
-                }
-            }
+    fun addOrDeletePaymentMethodFilter(filter: Filters.PaymentMethod) {
+        updateFilterState {
+            it.copy(
+                paymentMethodFilters = it.paymentMethodFilters.map { currentPaymentItem ->
+                    if (currentPaymentItem.paymentMethod.paymentMethodId == filter.paymentMethod.paymentMethodId) {
+                        currentPaymentItem.copy(isSelected = !currentPaymentItem.isSelected)
+                    } else {
+                        currentPaymentItem
+                    }
+                })
+        }
 
-        _filterUiState.value = filterUiState.copy(
-            filters = filterUiState.filters.copy(
-                paymentMethodFilters = updatePaymentItem
-            )
-        )
+        updateSelectedFilters(filter)
     }
 
     fun setPurchaseName(filter: Filters.PurchaseName) {
-        val filterUiState = _filterUiState.value as? FilterUiState.Success ?: return
-        val updatedFilterState = filterUiState.copy(
-            filters = filterUiState.filters.copy(
-                purchaseNameFilter = filter
-            )
-        )
-        _filterUiState.value = updatedFilterState
+        updateFilterState { it.copy(purchaseNameFilter = filter) }
+        updateSelectedFilters(filter)
     }
 
     fun setPriceFilter(priceFilter: Filters.Price) {
+        updateFilterState { it.copy(priceFilter = priceFilter) }
+        updateSelectedFilters(priceFilter)
+    }
+
+    private fun updateFilterState(
+        transform: (PurchaseNoteFilters) -> PurchaseNoteFilters
+    ) {
         val filterUiState = _filterUiState.value as? FilterUiState.Success ?: return
-        val updatedFilterState = filterUiState.copy(
-            filters = filterUiState.filters.copy(
-                priceFilter = priceFilter
-            )
-        )
-        _filterUiState.value = updatedFilterState
+        _filterUiState.value = filterUiState.copy(filters = transform(filterUiState.filters))
     }
 
     fun deleteFilter(filters: Filters) {
         when (filters) {
             is Filters.Category -> {
-                addOrDeleteCategoryItemBy(filters.categoryItem.id)
+                addOrDeleteCategoryFilter(filters)
             }
             is Filters.PaymentMethod -> {
-                addOrDeletePaymentMethodItemBy(filters.paymentMethod.paymentMethodId)
+                addOrDeletePaymentMethodFilter(filters)
             }
             is Filters.Price -> {
                 setPriceFilter(Filters.Price(myMaxPrice = filters.myMaxPrice))
@@ -193,6 +166,22 @@ class PurchaseNoteSearchViewModel @Inject constructor(
         _filterUiState.value = filterUiState.copy(
             filters = filter
         )
+
+        _appliedFilterItems.update { currentFilters ->
+            val updatedFilters = mutableListOf<Filters>().apply {
+                addAll(filter.categoryFilters.filter { it.isApplied() })
+                addAll(filter.paymentMethodFilters.filter { it.isApplied() })
+                if (filter.purchaseNameFilter.isApplied()) {
+                    add(filter.purchaseNameFilter)
+                }
+                if (filter.priceFilter.isApplied()) {
+                    add(filter.priceFilter)
+                }
+            }
+
+            shouldSelectedFilterScrollToEnd = currentFilters.size < updatedFilters.size
+            updatedFilters
+        }
     }
 
     fun resetSelectedFilters() {
@@ -212,6 +201,50 @@ class PurchaseNoteSearchViewModel @Inject constructor(
                 )
             )
         )
+        _appliedFilterItems.value = emptyList()
+    }
+
+    private fun updateSelectedFilters(filter: Filters) {
+        _appliedFilterItems.update { currentFilters ->
+            val updatedFilters = currentFilters.toMutableList()
+
+            when (filter) {
+                is Filters.PurchaseName -> {
+                    updatedFilters.removeAll { it.matchesFilter(filter) }
+                    if (filter.isApplied()) {
+                        updatedFilters.add(filter)
+                    }
+                }
+                is Filters.Price -> {
+                    updatedFilters.removeAll { it.matchesFilter(filter) }
+                    if (filter.isApplied()) {
+                        updatedFilters.add(filter)
+                    }
+                }
+                is Filters.Category -> {
+                    if (filter.isSelected) {
+                        updatedFilters.removeAll {
+                            it.matchesFilter(filter)
+                        }
+                    } else {
+                        updatedFilters.add(filter.copy(isSelected = true))
+                    }
+                }
+                is Filters.PaymentMethod -> {
+                    if (filter.isSelected) {
+                        updatedFilters.removeAll {
+                            it.matchesFilter(filter)
+                        }
+                    } else {
+                        updatedFilters.add(filter.copy(isSelected = true))
+                    }
+                }
+                else -> {}
+            }
+
+            shouldSelectedFilterScrollToEnd = currentFilters.size < updatedFilters.size
+            updatedFilters
+        }
     }
 
     private fun getStartDateAndEndDateTimeMillis(monthFilter: DateRangeFilter?): Pair<Long, Long> {
@@ -236,32 +269,6 @@ class PurchaseNoteSearchViewModel @Inject constructor(
         }
     }
 
-    private fun getAppliedFilters(): Flow<List<Filters>> {
-        return _filterUiState.flatMapLatest { filterUiState ->
-            val filters: MutableList<Filters> = mutableListOf()
-
-            if (filterUiState !is FilterUiState.Success) {
-                return@flatMapLatest flowOf(filters)
-            }
-
-            filterUiState.filters.categoryFilters.filter { it.isApplied() }
-                .forEach { filters.add(it) }
-
-            filterUiState.filters.paymentMethodFilters.filter { it.isApplied() }
-                .forEach { filters.add(it) }
-
-            if (filterUiState.filters.purchaseNameFilter.isApplied()) {
-                filters.add(filterUiState.filters.purchaseNameFilter)
-            }
-
-            if (filterUiState.filters.priceFilter.isApplied()) {
-                filters.add(filterUiState.filters.priceFilter)
-            }
-
-            flowOf(filters)
-        }
-    }
-
     private fun filteredPurchaseNotesUiState(): Flow<FilteredPurchaseNotesUiState> {
         return _filterUiState.flatMapLatest { filterUiState ->
             if (filterUiState !is FilterUiState.Success) {
@@ -270,10 +277,8 @@ class PurchaseNoteSearchViewModel @Inject constructor(
 
             val filters = filterUiState.filters
             val (startDate, endDate) = getStartDateAndEndDateTimeMillis(filters.dateRangeFilter.dateRangeFilter)
-            val categoryIds = filters.categoryFilters.filter { it.isApplied() }
-                .map { it.categoryItem.id }
-            val paymentMethodIds = filters.paymentMethodFilters.filter { it.isApplied() }
-                .map { it.paymentMethod.paymentMethodId }
+            val categoryIds = _appliedFilterItems.value.getAppliedCategoryIds()
+            val paymentMethodIds = _appliedFilterItems.value.getAppliedPaymentMethodIds()
 
             getFilteredSearchPurchaseNotesUseCase(
                 queryText = filters.purchaseNameFilter.purchaseName,
@@ -302,7 +307,7 @@ class PurchaseNoteSearchViewModel @Inject constructor(
                 FilteredPurchaseNotesUiState.Error("구매노트 목록을 불러오는데 실패하였습니다.")
             }
             is ApiResult.Success -> {
-                shouldScrollToTop = true
+                shouldNotesScrollToTop = true
 
                 val resultItems = result.data.toUiModel()
                 val totalCount = resultItems.size
