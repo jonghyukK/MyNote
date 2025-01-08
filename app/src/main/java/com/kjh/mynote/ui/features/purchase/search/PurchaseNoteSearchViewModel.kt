@@ -14,6 +14,8 @@ import com.example.domain.usecase.GetPaymentMethodsUseCase
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.Filters
 import com.kjh.mynote.model.PaymentMethodUiModel
+import com.kjh.mynote.model.getAppliedCategoryIds
+import com.kjh.mynote.model.getAppliedPaymentMethodIds
 import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.ui.common.uistate.PurchaseNotesUiState
 import com.kjh.mynote.ui.features.place.search.result.DateRangeFilter
@@ -374,28 +376,20 @@ class PurchaseNoteSearchViewModel @Inject constructor(
     ): PurchaseNoteFilters {
         val currentFilter = (_filterUiState.value as? FilterUiState.Success)?.filters ?: PurchaseNoteFilters()
 
-        val selectedCategories = currentFilter.categoryFilters
-            .filter { it.isSelected }
-            .map { it.categoryItem.id }
-            .toSet()
-
-        val selectedPaymentMethods = currentFilter.paymentMethodFilters
-            .filter { it.isSelected }
-            .map { it.paymentMethod.paymentMethodId }
-            .toSet()
-
         return PurchaseNoteFilters(
             dateRangeFilter = currentFilter.dateRangeFilter,
             categoryFilters = categories.map { category ->
                 Filters.Category(
                     categoryItem = category,
-                    isSelected = category.id in selectedCategories
+                    isSelected = category.id in
+                            currentFilter.categoryFilters.getAppliedCategoryIds().toSet()
                 )
             },
             paymentMethodFilters = paymentMethods.map { paymentMethod ->
                 Filters.PaymentMethod(
                     paymentMethod = paymentMethod,
-                    isSelected = paymentMethod.paymentMethodId in selectedPaymentMethods
+                    isSelected = paymentMethod.paymentMethodId in
+                            currentFilter.paymentMethodFilters.getAppliedPaymentMethodIds().toSet()
                 )
             },
             purchaseNameFilter = currentFilter.purchaseNameFilter,

@@ -77,18 +77,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tv_title_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/period_date"
-            android:textSize="15sp"
-            android:textColor="@color/black_800"
-            android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
         <!-- 월별 -->
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_monthly"
@@ -101,7 +89,7 @@
             android:layout_marginTop="12dp"
             android:layout_marginEnd="4dp"
             app:layout_constraintHorizontal_chainStyle="spread"
-            app:layout_constraintTop_toBottomOf="@+id/tv_title_date"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/tv_one_month"/>
 
@@ -246,7 +234,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:visibility="visible"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="24dp"
         app:btnTitle="@string/do_apply"
         app:layout_constraintTop_toBottomOf="@+id/cl_month_filter_container"
         app:layout_constraintBottom_toBottomOf="parent"

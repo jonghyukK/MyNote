@@ -1,22 +1,27 @@
 package com.kjh.mynote.ui.features.purchase.filter
 
 import android.view.View.OnClickListener
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.tabs.TabLayoutMediator
 import com.kjh.mynote.databinding.DialogFragmentPurchaseNoteFilterBinding
+import com.kjh.mynote.model.Filters
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
 import com.kjh.mynote.ui.features.purchase.filter.adapter.FilterType
+import com.kjh.mynote.ui.features.purchase.filter.adapter.PurchaseNoteHomeAppliedFilterListAdapter
 import com.kjh.mynote.ui.features.purchase.filter.adapter.PurchaseNoteHomeFilterPagerAdapter
 import com.kjh.mynote.ui.features.purchase.home.PurchaseHomeViewModel
+import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.
@@ -33,6 +38,12 @@ class PurchaseNoteHomeFilterBSDFragment
     private val parentViewModel: PurchaseHomeViewModel by viewModels({ requireParentFragment() })
     private val viewModel: PurchaseNoteHomeFilterBSDViewModel by viewModels()
 
+    private val appliedFilterListAdapter: PurchaseNoteHomeAppliedFilterListAdapter by lazy {
+        PurchaseNoteHomeAppliedFilterListAdapter(
+            appliedFilterClickAction = appliedFilterClickAction
+        )
+    }
+
     override fun onInitView() {
         with (binding) {
             vpPager.apply {
@@ -40,6 +51,12 @@ class PurchaseNoteHomeFilterBSDFragment
                 TabLayoutMediator(tlFilters, this) { tab, position ->
                     tab.text = FilterType.entries[position].title
                 }.attach()
+            }
+
+            rvAppliedFilters.apply {
+                itemAnimator = null
+                addItemDecoration(SpacingItemDecoration(left = 10, right = 10, exceptFirstItem = false))
+                adapter = appliedFilterListAdapter
             }
 
             clResetContainer.setOnThrottleClickListener(resetClickListener)
@@ -67,11 +84,34 @@ class PurchaseNoteHomeFilterBSDFragment
                 }
 
                 launch {
+                    viewModel.uiState
+                        .map { it.selectedFilters }
+                        .distinctUntilChanged()
+                        .collect { selectedFilters ->
+                            binding.rvAppliedFilters.isVisible = selectedFilters.isNotEmpty()
+                            appliedFilterListAdapter.submitList(selectedFilters) {
+                                if (viewModel.shouldScrollToEnd) {
+                                    binding.rvAppliedFilters.smoothScrollToPosition(selectedFilters.size - 1)
+                                    viewModel.shouldScrollToEnd = false
+                                }
+                            }
+                        }
+                }
+
+                launch {
                     viewModel.isChangedFilterFlow.collect {
                         binding.btnApply.isEnable = it
                     }
                 }
             }
+        }
+    }
+
+    private val appliedFilterClickAction: (Filters) -> Unit = { filter ->
+        when (filter) {
+            is Filters.Category -> viewModel.addOrDeleteCategoryFilter(filter)
+            is Filters.PaymentMethod -> viewModel.addOrDeletePaymentMethodFilter(filter)
+            else -> {}
         }
     }
 
@@ -85,7 +125,7 @@ class PurchaseNoteHomeFilterBSDFragment
 
     private val applyButtonClickListener = OnClickListener {
         if (binding.btnApply.isEnable) {
-            val selectedFilters = viewModel.uiState.value.selectedFilterItems()
+            val selectedFilters = viewModel.uiState.value.selectedFilters
             parentViewModel.setFilters(selectedFilters)
             dismiss()
         }

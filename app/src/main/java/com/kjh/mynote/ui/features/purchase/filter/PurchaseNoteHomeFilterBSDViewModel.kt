@@ -36,8 +36,9 @@ class PurchaseNoteHomeFilterBSDViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
+    var shouldScrollToEnd = false
+
     private val _initAppliedFilters = MutableStateFlow<List<Filters>>(emptyList())
-    val initAppliedFilters = _initAppliedFilters.asStateFlow()
 
     private val _uiState = MutableStateFlow(PurchaseNoteHomeFilterUiState())
     val uiState = _uiState.asStateFlow()
@@ -45,7 +46,7 @@ class PurchaseNoteHomeFilterBSDViewModel @Inject constructor(
     val isChangedFilterFlow = combine(
         _initAppliedFilters, _uiState
     ) { initFilters, uiState ->
-        initFilters != uiState.selectedFilterItems()
+        initFilters != uiState.selectedFilters
     }
         .stateIn(
             scope = viewModelScope,
@@ -78,7 +79,8 @@ class PurchaseNoteHomeFilterBSDViewModel @Inject constructor(
                             it.copy(
                                 isLoading = false,
                                 categoryItems = categories.data.toCategoryFilters(),
-                                paymentMethodItem = paymentMethods.data.toPaymentMethodFilters()
+                                paymentMethodItem = paymentMethods.data.toPaymentMethodFilters(),
+                                selectedFilters = _initAppliedFilters.value
                             )
                         }
                     }
@@ -87,30 +89,30 @@ class PurchaseNoteHomeFilterBSDViewModel @Inject constructor(
         }
     }
 
-    fun addOrDeleteCategoryFilter(categoryId: Int) {
+    fun addOrDeleteCategoryFilter(categoryFilter: Filters.Category) {
         _uiState.update { uiState ->
+            val updateSelectedFilterItems = updateSelectedFilterItemsForCategory(categoryFilter)
+            val currentSelectedFilterCount = uiState.selectedFilters.size
+
+            shouldScrollToEnd = currentSelectedFilterCount < updateSelectedFilterItems.size
+
             uiState.copy(
-                categoryItems = uiState.categoryItems.map { category ->
-                    if (category.categoryItem.id == categoryId) {
-                        category.copy(isSelected = !category.isSelected)
-                    } else {
-                        category
-                    }
-                }
+                categoryItems = updateCategoryItems(categoryFilter),
+                selectedFilters = updateSelectedFilterItems
             )
         }
     }
 
-    fun addOrDeletePaymentMethodFilter(paymentMethodId: Int) {
+    fun addOrDeletePaymentMethodFilter(paymentMethodFilter: Filters.PaymentMethod) {
         _uiState.update { uiState ->
+            val updateSelectedFilterItems = updateSelectedFilterItemsForPaymentMethod(paymentMethodFilter)
+            val currentSelectedFilterCount = uiState.selectedFilters.size
+
+            shouldScrollToEnd = currentSelectedFilterCount < updateSelectedFilterItems.size
+
             uiState.copy(
-                paymentMethodItem = uiState.paymentMethodItem.map { paymentMethod ->
-                    if (paymentMethod.paymentMethod.paymentMethodId == paymentMethodId) {
-                        paymentMethod.copy(isSelected = !paymentMethod.isSelected)
-                    } else {
-                        paymentMethod
-                    }
-                }
+                paymentMethodItem = updatePaymentMethodItems(paymentMethodFilter),
+                selectedFilters = updateSelectedFilterItems
             )
         }
     }
@@ -123,7 +125,8 @@ class PurchaseNoteHomeFilterBSDViewModel @Inject constructor(
                 },
                 paymentMethodItem = uiState.paymentMethodItem.map {
                     it.copy(isSelected = false)
-                }
+                },
+                selectedFilters = emptyList()
             )
         }
     }
@@ -138,12 +141,55 @@ class PurchaseNoteHomeFilterBSDViewModel @Inject constructor(
         }
     }
 
+    private fun updateCategoryItems(categoryFilter: Filters.Category): List<Filters.Category> =
+        _uiState.value.categoryItems.map { category ->
+            if (category.categoryItem.id == categoryFilter.categoryItem.id) {
+                category.copy(isSelected = !category.isSelected)
+            } else {
+                category
+            }
+        }
+
+    private fun updatePaymentMethodItems(paymentMethodFilter: Filters.PaymentMethod): List<Filters.PaymentMethod> =
+        _uiState.value.paymentMethodItem.map { paymentMethod ->
+            if (paymentMethod.paymentMethod.paymentMethodId ==
+                paymentMethodFilter.paymentMethod.paymentMethodId
+            ) {
+                paymentMethod.copy(isSelected = !paymentMethod.isSelected)
+            } else {
+                paymentMethod
+            }
+        }
+
+    private fun updateSelectedFilterItemsForCategory(filter: Filters.Category): List<Filters> =
+        _uiState.value.selectedFilters.toMutableList().apply {
+            if (filter.isSelected) {
+                removeAll {
+                    it is Filters.Category && it.categoryItem.id == filter.categoryItem.id
+                }
+            } else {
+                add(filter.copy(isSelected = true))
+            }
+        }
+
+    private fun updateSelectedFilterItemsForPaymentMethod(filter: Filters.PaymentMethod): List<Filters> =
+        _uiState.value.selectedFilters.toMutableList().apply {
+            if (filter.isSelected) {
+                removeAll {
+                    it is Filters.PaymentMethod &&
+                            it.paymentMethod.paymentMethodId == filter.paymentMethod.paymentMethodId
+                }
+            } else {
+                add(filter.copy(isSelected = true))
+            }
+        }
+
     private fun List<Category>.toCategoryFilters() =
         map { category ->
             Filters.Category(
                 categoryItem = category.toUiModel(),
                 isSelected = category.id in
-                        initAppliedFilters.value.getAppliedCategoryIds().toSet()
+                        _initAppliedFilters.value.getAppliedCategoryIds().toSet()
             )
         }
 
@@ -152,7 +198,7 @@ class PurchaseNoteHomeFilterBSDViewModel @Inject constructor(
             Filters.PaymentMethod(
                 paymentMethod = paymentMethod.toUiModel(),
                 isSelected = paymentMethod.paymentMethodId in
-                        initAppliedFilters.value.getAppliedPaymentMethodIds().toSet()
+                        _initAppliedFilters.value.getAppliedPaymentMethodIds().toSet()
             )
         }
 }
@@ -161,8 +207,6 @@ data class PurchaseNoteHomeFilterUiState(
     val isLoading: Boolean = true,
     val errorMsg: String? = null,
     val categoryItems: List<Filters.Category> = emptyList(),
-    val paymentMethodItem: List<Filters.PaymentMethod> = emptyList()
+    val paymentMethodItem: List<Filters.PaymentMethod> = emptyList(),
+    val selectedFilters: List<Filters> = emptyList()
 )
-
-fun PurchaseNoteHomeFilterUiState.selectedFilterItems() =
-    categoryItems.filter { it.isSelected } + paymentMethodItem.filter { it.isSelected }

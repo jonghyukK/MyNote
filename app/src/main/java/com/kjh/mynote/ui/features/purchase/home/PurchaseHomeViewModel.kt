@@ -16,11 +16,10 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import timber.log.Timber
 import java.time.LocalDate
 import java.time.YearMonth
 import javax.inject.Inject
@@ -56,7 +55,7 @@ class PurchaseHomeViewModel @Inject constructor(
 
     private val _selectedDay = MutableStateFlow(LocalDate.now())
 
-    private val purchaseNotesFlow = _appliedFilterItems.flatMapLatest { appliedFilterItems ->
+    private val purchaseNotesUiState = _appliedFilterItems.flatMapLatest { appliedFilterItems ->
         getFilteredPurchaseNotesUseCase(
             categoryIds = appliedFilterItems.getAppliedCategoryIds(),
             paymentMethodIds = appliedFilterItems.getAppliedPaymentMethodIds()
@@ -82,22 +81,22 @@ class PurchaseHomeViewModel @Inject constructor(
             PurchaseNotesUiState.Loading
         )
 
-        val uiState: StateFlow<PurchaseNoteHomeUiState> = combine(
-            purchaseNotesFlow
-                .filterIsInstance<PurchaseNotesUiState.Success>()
-                .map { it.groupedNotesMap }, _selectedDay
-        ) { notesMap, selectedDay ->
+    val uiState: StateFlow<PurchaseNoteHomeUiState> = purchaseNotesUiState
+        .map { it as? PurchaseNotesUiState.Success }
+        .filterNotNull()
+        .map { it.groupedNotesMap }
+        .combine(_selectedDay) { notesMap, selectedDay ->
             PurchaseNoteHomeUiState(
                 selectedDay = selectedDay,
                 hasEventDays = notesMap.keys.toList(),
                 selectedDayPurchaseNotes = notesMap[selectedDay] ?: emptyList(),
                 selectedDayTotalPrice = notesMap[selectedDay]?.sumOf { it.purchasePrice } ?: 0
             )
-        }.stateIn(
-            viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            PurchaseNoteHomeUiState()
-        )
+    }.stateIn(
+        viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        PurchaseNoteHomeUiState()
+    )
 
     fun setCurrentMonth(date: YearMonth) {
         _currentMonth.value = date

@@ -109,13 +109,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_applied_filters"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="10dp"
+        android:clipToPadding="false"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintTop_toBottomOf="@+id/vp_pager"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- Bottom Button -->
     <com.kjh.mynote.ui.common.components.MyBottomButton
         android:id="@+id/btn_apply"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:btnTitle="@string/do_apply"
-        app:layout_constraintTop_toBottomOf="@+id/vp_pager"
+        app:layout_constraintTop_toBottomOf="@+id/rv_applied_filters"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

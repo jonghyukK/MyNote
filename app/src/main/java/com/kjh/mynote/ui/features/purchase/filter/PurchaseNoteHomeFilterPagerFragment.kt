@@ -67,10 +67,10 @@ class PurchaseNoteHomeFilterPagerFragment : BaseFragment<FragmentPurchaseNoteHom
     private val filterItemClickAction: (Filters) -> Unit = { filterItem ->
         when (filterItem) {
             is Filters.Category -> {
-                parentViewModel.addOrDeleteCategoryFilter(filterItem.categoryItem.id)
+                parentViewModel.addOrDeleteCategoryFilter(filterItem)
             }
             is Filters.PaymentMethod -> {
-                parentViewModel.addOrDeletePaymentMethodFilter(filterItem.paymentMethod.paymentMethodId)
+                parentViewModel.addOrDeletePaymentMethodFilter(filterItem)
             }
             else -> {}
         }
