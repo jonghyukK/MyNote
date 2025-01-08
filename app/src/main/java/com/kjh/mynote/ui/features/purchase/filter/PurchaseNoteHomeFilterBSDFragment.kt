@@ -15,13 +15,13 @@ import com.kjh.mynote.ui.features.purchase.filter.adapter.PurchaseNoteHomeApplie
 import com.kjh.mynote.ui.features.purchase.filter.adapter.PurchaseNoteHomeFilterPagerAdapter
 import com.kjh.mynote.ui.features.purchase.home.PurchaseHomeViewModel
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
+import com.kjh.mynote.utils.extensions.dpToPx
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.
@@ -55,7 +55,7 @@ class PurchaseNoteHomeFilterBSDFragment
 
             rvAppliedFilters.apply {
                 itemAnimator = null
-                addItemDecoration(SpacingItemDecoration(left = 10, right = 10, exceptFirstItem = false))
+                addItemDecoration(SpacingItemDecoration(left = 8, right = 8, exceptFirstItem = false))
                 adapter = appliedFilterListAdapter
             }
 
@@ -88,7 +88,11 @@ class PurchaseNoteHomeFilterBSDFragment
                         .map { it.selectedFilters }
                         .distinctUntilChanged()
                         .collect { selectedFilters ->
-                            binding.rvAppliedFilters.isVisible = selectedFilters.isNotEmpty()
+                            val bottomPadding = if (selectedFilters.isNotEmpty()) 40.dpToPx() else 0
+
+                            binding.groupAppliedFilters.isVisible = selectedFilters.isNotEmpty()
+                            binding.vpPager.setPadding(0, 0, 0, bottomPadding)
+
                             appliedFilterListAdapter.submitList(selectedFilters) {
                                 if (viewModel.shouldScrollToEnd) {
                                     binding.rvAppliedFilters.smoothScrollToPosition(selectedFilters.size - 1)

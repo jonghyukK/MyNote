@@ -107,6 +107,16 @@
         android:layout_height="300dp"
         app:layout_constraintTop_toBottomOf="@+id/tl_filters"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/btn_apply"/>
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/black_200"
+        app:layout_constraintBottom_toTopOf="@+id/rv_applied_filters"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -114,10 +124,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingHorizontal="10dp"
+        android:paddingHorizontal="12dp"
         android:clipToPadding="false"
+        android:background="@color/white"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@+id/vp_pager"
+        app:layout_constraintBottom_toTopOf="@+id/btn_apply"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -127,7 +138,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:btnTitle="@string/do_apply"
-        app:layout_constraintTop_toBottomOf="@+id/rv_applied_filters"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_applied_filters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="divider, rv_applied_filters" />
 </androidx.constraintlayout.widget.ConstraintLayout>
