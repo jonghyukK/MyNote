@@ -17,12 +17,12 @@ import com.kjh.mynote.utils.extensions.setTextColorRes
 
 class PurchaseNoteSearchCategoryListItemViewHolder(
     private val binding: VhPurchaseNoteSearchCategoryListItemBinding,
-    private val categoryClickAction: (Int) -> Unit
+    private val categoryClickAction: (Filters.Category) -> Unit
 ): BaseViewHolder<Filters.Category>(binding.root) {
 
     init {
         itemView.onThrottleClick {
-            bindItem?.let { item -> categoryClickAction(item.categoryItem.id) }
+            bindItem?.let { item -> categoryClickAction(item) }
         }
     }
 

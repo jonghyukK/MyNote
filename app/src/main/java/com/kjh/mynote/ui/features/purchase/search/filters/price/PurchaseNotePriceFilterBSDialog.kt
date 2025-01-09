@@ -10,11 +10,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.mynote.databinding.BsdPriceFilterDialogBinding
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
-import com.kjh.mynote.ui.features.purchase.search.FilterUiState
-import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteFilters
+import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchViewModel
 import com.kjh.mynote.ui.features.purchase.search.filters.whole.PriceValidateEvent
 import com.kjh.mynote.ui.features.purchase.search.filters.whole.PurchaseNoteSearchWholeFilterViewModel
-import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchViewModel
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
 import com.kjh.mynote.utils.extensions.toComma
@@ -47,8 +45,7 @@ class PurchaseNotePriceFilterBSDialog: BaseBottomSheetDialogFragment<BsdPriceFil
     }
 
     override fun onInitData() {
-        val parentFilterState =
-            (parentViewModel.filterUiState.value as? FilterUiState.Success)?.filters ?: PurchaseNoteFilters()
+        val parentFilterState = parentViewModel.filterUiState.value
         viewModel.setInitFilterUiState(parentFilterState)
 
         viewLifecycleOwner.lifecycleScope.launch {

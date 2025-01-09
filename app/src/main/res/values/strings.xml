@@ -141,4 +141,5 @@
     <string name="payment_method">결제수단</string>
     <string name="payment_method_list">결제수단 목록</string>
     <string name="select_payment_method">결제수단 선택</string>
+    <string name="input_category_name">카테고리명 입력</string>
 </resources>

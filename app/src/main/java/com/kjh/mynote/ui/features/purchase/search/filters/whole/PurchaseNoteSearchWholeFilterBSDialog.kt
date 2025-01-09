@@ -18,8 +18,6 @@ import com.kjh.mynote.R
 import com.kjh.mynote.databinding.BsdPurchaseNoteSearchFilterBinding
 import com.kjh.mynote.model.Filters
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
-import com.kjh.mynote.ui.features.purchase.search.FilterUiState
-import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteFilters
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchViewModel
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.setBackgroundRes
@@ -107,8 +105,7 @@ class PurchaseNoteSearchWholeFilterBSDialog: BaseBottomSheetDialogFragment<BsdPu
     }
 
     override fun onInitData() {
-        val parentFilterState =
-            (parentViewModel.filterUiState.value as? FilterUiState.Success)?.filters ?: PurchaseNoteFilters()
+        val parentFilterState = parentViewModel.filterUiState.value
         viewModel.setInitFilterUiState(parentFilterState)
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -166,6 +163,7 @@ class PurchaseNoteSearchWholeFilterBSDialog: BaseBottomSheetDialogFragment<BsdPu
                             R.drawable.shape_s_black_200_c_8
                         }
 
+                        binding.btnApply.isEnabled = isChangedFilter
                         binding.btnApply.setBackgroundRes(backgroundRes)
                     }
                 }

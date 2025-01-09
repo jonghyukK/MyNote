@@ -13,7 +13,7 @@ import com.kjh.mynote.model.Filters
  * Description:
  */
 class PurchaseNoteSearchPaymentMethodListAdapter(
-    private val paymentMethodFilterClickAction: (Int) -> Unit
+    private val paymentMethodFilterClickAction: (Filters.PaymentMethod) -> Unit
 ): ListAdapter<Filters.PaymentMethod, PurchaseNoteSearchPaymentMethodListItemViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(

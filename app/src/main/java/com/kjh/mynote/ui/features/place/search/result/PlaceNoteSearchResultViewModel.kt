@@ -30,9 +30,12 @@ import javax.inject.Inject
 
 sealed class DateRangeFilter {
     abstract fun getUiText(): String
+    abstract fun getDateRange(): Pair<LocalDate, LocalDate>
 
     data class Monthly(val date: LocalDate = LocalDate.now()): DateRangeFilter() {
         override fun getUiText(): String = date.toStringWithPattern("yyyy년 M월")
+        override fun getDateRange(): Pair<LocalDate, LocalDate> =
+            date.getFirstDayOfMonth() to date.getLastDayOfMonth()
     }
 
     data class MonthOne(
@@ -41,6 +44,9 @@ sealed class DateRangeFilter {
     ): DateRangeFilter() {
         override fun getUiText(): String =
             "${startDate.toStringWithPattern("yyyy-MM-dd")} ~ ${endDate.toStringWithPattern("yyyy-MM-dd")}"
+        override fun getDateRange(): Pair<LocalDate, LocalDate> =
+            startDate to endDate
+
     }
 
     data class MonthThree(
@@ -49,6 +55,9 @@ sealed class DateRangeFilter {
     ): DateRangeFilter() {
         override fun getUiText(): String =
             "${startDate.toStringWithPattern("yyyy-MM-dd")} ~ ${endDate.toStringWithPattern("yyyy-MM-dd")}"
+
+        override fun getDateRange(): Pair<LocalDate, LocalDate> =
+            startDate to endDate
     }
 
     data class Directly(
@@ -60,6 +69,9 @@ sealed class DateRangeFilter {
 
         override fun getUiText(): String =
             "${getStartDateUiText()} ~ ${getEndDateUiText()}"
+
+        override fun getDateRange(): Pair<LocalDate, LocalDate> =
+            startDate to endDate
     }
 }
 

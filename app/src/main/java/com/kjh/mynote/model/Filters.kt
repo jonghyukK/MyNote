@@ -57,3 +57,16 @@ fun List<Filters>.getAppliedPaymentMethodIds(): List<Int> =
     filterIsInstance<Filters.PaymentMethod>()
         .filter { it.isApplied() }
         .map { it.paymentMethod.paymentMethodId }
+
+fun Filters.matchesFilter(other: Filters): Boolean =
+    when (this) {
+        is Filters.Category ->
+            other is Filters.Category && categoryItem.id == other.categoryItem.id
+        is Filters.PaymentMethod ->
+            other is Filters.PaymentMethod && paymentMethod.paymentMethodId == other.paymentMethod.paymentMethodId
+        is Filters.Price ->
+            other is Filters.Price
+        is Filters.PurchaseName ->
+            other is Filters.PurchaseName
+        else -> false
+    }

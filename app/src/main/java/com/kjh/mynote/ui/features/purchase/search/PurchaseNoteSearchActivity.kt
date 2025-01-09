@@ -25,9 +25,9 @@ import com.kjh.mynote.ui.features.purchase.search.filters.paymentmethod.Purchase
 import com.kjh.mynote.ui.features.purchase.search.filters.price.PurchaseNotePriceFilterBSDialog
 import com.kjh.mynote.ui.features.purchase.search.filters.purchasename.PurchaseNotePurchaseNameBSDialog
 import com.kjh.mynote.ui.features.purchase.search.filters.whole.PurchaseNoteSearchWholeFilterBSDialog
+import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.decorations.PurchaseNotesUiStateItemDecoration
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
-import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.makeGone
 import com.kjh.mynote.utils.extensions.makeVisible
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
@@ -36,7 +36,6 @@ import com.kjh.mynote.utils.extensions.showToast
 import com.kjh.mynote.utils.extensions.toComma
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -116,8 +115,7 @@ class PurchaseNoteSearchActivity :
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.filterUiState
-                        .filterIsInstance<FilterUiState.Success>()
-                        .map { it.filters.dateRangeFilter }
+                        .map { it.dateRangeFilter }
                         .distinctUntilChanged()
                         .collect { dateFilter ->
                             binding.tvDate.text = dateFilter.dateRangeFilter.getUiText()
@@ -126,8 +124,7 @@ class PurchaseNoteSearchActivity :
 
                 launch {
                     viewModel.filterUiState
-                        .filterIsInstance<FilterUiState.Success>()
-                        .map { it.filters.sortType }
+                        .map { it.sortType }
                         .distinctUntilChanged()
                         .collect { sortType ->
                             binding.layoutFilterInfoSection.tvSort.text = sortType.title
@@ -136,8 +133,7 @@ class PurchaseNoteSearchActivity :
 
                 launch {
                     viewModel.filterUiState
-                        .filterIsInstance<FilterUiState.Success>()
-                        .map { it.filters.categoryFilters }
+                        .map { it.categoryFilters }
                         .distinctUntilChanged()
                         .collect { categories ->
                             categoryListAdapter.submitList(categories)
@@ -146,8 +142,7 @@ class PurchaseNoteSearchActivity :
 
                 launch {
                     viewModel.filterUiState
-                        .filterIsInstance<FilterUiState.Success>()
-                        .map { it.filters.paymentMethodFilters }
+                        .map { it.paymentMethodFilters }
                         .distinctUntilChanged()
                         .collect { paymentMethods ->
                             paymentMethodListAdapter.submitList(paymentMethods)
@@ -156,27 +151,31 @@ class PurchaseNoteSearchActivity :
 
                 launch {
                     viewModel.filterUiState
-                        .filterIsInstance<FilterUiState.Success>()
-                        .map { it.filters.purchaseNameFilter }
+                        .map { it.purchaseNameFilter }
                         .distinctUntilChanged()
                         .collect(::updatePurchaseNameFilterUi)
                 }
 
                 launch {
                     viewModel.filterUiState
-                        .filterIsInstance<FilterUiState.Success>()
-                        .map { it.filters.priceFilter }
+                        .map { it.priceFilter }
                         .distinctUntilChanged()
                         .collect(::updatePriceFilterUi)
                 }
 
                 launch {
-                    viewModel.appliedFilterItems.collect {
+                    viewModel.appliedFilterItems.collect { filterItems ->
                         with (binding) {
-                            clSelectedFilters.isVisible = it.isNotEmpty()
-                            layoutFilterInfoSection.ivNoti.isVisible = it.isNotEmpty()
+                            clSelectedFilters.isVisible = filterItems.isNotEmpty()
+                            layoutFilterInfoSection.ivNoti.isVisible = filterItems.isNotEmpty()
                         }
-                        selectedFilterListAdapter.submitList(it)
+
+                        selectedFilterListAdapter.submitList(filterItems) {
+                            if (viewModel.shouldSelectedFilterScrollToEnd) {
+                                binding.rvSelectedFilters.smoothScrollToPosition(filterItems.size - 1)
+                                viewModel.shouldSelectedFilterScrollToEnd = false
+                            }
+                        }
                     }
                 }
 
@@ -196,9 +195,9 @@ class PurchaseNoteSearchActivity :
                                     getString(R.string.format_total_count, notesUiState.totalCount)
 
                                 resultListAdapter.submitList(notesUiState.items) {
-                                    if (viewModel.shouldScrollToTop) {
+                                    if (viewModel.shouldNotesScrollToTop) {
                                         binding.rvSearchResults.scrollToPosition(0)
-                                        viewModel.shouldScrollToTop = false
+                                        viewModel.shouldNotesScrollToTop = false
                                     }
                                 }
                             }
@@ -247,12 +246,12 @@ class PurchaseNoteSearchActivity :
             }
         }
 
-    private val categoryFilterClickAction: (Int) -> Unit = { categoryId ->
-        viewModel.addOrDeleteCategoryItemBy(categoryId)
+    private val categoryFilterClickAction: (Filters.Category) -> Unit = { category ->
+        viewModel.addOrDeleteCategoryFilter(category)
     }
 
-    private val paymentMethodFilterClickAction: (Int) -> Unit = { paymentMethodId ->
-        viewModel.addOrDeletePaymentMethodItemBy(paymentMethodId)
+    private val paymentMethodFilterClickAction: (Filters.PaymentMethod) -> Unit = { paymentMethod ->
+        viewModel.addOrDeletePaymentMethodFilter(paymentMethod)
     }
 
     private val selectedFilterClickAction: (Filters) -> Unit = { filter ->
@@ -279,8 +278,7 @@ class PurchaseNoteSearchActivity :
     }
 
     private val sortFilterClickListener = View.OnClickListener {
-        val filterUiState = viewModel.filterUiState.value as? FilterUiState.Success ?: return@OnClickListener
-        val currentSortType = filterUiState.filters.sortType
+        val currentSortType = viewModel.filterUiState.value.sortType
         val sortItem = SortType.entries.map { sortType ->
             SortItem(
                 type = sortType,

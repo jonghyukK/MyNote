@@ -88,7 +88,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_selected_filters"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:background="@color/white"
             app:layout_scrollFlags="scroll|enterAlwaysCollapsed">
 
@@ -113,10 +113,10 @@
                 android:background="@color/white"
                 android:overScrollMode="never"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/divider_selected_filters_top"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/iv_reset"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/divider_selected_filters_bottom"
                 tools:listitem="@layout/vh_purchase_note_search_selected_filter_item"/>
 
             <androidx.appcompat.widget.AppCompatImageView

@@ -16,12 +16,12 @@ import com.kjh.mynote.utils.extensions.setTextColorRes
  */
 class PurchaseNoteSearchPaymentMethodListItemViewHolder(
     private val binding: VhPurchaseNoteSearchCategoryListItemBinding,
-    private val paymentMethodFilterClickAction: (Int) -> Unit
+    private val paymentMethodFilterClickAction: (Filters.PaymentMethod) -> Unit
 ): BaseViewHolder<Filters.PaymentMethod>(binding.root) {
 
     init {
         itemView.onThrottleClick {
-            bindItem?.let { item -> paymentMethodFilterClickAction(item.paymentMethod.paymentMethodId) }
+            bindItem?.let { item -> paymentMethodFilterClickAction(item) }
         }
     }
 
