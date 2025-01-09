@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase.search.filters.purchasename
+package com.kjh.mynote.ui.features.purchase.search.dialog
 
 import android.text.Editable
 import android.text.TextWatcher
@@ -12,7 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.mynote.databinding.BsdPurchaseNameFilterDialogBinding
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchViewModel
-import com.kjh.mynote.ui.features.purchase.search.filters.whole.PurchaseNoteSearchWholeFilterViewModel
+import com.kjh.mynote.ui.features.purchase.search.dialog.whole.PurchaseNoteSearchWholeFilterViewModel
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showKeyboard
 import dagger.hilt.android.AndroidEntryPoint

@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase.search.filters.whole
+package com.kjh.mynote.ui.features.purchase.search.dialog.whole
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase.search.filters.date
+package com.kjh.mynote.ui.features.purchase.search.dialog
 
 import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
@@ -15,7 +15,7 @@ import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
 import com.kjh.mynote.ui.common.dialog.yearmonths.SelectableYearMonthListBSDialog
 import com.kjh.mynote.ui.features.place.search.result.DateRangeFilter
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchViewModel
-import com.kjh.mynote.ui.features.purchase.search.filters.whole.PurchaseNoteSearchWholeFilterViewModel
+import com.kjh.mynote.ui.features.purchase.search.dialog.whole.PurchaseNoteSearchWholeFilterViewModel
 import com.kjh.mynote.utils.DatePickerManager
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.setTextColorRes

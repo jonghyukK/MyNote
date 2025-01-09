@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase.search.filters.paymentmethod
+package com.kjh.mynote.ui.features.purchase.search.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -14,7 +14,9 @@ import com.kjh.mynote.model.Filters
  */
 class PurchaseNoteSearchPaymentMethodListAdapter(
     private val paymentMethodFilterClickAction: (Filters.PaymentMethod) -> Unit
-): ListAdapter<Filters.PaymentMethod, PurchaseNoteSearchPaymentMethodListItemViewHolder>(UI_MODEL_COMPARATOR) {
+): ListAdapter<Filters.PaymentMethod, PurchaseNoteSearchPaymentMethodListItemViewHolder>(
+    UI_MODEL_COMPARATOR
+) {
 
     override fun onCreateViewHolder(
         parent: ViewGroup,

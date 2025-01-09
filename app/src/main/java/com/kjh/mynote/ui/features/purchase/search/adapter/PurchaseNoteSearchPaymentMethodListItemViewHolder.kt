@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase.search.filters.category
+package com.kjh.mynote.ui.features.purchase.search.adapter
 
 import android.graphics.Typeface
 import androidx.core.view.isVisible
@@ -11,26 +11,25 @@ import com.kjh.mynote.utils.extensions.setTextColorRes
 
 /**
  * Created by kangjonghyuk.
- * Created On 2024. 11. 25..
+ * Created On 2025. 1. 6..
  * Description:
  */
-
-class PurchaseNoteSearchCategoryListItemViewHolder(
+class PurchaseNoteSearchPaymentMethodListItemViewHolder(
     private val binding: VhPurchaseNoteSearchCategoryListItemBinding,
-    private val categoryClickAction: (Filters.Category) -> Unit
-): BaseViewHolder<Filters.Category>(binding.root) {
+    private val paymentMethodFilterClickAction: (Filters.PaymentMethod) -> Unit
+): BaseViewHolder<Filters.PaymentMethod>(binding.root) {
 
     init {
         itemView.onThrottleClick {
-            bindItem?.let { item -> categoryClickAction(item) }
+            bindItem?.let { item -> paymentMethodFilterClickAction(item) }
         }
     }
 
-    override fun bind(item: Filters.Category) {
+    override fun bind(item: Filters.PaymentMethod) {
         super.bind(item)
 
         with (binding) {
-            tvFilterName.text = item.categoryItem.categoryName
+            tvFilterName.text = item.paymentMethod.paymentMethodName
 
             if (item.isApplied()) {
                 tvFilterName.setTypeface(null, Typeface.BOLD)

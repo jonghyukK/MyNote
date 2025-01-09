@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase.search.filters.price
+package com.kjh.mynote.ui.features.purchase.search.dialog
 
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,8 +11,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.mynote.databinding.BsdPriceFilterDialogBinding
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchViewModel
-import com.kjh.mynote.ui.features.purchase.search.filters.whole.PriceValidateEvent
-import com.kjh.mynote.ui.features.purchase.search.filters.whole.PurchaseNoteSearchWholeFilterViewModel
+import com.kjh.mynote.ui.features.purchase.search.dialog.whole.PriceValidateEvent
+import com.kjh.mynote.ui.features.purchase.search.dialog.whole.PurchaseNoteSearchWholeFilterViewModel
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
 import com.kjh.mynote.utils.extensions.toComma

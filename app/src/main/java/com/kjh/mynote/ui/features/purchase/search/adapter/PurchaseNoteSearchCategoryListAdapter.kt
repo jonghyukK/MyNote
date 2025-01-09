@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase.search.filters.category
+package com.kjh.mynote.ui.features.purchase.search.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

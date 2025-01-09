@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase.search.filters.whole
+package com.kjh.mynote.ui.features.purchase.search.dialog.whole
 
 import android.text.Editable
 import android.text.TextWatcher
@@ -19,6 +19,8 @@ import com.kjh.mynote.databinding.BsdPurchaseNoteSearchFilterBinding
 import com.kjh.mynote.model.Filters
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchViewModel
+import com.kjh.mynote.ui.features.purchase.search.dialog.whole.adapter.PurchaseNoteSearchFlexboxCategoryAdapter
+import com.kjh.mynote.ui.features.purchase.search.dialog.whole.adapter.PurchaseNoteSearchFlexboxPaymentMethodAdapter
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.setBackgroundRes
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
