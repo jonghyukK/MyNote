@@ -124,17 +124,23 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
             purchaseNoteLocalDateSource.getPurchaseNoteTotalStats(startDate = startDate, endDate = endDate)
         val categoryStatsList =
             purchaseNoteLocalDateSource.getCategoryStatsByDate(startDate = startDate, endDate = endDate)
+        val paymentMethodStatsList =
+            purchaseNoteLocalDateSource.getPaymentMethodStatsByDate(startDate = startDate, endDate = endDate)
 
         return combine(
             purchaseNoteTotalStats,
-            categoryStatsList
-        ) { totalStats, categoryStats ->
+            categoryStatsList,
+            paymentMethodStatsList
+        ) { totalStats, categoryStats, paymentStats ->
             PurchaseNoteStatistics(
                 totalNoteCount = totalStats.totalCount,
                 totalPurchasePrice = totalStats.totalPrice,
                 categoryStatsList = categoryStats
                     .filter { it.purchaseNoteTotalCount > 0 }
-                    .sortedByDescending { it.purchaseNoteTotalCount }
+                    .sortedByDescending { it.purchaseNoteTotalPrice },
+                paymentMethodStatsList = paymentStats
+                    .filter { it.purchaseNoteTotalCount > 0 }
+                    .sortedByDescending { it.purchaseNoteTotalPrice }
             )
         }.asResult()
     }
