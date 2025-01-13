@@ -5,67 +5,89 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Current Year Month -->
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tv_current_year_month"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_toolbar_container"
+        android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        android:textColor="@color/black_900"
-        android:gravity="center"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:text="2024년 10월" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Filter -->
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/iv_filter"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:padding="10dp"
-        android:background="?attr/selectableItemBackground"
-        app:srcCompat="@drawable/ic_filter_24"
-        app:tint="@color/black_800"
-        app:layout_constraintTop_toTopOf="@+id/tv_current_year_month"
-        app:layout_constraintEnd_toStartOf="@+id/iv_search"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_current_year_month" />
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_statistics"
+            android:layout_width="@dimen/toolbar_icon"
+            android:layout_height="@dimen/toolbar_icon"
+            android:padding="9dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/ripple_white"
+            app:srcCompat="@drawable/ic_chart"
+            app:tint="@color/black_900"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tv_filtered_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="13sp"
-        android:text="2"
-        android:textColor="@color/white"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:visibility="gone"
-        android:background="@drawable/shape_oval_s_purple_200_wh_18"
-        app:layout_constraintTop_toTopOf="@+id/iv_filter"
-        app:layout_constraintEnd_toEndOf="@id/iv_filter"/>
+        <!-- Current Year Month -->
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_current_year_month"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@color/black_900"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="2024년 10월" />
 
-    <!-- Search -->
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/iv_search"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:padding="10dp"
-        android:background="?attr/selectableItemBackground"
-        android:layout_marginEnd="8dp"
-        app:srcCompat="@drawable/ic_search_24"
-        app:tint="@color/black_800"
-        app:layout_constraintTop_toTopOf="@+id/tv_current_year_month"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_current_year_month" />
+        <!-- Filter -->
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_filter"
+            android:layout_width="@dimen/toolbar_icon"
+            android:layout_height="@dimen/toolbar_icon"
+            android:padding="10dp"
+            android:background="@drawable/ripple_white"
+            app:srcCompat="@drawable/ic_filter_24"
+            app:tint="@color/black_800"
+            app:layout_constraintTop_toTopOf="@+id/tv_current_year_month"
+            app:layout_constraintEnd_toStartOf="@+id/iv_search"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_current_year_month" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_filtered_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:text="2"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:visibility="gone"
+            android:background="@drawable/shape_oval_s_purple_200_wh_18"
+            app:layout_constraintTop_toTopOf="@+id/iv_filter"
+            app:layout_constraintEnd_toEndOf="@id/iv_filter"/>
+
+        <!-- Search -->
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_search"
+            android:layout_width="@dimen/toolbar_icon"
+            android:layout_height="@dimen/toolbar_icon"
+            android:padding="10dp"
+            android:background="@drawable/ripple_white"
+            android:layout_marginEnd="8dp"
+            app:srcCompat="@drawable/ic_search_24"
+            app:tint="@color/black_800"
+            app:layout_constraintTop_toTopOf="@+id/tv_current_year_month"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_current_year_month" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Month Calendar -->
     <com.kjh.mynote.ui.common.components.MyMonthCalendarView
         android:id="@+id/calendar_month_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/tv_current_year_month"
+        app:layout_constraintTop_toBottomOf="@+id/cl_toolbar_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

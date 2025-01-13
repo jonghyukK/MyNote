@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="60dp"
-    android:paddingHorizontal="20dp">
+    android:paddingStart="20dp">
 
     <View
         android:id="@+id/v_color"
-        android:layout_width="8dp"
+        android:layout_width="10dp"
         android:layout_height="20dp"
-        android:background="@color/red_500"
+        android:background="@drawable/shape_s_white_c_4_l_purple"
         app:layout_constraintTop_toTopOf="@+id/tv_category_name"
         app:layout_constraintBottom_toBottomOf="@+id/tv_category_name"
         app:layout_constraintStart_toStartOf="parent" />
@@ -19,7 +19,7 @@
         android:id="@+id/tv_category_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
+        android:layout_marginStart="8dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:paddingStart="0dp"
@@ -53,25 +53,29 @@
         android:textColor="@color/black_900"
         android:textSize="16sp"
         android:textStyle="bold"
+        android:layout_marginEnd="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/iv_arrow_right"
         app:layout_constraintStart_toEndOf="@+id/gl_guideline"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="2,000원" />
 
-    <View
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="@color/black_100"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_arrow_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        app:tint="@color/black_400"
+        app:srcCompat="@drawable/ic_chevron_right_24_purple"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/gl_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.7" />
+        app:layout_constraintGuide_percent="0.6" />
 </androidx.constraintlayout.widget.ConstraintLayout>
 

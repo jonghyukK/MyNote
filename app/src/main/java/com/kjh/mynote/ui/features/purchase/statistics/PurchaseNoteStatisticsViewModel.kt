@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
 import com.example.domain.model.CategoryStats
+import com.example.domain.model.PaymentMethodStats
 import com.example.domain.model.PurchaseNoteStatistics
 import com.example.domain.usecase.GetPurchaseNoteStatisticsUseCase
 import com.github.mikephil.charting.data.PieEntry
@@ -56,18 +57,15 @@ class PurchaseNoteStatisticsViewModel @Inject constructor(
                         }
                         is ApiResult.Success -> {
                             val categoryStatsList = result.data.categoryStatsList
+                            val paymentMethodStatsList = result.data.paymentMethodStatsList
 
-                            val statsInfoUiItem = makeStatsInfoUiItem(date, result.data)
-                            val pieChartUiItem = makePieChartUiItem(categoryStatsList)
+                            val statsTotalSectionItem = makeStatsTotalSectionItem(date, result.data)
+                            val categoryStatsSectionItem = makeCategoryStatsSectionItem(categoryStatsList)
+                            val paymentMethodStatsSectionItem = makePaymentMethodStatsSectionItem(paymentMethodStatsList)
 
-                            val uiItems = if (categoryStatsList.isEmpty()) {
-                                listOf(statsInfoUiItem, pieChartUiItem) + PurchaseNoteStaticsUiItem.Empty
-                            } else {
-                                val categoryStatsUiItems = makeCategoryStatsUiItems(categoryStatsList)
-                                listOf(statsInfoUiItem, pieChartUiItem) + categoryStatsUiItems
-                            }
-
-                            PurchaseNoteStatisticsUiState.Success(uiItems)
+                            PurchaseNoteStatisticsUiState.Success(
+                                listOf(statsTotalSectionItem, categoryStatsSectionItem, paymentMethodStatsSectionItem)
+                            )
                         }
                     }
                 }
@@ -83,46 +81,107 @@ class PurchaseNoteStatisticsViewModel @Inject constructor(
         _currentDate.value = newDate
     }
 
-    fun updateHighlightEntry(pieEntry: PieEntry?) {
+    fun updateCategoryPieHighlight(pieEntry: PieEntry?) {
         val uiState = _uiState.value as? PurchaseNoteStatisticsUiState.Success ?: return
-
-        val updatedUiItems = uiState.uiItems.map { uiItem ->
-            when (uiItem) {
-                is PurchaseNoteStaticsUiItem.PieChartItem -> uiItem.copy(highlightedPieEntry = pieEntry)
-                else -> uiItem
+        val updateItems = uiState.uiItems.map { currentUiItem ->
+            if (currentUiItem is PurchaseNoteStatisticsUiItem.CategoryStatsSection) {
+                currentUiItem.copy(
+                    pieChartItem = currentUiItem.pieChartItem.copy(
+                        highlightedPieEntry = pieEntry
+                    )
+                )
+            } else {
+                currentUiItem
             }
         }
 
-        _uiState.value = uiState.copy(uiItems = updatedUiItems)
+        _uiState.value = uiState.copy(uiItems = updateItems)
     }
 
-    private fun makeStatsInfoUiItem(
+    fun updatePaymentMethodPieHighlight(pieEntry: PieEntry?) {
+        val uiState = _uiState.value as? PurchaseNoteStatisticsUiState.Success ?: return
+        val updateItems = uiState.uiItems.map { currentUiItem ->
+            if (currentUiItem is PurchaseNoteStatisticsUiItem.PaymentMethodStatsSection) {
+                currentUiItem.copy(
+                    pieChartItem = currentUiItem.pieChartItem.copy(
+                        highlightedPieEntry = pieEntry
+                    )
+                )
+            } else {
+                currentUiItem
+            }
+        }
+
+        _uiState.value = uiState.copy(uiItems = updateItems)
+    }
+
+    private fun makeStatsTotalSectionItem(
         currentDate: LocalDate,
         data: PurchaseNoteStatistics,
-    ): PurchaseNoteStaticsUiItem.StatsInfoItem = PurchaseNoteStaticsUiItem.StatsInfoItem(
+    ) = PurchaseNoteStatisticsUiItem.StatsTotalSection(
         purchaseNoteTotalCount = data.totalNoteCount,
         purchaseNoteTotalPrice = data.totalPurchasePrice,
         currentDate = currentDate
     )
 
-    private fun makePieChartUiItem(categoryStatsList: List<CategoryStats>) =
-        PurchaseNoteStaticsUiItem.PieChartItem(
-            isEmpty = categoryStatsList.isEmpty(),
-            pieEntries = makePieEntry(categoryStatsList),
-            pieColors = makePieColors(categoryStatsList.take(6).size)
+    private fun makeCategoryStatsSectionItem(categoryStatsList: List<CategoryStats>) =
+        PurchaseNoteStatisticsUiItem.CategoryStatsSection(
+            pieChartItem = PieChartItem(
+                isEmpty = categoryStatsList.isEmpty(),
+                pieEntries = makeCategoryPieEntry(categoryStatsList),
+                pieColors = makePieColors(categoryStatsList.take(6).size)
+            ),
+            childItems = makeCategoryStatsChildItems(categoryStatsList)
         )
 
-    private fun makeCategoryStatsUiItems(categoryStatsList: List<CategoryStats>) =
-        categoryStatsList.mapIndexed { index, data ->
-            PurchaseNoteStaticsUiItem.CategoryStatsItem(
-                categoryStatsItem = data,
-                color = AppConstants.chartColorList.getOrElse(index) {
-                    AppConstants.chartColorList.last()
-                }
-            )
-        }
 
-    private fun makePieEntry(items: List<CategoryStats>): List<PieEntry> = when {
+    private fun makePaymentMethodStatsSectionItem(paymentMethodStatsList: List<PaymentMethodStats>) =
+        PurchaseNoteStatisticsUiItem.PaymentMethodStatsSection(
+            pieChartItem = PieChartItem(
+                isEmpty = paymentMethodStatsList.isEmpty(),
+                pieEntries = makePaymentMethodPieEntry(paymentMethodStatsList),
+                pieColors = makePieColors(paymentMethodStatsList.take(6).size)
+            ),
+            childItems = makePaymentMethodStatsChildItems(paymentMethodStatsList)
+        )
+
+    private fun makeCategoryStatsChildItems(categoryStatsList: List<CategoryStats>): List<StatsContentsItem> {
+        val items = mutableListOf<StatsContentsItem>()
+        for ((index, data) in categoryStatsList.withIndex()) {
+            if (index < 5) {
+                items.add(
+                    StatsContentsItem.CategoryStatsItem(
+                        categoryStatsItem = data,
+                        color = AppConstants.chartColorList[index]
+                    )
+                )
+            } else {
+                items.add(StatsContentsItem.SeeAllItem(SeeAllEvent.Category))
+                break
+            }
+        }
+        return items
+    }
+
+    private fun makePaymentMethodStatsChildItems(paymentMethodStatsList: List<PaymentMethodStats>): List<StatsContentsItem> {
+        val items = mutableListOf<StatsContentsItem>()
+        for ((index, data) in paymentMethodStatsList.withIndex()) {
+            if (index < 5) {
+                items.add(
+                    StatsContentsItem.PaymentMethodStatsItem(
+                        paymentMethodStatsItem = data,
+                        color = AppConstants.chartColorList[index]
+                    )
+                )
+            } else {
+                items.add(StatsContentsItem.SeeAllItem(SeeAllEvent.PaymentMethod))
+                break
+            }
+        }
+        return items
+    }
+
+    private fun makeCategoryPieEntry(items: List<CategoryStats>): List<PieEntry> = when {
         items.isEmpty() -> {
             listOf(PieEntry(1f, "없음"))
         }
@@ -143,6 +202,27 @@ class PurchaseNoteStatisticsViewModel @Inject constructor(
         }
     }
 
+    private fun makePaymentMethodPieEntry(items: List<PaymentMethodStats>): List<PieEntry> = when {
+        items.isEmpty() -> {
+            listOf(PieEntry(1f, "없음"))
+        }
+        items.size <= 5 -> {
+            items.map { data ->
+                PieEntry(data.purchaseNoteTotalCount.toFloat(), data.paymentMethodName)
+            }
+        }
+        else -> {
+            val pieEntries: MutableList<PieEntry> = items.subList(0, 5).map { data ->
+                PieEntry(data.purchaseNoteTotalCount.toFloat(), data.paymentMethodName)
+            }.toMutableList()
+
+            val etcTotalCount = items.subList(5, items.size).sumOf { it.purchaseNoteTotalCount }
+            pieEntries.add(PieEntry(etcTotalCount.toFloat(), "그 외"))
+
+            pieEntries
+        }
+    }
+
     private fun makePieColors(entrySize: Int): List<Int> {
         if (entrySize == 0) {
             return listOf(R.color.black_400)
@@ -154,30 +234,54 @@ class PurchaseNoteStatisticsViewModel @Inject constructor(
     }
 }
 
-sealed class PurchaseNoteStaticsUiItem {
-    data object Empty: PurchaseNoteStaticsUiItem()
+sealed interface SeeAllEvent {
+    data object Category: SeeAllEvent
+    data object PaymentMethod: SeeAllEvent
+}
 
-    data class StatsInfoItem(
-        val purchaseNoteTotalCount: Int,
-        val purchaseNoteTotalPrice: Long,
-        val currentDate: LocalDate
-    ): PurchaseNoteStaticsUiItem()
+data class PieChartItem(
+    val isEmpty: Boolean = true,
+    val pieEntries: List<PieEntry> = emptyList(),
+    val pieColors: List<Int> = emptyList(),
+    val highlightedPieEntry: PieEntry? = null,
+)
 
-    data class PieChartItem(
-        val isEmpty: Boolean = true,
-        val pieEntries: List<PieEntry> = emptyList(),
-        val pieColors: List<Int> = emptyList(),
-        val highlightedPieEntry: PieEntry? = null
-    ): PurchaseNoteStaticsUiItem()
-
+sealed class StatsContentsItem {
     data class CategoryStatsItem(
         val categoryStatsItem: CategoryStats,
         val color: Int
-    ): PurchaseNoteStaticsUiItem()
+    ): StatsContentsItem()
+
+    data class PaymentMethodStatsItem(
+        val paymentMethodStatsItem: PaymentMethodStats,
+        val color: Int
+    ): StatsContentsItem()
+
+    data class SeeAllItem(
+        val eventType: SeeAllEvent
+    ): StatsContentsItem()
+}
+
+sealed class PurchaseNoteStatisticsUiItem {
+    data class StatsTotalSection(
+        val purchaseNoteTotalCount: Int,
+        val purchaseNoteTotalPrice: Long,
+        val currentDate: LocalDate
+    ): PurchaseNoteStatisticsUiItem()
+
+    data class CategoryStatsSection(
+        val pieChartItem: PieChartItem,
+        val childItems: List<StatsContentsItem>
+    ): PurchaseNoteStatisticsUiItem()
+
+    data class PaymentMethodStatsSection(
+        val pieChartItem: PieChartItem,
+        val childItems: List<StatsContentsItem>
+    ): PurchaseNoteStatisticsUiItem()
 }
 
 sealed interface PurchaseNoteStatisticsUiState {
     data object Loading: PurchaseNoteStatisticsUiState
     data class Error(val error: Throwable): PurchaseNoteStatisticsUiState
-    data class Success(val uiItems: List<PurchaseNoteStaticsUiItem>): PurchaseNoteStatisticsUiState
+    data class Success(val uiItems: List<PurchaseNoteStatisticsUiItem>): PurchaseNoteStatisticsUiState
 }

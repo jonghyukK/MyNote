@@ -17,14 +17,14 @@
         android:id="@+id/view_legend_color"
         android:layout_width="23dp"
         android:layout_height="12dp"
-        android:background="@color/colorPrimary"
+        android:background="@drawable/shape_s_white_c_4_l_purple"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/gl_guideline" />
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tv_category_name"
+        android:id="@+id/tv_legend_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         tools:text="편의점"

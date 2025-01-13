@@ -20,12 +20,18 @@
         android:id="@+id/rv_uis"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:paddingBottom="50dp"
+        android:paddingBottom="20dp"
         android:clipToPadding="false"
+        android:overScrollMode="never"
+        android:background="@color/black_50"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@+id/tb_toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
+
+    <include
+        layout="@layout/layout_loading"
+        android:id="@+id/layout_loading" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
