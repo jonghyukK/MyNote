@@ -100,7 +100,7 @@ class PurchaseNoteSearchWholeFilterBSDialog: BaseBottomSheetDialogFragment<BsdPu
             etMinPrice.addCustomTextWatcher(minPriceTextWatcher)
             etMaxPrice.addCustomTextWatcher(maxPriceTextWatcher)
 
-            ivClose.setOnThrottleClickListener(closeBtnClickListener)
+            tbToolbar.setCloseClickListener(closeBtnClickListener)
             clReset.setOnThrottleClickListener(resetBtnClickListener)
             btnApply.setOnThrottleClickListener(applyBtnClickListener)
         }

@@ -50,7 +50,7 @@ class SelectableYearMonthListBSDialog
                 adapter = listAdapter
             }
 
-            ivClose.setOnThrottleClickListener(closeClickListener)
+            tbToolbar.setCloseClickListener(closeClickListener)
         }
     }
 

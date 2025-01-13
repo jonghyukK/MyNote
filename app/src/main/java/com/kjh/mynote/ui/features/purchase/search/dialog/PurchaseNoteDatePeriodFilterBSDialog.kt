@@ -17,6 +17,7 @@ import com.kjh.mynote.ui.features.place.search.result.DateRangeFilter
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchViewModel
 import com.kjh.mynote.ui.features.purchase.search.dialog.whole.PurchaseNoteSearchWholeFilterViewModel
 import com.kjh.mynote.utils.DatePickerManager
+import com.kjh.mynote.utils.extensions.setBackgroundRes
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.setTextColorRes
 import com.kjh.mynote.utils.extensions.toLocalDate
@@ -44,8 +45,8 @@ class PurchaseNoteDatePeriodFilterBSDialog :
 
     override fun onInitView() {
         with (binding) {
-            clResetContainer.setOnThrottleClickListener(resetClickListener)
-            ivClose.setOnThrottleClickListener(closeBtnClickListener)
+            tbToolbar.setResetClickListener(resetClickListener)
+            tbToolbar.setCloseClickListener(closeBtnClickListener)
 
             tvMonthly.setOnThrottleClickListener(monthlyClickListener)
             tvOneMonth.setOnThrottleClickListener(oneMonthClickListener)
@@ -112,10 +113,10 @@ class PurchaseNoteDatePeriodFilterBSDialog :
         listOf(tvMonthly, tvOneMonth, tvThreeMonth, tvDirectly).forEach { view ->
             if (view == selectedView) {
                 view.setTextColorRes(selectedTextColor)
-                view.background = ContextCompat.getDrawable(requireContext(), selectedBackground)
+                view.setBackgroundRes(selectedBackground)
             } else {
                 view.setTextColorRes(defaultTextColor)
-                view.background = ContextCompat.getDrawable(requireContext(), defaultBackground)
+                view.setBackgroundRes(defaultBackground)
             }
         }
     }

@@ -39,9 +39,9 @@ class PurchaseNotePurchaseNameBSDialog :
         with (binding) {
             etPurchaseName.addTextChangedListener(purchaseNameTextWatcher)
 
-            ivClose.setOnThrottleClickListener(closeBtnClickListener)
+            tbToolbar.setCloseClickListener(closeBtnClickListener)
+            tbToolbar.setResetClickListener(resetBtnClickListener)
             ivClear.setOnThrottleClickListener(textClearBtnClickListener)
-            clResetContainer.setOnThrottleClickListener(resetBtnClickListener)
             btnApply.setOnThrottleClickListener(applyBtnClickListener)
         }
     }

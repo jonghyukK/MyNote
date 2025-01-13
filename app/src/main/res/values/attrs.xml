@@ -15,6 +15,11 @@
         <attr name="rightSecondImage" format="reference|integer" />
     </declare-styleable>
 
+    <declare-styleable name="MyBSDialogToolBar">
+        <attr name="title" />
+        <attr name="showResetBtn" format="boolean" />
+    </declare-styleable>
+
     <declare-styleable name="MyBottomButton">
         <attr name="btnTitle" format="reference|string" />
         <attr name="isEnable" format="boolean" />

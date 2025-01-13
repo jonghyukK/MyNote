@@ -12,6 +12,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.kizitonwose.calendar.core.CalendarMonth
+import com.kizitonwose.calendar.core.atStartOfMonth
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.FragmentPurchaseBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
@@ -21,6 +22,7 @@ import com.kjh.mynote.ui.features.purchase.detail.PurchaseNoteDetailActivity
 import com.kjh.mynote.ui.features.purchase.home.adapter.PurchaseHomeListAdapter
 import com.kjh.mynote.ui.features.purchase.make.MakePurchaseNoteActivity
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchActivity
+import com.kjh.mynote.ui.features.purchase.statistics.PurchaseNoteStatisticsActivity
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.parcelable
@@ -60,6 +62,7 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
                 adapter = listAdapter
             }
 
+            ivStatistics.setOnThrottleClickListener(statisticsClickListener)
             ivFilter.setOnThrottleClickListener(filterClickListener)
             ivSearch.setOnThrottleClickListener(searchClickListener)
             layoutEmpty.btnMakePurchase.setOnThrottleClickListener(makePurchaseEmptyBtnClickListener)
@@ -152,6 +155,13 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
 
     private val monthDayClickAction: (LocalDate) -> Unit = { date ->
         viewModel.setSelectedDay(date)
+    }
+
+    private val statisticsClickListener = OnClickListener {
+        Intent(requireContext(), PurchaseNoteStatisticsActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_DATE, viewModel.currentMonth.value.atStartOfMonth())
+            startActivity(this)
+        }
     }
 
     private val filterClickListener = OnClickListener {

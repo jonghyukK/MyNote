@@ -40,8 +40,8 @@ class PlaceNoteSearchFilterBSDialog: BaseBottomSheetDialogFragment<BsdPlaceNoteS
 
     override fun onInitView() {
         with (binding) {
-            clResetContainer.setOnThrottleClickListener(resetClickListener)
-            ivClose.setOnThrottleClickListener(closeBtnClickListener)
+            tbToolbar.setResetClickListener(resetClickListener)
+            tbToolbar.setCloseClickListener(closeBtnClickListener)
 
             tvMonthly.setOnThrottleClickListener(monthlyClickListener)
             tvOneMonth.setOnThrottleClickListener(oneMonthClickListener)

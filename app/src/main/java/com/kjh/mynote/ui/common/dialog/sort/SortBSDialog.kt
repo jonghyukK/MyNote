@@ -61,7 +61,7 @@ class SortBSDialog: BaseBottomSheetDialogFragment<BsdSortDilaogBinding>({ BsdSor
                 adapter = sortListAdapter
             }
 
-            ivClose.setOnThrottleClickListener(closeClickListener)
+            tbToolbar.setCloseClickListener(closeClickListener)
         }
     }
 

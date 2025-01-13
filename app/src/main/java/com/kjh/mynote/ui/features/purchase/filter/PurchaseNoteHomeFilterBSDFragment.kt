@@ -59,8 +59,8 @@ class PurchaseNoteHomeFilterBSDFragment
                 adapter = appliedFilterListAdapter
             }
 
-            clResetContainer.setOnThrottleClickListener(resetClickListener)
-            ivClose.setOnThrottleClickListener(closeClickListener)
+            tbToolbar.setResetClickListener(resetClickListener)
+            tbToolbar.setCloseClickListener(closeClickListener)
             btnApply.setOnThrottleClickListener(applyButtonClickListener)
         }
     }

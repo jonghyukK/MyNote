@@ -5,77 +5,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Toolbar -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_toolbar_container"
+    <com.kjh.mynote.ui.common.components.MyBSDialogToolBar
+        android:id="@+id/tb_toolbar"
         android:layout_width="0dp"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="wrap_content"
+        app:title="@string/filter"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <!-- Title -->
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tv_title_filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/filter"
-            android:textSize="18sp"
-            android:textColor="@color/black_800"
-            android:textStyle="bold"
-            android:layout_marginStart="20dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
-
-        <!-- Reset Layout -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_reset_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="4dp"
-            android:layout_marginEnd="6dp"
-            android:background="?attr/selectableItemBackground"
-            app:layout_constraintTop_toTopOf="@+id/iv_close"
-            app:layout_constraintEnd_toStartOf="@+id/iv_close"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_close" >
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/iv_reset"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                app:srcCompat="@drawable/ic_reset_24"
-                app:tint="@color/black_400"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/tv_reset"
-                app:layout_constraintBottom_toBottomOf="parent" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tv_reset"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/reset"
-                android:textSize="14sp"
-                android:textColor="@color/black_800"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- Close Button -->
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/iv_close"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:padding="8dp"
-            android:layout_marginEnd="4dp"
-            android:background="?attr/selectableItemBackground"
-            app:srcCompat="@drawable/ic_close_24_white"
-            app:tint="@color/black_800"
-            app:layout_constraintTop_toTopOf="@+id/tv_title_filter"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_title_filter"
-            app:layout_constraintEnd_toEndOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Tab Layout -->
     <com.google.android.material.tabs.TabLayout
@@ -83,10 +20,11 @@
         android:layout_width="wrap_content"
         android:layout_height="44dp"
         android:background="@color/white"
+        android:paddingStart="8dp"
+        android:paddingEnd="0dp"
         app:tabMode="fixed"
         app:tabGravity="start"
-        android:paddingStart="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/cl_toolbar_container"
+        app:layout_constraintTop_toBottomOf="@+id/tb_toolbar"
         app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.tabs.TabItem
