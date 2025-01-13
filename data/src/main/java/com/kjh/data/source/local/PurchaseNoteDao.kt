@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.example.domain.model.CategoryStats
+import com.example.domain.model.PaymentMethodStats
 import com.example.domain.model.PurchaseNameStats
 import com.example.domain.model.SortType
 import com.kjh.data.model.PurchaseNoteModel
@@ -117,6 +118,24 @@ interface PurchaseNoteDao {
             categories.id, categories.categoryName
     """)
     fun getCategoryStatsByDate(startDate: Long?, endDate: Long?): Flow<List<CategoryStats>>
+
+    @Query("""
+        SELECT
+            paymentMethod.paymentMethodId AS paymentMethodId,
+            paymentMethod.paymentMethodName AS paymentMethodName,
+            COUNT(purchase.id) AS purchaseNoteTotalCount,
+            COALESCE(SUM(purchase.purchasePrice), 0) AS purchaseNoteTotalPrice
+        FROM 
+            paymentMethod
+        LEFT JOIN
+            purchase ON paymentMethod.paymentMethodId = purchase.paymentMethodId
+        WHERE
+            (:startDate IS NULL OR purchase.purchaseDate >= :startDate) AND
+            (:endDate IS NULL OR purchase.purchaseDate <= :endDate)
+        GROUP BY
+            paymentMethod.paymentMethodId, paymentMethod.paymentMethodName
+    """)
+    fun getPaymentMethodStatsByDate(startDate: Long?, endDate: Long?): Flow<List<PaymentMethodStats>>
 
     /**
      * 구매노트 총 갯수, 총 가격 조회.
