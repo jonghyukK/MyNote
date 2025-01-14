@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase.statistics.adapter.contents
+package com.kjh.mynote.ui.features.purchase.statistics.adapter.section.contents
 
 import android.graphics.drawable.GradientDrawable
 import androidx.core.content.ContextCompat

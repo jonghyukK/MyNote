@@ -13,8 +13,9 @@ import com.kjh.mynote.databinding.VhPurchaseNoteStatsPieChartItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.ui.features.purchase.statistics.PieChartItem
 import com.kjh.mynote.ui.features.purchase.statistics.PurchaseNoteStatisticsUiItem
-import com.kjh.mynote.ui.features.purchase.statistics.adapter.contents.StatsChildListAdapter
+import com.kjh.mynote.ui.features.purchase.statistics.adapter.section.contents.StatsChildListAdapter
 import com.kjh.mynote.utils.extensions.onThrottleClick
+import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.
@@ -23,24 +24,25 @@ import com.kjh.mynote.utils.extensions.onThrottleClick
  */
 
 /**
- * 구매노트 통계 화면 - 카테고리별 통계 ViewHolder.
+ * 구매노트 통계 화면 - 결제수단별 통계 ViewHolder.
  *
  * @property binding
- * @property categoryPieSliceClickAction
+ * @property paymentMethodPieSliceClickAction
  * @property categoryStatsClickAction
  * @property paymentMethodStatsClickAction
- * @property categoryStatsMoreClickAction
+ * @property paymentMethodStatsMoreClickAction
  */
-class CategoryStatsSectionItemViewHolder(
+class PaymentMethodStatsSectionItemViewHolder(
     private val binding: VhPurchaseNoteStatsPieChartItemBinding,
-    private val categoryPieSliceClickAction: (PieEntry?) -> Unit,
+    private val paymentMethodPieSliceClickAction: (PieEntry?) -> Unit,
     private val categoryStatsClickAction: (CategoryStats) -> Unit,
     private val paymentMethodStatsClickAction: (PaymentMethodStats) -> Unit,
-    private val categoryStatsMoreClickAction: () -> Unit
-): BaseViewHolder<PurchaseNoteStatisticsUiItem.CategoryStatsSection>(binding.root) {
+    private val paymentMethodStatsMoreClickAction: () -> Unit,
+): BaseViewHolder<PurchaseNoteStatisticsUiItem.PaymentMethodStatsSection>(binding.root) {
 
     private val childListAdapter = StatsChildListAdapter(
-        categoryStatsClickAction, paymentMethodStatsClickAction)
+        categoryStatsClickAction, paymentMethodStatsClickAction
+    )
 
     init {
         binding.rvChildList.apply {
@@ -49,21 +51,21 @@ class CategoryStatsSectionItemViewHolder(
         }
 
         binding.tvMore.onThrottleClick {
-            bindItem?.let { categoryStatsMoreClickAction() }
+            bindItem?.let { paymentMethodStatsMoreClickAction() }
         }
 
         binding.chart.setChartValueSelectedListener(object: OnChartValueSelectedListener {
             override fun onValueSelected(e: Entry?, h: Highlight?) {
-                bindItem?.let { categoryPieSliceClickAction(e as PieEntry) }
+                bindItem?.let { paymentMethodPieSliceClickAction(e as PieEntry) }
             }
 
             override fun onNothingSelected() {
-                bindItem?.let { categoryPieSliceClickAction(null) }
+                bindItem?.let { paymentMethodPieSliceClickAction(null) }
             }
         })
     }
 
-    override fun bind(item: PurchaseNoteStatisticsUiItem.CategoryStatsSection) {
+    override fun bind(item: PurchaseNoteStatisticsUiItem.PaymentMethodStatsSection) {
         super.bind(item)
 
         setupPieChartUi(item.pieChartItem)
@@ -78,7 +80,7 @@ class CategoryStatsSectionItemViewHolder(
         val centerText = pieChartItem.highlightedPieEntry?.data?.toString() ?: ""
         val pieColors = pieChartItem.pieColors.map { ContextCompat.getColor(context, it) }
 
-        tvSectionTitle.text = context.getString(R.string.title_statistics_for_each_category)
+        tvSectionTitle.text = context.getString(R.string.title_statistics_for_each_payment_method)
 
         chart.setCenterText(centerText)
         chart.setupPieData(pieChartItem.pieEntries, pieColors, pieChartItem.isEmpty)
