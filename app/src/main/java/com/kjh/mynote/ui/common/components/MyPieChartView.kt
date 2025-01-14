@@ -1,6 +1,7 @@
 package com.kjh.mynote.ui.common.components
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
@@ -52,6 +53,10 @@ class MyPieChartView  @JvmOverloads constructor(
             setDrawEntryLabels(false)
             setTransparentCircleAlpha(20)
             setTransparentCircleColor(R.color.black_900)
+
+            setCenterTextSize(24f)
+            setCenterTextColor(Color.parseColor("#5C5C5C"))
+            setCenterTextTypeface(Typeface.DEFAULT_BOLD)
 
             animateY(1000, Easing.EaseInOutCubic)
             animate()
