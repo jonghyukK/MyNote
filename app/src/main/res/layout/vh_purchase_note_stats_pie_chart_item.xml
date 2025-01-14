@@ -7,6 +7,7 @@
     android:background="@color/white"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- Title -->
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_section_title"
         android:layout_width="wrap_content"
@@ -29,6 +30,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Child Stats List -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_child_list"
         android:layout_width="0dp"
@@ -37,6 +39,21 @@
         android:nestedScrollingEnabled="false"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@+id/chart"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_more"
+        android:layout_width="0dp"
+        android:layout_height="44dp"
+        android:text="@string/do_more"
+        android:textSize="17sp"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:background="@drawable/ripple_shape_s_black_600_c_8"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@+id/rv_child_list"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

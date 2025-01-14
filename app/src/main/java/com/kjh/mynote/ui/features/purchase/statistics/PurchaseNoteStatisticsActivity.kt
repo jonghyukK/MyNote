@@ -43,7 +43,8 @@ class PurchaseNoteStatisticsActivity:
             paymentMethodPieSliceClickAction = paymentMethodPieSliceClickAction,
             categoryStatsClickAction = categoryStatsClickAction,
             paymentMethodStatsClickAction = paymentMethodStatsClickAction,
-            showAllClickAction = seeAllClickAction
+            categoryStatsMoreClickAction = categoryStatsMoreClickAction,
+            paymentMethodStatsMoreClickAction =paymentMethodStatsMoreClickAction
         )
     }
 
@@ -84,11 +85,11 @@ class PurchaseNoteStatisticsActivity:
     }
 
     private val categoryPieSliceClickAction: (PieEntry?) -> Unit = { pieEntry ->
-        viewModel.updateCategoryPieHighlight(pieEntry)
+        viewModel.updateHighlightForCategoryPie(pieEntry)
     }
 
     private val paymentMethodPieSliceClickAction: (PieEntry?) -> Unit = { pieEntry ->
-        viewModel.updatePaymentMethodPieHighlight(pieEntry)
+        viewModel.updateHighlightForPaymentMethodPie(pieEntry)
     }
 
     private val dateClickAction: () -> Unit = {
@@ -110,8 +111,12 @@ class PurchaseNoteStatisticsActivity:
 
     }
 
-    private val seeAllClickAction: (SeeAllEvent) -> Unit = {
+    private val categoryStatsMoreClickAction: () -> Unit = {
+        viewModel.toggleExpandForCategoryStats()
+    }
 
+    private val paymentMethodStatsMoreClickAction: () -> Unit = {
+        viewModel.toggleExpandForPaymentMethodStats()
     }
 
     override fun onClickYearMonth(date: LocalDate) {

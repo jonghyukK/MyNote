@@ -8,8 +8,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.domain.model.CategoryStats
 import com.example.domain.model.PaymentMethodStats
 import com.kjh.mynote.databinding.VhHomeCategoryPutchaseStatsItemBinding
-import com.kjh.mynote.databinding.VhHomePlaceNoteWeekViewInnerMoreItemBinding
-import com.kjh.mynote.ui.features.purchase.statistics.SeeAllEvent
 import com.kjh.mynote.ui.features.purchase.statistics.StatsContentsItem
 
 /**
@@ -20,8 +18,7 @@ import com.kjh.mynote.ui.features.purchase.statistics.StatsContentsItem
 
 class StatsChildListAdapter(
     private val categoryStatsClickAction: (CategoryStats) -> Unit,
-    private val paymentMethodStatsClickAction: (PaymentMethodStats) -> Unit,
-    private val showAllClickAction: (SeeAllEvent) -> Unit,
+    private val paymentMethodStatsClickAction: (PaymentMethodStats) -> Unit
 ) : ListAdapter<StatsContentsItem, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
@@ -42,14 +39,6 @@ class StatsChildListAdapter(
                 )
             }
 
-            VIEW_TYPE_SEE_ALL -> {
-                SeeAllItemViewHolder(
-                    VhHomePlaceNoteWeekViewInnerMoreItemBinding.inflate(
-                        LayoutInflater.from(parent.context), parent, false
-                    ), showAllClickAction
-                )
-            }
-
             else -> throw IllegalArgumentException("Wrong ViewType: $viewType")
         }
 
@@ -62,23 +51,17 @@ class StatsChildListAdapter(
             is StatsContentsItem.PaymentMethodStatsItem -> {
                 (holder as PaymentMethodStatsItemViewHolder).bind(item)
             }
-
-            is StatsContentsItem.SeeAllItem -> {
-                (holder as SeeAllItemViewHolder).bind(item)
-            }
         }
     }
 
     override fun getItemViewType(position: Int): Int = when (getItem(position)) {
         is StatsContentsItem.CategoryStatsItem -> VIEW_TYPE_CATEGORY
         is StatsContentsItem.PaymentMethodStatsItem -> VIEW_TYPE_PAYMENT_METHOD
-        is StatsContentsItem.SeeAllItem -> VIEW_TYPE_SEE_ALL
     }
 
     companion object {
         private const val VIEW_TYPE_CATEGORY = 0
         private const val VIEW_TYPE_PAYMENT_METHOD = 1
-        private const val VIEW_TYPE_SEE_ALL = 2
 
         private val UI_MODEL_COMPARATOR =
             object : DiffUtil.ItemCallback<StatsContentsItem>() {
@@ -94,11 +77,6 @@ class StatsChildListAdapter(
                     oldItem is StatsContentsItem.PaymentMethodStatsItem &&
                             newItem is StatsContentsItem.PaymentMethodStatsItem -> {
                         oldItem.paymentMethodStatsItem.paymentMethodId == newItem.paymentMethodStatsItem.paymentMethodId
-                    }
-
-                    oldItem is StatsContentsItem.SeeAllItem &&
-                            newItem is StatsContentsItem.SeeAllItem -> {
-                        oldItem.eventType == newItem.eventType
                     }
 
                     else -> false

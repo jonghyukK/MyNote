@@ -11,7 +11,7 @@ import com.github.mikephil.charting.data.PieEntry
 import com.kjh.mynote.databinding.VhPurchaseNoteStatsInfoItemBinding
 import com.kjh.mynote.databinding.VhPurchaseNoteStatsPieChartItemBinding
 import com.kjh.mynote.ui.features.purchase.statistics.PurchaseNoteStatisticsUiItem
-import com.kjh.mynote.ui.features.purchase.statistics.SeeAllEvent
+import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.
@@ -25,7 +25,8 @@ class PurchaseNoteStatisticsSectionListAdapter(
     private val paymentMethodPieSliceClickAction: (PieEntry?) -> Unit,
     private val categoryStatsClickAction: (CategoryStats) -> Unit,
     private val paymentMethodStatsClickAction: (PaymentMethodStats) -> Unit,
-    private val showAllClickAction: (SeeAllEvent) -> Unit,
+    private val categoryStatsMoreClickAction: () -> Unit,
+    private val paymentMethodStatsMoreClickAction: () -> Unit,
 ): ListAdapter<PurchaseNoteStatisticsUiItem, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
@@ -45,7 +46,7 @@ class PurchaseNoteStatisticsSectionListAdapter(
                     categoryPieSliceClickAction,
                     categoryStatsClickAction,
                     paymentMethodStatsClickAction,
-                    showAllClickAction
+                    categoryStatsMoreClickAction
                 )
             }
             VIEW_TYPE_STATS_PAYMENT_METHOD_SECTION -> {
@@ -56,7 +57,7 @@ class PurchaseNoteStatisticsSectionListAdapter(
                     paymentMethodPieSliceClickAction,
                     categoryStatsClickAction,
                     paymentMethodStatsClickAction,
-                    showAllClickAction
+                    paymentMethodStatsMoreClickAction
                 )
             }
             else -> throw IllegalArgumentException("Wrong ViewType: $viewType")
