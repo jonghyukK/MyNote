@@ -12,6 +12,7 @@ import android.view.View.OnClickListener
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -26,8 +27,11 @@ import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog
 import com.kjh.mynote.ui.features.map.NaverMapSearchActivity
 import com.kjh.mynote.ui.features.paymentmethod.PaymentMethodListBSDialog
 import com.kjh.mynote.ui.features.place.make.adapter.TempImageListAdapter
+import com.kjh.mynote.ui.features.purchase.make.RecentPurchaseNamesUiState
+import com.kjh.mynote.ui.features.purchase.make.adapter.RecentRegisteredPurchaseNameListAdapter
 import com.kjh.mynote.utils.DatePickerManager
 import com.kjh.mynote.utils.constants.AppConstants
+import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.registerStartActivityResultLauncher
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
@@ -57,6 +61,10 @@ class EditPurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
         TempImageListAdapter(deleteTempImageClickAction)
     }
 
+    private val recentPurchaseNameListAdapter: RecentRegisteredPurchaseNameListAdapter by lazy {
+        RecentRegisteredPurchaseNameListAdapter(recentPurchaseNameClickAction)
+    }
+
     override fun onInitView() {
         with (binding) {
             tbToolbar.leftTitle = getString(R.string.purchase_note_edit)
@@ -64,6 +72,12 @@ class EditPurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
 
             rvTempImages.apply {
                 adapter = tempImageListAdapter
+            }
+
+            rvRecentPurchaseNames.apply {
+                itemAnimator = null
+                addItemDecoration(SpacingItemDecoration(right = 6, exceptFirstItem = false))
+                adapter = recentPurchaseNameListAdapter
             }
 
             etPurchaseName.addMyTextWatcher(purchaseNameTextWatcher)
@@ -188,6 +202,21 @@ class EditPurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
                             )
                             tempImageListAdapter.submitList(tempImages)
                         }
+                }
+
+                launch {
+                    viewModel.recentRegisteredPurchaseNames.collect { uiState ->
+                        when (uiState) {
+                            is RecentPurchaseNamesUiState.Loading -> {}
+                            is RecentPurchaseNamesUiState.Error -> {
+                                showToast(uiState.errorMsg)
+                            }
+                            is RecentPurchaseNamesUiState.Success -> {
+                                binding.rvRecentPurchaseNames.isVisible = uiState.items.isNotEmpty()
+                                recentPurchaseNameListAdapter.submitList(uiState.items)
+                            }
+                        }
+                    }
                 }
 
                 launch {
@@ -323,6 +352,10 @@ class EditPurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
             }
         }
     )
+
+    private val recentPurchaseNameClickAction: (String) -> Unit = { recentPurchaseName ->
+        binding.etPurchaseName.text = recentPurchaseName
+    }
 
     private val deleteTempImageClickAction: (String) -> Unit = { uri ->
         viewModel.deleteTempImageByUrl(uri)

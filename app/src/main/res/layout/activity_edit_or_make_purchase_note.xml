@@ -25,39 +25,57 @@
         app:layout_constraintTop_toBottomOf="@+id/tb_toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:padding="20dp">
-
-        <!-- 구매명 -->
-        <com.kjh.mynote.ui.common.components.MyTitleWithEditTextView
-            android:id="@+id/et_purchase_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:title="@string/purchase_name"
-            app:isRequired="true"
-            android:hint="@string/hint_input_purchase_name"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+        android:paddingVertical="20dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="0dp">
 
         <!-- 카테고리 -->
         <com.kjh.mynote.ui.common.components.MyTitleWithSelectableTextView
             android:id="@+id/tv_category"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
             app:title="@string/category"
             app:isRequired="true"
-            app:layout_constraintTop_toBottomOf="@+id/et_purchase_name"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- 구매명 -->
+        <com.kjh.mynote.ui.common.components.MyTitleWithEditTextView
+            android:id="@+id/et_purchase_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_input_purchase_name"
+            android:layout_marginEnd="20dp"
+            app:title="@string/purchase_name"
+            app:isRequired="true"
+            app:layout_constraintTop_toBottomOf="@+id/tv_category"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- 가장 최근에 등록한 구매명 -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_recent_purchase_names"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:clipToPadding="false"
+            android:paddingVertical="8dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintTop_toBottomOf="@+id/et_purchase_name"
+            app:layout_constraintStart_toEndOf="@+id/gl_guideline"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <!-- 결제 수단 -->
         <com.kjh.mynote.ui.common.components.MyTitleWithSelectableTextView
             android:id="@+id/tv_payment_method"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
             app:title="@string/payment_method"
             app:isRequired="true"
-            app:layout_constraintTop_toBottomOf="@+id/tv_category"
+            app:layout_constraintTop_toBottomOf="@+id/rv_recent_purchase_names"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -66,6 +84,7 @@
             android:id="@+id/tv_purchase_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
             app:title="@string/purchase_date"
             app:isRequired="true"
             app:layout_constraintTop_toBottomOf="@+id/tv_payment_method"
@@ -77,6 +96,7 @@
             android:id="@+id/et_purchase_price"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
             app:title="@string/purchase_price"
             app:isRequired="true"
             android:inputType="number"
@@ -91,6 +111,7 @@
             android:id="@+id/tv_purchase_place"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
             app:title="@string/purchase_place"
             app:isRequired="false"
             app:layout_constraintTop_toBottomOf="@+id/et_purchase_price"
@@ -151,6 +172,7 @@
             android:layout_marginStart="8dp"
             android:clipToPadding="false"
             android:orientation="horizontal"
+            android:paddingStart="0dp"
             android:paddingEnd="8dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="@+id/cl_attach_images"
