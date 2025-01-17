@@ -14,7 +14,10 @@ interface CategoryRepository {
 
     fun allCategoriesFlow(): Flow<ApiResult<List<Category>>>
 
-    fun getCategoriesWithPurchaseNoteCount(): Flow<List<CategoryWithPurchaseNoteCount>>
+    fun getCategoriesWithNoteCounts(
+        startDate: Long?,
+        endDate: Long?
+    ): Flow<ApiResult<List<CategoryWithPurchaseNoteCount>>>
 
     suspend fun insertCategory(category: Category): Long
 

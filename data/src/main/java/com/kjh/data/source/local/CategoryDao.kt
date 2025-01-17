@@ -70,18 +70,28 @@ interface CategoryDao {
     suspend fun deleteCategoryById(id: Int)
 
     /**
-     * 카테고리 목록과 각 카테고리별 구매노트 Count 조회.
+     * 카테고리 목록 조회 및 각 카테고리별 구매노트 카운트 조회.
      *
-     * @return Flow<List<CategoryWithPurchaseNoteCount>>
+     * @param startDate
+     * @param endDate
+     * @return
      */
     @Query("""
-        SELECT
+    SELECT 
         c.id AS categoryId,
         c.categoryName AS categoryName,
         COUNT(p.id) AS purchaseNoteCount
-        FROM categories c
-        LEFT JOIN purchase p ON c.id = p.categoryId
-        GROUP BY c.id
-    """)
-    fun getCategoriesWithPurchaseNoteCount(): Flow<List<CategoryWithPurchaseNoteCount>>
+    FROM 
+        categories c
+    LEFT JOIN 
+        purchase p ON c.id = p.categoryId
+        AND (:startDate IS NULL OR p.purchaseDate >= :startDate)
+        AND (:endDate IS NULL OR p.purchaseDate <= :endDate)
+    GROUP BY 
+        c.id, c.categoryName
+""")
+    fun getCategoriesWithPurchaseNoteCount(
+        startDate: Long?,
+        endDate: Long?
+    ): Flow<List<CategoryWithPurchaseNoteCount>>
 }

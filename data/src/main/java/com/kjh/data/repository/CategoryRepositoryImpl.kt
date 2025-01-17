@@ -26,9 +26,13 @@ class CategoryRepositoryImpl @Inject constructor(
             .map { it.toDomainModel() }
             .asResult()
 
-    override fun getCategoriesWithPurchaseNoteCount(): Flow<List<CategoryWithPurchaseNoteCount>> {
-        return categoryLocalDataSource.getCategoriesWithPurchaseNoteCount()
-    }
+    override fun getCategoriesWithNoteCounts(
+        startDate: Long?,
+        endDate: Long?
+    ): Flow<ApiResult<List<CategoryWithPurchaseNoteCount>>> =
+        categoryLocalDataSource.getCategoriesWithPurchaseNoteCount(startDate, endDate)
+            .asResult()
+
 
     override suspend fun insertCategory(category: Category): Long {
         return categoryLocalDataSource.insert(category.toEntity())
