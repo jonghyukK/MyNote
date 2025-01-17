@@ -57,15 +57,24 @@ class CategoryListBSDialog :
     override fun onInitData() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { uiState ->
-                    when (uiState) {
-                        is CategoryListUiState.Loading -> {}
-                        is CategoryListUiState.Error -> {
-                            showToast(uiState.errorMsg)
+                launch {
+                    viewModel.uiState.collect { uiState ->
+                        when (uiState) {
+                            is CategoryListUiState.Loading -> {}
+                            is CategoryListUiState.Error -> {
+                                showToast(uiState.errorMsg)
+                            }
+
+                            is CategoryListUiState.Success -> {
+                                listAdapter.submitList(uiState.categoryItems)
+                            }
                         }
-                        is CategoryListUiState.Success -> {
-                            listAdapter.submitList(uiState.categoryItems)
-                        }
+                    }
+                }
+
+                launch {
+                    viewModel.selectedCategoryItem.collect {
+                        setFragmentResult(REQUEST_KEY, bundleOf(BUNDLE_KEY_SELECTED_CATEGORY to it))
                     }
                 }
             }

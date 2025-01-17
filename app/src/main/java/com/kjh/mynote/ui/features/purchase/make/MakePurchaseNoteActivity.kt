@@ -11,16 +11,15 @@ import android.view.View.OnClickListener
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
 import androidx.appcompat.widget.AppCompatEditText
-import androidx.fragment.app.FragmentResultListener
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityEditOrMakePurchaseNoteBinding
+import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.PlaceInfoUiModel
-import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog
 import com.kjh.mynote.ui.features.map.NaverMapSearchActivity
@@ -50,7 +49,7 @@ import java.time.ZoneOffset
 @AndroidEntryPoint
 class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBinding>({
     ActivityEditOrMakePurchaseNoteBinding.inflate(it)
-}), FragmentResultListener {
+}) {
 
     private val viewModel: MakePurchaseNoteViewModel by viewModels()
 
@@ -78,13 +77,15 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
             clAttachImages.setOnThrottleClickListener(photoAttachClickListener)
             btnBottom.setOnThrottleClickListener(saveBtnClickListener)
         }
+
+        supportFragmentManager.setFragmentResultListener(
+            CategoryListBSDialog.REQUEST_KEY, this, handleCategorySelectionResult)
+
+        supportFragmentManager.setFragmentResultListener(
+            PaymentMethodListBSDialog.REQUEST_KEY, this, handlePaymentMethodSelectionResult)
     }
 
     override fun onInitUiData() {
-        supportFragmentManager.setFragmentResultListener(
-            PaymentMethodListBSDialog.REQUEST_KEY, this, this
-        )
-
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
@@ -306,16 +307,7 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
 
     private val categoryClickListener = OnClickListener {
         CategoryListBSDialog.newInstance(
-            selectedCategoryItem = viewModel.uiState.value.categoryItem,
-            selectCategoryAction = { categoryItem ->
-                viewModel.setCategory(categoryItem)
-            },
-            updateCategoryNameAction = { categoryItem ->
-                viewModel.updateSelectedCategoryWhenChanged(categoryItem)
-            },
-            deleteCategoryAction = { categoryId ->
-                viewModel.deleteSelectedCategoryWhenChanged(categoryId)
-            }
+            selectedCategoryItem = viewModel.uiState.value.categoryItem
         ).show(supportFragmentManager, CategoryListBSDialog.TAG)
     }
 
@@ -352,19 +344,15 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
         }
     }
 
-    override fun onFragmentResult(requestKey: String, result: Bundle) {
-        if (requestKey == PaymentMethodListBSDialog.REQUEST_KEY) {
-            val selectedItem =
-                result.parcelable<PaymentMethodUiModel>(PaymentMethodListBSDialog.RES_KEY_SELECTED_ITEM)
-            selectedItem?.let {
-                viewModel.setPaymentMethod(selectedItem)
-            }
+    private val handleCategorySelectionResult: (String, Bundle) -> Unit = { _, data ->
+        val selectedCategoryItem =
+            data.parcelable<CategoryUiModel>(CategoryListBSDialog.BUNDLE_KEY_SELECTED_CATEGORY)
+        viewModel.setCategory(selectedCategoryItem)
+    }
 
-            val updatedItem =
-                result.parcelable<PaymentMethodUiModel>(PaymentMethodListBSDialog.RES_KEY_UPDATED_ITEM)
-            updatedItem?.let {
-                viewModel.updateSelectedPaymentNameWhenChanged(updatedItem)
-            }
-        }
+    private val handlePaymentMethodSelectionResult: (String, Bundle) -> Unit = { _, data ->
+        val selectedPaymentMethodItem =
+            data.parcelable<PaymentMethodUiModel>(PaymentMethodListBSDialog.BUNDLE_KEY_SELECTED_PAYMENT_METHOD)
+        viewModel.setPaymentMethod(selectedPaymentMethodItem)
     }
 }

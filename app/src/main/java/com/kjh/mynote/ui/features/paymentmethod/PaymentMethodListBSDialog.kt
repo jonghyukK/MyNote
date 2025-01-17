@@ -53,15 +53,24 @@ class PaymentMethodListBSDialog : BaseBottomSheetDialogFragment<BsdCategoriesOrP
     override fun onInitData() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { uiState ->
-                    when (uiState) {
-                        is PaymentMethodListUiState.Loading -> {}
-                        is PaymentMethodListUiState.Error -> {
-                            showToast(uiState.errorMsg)
+                launch {
+                    viewModel.uiState.collect { uiState ->
+                        when (uiState) {
+                            is PaymentMethodListUiState.Loading -> {}
+                            is PaymentMethodListUiState.Error -> {
+                                showToast(uiState.errorMsg)
+                            }
+                            is PaymentMethodListUiState.Success -> {
+                                listAdapter.submitList(uiState.items)
+                            }
                         }
-                        is PaymentMethodListUiState.PaymentMethods -> {
-                            listAdapter.submitList(uiState.items)
-                        }
+                    }
+                }
+
+                launch {
+                    viewModel.selectedPaymentMethodItem.collect { selectedItem ->
+                        setFragmentResult(REQUEST_KEY,
+                            bundleOf(BUNDLE_KEY_SELECTED_PAYMENT_METHOD to selectedItem))
                     }
                 }
             }

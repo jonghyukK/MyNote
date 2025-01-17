@@ -3,6 +3,7 @@ package com.kjh.mynote.ui.features.purchase.edit
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
+import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MotionEvent
@@ -17,6 +18,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityEditOrMakePurchaseNoteBinding
+import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.PlaceInfoUiModel
 import com.kjh.mynote.ui.base.BaseActivity
@@ -76,7 +78,13 @@ class EditPurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
             btnBottom.setOnThrottleClickListener(editButtonClickListener)
         }
 
-        setPaymentMethodBSDialogFragmentResult()
+        supportFragmentManager.setFragmentResultListener(
+            CategoryListBSDialog.REQUEST_KEY, this, handleCategorySelectionResult
+        )
+
+        supportFragmentManager.setFragmentResultListener(
+            PaymentMethodListBSDialog.REQUEST_KEY, this, handlePaymentMethodSelectionResult
+        )
     }
 
     override fun onInitUiData() {
@@ -322,16 +330,7 @@ class EditPurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
 
     private val categoryClickListener = View.OnClickListener {
         CategoryListBSDialog.newInstance(
-            selectedCategoryItem = viewModel.uiState.value.categoryItem,
-            selectCategoryAction = { categoryItem ->
-                viewModel.setCategoryItem(categoryItem)
-            },
-            updateCategoryNameAction = { categoryItem ->
-                viewModel.updateSelectedCategoryWhenChanged(categoryItem)
-            },
-            deleteCategoryAction = { categoryId ->
-                viewModel.deleteSelectedCategoryWhenChanged(categoryId)
-            }
+            selectedCategoryItem = viewModel.uiState.value.categoryItem
         ).show(supportFragmentManager, CategoryListBSDialog.TAG)
     }
 
@@ -368,21 +367,15 @@ class EditPurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
         }
     }
 
-    private fun setPaymentMethodBSDialogFragmentResult() {
-        supportFragmentManager.setFragmentResultListener(
-            PaymentMethodListBSDialog.REQUEST_KEY, this
-        ) { _, result ->
-            val selectedItem =
-                result.parcelable<PaymentMethodUiModel>(PaymentMethodListBSDialog.RES_KEY_SELECTED_ITEM)
-            selectedItem?.let {
-                viewModel.setPaymentMethod(selectedItem)
-            }
+    private val handleCategorySelectionResult: (String, Bundle) -> Unit = { _, data ->
+        val selectedCategoryItem =
+            data.parcelable<CategoryUiModel>(CategoryListBSDialog.BUNDLE_KEY_SELECTED_CATEGORY)
+        viewModel.setCategoryItem(selectedCategoryItem)
+    }
 
-            val updatedItem =
-                result.parcelable<PaymentMethodUiModel>(PaymentMethodListBSDialog.RES_KEY_UPDATED_ITEM)
-            updatedItem?.let {
-                viewModel.updateSelectedPaymentNameWhenChanged(updatedItem)
-            }
-        }
+    private val handlePaymentMethodSelectionResult: (String, Bundle) -> Unit = { _, data ->
+        val selectedPaymentMethodItem =
+            data.parcelable<PaymentMethodUiModel>(PaymentMethodListBSDialog.BUNDLE_KEY_SELECTED_PAYMENT_METHOD)
+        viewModel.setPaymentMethod(selectedPaymentMethodItem)
     }
 }

@@ -227,17 +227,15 @@ class AddPurchaseNoteDialogFragment : BaseDialogFragment<DialogFragmentAddPurcha
         }
 
     private val handleCategorySelectionResult: (String, Bundle) -> Unit = { _, data ->
-        data.parcelable<CategoryUiModel>(CategoryListBSDialog.BUNDLE_KEY_SELECTED_CATEGORY)
-            ?.let { selectedCategoryItem ->
-                viewModel.setCategory(selectedCategoryItem)
-            }
+        val selectedCategoryItem =
+            data.parcelable<CategoryUiModel>(CategoryListBSDialog.BUNDLE_KEY_SELECTED_CATEGORY)
+        viewModel.setCategory(selectedCategoryItem)
     }
 
     private val handlePaymentMethodSelectionResult: (String, Bundle) -> Unit = { _, data ->
-        data.parcelable<PaymentMethodUiModel>(PaymentMethodListBSDialog.BUNDLE_KEY_SELECTED_PAYMENT_METHOD)
-            ?.let { selectedPaymentMethodItem ->
-                viewModel.setPaymentMethod(selectedPaymentMethodItem)
-            }
+        val selectedPaymentMethodItem =
+            data.parcelable<PaymentMethodUiModel>(PaymentMethodListBSDialog.BUNDLE_KEY_SELECTED_PAYMENT_METHOD)
+        viewModel.setPaymentMethod(selectedPaymentMethodItem)
     }
 
     private val deleteTempImageClickAction: (String) -> Unit = { uri ->

@@ -11,7 +11,6 @@ import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog.Companion.ARG_BOOL_IS_EDITABLE
 import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog.Companion.ARG_OBJ_SELECTED_CATEGORY_ITEM
 import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog.Companion.ARG_STR_DATE
-import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.getFirstDayOfMonth
 import com.kjh.mynote.utils.extensions.getLastDayOfMonth
 import com.kjh.mynote.utils.extensions.toMillis
@@ -20,7 +19,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
@@ -44,41 +42,57 @@ class CategoryListViewModel @Inject constructor(
     private val isEditable: Boolean =
         savedStateHandle[ARG_BOOL_IS_EDITABLE] ?: true
 
-    private val selectedCategoryItem: CategoryUiModel? =
-        savedStateHandle[ARG_OBJ_SELECTED_CATEGORY_ITEM]
+    private val _selectedCategoryItem = MutableStateFlow<CategoryUiModel?>(
+        savedStateHandle[ARG_OBJ_SELECTED_CATEGORY_ITEM])
+    val selectedCategoryItem = _selectedCategoryItem.asStateFlow()
 
     val uiState: StateFlow<CategoryListUiState> =
         getCategoriesWithNoteCountsUseCase(
             queryDate?.getFirstDayOfMonth()?.toMillis(),
             queryDate?.getLastDayOfMonth()?.toMillis()
-        )
-            .map { result -> handleResult(result) }
+        ).map { result ->
+            val uiState = mapResultToUiState(result)
+            if (uiState is CategoryListUiState.Success) {
+                updateSelectedCategoryItem(uiState.categoryItems.map { it.categoryItem })
+            }
+
+            uiState
+        }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(5000),
                 CategoryListUiState.Loading
             )
 
-    private fun handleResult(result: ApiResult<List<CategoryWithPurchaseNoteCount>>): CategoryListUiState {
+    private fun mapResultToUiState(
+        result: ApiResult<List<CategoryWithPurchaseNoteCount>>
+    ): CategoryListUiState {
         return when (result) {
             is ApiResult.Loading -> {
                 CategoryListUiState.Loading
             }
+
             is ApiResult.Error -> {
                 CategoryListUiState.Error(result.error.message ?: "카테고리 목록을 불러오는데 실패하였습니다.")
             }
+
             is ApiResult.Success -> {
                 CategoryListUiState.Success(
-                    categoryItems = result.data.map { category ->
-                        CategoryListItem(
-                            isSelected = category.categoryId == selectedCategoryItem?.id,
-                            isEditable = isEditable,
-                            categoryItem = category.toUiModel()
-                        )
-                    }
+                    categoryItems = result.data.map { it.toUiModel() }
+                        .map { category ->
+                            CategoryListItem(
+                                isSelected = category.id == selectedCategoryItem.value?.id,
+                                isEditable = isEditable,
+                                categoryItem = category
+                            )
+                        }
                 )
             }
         }
+    }
+
+    private fun updateSelectedCategoryItem(categoryItems: List<CategoryUiModel>) {
+        _selectedCategoryItem.value = categoryItems.find { it.id == selectedCategoryItem.value?.id }
     }
 }
 

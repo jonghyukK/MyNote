@@ -139,48 +139,15 @@ class MakePurchaseNoteViewModel @Inject constructor(
         }
     }
 
-    fun setCategory(category: CategoryUiModel) {
+    fun setCategory(category: CategoryUiModel?) {
         _uiState.update {
             it.copy(categoryItem = category)
         }
     }
 
-    fun updateSelectedCategoryWhenChanged(category: CategoryUiModel) {
-        val currentCategory = _uiState.value.categoryItem
-        currentCategory?.let {
-            if (it.id == category.id) {
-                _uiState.update {
-                    it.copy(categoryItem = category)
-                }
-            }
-        }
-    }
-
-    fun deleteSelectedCategoryWhenChanged(categoryId: Int) {
-        val currentCategory = _uiState.value.categoryItem
-        currentCategory?.let {
-            if (it.id == categoryId) {
-                _uiState.update {
-                    it.copy(categoryItem = null)
-                }
-            }
-        }
-    }
-
-    fun setPaymentMethod(paymentMethod: PaymentMethodUiModel) {
+    fun setPaymentMethod(paymentMethod: PaymentMethodUiModel?) {
         _uiState.update {
             it.copy(paymentMethod = paymentMethod)
-        }
-    }
-
-    fun updateSelectedPaymentNameWhenChanged(paymentMethod: PaymentMethodUiModel) {
-        val currentItem = _uiState.value.paymentMethod
-        currentItem?.let {
-            if (it.paymentMethodId == paymentMethod.paymentMethodId) {
-                _uiState.update {
-                    it.copy(paymentMethod = paymentMethod)
-                }
-            }
         }
     }
 
