@@ -52,8 +52,8 @@
         <activity android:name=".ui.features.purchase.edit.EditPurchaseNoteActivity" />
         <activity android:name=".ui.features.purchase.search.PurchaseNoteSearchActivity" />
 
-        <activity android:name=".ui.features.category.statistics.CategoryStatisticsActivity" />
-        <activity android:name=".ui.features.purchase.statistics.PurchaseNoteStatisticsActivity" />
+        <activity android:name=".ui.features.statistics.category.CategoryStatisticsActivity" />
+        <activity android:name=".ui.features.statistics.purchasenote.PurchaseNoteStatisticsActivity" />
 
         <activity android:name=".ui.features.mypage.category.CategoryManageActivity" />
         <activity android:name=".ui.features.mypage.paymentmethod.manage.PaymentMethodManageActivity" />

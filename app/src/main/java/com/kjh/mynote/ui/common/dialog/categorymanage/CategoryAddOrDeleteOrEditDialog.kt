@@ -134,6 +134,7 @@ class CategoryAddOrDeleteOrEditDialog :
     private fun setupCategoryAddUI() = with (binding) {
         tvTitle.text = getString(R.string.title_input_category_for_add)
         etCategory.isVisible = true
+        etCategory.hint = getString(R.string.input_category_name)
         btnPositive.text = getString(R.string.do_add)
         btnPositive.onThrottleClick {
             if (isValidCategoryName()) {

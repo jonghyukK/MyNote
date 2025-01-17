@@ -1,9 +1,9 @@
-package com.kjh.mynote.ui.features.category.statistics.adapter
+package com.kjh.mynote.ui.features.statistics.category.adapter
 
 import androidx.core.content.ContextCompat
 import com.kjh.mynote.databinding.VhCategoryPurchaseNoteStatsPurchaseNameRankingItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.category.statistics.PurchaseNameStatsItem
+import com.kjh.mynote.ui.features.statistics.category.PurchaseNameStatsItem
 
 /**
  * Created by kangjonghyuk.

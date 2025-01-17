@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase.statistics
+package com.kjh.mynote.ui.features.statistics.purchasenote
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -38,7 +38,9 @@ class PurchaseNoteStatisticsViewModel @Inject constructor(
     private val _currentDate = MutableStateFlow(savedStateHandle[AppConstants.INTENT_DATE] ?: LocalDate.now())
     val currentDate = _currentDate.asStateFlow()
 
-    private val _uiState = MutableStateFlow<PurchaseNoteStatisticsUiState>(PurchaseNoteStatisticsUiState.Loading)
+    private val _uiState = MutableStateFlow<PurchaseNoteStatisticsUiState>(
+        PurchaseNoteStatisticsUiState.Loading
+    )
     val uiState = _uiState.asStateFlow()
 
     fun getPurchaseNoteStatistics() {
@@ -64,7 +66,11 @@ class PurchaseNoteStatisticsViewModel @Inject constructor(
                             val paymentMethodStatsSectionItem = makePaymentMethodStatsSectionItem(paymentMethodStatsList)
 
                             PurchaseNoteStatisticsUiState.Success(
-                                listOf(statsTotalSectionItem, categoryStatsSectionItem, paymentMethodStatsSectionItem)
+                                listOf(
+                                    statsTotalSectionItem,
+                                    categoryStatsSectionItem,
+                                    paymentMethodStatsSectionItem
+                                )
                             )
                         }
                     }
@@ -303,5 +309,6 @@ sealed class PurchaseNoteStatisticsUiItem {
 sealed interface PurchaseNoteStatisticsUiState {
     data object Loading: PurchaseNoteStatisticsUiState
     data class Error(val error: Throwable): PurchaseNoteStatisticsUiState
-    data class Success(val uiItems: List<PurchaseNoteStatisticsUiItem>): PurchaseNoteStatisticsUiState
+    data class Success(val uiItems: List<PurchaseNoteStatisticsUiItem>):
+        PurchaseNoteStatisticsUiState
 }

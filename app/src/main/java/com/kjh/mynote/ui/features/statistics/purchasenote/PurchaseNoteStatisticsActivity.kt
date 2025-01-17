@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase.statistics
+package com.kjh.mynote.ui.features.statistics.purchasenote
 
 import android.content.Intent
 import androidx.activity.viewModels
@@ -12,7 +12,7 @@ import com.kjh.mynote.databinding.ActivityPurchaseNoteStatisticsBinding
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.common.dialog.yearmonths.SelectableYearMonthListBSDialog
-import com.kjh.mynote.ui.features.category.statistics.CategoryStatisticsActivity
+import com.kjh.mynote.ui.features.statistics.category.CategoryStatisticsActivity
 import com.kjh.mynote.ui.features.purchase.statistics.adapter.section.PurchaseNoteStatisticsSectionListAdapter
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration

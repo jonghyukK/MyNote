@@ -6,7 +6,7 @@ import com.example.domain.model.CategoryStats
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhHomeCategoryPutchaseStatsItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.purchase.statistics.StatsContentsItem
+import com.kjh.mynote.ui.features.statistics.purchasenote.StatsContentsItem
 import com.kjh.mynote.utils.extensions.addClickAnimation
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.toComma

@@ -144,4 +144,5 @@
     <string name="input_category_name">카테고리명 입력</string>
     <string name="title_statistics_for_each_category">카테고리별 구매노트 통계</string>
     <string name="title_statistics_for_each_payment_method">결제수단별 구매노트 통계</string>
+    <string name="manage">관리</string>
 </resources>

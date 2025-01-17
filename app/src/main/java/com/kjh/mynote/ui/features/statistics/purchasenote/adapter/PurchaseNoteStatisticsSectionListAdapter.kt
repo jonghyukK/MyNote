@@ -10,8 +10,7 @@ import com.example.domain.model.PaymentMethodStats
 import com.github.mikephil.charting.data.PieEntry
 import com.kjh.mynote.databinding.VhPurchaseNoteStatsInfoItemBinding
 import com.kjh.mynote.databinding.VhPurchaseNoteStatsPieChartItemBinding
-import com.kjh.mynote.ui.features.purchase.statistics.PurchaseNoteStatisticsUiItem
-import timber.log.Timber
+import com.kjh.mynote.ui.features.statistics.purchasenote.PurchaseNoteStatisticsUiItem
 
 /**
  * Created by kangjonghyuk.

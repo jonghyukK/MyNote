@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.category.statistics
+package com.kjh.mynote.ui.features.statistics.category
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -40,35 +40,58 @@ class CategoryStatisticsViewModel @Inject constructor(
 ): ViewModel() {
 
     private val _currentCategory = MutableStateFlow(
-        savedStateHandle.get<CategoryUiModel>(AppConstants.INTENT_CATEGORY_ITEM)!!)
-    val currentCategory = _currentCategory.asStateFlow()
-
+        savedStateHandle.get<CategoryUiModel>(AppConstants.INTENT_CATEGORY_ITEM)
+            ?: throw IllegalStateException("CategoryStatisticsViewModel is required in SavedStateHandle")
+    )
     private val _currentDate = MutableStateFlow(
         savedStateHandle.get<LocalDate>(AppConstants.INTENT_DATE) ?: LocalDate.now())
-    val currentDate = _currentDate.asStateFlow()
+
+    val currentCategory: StateFlow<CategoryUiModel> = _currentCategory.asStateFlow()
+    val currentDate: StateFlow<LocalDate> = _currentDate.asStateFlow()
 
     private val categoryStatsFlow = getCategoryStatsFlow(
         _currentCategory, _currentDate, getCategoryStatisticsUseCase
+    ).stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ApiResult.Loading
     )
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = ApiResult.Loading
-        )
 
     private val purchaseNotesFlow = getPurchaseNotesFlow(
         _currentCategory, _currentDate, getFilteredSearchPurchaseNotesUseCase
+    ).stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ApiResult.Loading
     )
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = ApiResult.Loading
-        )
 
     val uiState = combine(
         categoryStatsFlow, purchaseNotesFlow
     ) { categoryStatsResult, purchaseNotesResult ->
-        when {
+        handleUiState(categoryStatsResult, purchaseNotesResult)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = CategoryStatisticsUiState.Loading
+    )
+
+    fun setCategory(newCategory: CategoryUiModel) {
+        if (_currentCategory.value == newCategory) return
+
+        _currentCategory.value = newCategory
+    }
+
+    fun setDate(newDate: LocalDate) {
+        if (_currentDate.value == newDate) return
+
+        _currentDate.value = newDate
+    }
+
+    private fun handleUiState(
+        categoryStatsResult: ApiResult<CategoryPurchaseNoteStats>,
+        purchaseNotesResult: ApiResult<List<PurchaseNote>>
+    ): CategoryStatisticsUiState {
+        return when {
             purchaseNotesResult is ApiResult.Loading
                     || categoryStatsResult is ApiResult.Loading -> {
                 CategoryStatisticsUiState.Loading
@@ -84,38 +107,27 @@ class CategoryStatisticsViewModel @Inject constructor(
 
             purchaseNotesResult is ApiResult.Success
                     && categoryStatsResult is ApiResult.Success -> {
-
-                val purchaseNoteUiItems = makePurchaseNoteUiItems(purchaseNotesResult.data)
-                val statsInfoUiItem = makeStatsInfoUiItem(categoryStatsResult.data, _currentCategory.value)
-
-                val uiItems = if (categoryStatsResult.data.purchaseNameStats.isEmpty()) {
-                    listOf(statsInfoUiItem)
-                } else {
-                    listOf(statsInfoUiItem) + makePurchaseNameStatsUiItem(categoryStatsResult.data)
-                }
-
-                CategoryStatisticsUiState.CategoryStatistics(uiItems + purchaseNoteUiItems)
+                createCategoryStatisticsUiState(categoryStatsResult.data, purchaseNotesResult.data)
             }
 
             else -> CategoryStatisticsUiState.Error(IllegalStateException("Unexpected State"))
         }
     }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = CategoryStatisticsUiState.Loading
-        )
 
-    fun setCategory(newCategory: CategoryUiModel) {
-        if (_currentCategory.value == newCategory) return
+    private fun createCategoryStatisticsUiState(
+        categoryStats: CategoryPurchaseNoteStats,
+        purchaseNotes: List<PurchaseNote>
+    ): CategoryStatisticsUiState.CategoryStatistics {
+        val statsInfoUiItem = makeStatsInfoUiItem(categoryStats, _currentCategory.value)
+        val purchaseNoteUiItems = makePurchaseNoteUiItems(purchaseNotes)
 
-        _currentCategory.value = newCategory
-    }
+        val uiItems = if (categoryStats.purchaseNameStats.isEmpty()) {
+            listOf(statsInfoUiItem)
+        } else {
+            listOf(statsInfoUiItem) + makePurchaseNameStatsUiItem(categoryStats)
+        }
 
-    fun setDate(newDate: LocalDate) {
-        if (_currentDate.value == newDate) return
-
-        _currentDate.value = newDate
+        return CategoryStatisticsUiState.CategoryStatistics(uiItems + purchaseNoteUiItems)
     }
 
     private fun makeStatsInfoUiItem(data: CategoryPurchaseNoteStats, currentCategory: CategoryUiModel) =
@@ -213,5 +225,6 @@ sealed class CategoryPurchaseNoteStatsUiItems {
 sealed interface CategoryStatisticsUiState {
     data object Loading: CategoryStatisticsUiState
     data class Error(val error: Throwable): CategoryStatisticsUiState
-    data class CategoryStatistics(val items: List<CategoryPurchaseNoteStatsUiItems>): CategoryStatisticsUiState
+    data class CategoryStatistics(val items: List<CategoryPurchaseNoteStatsUiItems>):
+        CategoryStatisticsUiState
 }

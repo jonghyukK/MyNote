@@ -2,7 +2,7 @@ package com.kjh.mynote.ui.features.purchase.statistics.adapter.section
 
 import com.kjh.mynote.databinding.VhPurchaseNoteStatsInfoItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.purchase.statistics.PurchaseNoteStatisticsUiItem
+import com.kjh.mynote.ui.features.statistics.purchasenote.PurchaseNoteStatisticsUiItem
 import com.kjh.mynote.utils.extensions.highlightText
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.toComma

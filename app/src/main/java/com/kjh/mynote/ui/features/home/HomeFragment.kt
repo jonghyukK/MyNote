@@ -11,11 +11,11 @@ import com.kjh.mynote.databinding.FragmentHomeBinding
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseFragment
-import com.kjh.mynote.ui.features.category.statistics.CategoryStatisticsActivity
+import com.kjh.mynote.ui.features.statistics.category.CategoryStatisticsActivity
 import com.kjh.mynote.ui.features.home.adapter.HomeUiListAdapter
 import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailActivity
 import com.kjh.mynote.ui.features.place.make.MakeOrModifyPlaceNoteActivity
-import com.kjh.mynote.ui.features.purchase.statistics.PurchaseNoteStatisticsActivity
+import com.kjh.mynote.ui.features.statistics.purchasenote.PurchaseNoteStatisticsActivity
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint

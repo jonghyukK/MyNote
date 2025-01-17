@@ -11,8 +11,8 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhPurchaseNoteStatsPieChartItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.purchase.statistics.PieChartItem
-import com.kjh.mynote.ui.features.purchase.statistics.PurchaseNoteStatisticsUiItem
+import com.kjh.mynote.ui.features.statistics.purchasenote.PieChartItem
+import com.kjh.mynote.ui.features.statistics.purchasenote.PurchaseNoteStatisticsUiItem
 import com.kjh.mynote.ui.features.purchase.statistics.adapter.section.contents.StatsChildListAdapter
 import com.kjh.mynote.utils.extensions.onThrottleClick
 

@@ -1,10 +1,10 @@
-package com.kjh.mynote.ui.features.category.statistics.adapter.decoration
+package com.kjh.mynote.ui.features.statistics.category.adapter.decoration
 
 import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.kjh.mynote.ui.features.category.statistics.CategoryPurchaseNoteStatsUiItems
+import com.kjh.mynote.ui.features.statistics.category.CategoryPurchaseNoteStatsUiItems
 import com.kjh.mynote.utils.extensions.dpToPx
 
 /**

@@ -124,7 +124,7 @@ class HomePurchaseNoteStatisticsSectionItemViewHolder(
             val categoryName = chartItem.pieEntries[i].label
 
             with (legendBinding) {
-                tvCategoryName.text = categoryName
+                tvLegendName.text = categoryName
                 viewLegendColor.setBackgroundColor(
                     ContextCompat.getColor(context, chartItem.pieColors[i]))
 
@@ -148,7 +148,7 @@ class HomePurchaseNoteStatisticsSectionItemViewHolder(
             val isHighlighted = view.tag == (highlightedPieEntry?.label ?: "")
             val typeFace = if (isHighlighted) Typeface.BOLD else Typeface.NORMAL
 
-            legendBinding.tvCategoryName.setTypeface(null, typeFace)
+            legendBinding.tvLegendName.setTypeface(null, typeFace)
         }
 
         val entryIndex = binding.chart.data.dataSet.getEntryIndex(highlightedPieEntry)

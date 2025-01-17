@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.domain.model.CategoryStats
 import com.example.domain.model.PaymentMethodStats
 import com.kjh.mynote.databinding.VhHomeCategoryPutchaseStatsItemBinding
-import com.kjh.mynote.ui.features.purchase.statistics.StatsContentsItem
+import com.kjh.mynote.ui.features.statistics.purchasenote.StatsContentsItem
 
 /**
  * Created by kangjonghyuk.
