@@ -14,16 +14,14 @@ import com.kjh.mynote.ui.features.category.list.CategoryListItem
  * Description:
  */
 class CategoryListAdapter(
-    private val onItemClickAction: (CategoryUiModel) -> Unit,
-    private val onEditClickAction: (CategoryUiModel) -> Unit,
-    private val onDeleteClickAction: (CategoryUiModel) -> Unit
+    private val onItemClickAction: (CategoryUiModel) -> Unit
 ): ListAdapter<CategoryListItem, CategoryListItemViewHolder>(UI_MODEL_COMPARATOR) {
     
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         CategoryListItemViewHolder(
             VhCategoryListItemBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false
-            ), onItemClickAction, onEditClickAction, onDeleteClickAction
+            ), onItemClickAction
         )
 
     override fun onBindViewHolder(holder: CategoryListItemViewHolder, position: Int) {

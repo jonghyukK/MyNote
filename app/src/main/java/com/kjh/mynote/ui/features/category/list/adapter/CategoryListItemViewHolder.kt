@@ -16,22 +16,12 @@ import com.kjh.mynote.utils.extensions.setTextColorRes
  */
 class CategoryListItemViewHolder(
     private val binding: VhCategoryListItemBinding,
-    private val onItemClickAction: (CategoryUiModel) -> Unit,
-    private val onEditClickAction: (CategoryUiModel) -> Unit,
-    private val onDeleteClickAction: (CategoryUiModel) -> Unit
+    private val onItemClickAction: (CategoryUiModel) -> Unit
 ): BaseViewHolder<CategoryListItem>(binding.root) {
 
     init {
         binding.root.onThrottleClick {
             bindItem?.let { item -> onItemClickAction.invoke(item.categoryItem) }
-        }
-
-        binding.ivEdit.onThrottleClick {
-            bindItem?.let { item -> onEditClickAction.invoke(item.categoryItem)}
-        }
-
-        binding.ivDelete.onThrottleClick {
-            bindItem?.let { item -> onDeleteClickAction.invoke(item.categoryItem)}
         }
     }
 
@@ -49,11 +39,7 @@ class CategoryListItemViewHolder(
                 tvCategoryName.setTextColorRes(R.color.black_900)
             }
 
-            tvCount.isVisible = item.isEditable
             tvCount.text = item.categoryItem.purchaseNoteCount.toString()
-
-            ivEdit.isVisible = !item.isDefaultCategory && item.isEditable
-            ivDelete.isVisible = !item.isDefaultCategory && item.isEditable
         }
     }
 }
