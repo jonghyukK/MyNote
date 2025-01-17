@@ -55,4 +55,6 @@ interface PurchaseNoteRepository {
         startDate: Long,
         endDate: Long
     ): Flow<ApiResult<CategoryPurchaseNoteStats>>
+
+    suspend fun getRecentPurchaseNamesByCategory(categoryId: Int?): Flow<ApiResult<List<String>>>
 }

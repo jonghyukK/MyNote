@@ -192,5 +192,18 @@ interface PurchaseNoteDao {
         endDate: Long?
     ): Flow<List<PurchaseNameStats>>
 
-
+    /**
+     * 특정 카테고리의 최근 등록된 구매명 목록 조회.
+     *
+     * @param categoryId
+     * @return
+     */
+    @Query("""
+        SELECT DISTINCT purchaseName 
+        FROM purchase 
+        WHERE categoryId = :categoryId
+        ORDER BY purchaseDate DESC 
+        LIMIT 10
+    """)
+    suspend fun getRecentPurchaseNamesByCategory(categoryId: Int?): List<String>
 }

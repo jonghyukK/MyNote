@@ -23,22 +23,22 @@ import javax.inject.Inject
  * Description:
  */
 class PurchaseNoteRepositoryImpl @Inject constructor(
-    private val purchaseNoteLocalDateSource: PurchaseNoteDao
+    private val purchaseNoteLocalDataSource: PurchaseNoteDao
 ): PurchaseNoteRepository {
 
     override fun getAllPurchaseNotes(): Flow<ApiResult<List<PurchaseNote>>> =
-        purchaseNoteLocalDateSource.getAllPurchaseNotes()
+        purchaseNoteLocalDataSource.getAllPurchaseNotes()
             .map { data -> data.map { it.toDomainModel() } }
             .asResult()
 
     override fun getPurchaseNotesByCategories(categories: List<Category>): Flow<List<PurchaseNote>> {
         val categoryIds = categories.map { it.id }
-        return purchaseNoteLocalDateSource.getPurchaseNotesByCategoryIds(categoryIds)
+        return purchaseNoteLocalDataSource.getPurchaseNotesByCategoryIds(categoryIds)
             .map { data -> data.map { it.toDomainModel() } }
     }
 
     override fun getPurchaseNoteById(id: Int): Flow<ApiResult<PurchaseNote>> =
-        purchaseNoteLocalDateSource.getPurchaseNoteFlowById(id)
+        purchaseNoteLocalDataSource.getPurchaseNoteFlowById(id)
             .map { data -> data.toDomainModel() }
             .asResult()
 
@@ -46,7 +46,7 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
         placeName: String,
         date: Long,
     ): List<PurchaseNote> =
-        purchaseNoteLocalDateSource.getPurchaseNotesByDateAndPlaceName(
+        purchaseNoteLocalDataSource.getPurchaseNotesByDateAndPlaceName(
             purchaseDate = date,
             placeName = placeName
         ).toDomainModel()
@@ -73,7 +73,7 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
         paymentMethodIds: List<Int>,
         sortType: SortType
     ): Flow<ApiResult<List<PurchaseNote>>> =
-        purchaseNoteLocalDateSource.getFilteredPurchaseNotes(
+        purchaseNoteLocalDataSource.getFilteredPurchaseNotes(
             queryText,
             startDate,
             endDate,
@@ -89,25 +89,25 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
 
     override suspend fun insertPurchaseNotes(purchaseNotes: List<PurchaseNote>): Flow<ApiResult<Unit>> =
         safeApiCall {
-            purchaseNoteLocalDateSource.insertPurchaseNotes(purchaseNotes.map { it.toEntity() })
+            purchaseNoteLocalDataSource.insertPurchaseNotes(purchaseNotes.map { it.toEntity() })
         }
 
     override suspend fun insertAndGetPurchaseNote(purchaseNote: PurchaseNote): Flow<ApiResult<PurchaseNote>> =
         safeApiCall {
             val purchaseNoteEntity = purchaseNote.toEntity()
-            val newId = purchaseNoteLocalDateSource.insertPurchaseNote(purchaseNoteEntity).toInt()
+            val newId = purchaseNoteLocalDataSource.insertPurchaseNote(purchaseNoteEntity).toInt()
 
-            purchaseNoteLocalDateSource.getPurchaseNoteById(newId).toDomainModel()
+            purchaseNoteLocalDataSource.getPurchaseNoteById(newId).toDomainModel()
         }
 
     override suspend fun deletePurchaseNoteById(id: Int): Flow<ApiResult<Unit>> =
         safeApiCall {
-            purchaseNoteLocalDateSource.deletePurchaseNoteById(id)
+            purchaseNoteLocalDataSource.deletePurchaseNoteById(id)
         }
 
 
     override fun getMaxPurchasePrice(): Flow<ApiResult<Long?>> =
-        purchaseNoteLocalDateSource.getMaxPurchasePrice().asResult()
+        purchaseNoteLocalDataSource.getMaxPurchasePrice().asResult()
 
     /**
      * 구매노트 통계 데이터 조회.
@@ -121,11 +121,11 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
         endDate: Long?,
     ): Flow<ApiResult<PurchaseNoteStatistics>> {
         val purchaseNoteTotalStats =
-            purchaseNoteLocalDateSource.getPurchaseNoteTotalStats(startDate = startDate, endDate = endDate)
+            purchaseNoteLocalDataSource.getPurchaseNoteTotalStats(startDate = startDate, endDate = endDate)
         val categoryStatsList =
-            purchaseNoteLocalDateSource.getCategoryStatsByDate(startDate = startDate, endDate = endDate)
+            purchaseNoteLocalDataSource.getCategoryStatsByDate(startDate = startDate, endDate = endDate)
         val paymentMethodStatsList =
-            purchaseNoteLocalDateSource.getPaymentMethodStatsByDate(startDate = startDate, endDate = endDate)
+            purchaseNoteLocalDataSource.getPaymentMethodStatsByDate(startDate = startDate, endDate = endDate)
 
         return combine(
             purchaseNoteTotalStats,
@@ -159,9 +159,9 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
         endDate: Long,
     ): Flow<ApiResult<CategoryPurchaseNoteStats>> {
         val purchaseNameStats =
-            purchaseNoteLocalDateSource.getPurchaseNameStats(categoryId, startDate, endDate)
+            purchaseNoteLocalDataSource.getPurchaseNameStats(categoryId, startDate, endDate)
         val purchaseNoteTotalStats =
-            purchaseNoteLocalDateSource.getPurchaseNoteTotalStats(categoryId, startDate, endDate)
+            purchaseNoteLocalDataSource.getPurchaseNoteTotalStats(categoryId, startDate, endDate)
 
         return combine(
             purchaseNoteTotalStats,
@@ -174,4 +174,9 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
             )
         }.asResult()
     }
+
+    override suspend fun getRecentPurchaseNamesByCategory(categoryId: Int?): Flow<ApiResult<List<String>>> =
+        safeApiCall {
+            purchaseNoteLocalDataSource.getRecentPurchaseNamesByCategory(categoryId)
+        }
 }
