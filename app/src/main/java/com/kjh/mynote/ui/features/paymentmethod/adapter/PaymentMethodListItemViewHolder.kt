@@ -2,7 +2,7 @@ package com.kjh.mynote.ui.features.paymentmethod.adapter
 
 import androidx.core.view.isVisible
 import com.kjh.mynote.R
-import com.kjh.mynote.databinding.VhMyPaymentMethodListItemBinding
+import com.kjh.mynote.databinding.VhCategoryOrPaymentMethodListItemBinding
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.ui.features.paymentmethod.SelectablePaymentMethodItem
@@ -16,18 +16,13 @@ import com.kjh.mynote.utils.extensions.setTextColorRes
  */
 
 class PaymentMethodListItemViewHolder(
-    private val binding: VhMyPaymentMethodListItemBinding,
-    private val paymentMethodItemClickAction: (PaymentMethodUiModel) -> Unit,
-    private val editPaymentMethodClickAction: (PaymentMethodUiModel) -> Unit
+    private val binding: VhCategoryOrPaymentMethodListItemBinding,
+    private val paymentMethodItemClickAction: (PaymentMethodUiModel) -> Unit
 ): BaseViewHolder<SelectablePaymentMethodItem>(binding.root) {
 
     init {
-        binding.tvName.onThrottleClick {
+        binding.root.onThrottleClick {
             bindItem?.let { item -> paymentMethodItemClickAction(item.paymentMethodItem) }
-        }
-
-        binding.ivEdit.onThrottleClick {
-            bindItem?.let { item -> editPaymentMethodClickAction(item.paymentMethodItem)}
         }
     }
 
@@ -35,14 +30,12 @@ class PaymentMethodListItemViewHolder(
         super.bind(item)
 
         with (binding) {
-            ivCheck.isVisible = item.isSelected
+            ivChecked.isVisible = item.isSelected
+            tvCount.isVisible = false
 
             val nameColorRes = if (item.isSelected) R.color.colorPrimary else R.color.black_900
             tvName.setTextColorRes(nameColorRes)
-
             tvName.text = item.paymentMethodItem.paymentMethodName
-            ivEdit.isVisible = item.paymentMethodItem.isDefaultMethod().not()
-            ivDelete.isVisible = false
         }
     }
 }

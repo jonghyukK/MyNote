@@ -5,20 +5,17 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.kjh.mynote.databinding.BsdCategoryListDialogBinding
+import com.kjh.mynote.R
+import com.kjh.mynote.databinding.BsdCategoriesOrPaymentMethodsListBinding
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
 import com.kjh.mynote.ui.features.category.list.adapter.CategoryListAdapter
 import com.kjh.mynote.ui.features.mypage.category.CategoryManageActivity
-import com.kjh.mynote.ui.features.mypage.paymentmethod.edit.EditPaymentMethodDialogFragment.Companion.REQUEST_KEY
-import com.kjh.mynote.ui.features.mypage.paymentmethod.edit.EditPaymentMethodDialogFragment.Companion.RES_KEY_UPDATED_ITEM
-import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,7 +29,10 @@ import java.time.LocalDate
  */
 
 @AndroidEntryPoint
-class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialogBinding>({ BsdCategoryListDialogBinding.inflate(it) }) {
+class CategoryListBSDialog :
+    BaseBottomSheetDialogFragment<BsdCategoriesOrPaymentMethodsListBinding>({
+        BsdCategoriesOrPaymentMethodsListBinding.inflate(it)
+    }) {
 
     private val viewModel: CategoryListViewModel by viewModels()
 
@@ -42,13 +42,15 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
 
     override fun onInitView() {
         with (binding) {
-            rvCategories.apply {
+            tvTitle.text = getString(R.string.category_list)
+
+            rvItems.apply {
                 itemAnimator = null
                 adapter = listAdapter
             }
 
-            tvCategoryManage.isVisible = arguments?.getBoolean(ARG_BOOL_IS_EDITABLE) ?: true
-            tvCategoryManage.setOnThrottleClickListener(categoryManageClickListener)
+            tvManage.isVisible = arguments?.getBoolean(ARG_BOOL_IS_EDITABLE) ?: true
+            tvManage.setOnThrottleClickListener(manageBtnClickListener)
         }
     }
 
@@ -71,15 +73,11 @@ class CategoryListBSDialog : BaseBottomSheetDialogFragment<BsdCategoryListDialog
     }
 
     private val onCategoryClickAction: (CategoryUiModel) -> Unit = { category ->
-        setFragmentResult(
-            REQUEST_KEY,
-            bundleOf(BUNDLE_KEY_SELECTED_CATEGORY to category)
-        )
-
+        setFragmentResult(REQUEST_KEY, bundleOf(BUNDLE_KEY_SELECTED_CATEGORY to category))
         dismiss()
     }
 
-    private val categoryManageClickListener = View.OnClickListener {
+    private val manageBtnClickListener = View.OnClickListener {
         Intent(requireContext(), CategoryManageActivity::class.java).apply {
             startActivity(this)
         }

@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import com.kjh.mynote.databinding.VhMyPaymentMethodListItemBinding
+import com.kjh.mynote.databinding.VhCategoryOrPaymentMethodListItemBinding
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.ui.features.paymentmethod.SelectablePaymentMethodItem
 
@@ -14,17 +14,16 @@ import com.kjh.mynote.ui.features.paymentmethod.SelectablePaymentMethodItem
  * Description:
  */
 class PaymentMethodListAdapter(
-    private val paymentMethodItemClickAction: (PaymentMethodUiModel) -> Unit,
-    private val editPaymentMethodClickAction: (PaymentMethodUiModel) -> Unit
+    private val paymentMethodItemClickAction: (PaymentMethodUiModel) -> Unit
 ): ListAdapter<SelectablePaymentMethodItem, PaymentMethodListItemViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int,
     ) = PaymentMethodListItemViewHolder(
-        VhMyPaymentMethodListItemBinding.inflate(
+        VhCategoryOrPaymentMethodListItemBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
-        ), paymentMethodItemClickAction, editPaymentMethodClickAction
+        ), paymentMethodItemClickAction
     )
 
     override fun onBindViewHolder(holder: PaymentMethodListItemViewHolder, position: Int) {

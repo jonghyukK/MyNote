@@ -19,7 +19,7 @@
         app:layout_constraintBottom_toBottomOf="parent"  />
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tv_category_name"
+        android:id="@+id/tv_name"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:textSize="16sp"
@@ -47,9 +47,9 @@
         android:layout_marginStart="2dp"
         android:visibility="visible"
         tools:text="199"
-        app:layout_constraintTop_toTopOf="@+id/tv_category_name"
-        app:layout_constraintStart_toEndOf="@+id/tv_category_name"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_category_name"
+        app:layout_constraintTop_toTopOf="@+id/tv_name"
+        app:layout_constraintStart_toEndOf="@+id/tv_name"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_name"
         app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

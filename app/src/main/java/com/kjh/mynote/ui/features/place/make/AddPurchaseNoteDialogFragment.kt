@@ -7,7 +7,6 @@ import android.text.TextWatcher
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.os.bundleOf
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -15,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.DialogFragmentAddPurchaseNoteBinding
+import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.ui.base.BaseDialogFragment
 import com.kjh.mynote.ui.base.DialogType
@@ -66,7 +66,10 @@ class AddPurchaseNoteDialogFragment : BaseDialogFragment<DialogFragmentAddPurcha
         }
 
         childFragmentManager.setFragmentResultListener(
-            PaymentMethodListBSDialog.REQUEST_KEY, this, paymentMethodBSDResultListener)
+            CategoryListBSDialog.REQUEST_KEY, this, handleCategorySelectionResult)
+
+        childFragmentManager.setFragmentResultListener(
+            PaymentMethodListBSDialog.REQUEST_KEY, this, handlePaymentMethodSelectionResult)
     }
 
     override fun onInitData() {
@@ -223,18 +226,18 @@ class AddPurchaseNoteDialogFragment : BaseDialogFragment<DialogFragmentAddPurcha
             }
         }
 
-    private val paymentMethodBSDResultListener: (String, Bundle) -> Unit = { _, result ->
-        val selectedPaymentItem =
-            result.parcelable<PaymentMethodUiModel>(PaymentMethodListBSDialog.RES_KEY_SELECTED_ITEM)
-        selectedPaymentItem?.let {
-            viewModel.setPaymentMethod(selectedPaymentItem)
-        }
+    private val handleCategorySelectionResult: (String, Bundle) -> Unit = { _, data ->
+        data.parcelable<CategoryUiModel>(CategoryListBSDialog.BUNDLE_KEY_SELECTED_CATEGORY)
+            ?.let { selectedCategoryItem ->
+                viewModel.setCategory(selectedCategoryItem)
+            }
+    }
 
-        val updatedItem =
-            result.parcelable<PaymentMethodUiModel>(PaymentMethodListBSDialog.RES_KEY_UPDATED_ITEM)
-        updatedItem?.let {
-            viewModel.updateSelectedPaymentNameWhenChanged(updatedItem)
-        }
+    private val handlePaymentMethodSelectionResult: (String, Bundle) -> Unit = { _, data ->
+        data.parcelable<PaymentMethodUiModel>(PaymentMethodListBSDialog.BUNDLE_KEY_SELECTED_PAYMENT_METHOD)
+            ?.let { selectedPaymentMethodItem ->
+                viewModel.setPaymentMethod(selectedPaymentMethodItem)
+            }
     }
 
     private val deleteTempImageClickAction: (String) -> Unit = { uri ->
@@ -251,16 +254,7 @@ class AddPurchaseNoteDialogFragment : BaseDialogFragment<DialogFragmentAddPurcha
         clearFocus()
 
         CategoryListBSDialog.newInstance(
-            selectedCategoryItem = viewModel.uiState.value.categoryItem,
-            selectCategoryAction = { categoryItem ->
-                viewModel.setCategory(categoryItem)
-            },
-            updateCategoryNameAction = { categoryItem ->
-                viewModel.updateSelectedCategoryWhenChanged(categoryItem)
-            },
-            deleteCategoryAction = { categoryId ->
-                viewModel.deleteSelectedCategoryWhenChanged(categoryId)
-            }
+            selectedCategoryItem = viewModel.uiState.value.categoryItem
         ).show(childFragmentManager, CategoryListBSDialog.TAG)
     }
 
