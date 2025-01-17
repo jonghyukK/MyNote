@@ -9,6 +9,7 @@ import com.example.domain.usecase.GetCategoriesWithNoteCountsUseCase
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog.Companion.ARG_BOOL_IS_EDITABLE
+import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog.Companion.ARG_BOOL_SHOW_COUNT
 import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog.Companion.ARG_OBJ_SELECTED_CATEGORY_ITEM
 import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog.Companion.ARG_STR_DATE
 import com.kjh.mynote.utils.extensions.getFirstDayOfMonth
@@ -41,6 +42,9 @@ class CategoryListViewModel @Inject constructor(
 
     private val isEditable: Boolean =
         savedStateHandle[ARG_BOOL_IS_EDITABLE] ?: true
+
+    private val showCount: Boolean =
+        savedStateHandle[ARG_BOOL_SHOW_COUNT] ?: false
 
     private val _selectedCategoryItem = MutableStateFlow<CategoryUiModel?>(
         savedStateHandle[ARG_OBJ_SELECTED_CATEGORY_ITEM])
@@ -83,6 +87,7 @@ class CategoryListViewModel @Inject constructor(
                             CategoryListItem(
                                 isSelected = category.id == selectedCategoryItem.value?.id,
                                 isEditable = isEditable,
+                                showCount = showCount,
                                 categoryItem = category
                             )
                         }
@@ -99,6 +104,7 @@ class CategoryListViewModel @Inject constructor(
 data class CategoryListItem(
     val isSelected: Boolean = false,
     val isEditable: Boolean = true,
+    val showCount: Boolean = false,
     val categoryItem: CategoryUiModel
 )
 

@@ -36,6 +36,7 @@ class CategoryListItemViewHolder(
             tvName.text = item.categoryItem.categoryName
             tvName.setTextColorRes(nameColor)
 
+            tvCount.isVisible = item.showCount
             tvCount.text = item.categoryItem.purchaseNoteCount.toString()
         }
     }

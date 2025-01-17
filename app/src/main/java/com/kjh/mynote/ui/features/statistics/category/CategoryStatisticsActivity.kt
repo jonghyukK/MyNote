@@ -102,6 +102,7 @@ class CategoryStatisticsActivity
         CategoryListBSDialog.newInstance(
             date = viewModel.currentDate.value,
             isEditable = false,
+            showCount = true,
             selectedCategoryItem = viewModel.currentCategory.value
         ).show(supportFragmentManager, CategoryListBSDialog.TAG)
     }

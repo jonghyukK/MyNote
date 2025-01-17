@@ -97,6 +97,7 @@ class CategoryListBSDialog :
 
         const val ARG_STR_DATE = "date"
         const val ARG_BOOL_IS_EDITABLE = "isEditable"
+        const val ARG_BOOL_SHOW_COUNT = "showCount"
         const val ARG_OBJ_SELECTED_CATEGORY_ITEM = "selectedCategoryItem"
 
         const val REQUEST_KEY = "CategoryListBSDialog_request_key"
@@ -105,11 +106,13 @@ class CategoryListBSDialog :
         fun newInstance(
             date: LocalDate? = null,
             isEditable: Boolean = true,
+            showCount: Boolean = false,
             selectedCategoryItem: CategoryUiModel?
         ) = CategoryListBSDialog().apply {
             arguments = Bundle().apply {
                 putString(ARG_STR_DATE, date?.toString())
                 putBoolean(ARG_BOOL_IS_EDITABLE, isEditable)
+                putBoolean(ARG_BOOL_SHOW_COUNT, showCount)
                 putParcelable(ARG_OBJ_SELECTED_CATEGORY_ITEM, selectedCategoryItem)
             }
         }
