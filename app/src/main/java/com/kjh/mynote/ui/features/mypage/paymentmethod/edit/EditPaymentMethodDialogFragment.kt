@@ -11,7 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.mynote.R
-import com.kjh.mynote.databinding.DialogFragmentEditPaymentMethodBinding
+import com.kjh.mynote.databinding.DialogFragmentMakeOrEditPaymentMethodBinding
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.ui.base.BaseDialogFragment
 import com.kjh.mynote.ui.base.DialogType
@@ -29,21 +29,24 @@ import kotlinx.coroutines.launch
  */
 
 @AndroidEntryPoint
-class EditPaymentMethodDialogFragment: BaseDialogFragment<DialogFragmentEditPaymentMethodBinding>({
-    DialogFragmentEditPaymentMethodBinding.inflate(it)
+class EditPaymentMethodDialogFragment: BaseDialogFragment<DialogFragmentMakeOrEditPaymentMethodBinding>({
+    DialogFragmentMakeOrEditPaymentMethodBinding.inflate(it)
 }, dialogType = DialogType.FULL_SCREEN) {
 
     private val viewModel: EditPaymentMethodViewModel by viewModels()
 
     override fun onInitView() {
         with (binding) {
-            tvExample1.highlightText(
+            tbToolbar.leftTitle = getString(R.string.edit_payment_method)
+            btnBottom.btnTitle = getString(R.string.do_modify)
+
+            layoutTip.tvExample1.highlightText(
                 fullText = getString(R.string.desc_payment_method_name_example1),
                 wordToHighlight = getString(R.string.payment_method_name_example1_highlight_text),
                 isBold = true
             )
 
-            tvExample2.highlightText(
+            layoutTip.tvExample2.highlightText(
                 fullText = getString(R.string.desc_payment_method_name_example2),
                 wordToHighlight = getString(R.string.payment_method_name_example2_highlight_text),
                 isBold = true
