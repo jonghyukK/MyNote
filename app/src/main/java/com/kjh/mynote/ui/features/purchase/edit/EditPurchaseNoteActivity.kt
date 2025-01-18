@@ -39,6 +39,7 @@ import com.kjh.mynote.utils.extensions.showToast
 import com.kjh.mynote.utils.extensions.toComma
 import com.kjh.mynote.utils.extensions.toLocalDate
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -205,18 +206,22 @@ class EditPurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
                 }
 
                 launch {
-                    viewModel.recentRegisteredPurchaseNames.collect { uiState ->
-                        when (uiState) {
-                            is RecentPurchaseNamesUiState.Loading -> {}
-                            is RecentPurchaseNamesUiState.Error -> {
-                                showToast(uiState.errorMsg)
-                            }
-                            is RecentPurchaseNamesUiState.Success -> {
-                                binding.rvRecentPurchaseNames.isVisible = uiState.items.isNotEmpty()
-                                recentPurchaseNameListAdapter.submitList(uiState.items)
+                    viewModel.recentRegisteredPurchaseNamesUiState
+                        .collectLatest { recentPurchaseNamesState ->
+                            when (recentPurchaseNamesState) {
+                                is RecentPurchaseNamesUiState.Error -> {
+                                    showToast(recentPurchaseNamesState.errorMsg)
+                                }
+                                is RecentPurchaseNamesUiState.Success -> {
+                                    binding.rvRecentPurchaseNames.isVisible =
+                                        recentPurchaseNamesState.items.isNotEmpty()
+                                    recentPurchaseNameListAdapter.submitList(
+                                        recentPurchaseNamesState.items
+                                    )
+                                }
+                                else -> {}
                             }
                         }
-                    }
                 }
 
                 launch {

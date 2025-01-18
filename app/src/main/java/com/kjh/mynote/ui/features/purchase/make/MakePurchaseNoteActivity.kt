@@ -180,18 +180,22 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
                 }
 
                 launch {
-                    viewModel.recentRegisteredPurchaseNames.collect { uiState ->
-                        when (uiState) {
-                            is RecentPurchaseNamesUiState.Loading -> {}
-                            is RecentPurchaseNamesUiState.Error -> {
-                                showToast(uiState.errorMsg)
-                            }
-                            is RecentPurchaseNamesUiState.Success -> {
-                                binding.rvRecentPurchaseNames.isVisible = uiState.items.isNotEmpty()
-                                recentPurchaseNameListAdapter.submitList(uiState.items)
+                    viewModel.recentRegisteredPurchaseNamesUiState
+                        .collectLatest { recentPurchaseNamesState ->
+                            when (recentPurchaseNamesState) {
+                                is RecentPurchaseNamesUiState.Error -> {
+                                    showToast(recentPurchaseNamesState.errorMsg)
+                                }
+                                is RecentPurchaseNamesUiState.Success -> {
+                                    binding.rvRecentPurchaseNames.isVisible =
+                                        recentPurchaseNamesState.items.isNotEmpty()
+                                    recentPurchaseNameListAdapter.submitList(
+                                        recentPurchaseNamesState.items
+                                    )
+                                }
+                                else -> {}
                             }
                         }
-                    }
                 }
 
                 launch {

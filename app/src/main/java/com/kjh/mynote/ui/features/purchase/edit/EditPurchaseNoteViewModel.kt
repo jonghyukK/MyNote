@@ -49,11 +49,6 @@ class EditPurchaseNoteViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(_purchaseNoteItem.value?.toUiState() ?: EditPurchaseNoteUiState())
     val uiState = _uiState.asStateFlow()
 
-    private val _recentRegisteredPurchaseNames = MutableStateFlow<RecentPurchaseNamesUiState>(
-        RecentPurchaseNamesUiState.Success(emptyList())
-    )
-    val recentRegisteredPurchaseNames = _recentRegisteredPurchaseNames.asStateFlow()
-
     private val _editPurchaseNoteEventState = MutableSharedFlow<EditPurchaseNoteEventState>()
     val editPurchaseNoteEventState = _editPurchaseNoteEventState.asSharedFlow()
 
@@ -69,37 +64,18 @@ class EditPurchaseNoteViewModel @Inject constructor(
         initialValue = false
     )
 
-    init {
-        getRecentRegisteredPurchaseNames()
-    }
-
-    private fun getRecentRegisteredPurchaseNames() {
-        viewModelScope.launch {
-            uiState
-                .map { it.categoryItem }
-                .distinctUntilChanged()
-                .flatMapLatest { category ->
-                    getRecentPurchaseNamesByCategoryIdUseCase(category?.id)
-                        .map { result ->
-                            when (result) {
-                                is ApiResult.Loading ->
-                                    RecentPurchaseNamesUiState.Loading
-
-                                is ApiResult.Error ->
-                                    RecentPurchaseNamesUiState.Error(
-                                        result.error.message ?: "최근 등록한 구매명 목록 조회가 실패하였습니다."
-                                    )
-
-                                is ApiResult.Success ->
-                                    RecentPurchaseNamesUiState.Success(result.data)
-                            }
-                        }
-                }
-                .collect {
-                    _recentRegisteredPurchaseNames.value = it
-                }
+    val recentRegisteredPurchaseNamesUiState = uiState
+        .map { it.categoryItem }
+        .distinctUntilChanged()
+        .flatMapLatest { category ->
+            getRecentPurchaseNamesByCategoryIdUseCase(category?.id)
+                .map(::mapRecentPurchaseNamesResultToUiState)
         }
-    }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            RecentPurchaseNamesUiState.Wait
+        )
 
     fun requestEditPurchaseNote() {
         viewModelScope.launch {
@@ -233,6 +209,20 @@ class EditPurchaseNoteViewModel @Inject constructor(
             return currentTempUris + deduplicatedNewTempUris
         }
     }
+
+    private fun mapRecentPurchaseNamesResultToUiState(result: ApiResult<List<String>>) =
+        when (result) {
+            is ApiResult.Loading ->
+                RecentPurchaseNamesUiState.Loading
+
+            is ApiResult.Error ->
+                RecentPurchaseNamesUiState.Error(
+                    result.error.message ?: "최근 등록한 구매명 목록 조회가 실패하였습니다."
+                )
+
+            is ApiResult.Success ->
+                RecentPurchaseNamesUiState.Success(result.data)
+        }
 
     companion object {
         private const val DATE_PATTERN = "yyyy년 M월 d일 (E)"

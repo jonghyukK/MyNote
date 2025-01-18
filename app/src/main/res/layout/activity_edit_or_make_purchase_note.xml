@@ -62,34 +62,11 @@
             android:orientation="horizontal"
             android:clipToPadding="false"
             android:paddingVertical="8dp"
+            android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toBottomOf="@+id/et_purchase_name"
             app:layout_constraintStart_toEndOf="@+id/gl_guideline"
             app:layout_constraintEnd_toEndOf="parent"/>
-
-        <!-- 결제 수단 -->
-        <com.kjh.mynote.ui.common.components.MyTitleWithSelectableTextView
-            android:id="@+id/tv_payment_method"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            app:title="@string/payment_method"
-            app:isRequired="true"
-            app:layout_constraintTop_toBottomOf="@+id/rv_recent_purchase_names"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- 구매 날짜 -->
-        <com.kjh.mynote.ui.common.components.MyTitleWithSelectableTextView
-            android:id="@+id/tv_purchase_date"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            app:title="@string/purchase_date"
-            app:isRequired="true"
-            app:layout_constraintTop_toBottomOf="@+id/tv_payment_method"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- 구매 금액 -->
         <com.kjh.mynote.ui.common.components.MyTitleWithEditTextView
@@ -102,8 +79,32 @@
             android:inputType="number"
             android:imeOptions="actionDone"
             android:hint="@string/hint_input_purchase_price"
+            app:layout_constraintTop_toBottomOf="@+id/rv_recent_purchase_names"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- 구매 날짜 -->
+        <com.kjh.mynote.ui.common.components.MyTitleWithSelectableTextView
+            android:id="@+id/tv_purchase_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            app:title="@string/purchase_date"
+            app:isRequired="true"
+            app:layout_constraintTop_toBottomOf="@+id/et_purchase_price"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- 결제 수단 -->
+        <com.kjh.mynote.ui.common.components.MyTitleWithSelectableTextView
+            android:id="@+id/tv_payment_method"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            app:title="@string/payment_method"
+            app:isRequired="true"
             app:layout_constraintTop_toBottomOf="@+id/tv_purchase_date"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- 구매 장소 -->
@@ -114,7 +115,7 @@
             android:layout_marginEnd="20dp"
             app:title="@string/purchase_place"
             app:isRequired="false"
-            app:layout_constraintTop_toBottomOf="@+id/et_purchase_price"
+            app:layout_constraintTop_toBottomOf="@+id/tv_payment_method"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 

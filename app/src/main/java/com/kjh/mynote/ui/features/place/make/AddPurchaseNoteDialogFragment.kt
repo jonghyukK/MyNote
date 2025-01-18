@@ -7,6 +7,7 @@ import android.text.TextWatcher
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -21,9 +22,13 @@ import com.kjh.mynote.ui.base.DialogType
 import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog
 import com.kjh.mynote.ui.features.paymentmethod.PaymentMethodListBSDialog
 import com.kjh.mynote.ui.features.place.make.adapter.TempImageListAdapter
+import com.kjh.mynote.ui.features.purchase.make.RecentPurchaseNamesUiState
+import com.kjh.mynote.ui.features.purchase.make.adapter.RecentRegisteredPurchaseNameListAdapter
 import com.kjh.mynote.utils.constants.AppConstants
+import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
+import com.kjh.mynote.utils.extensions.showToast
 import com.kjh.mynote.utils.extensions.toComma
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -48,10 +53,20 @@ class AddPurchaseNoteDialogFragment : BaseDialogFragment<DialogFragmentAddPurcha
         TempImageListAdapter(deleteTempImageClickAction)
     }
 
+    private val recentPurchaseNameListAdapter: RecentRegisteredPurchaseNameListAdapter by lazy {
+        RecentRegisteredPurchaseNameListAdapter(recentPurchaseNameClickAction)
+    }
+
     override fun onInitView() {
         with(binding) {
             rvTempImages.apply {
                 adapter = tempImageListAdapter
+            }
+
+            rvRecentPurchaseNames.apply {
+                itemAnimator = null
+                addItemDecoration(SpacingItemDecoration(right = 6, exceptFirstItem = false))
+                adapter = recentPurchaseNameListAdapter
             }
 
             etPurchaseName.addMyTextWatcher(purchaseNameTextWatcher)
@@ -60,7 +75,7 @@ class AddPurchaseNoteDialogFragment : BaseDialogFragment<DialogFragmentAddPurcha
             tvCategory.setTextClickListener(categoryClickListener)
             tvPaymentMethod.setTextClickListener(paymentMethodClickListener)
 
-            ivClose.setOnThrottleClickListener(closeClickListener)
+            tbToolbar.setRightFirstButtonClickListener(closeClickListener)
             clAttachImages.setOnThrottleClickListener(photoAttachClickListener)
             btnBottom.setOnThrottleClickListener(addBtnClickListener)
         }
@@ -154,6 +169,25 @@ class AddPurchaseNoteDialogFragment : BaseDialogFragment<DialogFragmentAddPurcha
                 }
 
                 launch {
+                    viewModel.recentRegisteredPurchaseNamesUiState
+                        .collectLatest { recentPurchaseNamesState ->
+                            when (recentPurchaseNamesState) {
+                                is RecentPurchaseNamesUiState.Error -> {
+                                    showToast(recentPurchaseNamesState.errorMsg)
+                                }
+                                is RecentPurchaseNamesUiState.Success -> {
+                                    binding.rvRecentPurchaseNames.isVisible =
+                                        recentPurchaseNamesState.items.isNotEmpty()
+                                    recentPurchaseNameListAdapter.submitList(
+                                        recentPurchaseNamesState.items
+                                    )
+                                }
+                                else -> {}
+                            }
+                        }
+                }
+
+                launch {
                     viewModel.bottomBtnValidateFlow.collectLatest { isValid ->
                         binding.btnBottom.isEnable = isValid
                     }
@@ -242,6 +276,10 @@ class AddPurchaseNoteDialogFragment : BaseDialogFragment<DialogFragmentAddPurcha
         clearFocus()
 
         viewModel.deleteTempImageByUrl(uri)
+    }
+
+    private val recentPurchaseNameClickAction: (String) -> Unit = { recentPurchaseName ->
+        binding.etPurchaseName.text = recentPurchaseName
     }
 
     private val closeClickListener = View.OnClickListener {

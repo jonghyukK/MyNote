@@ -17,7 +17,6 @@ import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.toStringWithFormat
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,7 +24,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -56,12 +54,6 @@ class MakePurchaseNoteViewModel @Inject constructor(
     private val _makePurchaseNoteEventState = MutableSharedFlow<MakePurchaseNoteEventUiState>()
     val makePurchaseNoteEventState = _makePurchaseNoteEventState.asSharedFlow()
 
-    private val _recentRegisteredPurchaseNames = MutableStateFlow<RecentPurchaseNamesUiState>(
-        RecentPurchaseNamesUiState.Success(emptyList())
-    )
-    val recentRegisteredPurchaseNames = _recentRegisteredPurchaseNames.asStateFlow()
-
-
     val saveValidateFlow = _uiState.map {
         it.purchaseDate > 0
                 && it.purchasePrice > 0
@@ -74,37 +66,18 @@ class MakePurchaseNoteViewModel @Inject constructor(
         initialValue = false
     )
 
-    init {
-        getRecentRegisteredPurchaseNames()
-    }
-
-    private fun getRecentRegisteredPurchaseNames() {
-        viewModelScope.launch {
-            uiState
-                .map { it.categoryItem }
-                .distinctUntilChanged()
-                .flatMapLatest { category ->
-                    getRecentPurchaseNamesByCategoryIdUseCase(category?.id)
-                        .map { result ->
-                            when (result) {
-                                is ApiResult.Loading ->
-                                    RecentPurchaseNamesUiState.Loading
-
-                                is ApiResult.Error ->
-                                    RecentPurchaseNamesUiState.Error(
-                                        result.error.message ?: "최근 등록한 구매명 목록 조회가 실패하였습니다."
-                                    )
-
-                                is ApiResult.Success ->
-                                    RecentPurchaseNamesUiState.Success(result.data)
-                            }
-                        }
-                }
-                .collect {
-                    _recentRegisteredPurchaseNames.value = it
-                }
+    val recentRegisteredPurchaseNamesUiState = uiState
+        .map { it.categoryItem }
+        .distinctUntilChanged()
+        .flatMapLatest { category ->
+            getRecentPurchaseNamesByCategoryIdUseCase(category?.id)
+                .map(::mapRecentPurchaseNamesResultToUiState)
         }
-    }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            RecentPurchaseNamesUiState.Wait
+        )
 
     fun makePurchaseNote() {
         viewModelScope.launch {
@@ -225,6 +198,20 @@ class MakePurchaseNoteViewModel @Inject constructor(
         }
     }
 
+    private fun mapRecentPurchaseNamesResultToUiState(result: ApiResult<List<String>>) =
+        when (result) {
+            is ApiResult.Loading ->
+                RecentPurchaseNamesUiState.Loading
+
+            is ApiResult.Error ->
+                RecentPurchaseNamesUiState.Error(
+                    result.error.message ?: "최근 등록한 구매명 목록 조회가 실패하였습니다."
+                )
+
+            is ApiResult.Success ->
+                RecentPurchaseNamesUiState.Success(result.data)
+        }
+
     companion object {
         private const val DATE_PATTERN = "yyyy년 M월 d일 (E)"
     }
@@ -237,6 +224,7 @@ sealed interface MakePurchaseNoteEventUiState {
 }
 
 sealed interface RecentPurchaseNamesUiState {
+    data object Wait: RecentPurchaseNamesUiState
     data object Loading: RecentPurchaseNamesUiState
     data class Error(val errorMsg: String): RecentPurchaseNamesUiState
     data class Success(val items: List<String>): RecentPurchaseNamesUiState
