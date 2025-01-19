@@ -38,7 +38,7 @@ object DatabaseModule {
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     super.onCreate(db)
                     db.execSQL("INSERT INTO categories (id, categoryName) VALUES (999, '기타')")
-                    db.execSQL("INSERT INTO paymentMethod (paymentMethodId, paymentMethodName) VALUES (999, '현금')")
+                    db.execSQL("INSERT INTO paymentMethod (paymentMethodId, paymentMethodName, isDefault) VALUES (999, '현금', 0)")
                 }
             })
             .build()

@@ -34,31 +34,25 @@ interface PaymentMethodDao {
     suspend fun getPaymentMethodByName(paymentMethodName: String): PaymentMethodEntity?
 
     /**
-     * 결제수단 등록.
-     *
-     * @param paymentMethodEntity
-     * @return
-     */
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(paymentMethodEntity: PaymentMethodEntity): Long
-
-    /**
-     * 결제수단 수정.
-     *
-     * @param id
-     * @param newPaymentMethodName
-     */
-    @Query("UPDATE paymentMethod SET paymentMethodName = :newPaymentMethodName WHERE paymentMethodId = :id")
-    suspend fun updatePaymentMethod(
-        id: Int,
-        newPaymentMethodName: String
-    )
-
-    /**
      * 결제수단 삭제.
      *
      * @param id
      */
     @Query("DELETE FROM paymentMethod WHERE paymentMethodId = :id")
     suspend fun deletePaymentMethod(id: Int)
+
+    /**
+     * 결제수단 등록 or 수정.
+     *
+     * @param paymentMethodEntity
+     * @return
+     */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(paymentMethodEntity: PaymentMethodEntity): Long
+
+    /**
+     *  결제수단 전체 isDefault = false로 설정.
+     */
+    @Query("UPDATE paymentMethod SET isDefault = 0 WHERE isDefault = 1")
+    suspend fun resetDefaultPaymentMethods()
 }

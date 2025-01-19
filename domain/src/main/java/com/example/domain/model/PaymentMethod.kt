@@ -8,5 +8,6 @@ package com.example.domain.model
 
 data class PaymentMethod(
     val paymentMethodId: Int = 0,
-    val paymentMethodName: String
+    val paymentMethodName: String,
+    val isDefault: Boolean = false
 )

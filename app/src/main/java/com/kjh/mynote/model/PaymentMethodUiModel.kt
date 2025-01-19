@@ -13,7 +13,8 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class PaymentMethodUiModel(
     val paymentMethodId: Int = 0,
-    val paymentMethodName: String = ""
+    val paymentMethodName: String = "",
+    val isDefault: Boolean = false
 ): Parcelable {
     fun isDefaultMethod() = paymentMethodId == 999
 }
@@ -23,7 +24,8 @@ data class PaymentMethodUiModel(
  */
 fun PaymentMethod.toUiModel() = PaymentMethodUiModel(
     paymentMethodId = paymentMethodId,
-    paymentMethodName = paymentMethodName
+    paymentMethodName = paymentMethodName,
+    isDefault = isDefault
 )
 
 /**
@@ -36,5 +38,6 @@ fun List<PaymentMethod>.toUiModel() = map(PaymentMethod::toUiModel)
  */
 fun PaymentMethodUiModel.toDomainModal() = PaymentMethod(
     paymentMethodId = paymentMethodId,
-    paymentMethodName = paymentMethodName
+    paymentMethodName = paymentMethodName,
+    isDefault = isDefault
 )

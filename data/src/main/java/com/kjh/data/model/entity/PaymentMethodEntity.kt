@@ -14,17 +14,20 @@ import com.example.domain.model.PaymentMethod
 data class PaymentMethodEntity(
     @PrimaryKey(autoGenerate = true)
     val paymentMethodId: Int = 0,
-    val paymentMethodName: String
+    val paymentMethodName: String,
+    val isDefault: Boolean = false
 )
 
 fun PaymentMethodEntity.toDomainModel() = PaymentMethod(
     paymentMethodId = paymentMethodId,
-    paymentMethodName = paymentMethodName
+    paymentMethodName = paymentMethodName,
+    isDefault = isDefault
 )
 
 fun List<PaymentMethodEntity>.toDomainModel() = map(PaymentMethodEntity::toDomainModel)
 
 fun PaymentMethod.toEntity() = PaymentMethodEntity(
     paymentMethodId = paymentMethodId,
-    paymentMethodName = paymentMethodName
+    paymentMethodName = paymentMethodName,
+    isDefault = isDefault
 )

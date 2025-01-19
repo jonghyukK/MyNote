@@ -25,7 +25,7 @@ import com.kjh.data.source.local.PurchaseNoteDao
         CategoryEntity::class,
         PaymentMethodEntity::class
     ],
-    version = 2,
+    version = 1,
     exportSchema = false
 )
 @TypeConverters(DBTypeConverters::class)
