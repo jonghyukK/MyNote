@@ -1,9 +1,8 @@
 package com.kjh.data.source.local
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import com.kjh.data.model.entity.PaymentMethodEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -42,17 +41,25 @@ interface PaymentMethodDao {
     suspend fun deletePaymentMethod(id: Int)
 
     /**
-     * 결제수단 등록 or 수정.
+     * 결제수단 등록/수정
      *
      * @param paymentMethodEntity
      * @return
      */
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(paymentMethodEntity: PaymentMethodEntity): Long
+    @Upsert
+    suspend fun upsertPaymentMethod(paymentMethodEntity: PaymentMethodEntity): Long
 
     /**
      *  결제수단 전체 isDefault = false로 설정.
      */
     @Query("UPDATE paymentMethod SET isDefault = 0 WHERE isDefault = 1")
     suspend fun resetDefaultPaymentMethods()
+
+    /**
+     * 기본 결제수단 조회.
+     *
+     * @return
+     */
+    @Query("SELECT * FROM paymentMethod WHERE isDefault = 1")
+    suspend fun getDefaultPaymentMethod(): PaymentMethodEntity?
 }

@@ -26,24 +26,16 @@ class PaymentMethodRepositoryImpl @Inject constructor(
             .map { it.toDomainModel() }
             .asResult()
 
-    override suspend fun makePaymentMethod(paymentMethod: PaymentMethod): Flow<ApiResult<Long>> {
-        return safeApiCall {
-            validateUniquePaymentMethodName(paymentMethod.paymentMethodName)
+    override suspend fun upsertPaymentMethod(paymentMethod: PaymentMethod): Flow<ApiResult<Long>> =
+        safeApiCall {
+            checkDuplicate(paymentMethod)
 
-            paymentMethodLocalDataSource.insert(paymentMethod.toEntity())
+            if (paymentMethod.isDefault) {
+                paymentMethodLocalDataSource.resetDefaultPaymentMethods()
+            }
+
+            paymentMethodLocalDataSource.upsertPaymentMethod(paymentMethod.toEntity())
         }
-    }
-
-    override suspend fun updatePaymentMethod(paymentMethod: PaymentMethod): Flow<ApiResult<Unit>> {
-        return safeApiCall {
-            validateUniquePaymentMethodName(paymentMethod.paymentMethodName)
-
-            paymentMethodLocalDataSource.updatePaymentMethod(
-                id = paymentMethod.paymentMethodId,
-                newPaymentMethodName = paymentMethod.paymentMethodName
-            )
-        }
-    }
 
     override suspend fun deletePaymentMethod(paymentMethodId: Int): Flow<ApiResult<Unit>> {
         return safeApiCall {
@@ -51,10 +43,22 @@ class PaymentMethodRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun validateUniquePaymentMethodName(name: String) {
-        val paymentMethodByName = paymentMethodLocalDataSource.getPaymentMethodByName(name)
-        if (paymentMethodByName != null) {
-            throw Exception("같은 이름을 가진 결제수단이 존재합니다.")
+    override suspend fun getDefaultPaymentMethod(): Flow<ApiResult<PaymentMethod?>> {
+        return safeApiCall {
+            paymentMethodLocalDataSource.getDefaultPaymentMethod()?.toDomainModel()
         }
+    }
+
+    private suspend fun checkDuplicate(paymentMethod: PaymentMethod) {
+        val paymentMethodByName =
+            paymentMethodLocalDataSource.getPaymentMethodByName(paymentMethod.paymentMethodName)
+        if (paymentMethodByName != null &&
+            paymentMethodByName.paymentMethodId != paymentMethod.paymentMethodId) {
+            throw Exception(ERROR_DUPLICATE_PAYMENT_METHOD_NAME)
+        }
+    }
+
+    companion object {
+        private const val ERROR_DUPLICATE_PAYMENT_METHOD_NAME = "같음 이름을 가진 결제수단이 존재합니다."
     }
 }

@@ -8,12 +8,12 @@ import javax.inject.Inject
 
 /**
  * Created by kangjonghyuk.
- * Created On 2024. 12. 31..
+ * Created On 2025. 1. 19..
  * Description:
  */
-class MakePaymentMethodUseCase @Inject constructor(
+class GetDefaultPaymentMethodUseCase @Inject constructor(
     private val paymentMethodRepository: PaymentMethodRepository
 ) {
-   suspend operator fun invoke(paymentMethod: PaymentMethod): Flow<ApiResult<Long>> =
-       paymentMethodRepository.makePaymentMethod(paymentMethod)
+    suspend operator fun invoke(): Flow<ApiResult<PaymentMethod?>> =
+        paymentMethodRepository.getDefaultPaymentMethod()
 }
