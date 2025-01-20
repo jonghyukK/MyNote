@@ -1,5 +1,6 @@
 package com.kjh.data.model.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
@@ -18,13 +19,13 @@ import com.example.domain.model.PurchaseNote
             entity = CategoryEntity::class,
             parentColumns = ["id"],
             childColumns = ["categoryId"],
-            onDelete = ForeignKey.SET_NULL
+            onDelete = ForeignKey.SET_DEFAULT
         ),
         ForeignKey(
             entity = PaymentMethodEntity::class,
             parentColumns = ["paymentMethodId"],
             childColumns = ["paymentMethodId"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.SET_DEFAULT
         )
     ]
 )
@@ -35,7 +36,9 @@ data class PurchaseNoteEntity(
     val purchasePrice: Long,
     val purchaseName: String,
     val images: List<String>? = null,
+    @ColumnInfo(defaultValue = "999")
     val categoryId: Int?,
+    @ColumnInfo(defaultValue = "999")
     val paymentMethodId: Int?,
     val placeId: String?,
     val placeName: String?,
