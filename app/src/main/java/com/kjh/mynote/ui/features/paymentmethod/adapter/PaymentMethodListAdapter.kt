@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.kjh.mynote.databinding.VhCategoryOrPaymentMethodListItemBinding
+import com.kjh.mynote.databinding.VhPaymentMethodListItemBinding
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.ui.features.paymentmethod.SelectablePaymentMethodItem
 
@@ -21,7 +22,7 @@ class PaymentMethodListAdapter(
         parent: ViewGroup,
         viewType: Int,
     ) = PaymentMethodListItemViewHolder(
-        VhCategoryOrPaymentMethodListItemBinding.inflate(
+        VhPaymentMethodListItemBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         ), paymentMethodItemClickAction
     )

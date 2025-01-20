@@ -3,6 +3,7 @@ package com.kjh.mynote.ui.features.paymentmethod.adapter
 import androidx.core.view.isVisible
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhCategoryOrPaymentMethodListItemBinding
+import com.kjh.mynote.databinding.VhPaymentMethodListItemBinding
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.ui.features.paymentmethod.SelectablePaymentMethodItem
@@ -16,7 +17,7 @@ import com.kjh.mynote.utils.extensions.setTextColorRes
  */
 
 class PaymentMethodListItemViewHolder(
-    private val binding: VhCategoryOrPaymentMethodListItemBinding,
+    private val binding: VhPaymentMethodListItemBinding,
     private val paymentMethodItemClickAction: (PaymentMethodUiModel) -> Unit
 ): BaseViewHolder<SelectablePaymentMethodItem>(binding.root) {
 
@@ -31,7 +32,8 @@ class PaymentMethodListItemViewHolder(
 
         with (binding) {
             ivChecked.isVisible = item.isSelected
-            tvCount.isVisible = false
+
+            tvDefault.isVisible = item.paymentMethodItem.isDefault
 
             val nameColorRes = if (item.isSelected) R.color.colorPrimary else R.color.black_900
             tvName.setTextColorRes(nameColorRes)

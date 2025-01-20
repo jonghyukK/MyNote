@@ -14,8 +14,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 /**
@@ -35,49 +36,51 @@ class PaymentMethodListViewModel @Inject constructor(
     )
     val selectedPaymentMethodItem = _selectedPaymentMethodItem.asStateFlow()
 
-    val uiState: StateFlow<PaymentMethodListUiState> =
-        getPaymentMethodsUseCase()
-            .map { result ->
-                val uiState = mapResultToUiState(result)
-                if (uiState is PaymentMethodListUiState.Success) {
-                    updateSelectedPaymentMethodItem(uiState.items.map { it.paymentMethodItem })
-                }
+    private val _shownFetchError =  MutableStateFlow<Boolean>(false)
 
-                uiState
-            }
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(5000),
-                PaymentMethodListUiState.Loading
-            )
+    val uiState: StateFlow<PaymentMethodListUiState> = combine(
+        _shownFetchError, getPaymentMethodsUseCase(), ::mapResultToUiState
+    )
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            PaymentMethodListUiState.Loading
+        )
+
+    fun shownFetchError() {
+        _shownFetchError.value = true
+    }
 
     private fun mapResultToUiState(
+        shownFetchError: Boolean,
         result: ApiResult<List<PaymentMethod>>
-    ): PaymentMethodListUiState =
-        when (result) {
+    ): PaymentMethodListUiState {
+        return when (result) {
             is ApiResult.Loading -> {
                 PaymentMethodListUiState.Loading
             }
+
             is ApiResult.Error -> {
                 val errorMsg = result.error.message ?: "결제수단 목록 조회가 실패하였습니다."
-                PaymentMethodListUiState.Error(errorMsg)
+                PaymentMethodListUiState.Error(if (shownFetchError) null else errorMsg)
             }
+
             is ApiResult.Success -> {
-                PaymentMethodListUiState.Success(
-                    items = result.data.map { paymentMethod ->
-                        SelectablePaymentMethodItem(
-                            isSelected = paymentMethod.paymentMethodId ==
-                                    selectedPaymentMethodItem.value?.paymentMethodId,
-                            paymentMethodItem = paymentMethod.toUiModel()
-                        )
-                    }
-                )
+                val selectablePaymentMethodItems = result.data.toUiModel().map { paymentMethod ->
+                    SelectablePaymentMethodItem(
+                        isSelected = paymentMethod.paymentMethodId ==
+                                selectedPaymentMethodItem.value?.paymentMethodId,
+                        paymentMethodItem = paymentMethod
+                    )
+                }
+
+                _selectedPaymentMethodItem.update {
+                    selectablePaymentMethodItems.find { it.isSelected }?.paymentMethodItem
+                }
+
+                PaymentMethodListUiState.Success(selectablePaymentMethodItems)
             }
         }
-
-    private fun updateSelectedPaymentMethodItem(paymentMethodItems: List<PaymentMethodUiModel>) {
-        _selectedPaymentMethodItem.value = paymentMethodItems
-            .find { it.paymentMethodId == selectedPaymentMethodItem.value?.paymentMethodId }
     }
 }
 
@@ -88,6 +91,6 @@ data class SelectablePaymentMethodItem(
 
 sealed interface PaymentMethodListUiState {
     data object Loading: PaymentMethodListUiState
-    data class Error(val errorMsg: String): PaymentMethodListUiState
+    data class Error(val errorMsg: String?): PaymentMethodListUiState
     data class Success(val items: List<SelectablePaymentMethodItem>): PaymentMethodListUiState
 }

@@ -58,7 +58,10 @@ class PaymentMethodListBSDialog : BaseBottomSheetDialogFragment<BsdCategoriesOrP
                         when (uiState) {
                             is PaymentMethodListUiState.Loading -> {}
                             is PaymentMethodListUiState.Error -> {
-                                showToast(uiState.errorMsg)
+                                uiState.errorMsg?.let {
+                                    showToast(it)
+                                    viewModel.shownFetchError()
+                                }
                             }
                             is PaymentMethodListUiState.Success -> {
                                 listAdapter.submitList(uiState.items)
