@@ -1,7 +1,7 @@
 package com.kjh.mynote.ui.common.dialog.categorymanage
 
-import android.content.Context
 import android.os.Bundle
+import android.os.Parcelable
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -10,13 +10,15 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.DialogAddOrDeleteOrEditCategoryBinding
 import com.kjh.mynote.model.CategoryUiModel
-import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseDialogFragment
 import com.kjh.mynote.ui.base.DialogType
 import com.kjh.mynote.utils.extensions.onThrottleClick
+import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.parcelize.Parcelize
 
 /**
  * Created by kangjonghyuk.
@@ -31,100 +33,48 @@ class CategoryAddOrDeleteOrEditDialog :
         dialogType = DialogType.DIALOG
     ) {
 
-    private var eventCallback: CategoryManageEventCallback? = null
-
     private val viewModel: CategoryAddOrDeleteOrEditDialogViewModel by viewModels()
+
+    private var categoryDialogType: CategoryDialogType? = null
+    private var currentCategoryItem: CategoryUiModel? = null
 
     init {
         isCancelable = false
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        eventCallback = when {
-            parentFragment is CategoryManageEventCallback -> parentFragment as CategoryManageEventCallback
-            context is CategoryManageEventCallback -> context
-            else -> throw IllegalStateException("Parent must implement CategoryManageEventCallback")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            categoryDialogType = it.parcelable(ARG_ENUM_TYPE)
+            currentCategoryItem = it.parcelable(ARG_CATEGORY_ITEM)
         }
     }
 
-    override fun onInitView() {}
+    override fun onInitView() {
+        categoryDialogType?.let {
+            when (it) {
+                CategoryDialogType.ADD -> setupCategoryAddUI()
+                CategoryDialogType.MODIFY -> setupCategoryModifyUI()
+                CategoryDialogType.DELETE -> setupCategoryDeleteUI()
+            }
+        } ?: dismiss()
+    }
 
     override fun onInitData() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.dialogType.collect { dialogType ->
-                        when (dialogType) {
-                            CategoryDialogType.ADD -> setupCategoryAddUI()
-                            CategoryDialogType.MODIFY -> setupCategoryModifyUI()
-                            CategoryDialogType.DELETE -> setupCategoryDeleteUI()
-                        }
-                    }
+                    viewModel.makeCategoryEventState.collectLatest(::handleEventState)
                 }
 
                 launch {
-                    viewModel.makeCategoryEventState.collect { eventState ->
-                        when (eventState) {
-                            is UiState.Loading -> {}
-                            is UiState.Error -> {
-                                showToast(eventState.errorMsg)
-                            }
-                            is UiState.Success -> {
-                                eventCallback?.addEventCallback()
-                                dismiss()
-                            }
-                            else -> {}
-                        }
-                    }
+                    viewModel.updateCategoryNameEventState.collectLatest(::handleEventState)
                 }
 
                 launch {
-                    viewModel.updateCategoryNameEventState.collect { eventState ->
-                        when (eventState) {
-                            is UiState.Loading -> {}
-                            is UiState.Error -> {
-                                showToast(eventState.errorMsg)
-                            }
-                            is UiState.Success -> {
-                                eventCallback?.editEventCallback(eventState.data)
-                                dismiss()
-                            }
-                            else -> {}
-                        }
-                    }
-                }
-
-                launch {
-                    viewModel.deleteCategoryEventState.collect { eventState ->
-                        when (eventState) {
-                            is UiState.Loading -> {}
-                            is UiState.Error -> {
-                                showToast(eventState.errorMsg)
-                            }
-                            is UiState.Success -> {
-                                eventCallback?.deleteEventCallback(eventState.data)
-                                dismiss()
-                            }
-                            else -> {}
-                        }
-                    }
+                    viewModel.deleteCategoryEventState.collectLatest(::handleEventState)
                 }
             }
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        eventCallback = null
-    }
-
-    private fun isValidCategoryName(): Boolean {
-        if (binding.etCategory.text.toString().isBlank()) {
-            showToast(getString(R.string.title_input_category_for_add))
-            return false
-        } else {
-            return true
         }
     }
 
@@ -151,8 +101,6 @@ class CategoryAddOrDeleteOrEditDialog :
      *  카테고리 수정 UI..
      */
     private fun setupCategoryModifyUI() = with (binding) {
-        val currentCategoryItem = viewModel.categoryItem.value
-
         tvTitle.text = getString(R.string.title_input_category_for_edit)
 
         etCategory.isVisible = true
@@ -179,8 +127,6 @@ class CategoryAddOrDeleteOrEditDialog :
      *  카테고리 삭제 UI..
      */
     private fun setupCategoryDeleteUI() = with (binding) {
-        val currentCategoryItem = viewModel.categoryItem.value
-
         tvTitle.text = getString(R.string.title_will_you_delete_category)
 
         tvNoti.isVisible = true
@@ -198,10 +144,25 @@ class CategoryAddOrDeleteOrEditDialog :
         }
     }
 
-    interface CategoryManageEventCallback {
-        fun addEventCallback()
-        fun editEventCallback(category: CategoryUiModel)
-        fun deleteEventCallback(categoryId: Int)
+    private fun isValidCategoryName(): Boolean {
+        if (binding.etCategory.text.toString().isBlank()) {
+            showToast(getString(R.string.title_input_category_for_add))
+            return false
+        } else {
+            return true
+        }
+    }
+
+    private fun handleEventState(state: CategoryManageEventState) {
+        when (state) {
+            is CategoryManageEventState.Loading -> {}
+            is CategoryManageEventState.Error -> {
+                showToast(state.errorMsg)
+            }
+            is CategoryManageEventState.Success -> {
+                dismiss()
+            }
+        }
     }
 
     companion object {
@@ -220,4 +181,11 @@ class CategoryAddOrDeleteOrEditDialog :
             }
         }
     }
+}
+
+@Parcelize
+enum class CategoryDialogType: Parcelable {
+    ADD,
+    MODIFY,
+    DELETE
 }

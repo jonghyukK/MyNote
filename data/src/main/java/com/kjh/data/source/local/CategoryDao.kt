@@ -1,9 +1,8 @@
 package com.kjh.data.source.local
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import com.example.domain.model.CategoryWithPurchaseNoteCount
 import com.kjh.data.model.entity.CategoryEntity
 import kotlinx.coroutines.flow.Flow
@@ -26,13 +25,13 @@ interface CategoryDao {
     fun getAllCategories(): Flow<List<CategoryEntity>>
 
     /**
-     * 카테고리 등록.
+     * 카테고리 등록 or 수정
      *
      * @param category
-     * @return Long (등록된 카테고리 id)
+     * @return 등록 or 수정된 카테고리 id.
      */
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(category: CategoryEntity): Long
+    @Upsert
+    suspend fun upsert(category: CategoryEntity): Long
 
     /**
      * 카테고리 조회 by CategoryName
@@ -51,15 +50,6 @@ interface CategoryDao {
      */
     @Query("SELECT * FROM categories WHERE id = :id")
     suspend fun getCategoryById(id: Int): CategoryEntity?
-
-    /**
-     * 카테고리명 수정 by categoryId.
-     *
-     * @param id
-     * @param newName
-     */
-    @Query("UPDATE categories SET categoryName = :newName WHERE id = :id")
-    suspend fun updateCategoryName(id: Int, newName: String)
 
     /**
      * 카테고리 삭제 by categoryId.

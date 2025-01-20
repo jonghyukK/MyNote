@@ -16,6 +16,7 @@ import com.kjh.mynote.utils.extensions.makeGone
 import com.kjh.mynote.utils.extensions.makeVisible
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
@@ -25,8 +26,8 @@ import kotlinx.coroutines.launch
  */
 
 @AndroidEntryPoint
-class CategoryManageActivity: BaseActivity<ActivityCategoryManageBinding>({ ActivityCategoryManageBinding.inflate(it) }),
-CategoryAddOrDeleteOrEditDialog.CategoryManageEventCallback {
+class CategoryManageActivity :
+    BaseActivity<ActivityCategoryManageBinding>({ ActivityCategoryManageBinding.inflate(it) }) {
 
     private val viewModel: CategoryManageViewModel by viewModels()
 
@@ -52,18 +53,19 @@ CategoryAddOrDeleteOrEditDialog.CategoryManageEventCallback {
     override fun onInitUiData() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { uiState ->
+                viewModel.uiState.collectLatest { uiState ->
                     when (uiState) {
                         is CategoryManageUiState.Loading -> {
                             binding.layoutLoading.root.makeVisible()
                         }
                         is CategoryManageUiState.Error -> {
                             binding.layoutLoading.root.makeGone()
-                            uiState.error.message?.let {
+                            uiState.errorMsg?.let {
                                 showToast(it)
+                                viewModel.shownError()
                             }
                         }
-                        is CategoryManageUiState.Categories -> {
+                        is CategoryManageUiState.Success -> {
                             binding.layoutLoading.root.makeGone()
                             listAdapter.submitList(uiState.categoryItems)
                         }
@@ -92,8 +94,4 @@ CategoryAddOrDeleteOrEditDialog.CategoryManageEventCallback {
             dialogType = CategoryDialogType.ADD
         ).show(supportFragmentManager, CategoryAddOrDeleteOrEditDialog.TAG)
     }
-
-    override fun addEventCallback() {}
-    override fun editEventCallback(category: CategoryUiModel) {}
-    override fun deleteEventCallback(categoryId: Int) {}
 }

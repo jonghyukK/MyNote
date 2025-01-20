@@ -1,6 +1,5 @@
 package com.kjh.mynote.ui.common.dialog.categorymanage
 
-import android.os.Parcelable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,16 +9,11 @@ import com.example.domain.usecase.DeleteCategoryByIdUseCase
 import com.example.domain.usecase.MakeCategoryUseCase
 import com.example.domain.usecase.UpdateCategoryNameUseCase
 import com.kjh.mynote.model.CategoryUiModel
-import com.kjh.mynote.model.UiState
 import com.kjh.mynote.model.toDomainModel
-import com.kjh.mynote.ui.common.dialog.categorymanage.CategoryAddOrDeleteOrEditDialog.Companion.ARG_CATEGORY_ITEM
-import com.kjh.mynote.ui.common.dialog.categorymanage.CategoryAddOrDeleteOrEditDialog.Companion.ARG_ENUM_TYPE
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import kotlinx.parcelize.Parcelize
 import javax.inject.Inject
 
 /**
@@ -27,13 +21,6 @@ import javax.inject.Inject
  * Created On 2024. 12. 30..
  * Description:
  */
-
-@Parcelize
-enum class CategoryDialogType: Parcelable {
-    ADD,
-    MODIFY,
-    DELETE
-}
 
 @HiltViewModel
 class CategoryAddOrDeleteOrEditDialogViewModel @Inject constructor(
@@ -43,19 +30,13 @@ class CategoryAddOrDeleteOrEditDialogViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
-    val dialogType: StateFlow<CategoryDialogType> =
-        savedStateHandle.getStateFlow(ARG_ENUM_TYPE, CategoryDialogType.ADD)
-
-    val categoryItem: StateFlow<CategoryUiModel?> =
-        savedStateHandle.getStateFlow(ARG_CATEGORY_ITEM, null)
-
-    private val _makeCategoryEventState = MutableSharedFlow<UiState<Unit>>()
+    private val _makeCategoryEventState = MutableSharedFlow<CategoryManageEventState>()
     val makeCategoryEventState = _makeCategoryEventState.asSharedFlow()
 
-    private val _updateCategoryNameEventState = MutableSharedFlow<UiState<CategoryUiModel>>()
+    private val _updateCategoryNameEventState = MutableSharedFlow<CategoryManageEventState>()
     val updateCategoryNameEventState = _updateCategoryNameEventState.asSharedFlow()
 
-    private val _deleteCategoryEventState = MutableSharedFlow<UiState<Int>>()
+    private val _deleteCategoryEventState = MutableSharedFlow<CategoryManageEventState>()
     val deleteCategoryEventState = _deleteCategoryEventState.asSharedFlow()
 
     fun makeCategory(categoryName: String) {
@@ -63,13 +44,14 @@ class CategoryAddOrDeleteOrEditDialogViewModel @Inject constructor(
             makeCategoryUseCase(Category(categoryName = categoryName)).collect { result ->
                 when (result) {
                     is ApiResult.Loading -> {
-                        _makeCategoryEventState.emit(UiState.Loading)
+                        _makeCategoryEventState.emit(CategoryManageEventState.Loading)
                     }
                     is ApiResult.Error -> {
-                        _makeCategoryEventState.emit(UiState.Error(result.error.message ?: "카테고리 추가가 실패하였습니다."))
+                        _makeCategoryEventState.emit(CategoryManageEventState.Error(
+                            result.error.message ?: "카테고리 추가가 실패하였습니다."))
                     }
                     is ApiResult.Success -> {
-                        _makeCategoryEventState.emit(UiState.Success(Unit))
+                        _makeCategoryEventState.emit(CategoryManageEventState.Success(result.data))
                     }
                 }
             }
@@ -81,13 +63,14 @@ class CategoryAddOrDeleteOrEditDialogViewModel @Inject constructor(
             updateCategoryNameUseCase(category.toDomainModel()).collect { result ->
                 when (result) {
                     is ApiResult.Loading -> {
-                        _updateCategoryNameEventState.emit(UiState.Loading)
+                        _updateCategoryNameEventState.emit(CategoryManageEventState.Loading)
                     }
                     is ApiResult.Error -> {
-                        _updateCategoryNameEventState.emit(UiState.Error(result.error.message ?: "카테고리 수정이 실패하였습니다."))
+                        _updateCategoryNameEventState.emit(CategoryManageEventState.Error(
+                            result.error.message ?: "카테고리 수정이 실패하였습니다."))
                     }
                     is ApiResult.Success -> {
-                        _updateCategoryNameEventState.emit(UiState.Success(category))
+                        _updateCategoryNameEventState.emit(CategoryManageEventState.Success(result.data))
                     }
                 }
             }
@@ -99,16 +82,23 @@ class CategoryAddOrDeleteOrEditDialogViewModel @Inject constructor(
             deleteCategoryByIdUseCase(categoryId).collect { result ->
                 when (result) {
                     is ApiResult.Loading -> {
-                        _deleteCategoryEventState.emit(UiState.Loading)
+                        _deleteCategoryEventState.emit(CategoryManageEventState.Loading)
                     }
                     is ApiResult.Error -> {
-                        _deleteCategoryEventState.emit(UiState.Error(result.error.message ?: "카테고리 수정이 실패하였습니다."))
+                        _deleteCategoryEventState.emit(CategoryManageEventState.Error(
+                            result.error.message ?: "카테고리 삭제가 실패하였습니다."))
                     }
                     is ApiResult.Success -> {
-                        _deleteCategoryEventState.emit(UiState.Success(categoryId))
+                        _deleteCategoryEventState.emit(CategoryManageEventState.Success(categoryId.toLong()))
                     }
                 }
             }
         }
     }
+}
+
+sealed interface CategoryManageEventState {
+    data object Loading: CategoryManageEventState
+    data class Error(val errorMsg: String): CategoryManageEventState
+    data class Success(val categoryId: Long): CategoryManageEventState
 }

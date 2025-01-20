@@ -34,10 +34,17 @@ class CategoryRepositoryImpl @Inject constructor(
         categoryLocalDataSource.getCategoriesWithPurchaseNoteCount(startDate, endDate)
             .asResult()
 
+    override suspend fun upsertCategory(category: Category): Flow<ApiResult<Long>> =
+        safeApiCall {
+            checkDuplicate(category)
 
-    override suspend fun insertCategory(category: Category): Long {
-        return categoryLocalDataSource.insert(category.toEntity())
-    }
+            categoryLocalDataSource.upsert(category.toEntity())
+        }
+
+    override suspend fun deleteCategoryById(id: Int): Flow<ApiResult<Unit>> =
+        safeApiCall {
+            categoryLocalDataSource.deleteCategoryById(id)
+        }
 
     override suspend fun getCategoryByName(name: String): Category? {
         return categoryLocalDataSource.getCategoryByName(name)?.toDomainModel()
@@ -47,12 +54,14 @@ class CategoryRepositoryImpl @Inject constructor(
         return categoryLocalDataSource.getCategoryById(id)?.toDomainModel()
     }
 
-    override suspend fun updateCategoryName(category: Category) {
-        categoryLocalDataSource.updateCategoryName(category.id, category.categoryName)
+    private suspend fun checkDuplicate(category: Category) {
+        val categoryByName = categoryLocalDataSource.getCategoryByName(category.categoryName)
+        if (categoryByName != null && categoryByName.id != category.id) {
+            throw Exception(ERROR_DUPLICATE_CATEGORY_NAME)
+        }
     }
 
-    override suspend fun deleteCategoryById(id: Int): Flow<ApiResult<Unit>> =
-        safeApiCall {
-            categoryLocalDataSource.deleteCategoryById(id)
-        }
+    companion object {
+        private const val ERROR_DUPLICATE_CATEGORY_NAME = "같은 이름을 가진 카테고리가 존재합니다."
+    }
 }

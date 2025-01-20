@@ -19,13 +19,11 @@ interface CategoryRepository {
         endDate: Long?
     ): Flow<ApiResult<List<CategoryWithPurchaseNoteCount>>>
 
-    suspend fun insertCategory(category: Category): Long
+    suspend fun upsertCategory(category: Category): Flow<ApiResult<Long>>
+
+    suspend fun deleteCategoryById(id: Int): Flow<ApiResult<Unit>>
 
     suspend fun getCategoryByName(name: String): Category?
 
     suspend fun getCategoryById(id: Int): Category?
-
-    suspend fun updateCategoryName(category: Category)
-
-    suspend fun deleteCategoryById(id: Int): Flow<ApiResult<Unit>>
 }
