@@ -15,7 +15,11 @@ import com.kjh.mynote.utils.extensions.highlightText
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.
@@ -48,7 +52,10 @@ class MakePaymentMethodDialogFragment : BaseDialogFragment<DialogFragmentMakeOrE
             )
 
             etPaymentMethodName.addCustomTextWatcher(paymentMethodNameTextWatcher)
+
+            tbToolbar.setBackButtonClickListener(backButtonClickListener)
             btnBottom.setOnThrottleClickListener(registerClickListener)
+            clRegisterDefaultPaymentMethod.setOnThrottleClickListener(registerDefaultPaymentMethodClickListener)
 
             etPaymentMethodName.post {
                 etPaymentMethodName.setFocus()
@@ -60,26 +67,43 @@ class MakePaymentMethodDialogFragment : BaseDialogFragment<DialogFragmentMakeOrE
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.makePaymentMethodEvent.collect { event ->
+                    viewModel.uiState
+                        .map { it.isDefault }
+                        .distinctUntilChanged()
+                        .collect { isChecked ->
+                            binding.ivCheck.setImageResource(
+                                if (isChecked)
+                                    R.drawable.ic_selected_checkbox
+                                else
+                                    R.drawable.ic_unselected_checkbox
+                            )
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.paymentMethodName }
+                        .distinctUntilChanged()
+                        .collect { paymentMethodName ->
+                            binding.btnBottom.isEnable = paymentMethodName.isNotBlank()
+                        }
+                }
+
+                launch {
+                    viewModel.makePaymentMethodEvent.collectLatest { event ->
                         when (event) {
                             is MakePaymentMethodEventState.Loading -> {
                                 binding.btnBottom.isLoading = true
                             }
                             is MakePaymentMethodEventState.Error -> {
                                 binding.btnBottom.isLoading = false
-                                event.error.message?.let { showToast(it) }
+                                showToast(event.errorMsg)
                             }
                             is MakePaymentMethodEventState.Success -> {
                                 binding.btnBottom.isLoading = false
                                 dismiss()
                             }
                         }
-                    }
-                }
-
-                launch {
-                    viewModel.paymentMethodNameText.collect { text ->
-                        binding.btnBottom.isEnable = text.isNotBlank()
                     }
                 }
             }
@@ -94,10 +118,18 @@ class MakePaymentMethodDialogFragment : BaseDialogFragment<DialogFragmentMakeOrE
         }
     }
 
+    private val backButtonClickListener = View.OnClickListener {
+        dismiss()
+    }
+
     private val registerClickListener = View.OnClickListener {
         if (binding.btnBottom.isEnable) {
             viewModel.makePaymentMethod()
         }
+    }
+
+    private val registerDefaultPaymentMethodClickListener = View.OnClickListener {
+        viewModel.toggleDefaultState()
     }
 
     companion object {

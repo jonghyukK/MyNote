@@ -31,6 +31,7 @@ class PaymentMethodManageActivity :
     BaseActivity<ActivityPaymentMethodManageBinding>({ ActivityPaymentMethodManageBinding.inflate(it) }), DefaultDialog.MyDefaultDialogEventListener {
 
     private val viewModel: PaymentMethodManageViewModel by viewModels()
+    private var tempDeleteItemId: Int? = null
 
     private val listAdapter: PaymentMethodManageListAdapter by lazy {
         PaymentMethodManageListAdapter(
@@ -63,8 +64,9 @@ class PaymentMethodManageActivity :
 
                             is PaymentMethodManageUiState.Error -> {
                                 binding.layoutLoading.root.makeGone()
-                                uiState.error.message?.let {
+                                uiState.errorMsg?.let {
                                     showToast(it)
+                                    viewModel.shownFetchError()
                                 }
                             }
 
@@ -88,6 +90,7 @@ class PaymentMethodManageActivity :
                             }
                             is DeletePaymentMethodEventState.Success -> {
                                 binding.layoutLoading.root.makeGone()
+                                tempDeleteItemId = null
                             }
                         }
                     }
@@ -103,7 +106,7 @@ class PaymentMethodManageActivity :
     }
 
     private val deleteClickAction: (PaymentMethodUiModel) -> Unit = { item ->
-        viewModel.tempDeleteItem = item
+        tempDeleteItemId = item.paymentMethodId
 
         DefaultDialog.newInstance(
             title = getString(R.string.will_you_delete),
@@ -121,14 +124,16 @@ class PaymentMethodManageActivity :
     }
 
     override fun onDialogPositiveClick() {
-        viewModel.deletePaymentMethod()
+        tempDeleteItemId?.let {
+            viewModel.deletePaymentMethod(it)
+        }
     }
 
     override fun onDialogNegativeClick() {
-        viewModel.tempDeleteItem = null
+        tempDeleteItemId = null
     }
 
     override fun onDialogDismiss() {
-        viewModel.tempDeleteItem = null
+        tempDeleteItemId = null
     }
 }

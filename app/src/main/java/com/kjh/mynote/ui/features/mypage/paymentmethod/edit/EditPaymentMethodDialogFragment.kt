@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import androidx.core.os.bundleOf
-import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -20,6 +18,8 @@ import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /**
@@ -53,6 +53,8 @@ class EditPaymentMethodDialogFragment: BaseDialogFragment<DialogFragmentMakeOrEd
             )
 
             etPaymentMethodName.addCustomTextWatcher(paymentMethodNameTextWatcher)
+
+            clRegisterDefaultPaymentMethod.setOnThrottleClickListener(registerDefaultPaymentMethodClickListener)
             btnBottom.setOnThrottleClickListener(modifyClickListener)
 
             etPaymentMethodName.post {
@@ -72,16 +74,10 @@ class EditPaymentMethodDialogFragment: BaseDialogFragment<DialogFragmentMakeOrEd
                             }
                             is EditPaymentMethodEventState.Error -> {
                                 binding.btnBottom.isLoading = false
-                                event.error.message?.let { showToast(it) }
+                                showToast(event.errorMsg)
                             }
                             is EditPaymentMethodEventState.Success -> {
                                 binding.btnBottom.isLoading = false
-
-                                setFragmentResult(
-                                    REQUEST_KEY,
-                                    bundleOf(RES_KEY_UPDATED_ITEM to event.paymentMethodItem)
-                                )
-
                                 dismiss()
                             }
                         }
@@ -89,15 +85,32 @@ class EditPaymentMethodDialogFragment: BaseDialogFragment<DialogFragmentMakeOrEd
                 }
 
                 launch {
-                    viewModel.paymentMethodNameText.collect { text ->
-                        if (binding.etPaymentMethodName.text != text) {
-                            binding.etPaymentMethodName.text = text
+                    viewModel.uiState
+                        .map { it.paymentMethodName }
+                        .distinctUntilChanged()
+                        .collect { paymentMethodName ->
+                            if (binding.etPaymentMethodName.text != paymentMethodName) {
+                                binding.etPaymentMethodName.text = paymentMethodName
+                            }
                         }
-                    }
                 }
 
                 launch {
-                    viewModel.isValidData.collectLatest {
+                    viewModel.uiState
+                        .map { it.isDefault }
+                        .distinctUntilChanged()
+                        .collect { isDefault ->
+                            binding.ivCheck.setImageResource(
+                                if (isDefault)
+                                    R.drawable.ic_selected_checkbox
+                                else
+                                    R.drawable.ic_unselected_checkbox
+                            )
+                        }
+                }
+
+                launch {
+                    viewModel.editButtonEnable.collectLatest {
                         binding.btnBottom.isEnable = it
                     }
                 }
@@ -113,6 +126,10 @@ class EditPaymentMethodDialogFragment: BaseDialogFragment<DialogFragmentMakeOrEd
         }
     }
 
+    private val registerDefaultPaymentMethodClickListener = View.OnClickListener {
+        viewModel.toggleDefaultState()
+    }
+
     private val modifyClickListener = View.OnClickListener {
         if (binding.btnBottom.isEnable) {
             viewModel.editPaymentMethod()
@@ -121,11 +138,7 @@ class EditPaymentMethodDialogFragment: BaseDialogFragment<DialogFragmentMakeOrEd
 
     companion object {
         const val TAG = "EditPaymentMethodDialogFragment"
-
         const val ARG_PAYMENT_METHOD_ITEM = "ARG_PAYMENT_METHOD_ITEM"
-
-        const val REQUEST_KEY = "REQUEST_KEY"
-        const val RES_KEY_UPDATED_ITEM = "RES_KEY_UPDATED_ITEM"
 
         fun newInstance(
             paymentMethodItem: PaymentMethodUiModel
