@@ -27,5 +27,5 @@ interface CategoryRepository {
 
     suspend fun updateCategoryName(category: Category)
 
-    suspend fun deleteCategoryById(id: Int)
+    suspend fun deleteCategoryById(id: Int): Flow<ApiResult<Unit>>
 }

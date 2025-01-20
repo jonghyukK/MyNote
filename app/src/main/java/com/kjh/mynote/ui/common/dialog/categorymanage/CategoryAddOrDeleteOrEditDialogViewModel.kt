@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
 import com.example.domain.model.Category
-import com.example.domain.usecase.DeleteCategoryAndAssignToETCUseCase
+import com.example.domain.usecase.DeleteCategoryByIdUseCase
 import com.example.domain.usecase.MakeCategoryUseCase
 import com.example.domain.usecase.UpdateCategoryNameUseCase
 import com.kjh.mynote.model.CategoryUiModel
@@ -39,7 +39,7 @@ enum class CategoryDialogType: Parcelable {
 class CategoryAddOrDeleteOrEditDialogViewModel @Inject constructor(
     private val makeCategoryUseCase: MakeCategoryUseCase,
     private val updateCategoryNameUseCase: UpdateCategoryNameUseCase,
-    private val deleteCategoryAndAssignToETCUseCase: DeleteCategoryAndAssignToETCUseCase,
+    private val deleteCategoryByIdUseCase: DeleteCategoryByIdUseCase,
     private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
@@ -96,7 +96,7 @@ class CategoryAddOrDeleteOrEditDialogViewModel @Inject constructor(
 
     fun deleteCategory(categoryId: Int) {
         viewModelScope.launch {
-            deleteCategoryAndAssignToETCUseCase(categoryId).collect { result ->
+            deleteCategoryByIdUseCase(categoryId).collect { result ->
                 when (result) {
                     is ApiResult.Loading -> {
                         _deleteCategoryEventState.emit(UiState.Loading)

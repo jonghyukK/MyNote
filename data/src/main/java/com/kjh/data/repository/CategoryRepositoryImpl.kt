@@ -4,6 +4,7 @@ import com.example.domain.model.ApiResult
 import com.example.domain.model.Category
 import com.example.domain.model.CategoryWithPurchaseNoteCount
 import com.example.domain.model.asResult
+import com.example.domain.model.safeApiCall
 import com.example.domain.repository.CategoryRepository
 import com.kjh.data.model.entity.toDomainModel
 import com.kjh.data.model.entity.toEntity
@@ -50,7 +51,8 @@ class CategoryRepositoryImpl @Inject constructor(
         categoryLocalDataSource.updateCategoryName(category.id, category.categoryName)
     }
 
-    override suspend fun deleteCategoryById(id: Int) {
-        categoryLocalDataSource.deleteCategoryById(id)
-    }
+    override suspend fun deleteCategoryById(id: Int): Flow<ApiResult<Unit>> =
+        safeApiCall {
+            categoryLocalDataSource.deleteCategoryById(id)
+        }
 }
