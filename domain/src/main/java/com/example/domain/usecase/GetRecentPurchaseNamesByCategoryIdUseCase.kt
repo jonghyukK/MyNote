@@ -1,6 +1,7 @@
 package com.example.domain.usecase
 
 import com.example.domain.model.ApiResult
+import com.example.domain.model.safeApiCall
 import com.example.domain.repository.PurchaseNoteRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -14,5 +15,7 @@ class GetRecentPurchaseNamesByCategoryIdUseCase @Inject constructor(
     private val purchaseNoteRepository: PurchaseNoteRepository
 ) {
     suspend operator fun invoke(categoryId: Int?): Flow<ApiResult<List<String>>> =
-        purchaseNoteRepository.getRecentPurchaseNamesByCategory(categoryId)
+        safeApiCall {
+            purchaseNoteRepository.getRecentPurchaseNamesByCategory(categoryId)
+        }
 }

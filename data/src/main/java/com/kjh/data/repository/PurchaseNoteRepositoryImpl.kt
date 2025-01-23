@@ -92,13 +92,12 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
             purchaseNoteLocalDataSource.insertPurchaseNotes(purchaseNotes.map { it.toEntity() })
         }
 
-    override suspend fun insertAndGetPurchaseNote(purchaseNote: PurchaseNote): Flow<ApiResult<PurchaseNote>> =
-        safeApiCall {
-            val purchaseNoteEntity = purchaseNote.toEntity()
-            val newId = purchaseNoteLocalDataSource.insertPurchaseNote(purchaseNoteEntity).toInt()
+    override suspend fun insertAndGetPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote {
+        val purchaseNoteEntity = purchaseNote.toEntity()
+        val newId = purchaseNoteLocalDataSource.insertPurchaseNote(purchaseNoteEntity).toInt()
 
-            purchaseNoteLocalDataSource.getPurchaseNoteById(newId).toDomainModel()
-        }
+        return purchaseNoteLocalDataSource.getPurchaseNoteById(newId).toDomainModel()
+    }
 
     override suspend fun deletePurchaseNoteById(id: Int): Flow<ApiResult<Unit>> =
         safeApiCall {
@@ -175,8 +174,7 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
         }.asResult()
     }
 
-    override suspend fun getRecentPurchaseNamesByCategory(categoryId: Int?): Flow<ApiResult<List<String>>> =
-        safeApiCall {
-            purchaseNoteLocalDataSource.getRecentPurchaseNamesByCategory(categoryId)
-        }
+    override suspend fun getRecentPurchaseNamesByCategory(categoryId: Int?): List<String> =
+        purchaseNoteLocalDataSource.getRecentPurchaseNamesByCategory(categoryId)
+
 }

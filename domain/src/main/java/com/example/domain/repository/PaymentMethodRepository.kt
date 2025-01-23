@@ -13,9 +13,9 @@ interface PaymentMethodRepository {
 
     fun getAllPaymentMethods(): Flow<ApiResult<List<PaymentMethod>>>
 
-    suspend fun upsertPaymentMethod(paymentMethod: PaymentMethod): Flow<ApiResult<Long>>
+    suspend fun upsertPaymentMethod(paymentMethod: PaymentMethod): Long
 
     suspend fun deletePaymentMethod(paymentMethodId: Int): Flow<ApiResult<Unit>>
 
-    suspend fun getDefaultPaymentMethod(): Flow<ApiResult<PaymentMethod?>>
+    suspend fun getDefaultPaymentMethod(): PaymentMethod?
 }

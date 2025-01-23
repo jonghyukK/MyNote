@@ -26,16 +26,15 @@ class PaymentMethodRepositoryImpl @Inject constructor(
             .map { it.toDomainModel() }
             .asResult()
 
-    override suspend fun upsertPaymentMethod(paymentMethod: PaymentMethod): Flow<ApiResult<Long>> =
-        safeApiCall {
-            checkDuplicate(paymentMethod)
+    override suspend fun upsertPaymentMethod(paymentMethod: PaymentMethod): Long {
+        checkDuplicate(paymentMethod)
 
-            if (paymentMethod.isDefault) {
-                paymentMethodLocalDataSource.resetDefaultPaymentMethods()
-            }
-
-            paymentMethodLocalDataSource.upsertPaymentMethod(paymentMethod.toEntity())
+        if (paymentMethod.isDefault) {
+            paymentMethodLocalDataSource.resetDefaultPaymentMethods()
         }
+
+        return paymentMethodLocalDataSource.upsertPaymentMethod(paymentMethod.toEntity())
+    }
 
     override suspend fun deletePaymentMethod(paymentMethodId: Int): Flow<ApiResult<Unit>> {
         return safeApiCall {
@@ -43,11 +42,8 @@ class PaymentMethodRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getDefaultPaymentMethod(): Flow<ApiResult<PaymentMethod?>> {
-        return safeApiCall {
-            paymentMethodLocalDataSource.getDefaultPaymentMethod()?.toDomainModel()
-        }
-    }
+    override suspend fun getDefaultPaymentMethod(): PaymentMethod? =
+        paymentMethodLocalDataSource.getDefaultPaymentMethod()?.toDomainModel()
 
     private suspend fun checkDuplicate(paymentMethod: PaymentMethod) {
         val paymentMethodByName =

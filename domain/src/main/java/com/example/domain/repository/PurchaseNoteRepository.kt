@@ -39,7 +39,7 @@ interface PurchaseNoteRepository {
 
     suspend fun insertPurchaseNotes(purchaseNotes: List<PurchaseNote>): Flow<ApiResult<Unit>>
 
-    suspend fun insertAndGetPurchaseNote(purchaseNote: PurchaseNote): Flow<ApiResult<PurchaseNote>>
+    suspend fun insertAndGetPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote
 
     suspend fun deletePurchaseNoteById(id: Int): Flow<ApiResult<Unit>>
 
@@ -56,5 +56,5 @@ interface PurchaseNoteRepository {
         endDate: Long
     ): Flow<ApiResult<CategoryPurchaseNoteStats>>
 
-    suspend fun getRecentPurchaseNamesByCategory(categoryId: Int?): Flow<ApiResult<List<String>>>
+    suspend fun getRecentPurchaseNamesByCategory(categoryId: Int?): List<String>
 }
