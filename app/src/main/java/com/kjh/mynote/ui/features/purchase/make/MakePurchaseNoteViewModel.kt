@@ -1,12 +1,13 @@
 package com.kjh.mynote.ui.features.purchase.make
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
 import com.example.domain.model.PurchaseNote
+import com.example.domain.usecase.GetDefaultPaymentMethodUseCase
 import com.example.domain.usecase.GetRecentPurchaseNamesByCategoryIdUseCase
 import com.example.domain.usecase.MakeAndGetPurchaseNoteUseCase
+import com.example.domain.usecase.UpdateDefaultPaymentAndMakePurchaseNoteUseCase
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.PlaceInfoUiModel
@@ -14,18 +15,14 @@ import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.model.toDomainModal
 import com.kjh.mynote.model.toDomainModel
 import com.kjh.mynote.model.toUiModel
+import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.toStringWithFormat
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -40,82 +37,131 @@ import javax.inject.Inject
 class MakePurchaseNoteViewModel @Inject constructor(
     private val makeAndGetPurchaseNoteUseCase: MakeAndGetPurchaseNoteUseCase,
     private val getRecentPurchaseNamesByCategoryIdUseCase: GetRecentPurchaseNamesByCategoryIdUseCase,
+    private val getDefaultPaymentMethodUseCase: GetDefaultPaymentMethodUseCase,
+    private val updateDefaultPaymentAndMakePurchaseNoteUseCase: UpdateDefaultPaymentAndMakePurchaseNoteUseCase,
     private val savedStateHandle: SavedStateHandle
-): ViewModel() {
+): BaseViewModel() {
 
     private val initDate = savedStateHandle.get<Long>(AppConstants.INTENT_PURCHASE_DATE)
 
     private val _uiState = MutableStateFlow(MakePurchaseNoteUiState(
-        purchaseDate = initDate ?: -1,
-        purchaseDateText = initDate?.toStringWithFormat(DATE_PATTERN) ?: ""
-    ))
+            purchaseDate = initDate ?: -1,
+            purchaseDateText = initDate?.toStringWithFormat(DATE_PATTERN) ?: ""
+        )
+    )
     val uiState = _uiState.asStateFlow()
 
-    private val _makePurchaseNoteEventState = MutableSharedFlow<MakePurchaseNoteEventUiState>()
+    private val _makePurchaseNoteEventState = MutableSharedFlow<MakePurchaseNoteEventState>()
     val makePurchaseNoteEventState = _makePurchaseNoteEventState.asSharedFlow()
 
-    val saveValidateFlow = _uiState.map {
-        it.purchaseDate > 0
-                && it.purchasePrice > 0
-                && it.categoryItem != null
-                && it.paymentMethod != null
-                && it.purchaseName.isNotBlank()
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = false
-    )
-
-    val recentRegisteredPurchaseNamesUiState = uiState
-        .map { it.categoryItem }
-        .distinctUntilChanged()
-        .flatMapLatest { category ->
-            getRecentPurchaseNamesByCategoryIdUseCase(category?.id)
-                .map(::mapRecentPurchaseNamesResultToUiState)
-        }
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            RecentPurchaseNamesUiState.Wait
-        )
-
-    fun makePurchaseNote() {
+    fun fetchDefaultPaymentMethod() {
         viewModelScope.launch {
-            makeAndGetPurchaseNoteUseCase(convertUiStateToPurchaseNoteModel()).collect { result ->
+            getDefaultPaymentMethodUseCase().collect { result ->
                 when (result) {
                     is ApiResult.Loading -> {
-                        _makePurchaseNoteEventState.emit(MakePurchaseNoteEventUiState.Loading)
+                        _uiState.update {
+                            it.copy(isLoading = true)
+                        }
                     }
                     is ApiResult.Error -> {
-                        val errorMsg = result.error.message ?: "구매노트 생성이 실패하였습니다."
-                        _makePurchaseNoteEventState.emit(MakePurchaseNoteEventUiState.Error(errorMsg))
+                        sendError(result.error.message)
+
+                        _uiState.update {
+                            it.copy(isLoading = false)
+                        }
                     }
+
                     is ApiResult.Success -> {
-                        val madeItem = result.data.toUiModel()
-                        _makePurchaseNoteEventState.emit(MakePurchaseNoteEventUiState.Success(madeItem))
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                paymentMethod = result.data?.toUiModel()
+                            )
+                        }
                     }
                 }
             }
         }
     }
 
-    fun setTempImages(imageUrls: List<String>) {
-        if (imageUrls.isEmpty()) return
+    private fun fetchRecentPurchaseNamesByCategoryId(categoryId: Int?) {
+        viewModelScope.launch {
+            getRecentPurchaseNamesByCategoryIdUseCase(categoryId).collect { result ->
+                when (result) {
+                    is ApiResult.Loading -> {
+                        _uiState.update {
+                            it.copy(isLoading = true)
+                        }
+                    }
+                    is ApiResult.Error -> {
+                        sendError(result.error.message)
 
-        _uiState.update {
-            it.copy(
-                tempImageUrls = getValidTempImageUris(it.tempImageUrls, imageUrls)
-            )
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                recentPurchaseNameItems = emptyList()
+                            )
+                        }
+                    }
+                    is ApiResult.Success -> {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                recentPurchaseNameItems = result.data
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 
-    fun deleteTempImageByUrl(targetUrl: String?) {
-        if (targetUrl == null) return
+    fun makePurchaseNote() {
+        viewModelScope.launch {
+            if (_uiState.value.isDefaultPaymentCheckBoxChecked) {
+                updateDefaultPaymentMethodAndMakePurchaseNote()
+                return@launch
+            }
 
-        _uiState.update { uiState ->
-            uiState.copy(
-                tempImageUrls = uiState.tempImageUrls.filter { it != targetUrl }
-            )
+            makeAndGetPurchaseNoteUseCase(
+                purchaseNote = _uiState.value.toDomainModel()
+            ).collect(::handleMakePurchaseNoteResult)
+        }
+    }
+
+    private suspend fun updateDefaultPaymentMethodAndMakePurchaseNote() {
+        val paymentMethod = _uiState.value.paymentMethod?.copy(isDefault = true)?.toDomainModal() ?: return
+        val purchaseNote = _uiState.value.toDomainModel()
+
+        updateDefaultPaymentAndMakePurchaseNoteUseCase(
+            paymentMethod, purchaseNote
+        ).collect(::handleMakePurchaseNoteResult)
+    }
+
+    private suspend fun handleMakePurchaseNoteResult(result: ApiResult<PurchaseNote>) {
+        when (result) {
+            is ApiResult.Loading -> {
+                _makePurchaseNoteEventState.emit(MakePurchaseNoteEventState.Loading)
+            }
+            is ApiResult.Error -> {
+                sendError(result.error.message)
+                _makePurchaseNoteEventState.emit(MakePurchaseNoteEventState.Error(result.error))
+            }
+            is ApiResult.Success -> {
+                _makePurchaseNoteEventState.emit(MakePurchaseNoteEventState.Success(result.data.toUiModel()))
+            }
+        }
+    }
+
+    fun setTempImageUrls(urls: List<String>) {
+        _uiState.update {
+            it.copy(tempImageUrls = getValidTempImageUris(it.tempImageUrls, urls))
+        }
+    }
+
+    fun deleteTempImageByUrl(url: String) {
+        _uiState.update {
+            it.copy(tempImageUrls = it.tempImageUrls.filter { it != url })
         }
     }
 
@@ -125,8 +171,6 @@ class MakePurchaseNoteViewModel @Inject constructor(
         }
     }
 
-    fun getTempPlaceItem() = _uiState.value.tempPlaceItem
-
     fun setPurchaseDate(timeInMillis: Long) {
         _uiState.update {
             it.copy(
@@ -135,8 +179,6 @@ class MakePurchaseNoteViewModel @Inject constructor(
             )
         }
     }
-
-    fun getVisitDateTimeMills() = _uiState.value.purchaseDate
 
     fun setPurchasePrice(price: String) {
         _uiState.update {
@@ -157,27 +199,38 @@ class MakePurchaseNoteViewModel @Inject constructor(
     }
 
     fun setCategory(category: CategoryUiModel?) {
-        _uiState.update {
-            it.copy(categoryItem = category)
+        if (category == _uiState.value.categoryItem) return
+        if (category == null) {
+            _uiState.update {
+                it.copy(
+                    categoryItem = null,
+                    recentPurchaseNameItems = emptyList()
+                )
+            }
+        } else {
+            _uiState.update {
+                it.copy(categoryItem = category)
+            }
+            fetchRecentPurchaseNamesByCategoryId(categoryId = category.id)
         }
     }
 
     fun setPaymentMethod(paymentMethod: PaymentMethodUiModel?) {
+        if (paymentMethod == _uiState.value.paymentMethod) return
+
         _uiState.update {
-            it.copy(paymentMethod = paymentMethod)
+            it.copy(
+                paymentMethod = paymentMethod,
+                isShowDefaultPaymentCheckBox = paymentMethod != null && !paymentMethod.isDefault,
+                isDefaultPaymentCheckBoxChecked = false
+            )
         }
     }
 
-    private fun convertUiStateToPurchaseNoteModel() = with(_uiState.value) {
-        PurchaseNote(
-            purchaseDate = purchaseDate,
-            purchasePrice = purchasePrice,
-            purchaseName = purchaseName,
-            category = categoryItem?.toDomainModel(),
-            paymentMethod = paymentMethod?.toDomainModal(),
-            images = tempImageUrls.ifEmpty { null },
-            placeInfo = tempPlaceItem?.toDomainModel()
-        )
+    fun toggleDefaultPaymentMethodChecked() {
+        _uiState.update {
+            it.copy(isDefaultPaymentCheckBoxChecked = !it.isDefaultPaymentCheckBoxChecked)
+        }
     }
 
     private fun getValidTempImageUris(
@@ -198,45 +251,46 @@ class MakePurchaseNoteViewModel @Inject constructor(
         }
     }
 
-    private fun mapRecentPurchaseNamesResultToUiState(result: ApiResult<List<String>>) =
-        when (result) {
-            is ApiResult.Loading ->
-                RecentPurchaseNamesUiState.Loading
-
-            is ApiResult.Error ->
-                RecentPurchaseNamesUiState.Error(
-                    result.error.message ?: "최근 등록한 구매명 목록 조회가 실패하였습니다."
-                )
-
-            is ApiResult.Success ->
-                RecentPurchaseNamesUiState.Success(result.data)
-        }
-
     companion object {
         private const val DATE_PATTERN = "yyyy년 M월 d일 (E)"
     }
 }
 
-sealed interface MakePurchaseNoteEventUiState {
-    data object Loading: MakePurchaseNoteEventUiState
-    data class Error(val errorMsg: String): MakePurchaseNoteEventUiState
-    data class Success(val purchaseNoteItem: PurchaseNoteUiModel): MakePurchaseNoteEventUiState
-}
-
-sealed interface RecentPurchaseNamesUiState {
-    data object Wait: RecentPurchaseNamesUiState
-    data object Loading: RecentPurchaseNamesUiState
-    data class Error(val errorMsg: String): RecentPurchaseNamesUiState
-    data class Success(val items: List<String>): RecentPurchaseNamesUiState
+sealed class MakePurchaseNoteEventState {
+    data object Loading: MakePurchaseNoteEventState()
+    data class Error(val error: Throwable): MakePurchaseNoteEventState()
+    data class Success(val purchaseNoteItem: PurchaseNoteUiModel): MakePurchaseNoteEventState()
 }
 
 data class MakePurchaseNoteUiState(
+    val isLoading: Boolean = false,
     val purchaseName: String = "",
     val categoryItem: CategoryUiModel? = null,
+    val recentPurchaseNameItems: List<String> = emptyList(),
     val paymentMethod: PaymentMethodUiModel? = null,
     val purchaseDate: Long = -1,
     val purchaseDateText: String = "",
     val purchasePrice: Long = 0,
     val tempPlaceItem: PlaceInfoUiModel? = null,
-    val tempImageUrls: List<String> = emptyList()
-)
+    val tempImageUrls: List<String> = emptyList(),
+    val isShowDefaultPaymentCheckBox: Boolean = false,
+    val isDefaultPaymentCheckBoxChecked: Boolean = false
+) {
+    fun toDomainModel(): PurchaseNote =
+        PurchaseNote(
+            purchaseDate = purchaseDate,
+            purchasePrice = purchasePrice,
+            purchaseName = purchaseName,
+            category = categoryItem?.toDomainModel(),
+            paymentMethod = paymentMethod?.toDomainModal(),
+            images = tempImageUrls.ifEmpty { null },
+            placeInfo = tempPlaceItem?.toDomainModel()
+        )
+
+    val canSave: Boolean =
+        purchaseDate > 0
+                && purchasePrice > 0
+                && categoryItem != null
+                && paymentMethod != null
+                && purchaseName.isNotBlank()
+}

@@ -2,10 +2,9 @@ package com.kjh.mynote.ui.base
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.
@@ -13,17 +12,14 @@ import timber.log.Timber
  * Description:
  */
 
-open class BaseViewModel: ViewModel() {
+abstract class BaseViewModel: ViewModel() {
 
-    private val _errorEvent = MutableSharedFlow<String?>()
-    val errorEvent = _errorEvent.asSharedFlow()
+    private val _showError: Channel<String> = Channel()
+    val showError = _showError.receiveAsFlow()
 
-    fun emitError(errorMsg: String?) {
+    fun sendError(errorMsg: String?) {
         viewModelScope.launch {
-            errorMsg?.let {
-                Timber.tag("abc123").e("emitError .. ")
-                _errorEvent.emit(errorMsg)
-            }
+            _showError.send(errorMsg ?: "Unexpected Error")
         }
     }
 }
