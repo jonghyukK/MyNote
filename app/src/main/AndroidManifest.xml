@@ -47,9 +47,8 @@
         <activity
             android:name=".ui.features.viewer.ImagesViewerActivity"
             android:theme="@style/StatusBarBlack" />
-        <activity android:name=".ui.features.purchase.make.MakePurchaseNoteActivity" />
+        <activity android:name=".ui.features.purchase.makeedit.MakeEditPurchaseNoteActivity" />
         <activity android:name=".ui.features.purchase.detail.PurchaseNoteDetailActivity" />
-        <activity android:name=".ui.features.purchase.edit.EditPurchaseNoteActivity" />
         <activity android:name=".ui.features.purchase.search.PurchaseNoteSearchActivity" />
 
         <activity android:name=".ui.features.statistics.category.CategoryStatisticsActivity" />

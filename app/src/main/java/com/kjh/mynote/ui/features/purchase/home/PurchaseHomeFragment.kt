@@ -20,7 +20,7 @@ import com.kjh.mynote.ui.base.BaseFragment
 import com.kjh.mynote.ui.features.purchase.filter.PurchaseNoteHomeFilterBSDFragment
 import com.kjh.mynote.ui.features.purchase.detail.PurchaseNoteDetailActivity
 import com.kjh.mynote.ui.features.purchase.home.adapter.PurchaseHomeListAdapter
-import com.kjh.mynote.ui.features.purchase.make.MakePurchaseNoteActivity
+import com.kjh.mynote.ui.features.purchase.makeedit.MakeEditPurchaseNoteActivity
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchActivity
 import com.kjh.mynote.ui.features.statistics.purchasenote.PurchaseNoteStatisticsActivity
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
@@ -178,7 +178,7 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
     private val makePurchaseFabClickListener = View.OnClickListener {
         val selectedDay = viewModel.uiState.value.selectedDay.toMillis()
 
-        Intent(requireContext(), MakePurchaseNoteActivity::class.java).apply {
+        Intent(requireContext(), MakeEditPurchaseNoteActivity::class.java).apply {
             putExtra(AppConstants.INTENT_PURCHASE_DATE, selectedDay)
             makeNoteResultLauncher.launch(this)
         }
@@ -187,7 +187,7 @@ class PurchaseHomeFragment: BaseFragment<FragmentPurchaseBinding>({ FragmentPurc
     private val makePurchaseEmptyBtnClickListener = View.OnClickListener {
         val selectedDay = viewModel.uiState.value.selectedDay.toMillis()
 
-        Intent(requireContext(), MakePurchaseNoteActivity::class.java).apply {
+        Intent(requireContext(), MakeEditPurchaseNoteActivity::class.java).apply {
             putExtra(AppConstants.INTENT_PURCHASE_DATE, selectedDay)
             makeNoteResultLauncher.launch(this)
         }

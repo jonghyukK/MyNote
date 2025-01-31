@@ -11,13 +11,12 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityPurchaseNoteDetailBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
-import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.common.dialog.DefaultDialog
 import com.kjh.mynote.ui.common.dialog.DefaultDialog.MyDefaultDialogEventListener
 import com.kjh.mynote.ui.features.place.map.PlaceMapActivity
 import com.kjh.mynote.ui.features.purchase.detail.adapter.PurchaseNoteDetailImageListAdapter
-import com.kjh.mynote.ui.features.purchase.edit.EditPurchaseNoteActivity
+import com.kjh.mynote.ui.features.purchase.makeedit.MakeEditPurchaseNoteActivity
 import com.kjh.mynote.ui.features.viewer.ImagesViewerActivity
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
@@ -28,9 +27,6 @@ import com.kjh.mynote.utils.extensions.showToast
 import com.kjh.mynote.utils.extensions.toComma
 import com.kjh.mynote.utils.extensions.toStringWithFormat
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /**
@@ -160,8 +156,8 @@ class PurchaseNoteDetailActivity: BaseActivity<ActivityPurchaseNoteDetailBinding
     private val editNoteClickListener = OnClickListener {
         val uiState = viewModel.uiState.value as? PurchaseNoteDetailUiState.PurchaseNoteDetail
         uiState?.let {
-            Intent(this, EditPurchaseNoteActivity::class.java).apply {
-                putExtra(AppConstants.INTENT_PURCHASE_NOTE_ITEM, uiState.item)
+            Intent(this, MakeEditPurchaseNoteActivity::class.java).apply {
+                putExtra(AppConstants.INTENT_PURCHASE_NOTE_ID, uiState.item.id)
                 editNoteResultLauncher.launch(this)
             }
         }

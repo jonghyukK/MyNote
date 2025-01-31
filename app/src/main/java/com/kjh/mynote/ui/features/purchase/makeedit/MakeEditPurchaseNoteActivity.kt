@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase.make
+package com.kjh.mynote.ui.features.purchase.makeedit
 
 import android.content.Context
 import android.content.Intent
@@ -26,7 +26,7 @@ import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog
 import com.kjh.mynote.ui.features.map.NaverMapSearchActivity
 import com.kjh.mynote.ui.features.paymentmethod.PaymentMethodListBSDialog
 import com.kjh.mynote.ui.features.place.make.adapter.TempImageListAdapter
-import com.kjh.mynote.ui.features.purchase.make.adapter.RecentRegisteredPurchaseNameListAdapter
+import com.kjh.mynote.ui.features.purchase.makeedit.adapter.RecentRegisteredPurchaseNameListAdapter
 import com.kjh.mynote.utils.DatePickerManager
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
@@ -36,9 +36,10 @@ import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
 import com.kjh.mynote.utils.extensions.toComma
 import com.kjh.mynote.utils.extensions.toLocalDate
+import com.kjh.mynote.utils.extensions.toStringWithFormat
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.ZoneOffset
@@ -50,11 +51,11 @@ import java.time.ZoneOffset
  */
 
 @AndroidEntryPoint
-class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBinding>({
+class MakeEditPurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBinding>({
     ActivityEditOrMakePurchaseNoteBinding.inflate(it)
 }) {
 
-    private val viewModel: MakePurchaseNoteViewModel by viewModels()
+    private val viewModel: MakeEditPurchaseNoteViewModel by viewModels()
 
     private val tempImageListAdapter: TempImageListAdapter by lazy {
         TempImageListAdapter(deleteTempImageClickAction)
@@ -66,9 +67,6 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
 
     override fun onInitView() {
         with (binding) {
-            tbToolbar.leftTitle = getString(R.string.make_purchase_note)
-            btnBottom.btnTitle = getString(R.string.do_save)
-
             rvTempImages.apply {
                 adapter = tempImageListAdapter
             }
@@ -100,12 +98,12 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
     }
 
     override fun onInitUiData() {
-        viewModel.fetchDefaultPaymentMethod()
+        viewModel.initialize()
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.showError.collectLatest {
+                    viewModel.showError.collect {
                         showToast(it)
                     }
                 }
@@ -114,8 +112,26 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
                     viewModel.uiState
                         .map { it.isLoading }
                         .distinctUntilChanged()
-                        .collect {
-                            binding.layoutLoading.root.isVisible = it
+                        .collect { isLoading ->
+                            binding.layoutLoading.root.isVisible = isLoading
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.viewType }
+                        .distinctUntilChanged()
+                        .collect { viewType ->
+                            when (viewType) {
+                                ViewType.MAKE -> {
+                                    binding.tbToolbar.leftTitle = getString(R.string.make_purchase_note)
+                                    binding.btnBottom.btnTitle = getString(R.string.do_save)
+                                }
+                                ViewType.EDIT -> {
+                                    binding.tbToolbar.leftTitle = getString(R.string.purchase_note_edit)
+                                    binding.btnBottom.btnTitle = getString(R.string.do_modify)
+                                }
+                            }
                         }
                 }
 
@@ -136,7 +152,53 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
 
                 launch {
                     viewModel.uiState
-                        .map { it.paymentMethod }
+                        .map { it.purchaseName }
+                        .distinctUntilChanged()
+                        .collect { purchaseName ->
+                            if (binding.etPurchaseName.text != purchaseName) {
+                                binding.etPurchaseName.text = purchaseName
+                            }
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.recentPurchaseNameItems }
+                        .distinctUntilChanged()
+                        .collect { recentPurchaseNames ->
+                            binding.rvRecentPurchaseNames.isVisible = recentPurchaseNames.isNotEmpty()
+                            recentPurchaseNameListAdapter.submitList(recentPurchaseNames)
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.purchasePrice }
+                        .distinctUntilChanged()
+                        .collect { price ->
+                            binding.etPurchasePrice.text = if (price == 0L) "" else price.toString()
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.purchaseDate }
+                        .distinctUntilChanged()
+                        .collect { purchaseDate ->
+                            if (purchaseDate == null) {
+                                binding.tvPurchaseDate.text = getString(R.string.select_purchase_date)
+                                binding.tvPurchaseDate.textColor = R.color.black_400
+                            } else {
+                                binding.tvPurchaseDate.text =
+                                    purchaseDate.toStringWithFormat("yyyy년 M월 d일 (E)")
+                                binding.tvPurchaseDate.textColor = R.color.black_900
+                            }
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
+                        .map { it.paymentMethodItem }
                         .distinctUntilChanged()
                         .collect { paymentMethodItem ->
                             if (paymentMethodItem == null) {
@@ -151,16 +213,10 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
 
                 launch {
                     viewModel.uiState
-                        .map { it.purchaseDateText }
+                        .map { it.shouldShowDefaultPaymentCheckBox }
                         .distinctUntilChanged()
-                        .collect { purchaseDateText ->
-                            if (purchaseDateText.isBlank()) {
-                                binding.tvPurchaseDate.text = getString(R.string.select_purchase_date)
-                                binding.tvPurchaseDate.textColor = R.color.black_400
-                            } else {
-                                binding.tvPurchaseDate.text = purchaseDateText
-                                binding.tvPurchaseDate.textColor = R.color.black_900
-                            }
+                        .collect { showDefaultPaymentCheckBox ->
+                            binding.clRegisterDefaultPaymentMethod.isVisible = showDefaultPaymentCheckBox
                         }
                 }
 
@@ -181,6 +237,20 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
 
                 launch {
                     viewModel.uiState
+                        .map { it.isDefaultPaymentCheckBoxChecked }
+                        .distinctUntilChanged()
+                        .collect { isChecked ->
+                            val checkboxRes = if (isChecked)
+                                R.drawable.ic_selected_checkbox
+                            else
+                                R.drawable.ic_unselected_checkbox
+
+                            binding.ivCheckbox.setImageResource(checkboxRes)
+                        }
+                }
+
+                launch {
+                    viewModel.uiState
                         .map { it.tempImageUrls }
                         .distinctUntilChanged()
                         .collect { tempImages ->
@@ -195,64 +265,25 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
 
                 launch {
                     viewModel.uiState
-                        .map { it.isShowDefaultPaymentCheckBox }
-                        .distinctUntilChanged()
-                        .collect { isShow ->
-                            binding.clRegisterDefaultPaymentMethod.isVisible = isShow
-                        }
-                }
-
-                launch {
-                    viewModel.uiState
-                        .map { it.isDefaultPaymentCheckBoxChecked }
-                        .distinctUntilChanged()
-                        .collect { isChecked ->
-                            if (isChecked) {
-                                binding.ivCheckbox.setImageResource(R.drawable.ic_selected_checkbox)
-                            } else {
-                                binding.ivCheckbox.setImageResource(R.drawable.ic_unselected_checkbox)
-                            }
-                        }
-                }
-
-                launch {
-                    viewModel.uiState
                         .map { it.canSave }
                         .distinctUntilChanged()
-                        .collect {
-                            binding.btnBottom.isEnable = it
+                        .collect { canSave ->
+                            binding.btnBottom.isEnable = canSave
                         }
                 }
 
                 launch {
                     viewModel.uiState
-                        .map { it.recentPurchaseNameItems }
+                        .map { it.makeEditResult }
                         .distinctUntilChanged()
-                        .collect { recentPurchaseNames ->
-                            binding.rvRecentPurchaseNames.isVisible = recentPurchaseNames.isNotEmpty()
-                            recentPurchaseNameListAdapter.submitList(recentPurchaseNames)
-                        }
-                }
-
-                launch {
-                    viewModel.makePurchaseNoteEventState.collectLatest { event ->
-                        when (event) {
-                            is MakePurchaseNoteEventState.Loading -> {
-                                binding.btnBottom.isLoading = true
-                            }
-                            is MakePurchaseNoteEventState.Error -> {
-                                binding.btnBottom.isLoading = false
-                            }
-                            is MakePurchaseNoteEventState.Success -> {
-                                binding.btnBottom.isLoading = false
-                                Intent().apply {
-                                    putExtra(AppConstants.INTENT_PURCHASE_NOTE_ITEM, event.purchaseNoteItem)
-                                    setResult(RESULT_OK, this)
-                                    finish()
-                                }
+                        .filterNotNull()
+                        .collect { result ->
+                            Intent().apply {
+                                putExtra(AppConstants.INTENT_PURCHASE_NOTE_ITEM, result)
+                                setResult(RESULT_OK, this)
+                                finish()
                             }
                         }
-                    }
                 }
             }
         }
@@ -274,24 +305,6 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
             }
         }
         return super.dispatchTouchEvent(ev)
-    }
-
-    private fun showDatePicker(positiveBtnClickAction: (Long) -> Unit) {
-        val currentDateMillis = viewModel.uiState.value.purchaseDate
-        val selection = if (currentDateMillis > 0) {
-            currentDateMillis.toLocalDate()
-                .atStartOfDay(ZoneOffset.UTC)
-                .toInstant()
-                .toEpochMilli()
-        } else {
-            MaterialDatePicker.todayInUtcMilliseconds()
-        }
-
-        DatePickerManager.build(
-            title = getString(R.string.select_purchase_date),
-            selection = selection,
-            positiveButtonClickAction = positiveBtnClickAction
-        ).show(supportFragmentManager, "DATE_PICKER")
     }
 
     private val purchaseNameTextWatcher = object: TextWatcher {
@@ -381,7 +394,7 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
 
     private val paymentMethodClickListener = OnClickListener {
         PaymentMethodListBSDialog.newInstance(
-            selectedPaymentMethodItem = viewModel.uiState.value.paymentMethod
+            selectedPaymentMethodItem = viewModel.uiState.value.paymentMethodItem
         ).show(supportFragmentManager, PaymentMethodListBSDialog.TAG)
     }
 
@@ -390,14 +403,24 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
     }
 
     private val purchaseDateClickListener = OnClickListener {
-        showDatePicker(positiveBtnClickAction = { timeInMillis ->
-            viewModel.setPurchaseDate(timeInMillis)
-        })
+        val currentDateMillis = viewModel.uiState.value.purchaseDate
+        val selection =
+            currentDateMillis?.toLocalDate()?.atStartOfDay(ZoneOffset.UTC)?.toInstant()
+                ?.toEpochMilli()
+                ?: MaterialDatePicker.todayInUtcMilliseconds()
+
+        DatePickerManager.build(
+            title = getString(R.string.select_purchase_date),
+            selection = selection,
+            positiveButtonClickAction = { timeInMillis ->
+                viewModel.setPurchaseDate(timeInMillis)
+            }
+        ).show(supportFragmentManager, "DATE_PICKER")
     }
 
     private val searchMapClickListener = OnClickListener {
         val tempPlaceItem = viewModel.uiState.value.tempPlaceItem
-        val intent = Intent(this@MakePurchaseNoteActivity, NaverMapSearchActivity::class.java).apply {
+        val intent = Intent(this@MakeEditPurchaseNoteActivity, NaverMapSearchActivity::class.java).apply {
             putExtra(AppConstants.INTENT_TEMP_PLACE_ITEM, tempPlaceItem)
         }
 
@@ -414,7 +437,7 @@ class MakePurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNoteBind
 
     private val saveBtnClickListener = OnClickListener {
         if (binding.btnBottom.isEnable) {
-            viewModel.makePurchaseNote()
+            viewModel.makeOrEditPurchaseNote()
         }
     }
 

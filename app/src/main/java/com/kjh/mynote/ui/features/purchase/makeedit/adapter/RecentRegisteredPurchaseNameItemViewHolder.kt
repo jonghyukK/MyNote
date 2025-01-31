@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase.make.adapter
+package com.kjh.mynote.ui.features.purchase.makeedit.adapter
 
 import com.kjh.mynote.databinding.VhRecentRegisteredPurchaseNameItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder

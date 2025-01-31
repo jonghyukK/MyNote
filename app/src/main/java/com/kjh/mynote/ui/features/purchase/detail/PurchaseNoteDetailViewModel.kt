@@ -4,23 +4,19 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
-import com.example.domain.model.Result
+import com.example.domain.model.asResult
 import com.example.domain.usecase.DeletePurchaseNoteByIdUseCase
-import com.example.domain.usecase.GetPurchaseNoteByIdUseCase
+import com.example.domain.usecase.ObservePurchaseNoteByIdUseCase
 import com.kjh.mynote.model.PurchaseNoteUiModel
-import com.kjh.mynote.model.UiState
 import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.utils.constants.AppConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,7 +28,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PurchaseNoteDetailViewModel @Inject constructor(
-    private val getPurchaseNoteByIdUseCase: GetPurchaseNoteByIdUseCase,
+    private val observePurchaseNoteByIdUseCase: ObservePurchaseNoteByIdUseCase,
     private val deletePurchaseNoteByIdUseCase: DeletePurchaseNoteByIdUseCase,
     private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
@@ -45,7 +41,8 @@ class PurchaseNoteDetailViewModel @Inject constructor(
     val deleteEventState = _deleteEventState.asSharedFlow()
 
     val uiState: StateFlow<PurchaseNoteDetailUiState> =
-        getPurchaseNoteByIdUseCase(purchaseNoteId)
+        observePurchaseNoteByIdUseCase(purchaseNoteId)
+            .asResult()
             .map { result ->
                 if (isDeleted) return@map PurchaseNoteDetailUiState.Loading
                 when (result) {

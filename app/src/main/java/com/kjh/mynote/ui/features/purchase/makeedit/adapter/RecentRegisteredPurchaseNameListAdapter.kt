@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.purchase.make.adapter
+package com.kjh.mynote.ui.features.purchase.makeedit.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
