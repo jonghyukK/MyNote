@@ -96,9 +96,13 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
 
     override suspend fun upsertAndGetPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote {
         val purchaseNoteEntity = purchaseNote.toEntity()
-        val newId = purchaseNoteLocalDataSource.upsertPurchaseNote(purchaseNoteEntity).toInt()
+        var upsertId = purchaseNoteLocalDataSource.upsertPurchaseNote(purchaseNoteEntity).toInt()
 
-        return purchaseNoteLocalDataSource.getPurchaseNoteById(newId).toDomainModel()
+        if (upsertId == -1) {
+            upsertId = purchaseNote.id
+        }
+
+        return purchaseNoteLocalDataSource.getPurchaseNoteById(upsertId).toDomainModel()
     }
 
     override suspend fun deletePurchaseNoteById(id: Int): Flow<ApiResult<Unit>> =
