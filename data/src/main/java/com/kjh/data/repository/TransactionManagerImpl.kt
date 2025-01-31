@@ -27,7 +27,7 @@ class TransactionManagerImpl @Inject constructor(
 
         return db.withTransaction {
             paymentMethodRepository.upsertPaymentMethod(paymentMethod)
-            purchaseNoteRepository.insertAndGetPurchaseNote(purchaseNote)
+            purchaseNoteRepository.upsertAndGetPurchaseNote(purchaseNote)
         }
     }
 }

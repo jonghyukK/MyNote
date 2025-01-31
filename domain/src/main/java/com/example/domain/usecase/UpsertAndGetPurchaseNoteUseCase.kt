@@ -12,9 +12,12 @@ import javax.inject.Inject
  * Created On 2024. 11. 8..
  * Description:
  */
-class MakeAndGetPurchaseNoteUseCase @Inject constructor(
+
+class UpsertAndGetPurchaseNoteUseCase @Inject constructor(
     private val purchaseNoteRepository: PurchaseNoteRepository
 ) {
     suspend operator fun invoke(purchaseNote: PurchaseNote): Flow<ApiResult<PurchaseNote>> =
-        safeApiCall { purchaseNoteRepository.insertAndGetPurchaseNote(purchaseNote) }
+        safeApiCall {
+            purchaseNoteRepository.upsertAndGetPurchaseNote(purchaseNote)
+        }
 }

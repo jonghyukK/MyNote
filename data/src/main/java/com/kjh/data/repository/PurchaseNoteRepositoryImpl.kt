@@ -37,10 +37,12 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
             .map { data -> data.map { it.toDomainModel() } }
     }
 
-    override fun getPurchaseNoteById(id: Int): Flow<ApiResult<PurchaseNote>> =
+    override fun observePurchaseNoteById(id: Int): Flow<PurchaseNote> =
         purchaseNoteLocalDataSource.getPurchaseNoteFlowById(id)
             .map { data -> data.toDomainModel() }
-            .asResult()
+
+    override suspend fun getPurchaseNoteById(id: Int): PurchaseNote =
+        purchaseNoteLocalDataSource.getPurchaseNoteById(id).toDomainModel()
 
     override suspend fun getPurchaseNotesByPlaceAndDate(
         placeName: String,
@@ -92,9 +94,9 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
             purchaseNoteLocalDataSource.insertPurchaseNotes(purchaseNotes.map { it.toEntity() })
         }
 
-    override suspend fun insertAndGetPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote {
+    override suspend fun upsertAndGetPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote {
         val purchaseNoteEntity = purchaseNote.toEntity()
-        val newId = purchaseNoteLocalDataSource.insertPurchaseNote(purchaseNoteEntity).toInt()
+        val newId = purchaseNoteLocalDataSource.upsertPurchaseNote(purchaseNoteEntity).toInt()
 
         return purchaseNoteLocalDataSource.getPurchaseNoteById(newId).toDomainModel()
     }

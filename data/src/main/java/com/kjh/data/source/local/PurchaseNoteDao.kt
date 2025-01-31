@@ -2,9 +2,9 @@ package com.kjh.data.source.local
 
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Upsert
 import com.example.domain.model.CategoryStats
 import com.example.domain.model.PaymentMethodStats
 import com.example.domain.model.PurchaseNameStats
@@ -79,14 +79,11 @@ interface PurchaseNoteDao {
     ): Flow<List<PurchaseNoteModel>>
 
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertPurchaseNote(purchaseNoteEntity: PurchaseNoteEntity): Long
+    @Upsert
+    suspend fun upsertPurchaseNote(purchaseNoteEntity: PurchaseNoteEntity): Long
 
     @Insert
     suspend fun insertPurchaseNotes(notes: List<PurchaseNoteEntity>)
-
-    @Query("UPDATE purchase SET categoryId = :etcCategoryId WHERE categoryId = :categoryId")
-    suspend fun updateCategoryIdForPurchaseNote(etcCategoryId: Int, categoryId: Int)
 
     @Query("DELETE FROM purchase WHERE id = :id")
     suspend fun deletePurchaseNoteById(id: Int)

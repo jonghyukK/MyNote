@@ -19,7 +19,9 @@ interface PurchaseNoteRepository {
 
     fun getPurchaseNotesByCategories(categories: List<Category>): Flow<List<PurchaseNote>>
 
-    fun getPurchaseNoteById(id: Int): Flow<ApiResult<PurchaseNote>>
+    fun observePurchaseNoteById(id: Int): Flow<PurchaseNote>
+
+    suspend fun getPurchaseNoteById(id: Int): PurchaseNote
 
     suspend fun getPurchaseNotesByPlaceAndDate(
         placeName: String,
@@ -39,7 +41,7 @@ interface PurchaseNoteRepository {
 
     suspend fun insertPurchaseNotes(purchaseNotes: List<PurchaseNote>): Flow<ApiResult<Unit>>
 
-    suspend fun insertAndGetPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote
+    suspend fun upsertAndGetPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote
 
     suspend fun deletePurchaseNoteById(id: Int): Flow<ApiResult<Unit>>
 
