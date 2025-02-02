@@ -1,10 +1,10 @@
 package com.kjh.mynote.ui.base
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.fragment.app.DialogFragment
 import androidx.viewbinding.ViewBinding
 import com.kjh.mynote.R
@@ -18,6 +18,7 @@ import com.kjh.mynote.utils.extensions.getDisplaySize
 
 enum class DialogType {
     FULL_SCREEN,
+    FULL_SCREEN_WITH_DIM,
     DIALOG
 }
 
@@ -39,6 +40,9 @@ abstract class BaseDialogFragment<B: ViewBinding>(
             DialogType.DIALOG -> {
                 setStyle(STYLE_NORMAL, R.style.MyDefaultDialog)
             }
+            DialogType.FULL_SCREEN_WITH_DIM -> {
+                setStyle(STYLE_NORMAL, R.style.FullScreenWithDimDialog)
+            }
         }
     }
 
@@ -56,7 +60,7 @@ abstract class BaseDialogFragment<B: ViewBinding>(
 
     override fun onStart() {
         super.onStart()
-        adjustViewWidthWhenTypeIsDialog()
+        adjustDialogSize()
     }
 
     override fun onDestroyView() {
@@ -64,16 +68,31 @@ abstract class BaseDialogFragment<B: ViewBinding>(
         _binding = null
     }
 
-    private fun adjustViewWidthWhenTypeIsDialog() {
-        if (dialogType == DialogType.DIALOG) {
-            activity?.let {
-                val deviceWidth = it.getDisplaySize().width()
-                val sideSpace = it.resources.getDimensionPixelOffset(R.dimen.dialog_side_space)
+    private fun adjustDialogSize() {
+        when (dialogType) {
+            DialogType.FULL_SCREEN -> {}
+            DialogType.FULL_SCREEN_WITH_DIM -> {
+                activity?.let {
+                    val deviceWidth = it.getDisplaySize().width()
 
-                dialog?.window?.let { window ->
-                    val params = window.attributes
-                    params.width = deviceWidth - sideSpace
-                    window.attributes = params
+                    dialog?.window?.let { window ->
+                        val params = window.attributes
+                        params.width = deviceWidth
+                        params.height = MATCH_PARENT
+                        window.attributes = params
+                    }
+                }
+            }
+            DialogType.DIALOG -> {
+                activity?.let {
+                    val deviceWidth = it.getDisplaySize().width()
+                    val sideSpace = it.resources.getDimensionPixelOffset(R.dimen.dialog_side_space)
+
+                    dialog?.window?.let { window ->
+                        val params = window.attributes
+                        params.width = deviceWidth - sideSpace
+                        window.attributes = params
+                    }
                 }
             }
         }
