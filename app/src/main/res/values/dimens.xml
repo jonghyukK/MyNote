@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="bottom_nav_height">63dp</dimen>
     <dimen name="peek_height">200dp</dimen>
     <dimen name="place_detail_pager_height">400dp</dimen>
     <dimen name="toolbar_icon">44dp</dimen>
@@ -9,5 +10,6 @@
 
     <dimen name="toolbar_icon_width">44dp</dimen>
     <dimen name="toolbar_icon_height">44dp</dimen>
-    <dimen name="fab_button_size">46dp</dimen>
+    <dimen name="fab_button_size">50dp</dimen>
+    <dimen name="fab_menu_icon_margin">12dp</dimen>
 </resources>

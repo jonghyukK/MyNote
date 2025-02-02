@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/cl_fab_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/bottom_nav_height"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- 여러 건 등록하기 -->
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_make_multiple_note"
+        android:layout_width="@dimen/fab_button_size"
+        android:layout_height="@dimen/fab_button_size"
+        android:background="@drawable/ripple_shape_s_color_primary_c_999"
+        android:padding="12dp"
+        android:layout_marginBottom="@dimen/fab_menu_icon_margin"
+        app:srcCompat="@drawable/ic_stack_note_add"
+        app:tint="@color/white"
+        app:layout_constraintBottom_toTopOf="@+id/iv_make_single_note"
+        app:layout_constraintEnd_toEndOf="@+id/iv_make_single_note"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_make_multiple_note"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/do_make_multiple"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintTop_toTopOf="@+id/iv_make_multiple_note"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_make_multiple_note"
+        app:layout_constraintEnd_toStartOf="@+id/iv_make_multiple_note" />
+
+    <!-- 한 건 등록하기 -->
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_make_single_note"
+        android:layout_width="@dimen/fab_button_size"
+        android:layout_height="@dimen/fab_button_size"
+        android:background="@drawable/ripple_shape_s_color_primary_c_999"
+        android:padding="12dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginBottom="@dimen/fab_menu_icon_margin"
+        app:srcCompat="@drawable/ic_note_add"
+        app:tint="@color/white"
+        app:layout_constraintBottom_toTopOf="@+id/iv_fab_close"
+        app:layout_constraintEnd_toEndOf="@+id/iv_fab_close"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_make_single_note"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/do_write"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintTop_toTopOf="@+id/iv_make_single_note"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_make_single_note"
+        app:layout_constraintEnd_toStartOf="@+id/iv_make_single_note"/>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_fab_close"
+        android:layout_width="@dimen/fab_button_size"
+        android:layout_height="@dimen/fab_button_size"
+        android:background="@drawable/ripple_shape_s_color_primary_c_999"
+        android:padding="8dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="20dp"
+        app:srcCompat="@drawable/ic_add_24"
+        app:tint="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
