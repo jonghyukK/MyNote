@@ -11,9 +11,9 @@ import javax.inject.Inject
  * Created On 2024. 12. 31..
  * Description:
  */
-class GetPaymentMethodsUseCase @Inject constructor(
+class ObserveAllPaymentMethodsUseCase @Inject constructor(
     private val paymentMethodRepository: PaymentMethodRepository
 ) {
     operator fun invoke(): Flow<ApiResult<List<PaymentMethod>>> =
-        paymentMethodRepository.getAllPaymentMethods()
+        paymentMethodRepository.observeAllPaymentMethods()
 }
