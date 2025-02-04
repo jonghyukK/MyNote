@@ -62,4 +62,12 @@ interface PaymentMethodDao {
      */
     @Query("SELECT * FROM paymentMethod WHERE isDefault = 1")
     suspend fun getDefaultPaymentMethod(): PaymentMethodEntity?
+
+    /**
+     * 기본 결제수단 조회 (Flow)
+     *
+     * @return
+     */
+    @Query("SELECT * FROM paymentMethod WHERE isDefault = 1")
+    fun getDefaultPaymentMethodFlow(): Flow<PaymentMethodEntity?>
 }
