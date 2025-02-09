@@ -3,7 +3,7 @@ package com.kjh.mynote.ui.features.mypage.category
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
-import com.example.domain.usecase.GetAllCategoriesUseCase
+import com.example.domain.usecase.ObserveAllCategoriesUseCase
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,13 +22,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CategoryManageViewModel @Inject constructor(
-    private val getAllCategoriesUseCase: GetAllCategoriesUseCase
+    private val observeAllCategoriesUseCase: ObserveAllCategoriesUseCase
 ): ViewModel() {
 
     private val _shownError = MutableStateFlow(false)
 
     val uiState: StateFlow<CategoryManageUiState> = combine(
-        _shownError, getAllCategoriesUseCase()
+        _shownError, observeAllCategoriesUseCase()
     ) { shownError, categoryResult ->
         when (categoryResult) {
             is ApiResult.Loading -> {

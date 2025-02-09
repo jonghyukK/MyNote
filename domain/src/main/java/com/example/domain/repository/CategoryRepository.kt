@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
  */
 interface CategoryRepository {
 
-    fun allCategoriesFlow(): Flow<ApiResult<List<Category>>>
+    fun observeAllCategories(): Flow<ApiResult<List<Category>>>
 
     fun getCategoriesWithNoteCounts(
         startDate: Long?,

@@ -22,7 +22,7 @@ class CategoryRepositoryImpl @Inject constructor(
     private val categoryLocalDataSource: CategoryDao
 ): CategoryRepository {
 
-    override fun allCategoriesFlow(): Flow<ApiResult<List<Category>>> =
+    override fun observeAllCategories(): Flow<ApiResult<List<Category>>> =
         categoryLocalDataSource.getAllCategories()
             .map { it.toDomainModel() }
             .asResult()
