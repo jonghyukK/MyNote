@@ -103,7 +103,7 @@ class MakeEditPurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNote
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.showError.collect {
+                    viewModel.errorMessage.collect {
                         showToast(it)
                     }
                 }

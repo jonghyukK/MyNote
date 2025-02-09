@@ -14,14 +14,14 @@ import javax.inject.Inject
  * Description:
  */
 class GetPurchaseNoteSearchFiltersUseCase @Inject constructor(
-    private val getAllCategoriesUseCase: GetAllCategoriesUseCase,
+    private val observeAllCategoriesUseCase: ObserveAllCategoriesUseCase,
     private val getMaxPurchasePriceUseCase: GetMaxPurchasePriceUseCase,
-    private val getAllPaymentMethodUseCase: GetPaymentMethodsUseCase,
+    private val observeAllPaymentMethodsUseCase: ObserveAllPaymentMethodsUseCase,
 ) {
     operator fun invoke(): Flow<ApiResult<PurchaseNoteFilters>> {
         return combine(
-            getAllCategoriesUseCase(),
-            getAllPaymentMethodUseCase(),
+            observeAllCategoriesUseCase(),
+            observeAllPaymentMethodsUseCase(),
             getMaxPurchasePriceUseCase()
         ) { categoriesResult, paymentMethodsResult, maxPriceResult ->
             handleFilterResults(categoriesResult, paymentMethodsResult, maxPriceResult)

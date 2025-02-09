@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
 import com.example.domain.model.Category
 import com.example.domain.model.PaymentMethod
-import com.example.domain.usecase.GetAllCategoriesUseCase
-import com.example.domain.usecase.GetPaymentMethodsUseCase
+import com.example.domain.usecase.ObserveAllCategoriesUseCase
+import com.example.domain.usecase.ObserveAllPaymentMethodsUseCase
 import com.kjh.mynote.model.Filters
 import com.kjh.mynote.model.getAppliedCategoryIds
 import com.kjh.mynote.model.getAppliedPaymentMethodIds
@@ -31,8 +31,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PurchaseNoteHomeFilterBSDViewModel @Inject constructor(
-    private val getAllCategoriesUseCase: GetAllCategoriesUseCase,
-    private val getAllPaymentMethodsUseCase: GetPaymentMethodsUseCase,
+    private val observeAllCategoriesUseCase: ObserveAllCategoriesUseCase,
+    private val observeAllPaymentMethodsUseCase: ObserveAllPaymentMethodsUseCase,
     val savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
@@ -57,8 +57,8 @@ class PurchaseNoteHomeFilterBSDViewModel @Inject constructor(
     fun getFilterItems() {
         viewModelScope.launch {
             combine(
-                getAllCategoriesUseCase(),
-                getAllPaymentMethodsUseCase()
+                observeAllCategoriesUseCase(),
+                observeAllPaymentMethodsUseCase()
             ) { categories, paymentMethods ->
                 categories to paymentMethods
             }.collectLatest { (categories, paymentMethods) ->
