@@ -1,20 +1,24 @@
 package com.kjh.mynote.ui.features.paymentmethod
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
 import com.example.domain.model.PaymentMethod
-import com.example.domain.usecase.GetPaymentMethodsUseCase
+import com.example.domain.usecase.ObserveAllPaymentMethodsUseCase
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.toUiModel
+import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.ui.features.paymentmethod.PaymentMethodListBSDialog.Companion.ARG_OBJ_SELECTED_PAYMENT_METHOD_ITEM
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
@@ -27,59 +31,60 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PaymentMethodListViewModel @Inject constructor(
-    private val getPaymentMethodsUseCase: GetPaymentMethodsUseCase,
+    private val observeAllPaymentMethodsUseCase: ObserveAllPaymentMethodsUseCase,
     private val savedStateHandle: SavedStateHandle
-): ViewModel() {
+): BaseViewModel() {
 
-    private val _selectedPaymentMethodItem = MutableStateFlow<PaymentMethodUiModel?>(
-        savedStateHandle[ARG_OBJ_SELECTED_PAYMENT_METHOD_ITEM]
-    )
-    val selectedPaymentMethodItem = _selectedPaymentMethodItem.asStateFlow()
+    private val selectedPaymentMethodItem = MutableStateFlow(
+        savedStateHandle.get<PaymentMethodUiModel?>(ARG_OBJ_SELECTED_PAYMENT_METHOD_ITEM))
 
-    private val _shownFetchError =  MutableStateFlow<Boolean>(false)
+    private val _updateSelectedItemEvent = Channel<PaymentMethodUiModel?>()
+    val updateSelectedItemEvent = _updateSelectedItemEvent.receiveAsFlow()
 
-    val uiState: StateFlow<PaymentMethodListUiState> = combine(
-        _shownFetchError, getPaymentMethodsUseCase(), ::mapResultToUiState
-    )
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            PaymentMethodListUiState.Loading
-        )
-
-    fun shownFetchError() {
-        _shownFetchError.value = true
-    }
-
-    private fun mapResultToUiState(
-        shownFetchError: Boolean,
-        result: ApiResult<List<PaymentMethod>>
-    ): PaymentMethodListUiState {
-        return when (result) {
-            is ApiResult.Loading -> {
-                PaymentMethodListUiState.Loading
+    val paymentMethodItems: StateFlow<List<SelectablePaymentMethodItem>> =
+        observeAllPaymentMethodsUseCase()
+            .onEach {
+                if (it is ApiResult.Success) {
+                    updateSelectedPaymentMethodItem(it.data.toUiModel())
+                }
             }
+            .map(::mapResultToList)
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                emptyList()
+            )
+
+    private fun mapResultToList(
+        result: ApiResult<List<PaymentMethod>>
+    ): List<SelectablePaymentMethodItem> {
+        return when (result) {
+            is ApiResult.Loading -> emptyList()
 
             is ApiResult.Error -> {
-                val errorMsg = result.error.message ?: "결제수단 목록 조회가 실패하였습니다."
-                PaymentMethodListUiState.Error(if (shownFetchError) null else errorMsg)
+                sendError(result.error.message)
+                emptyList()
             }
 
             is ApiResult.Success -> {
-                val selectablePaymentMethodItems = result.data.toUiModel().map { paymentMethod ->
+                result.data.toUiModel().map { paymentMethod ->
                     SelectablePaymentMethodItem(
-                        isSelected = paymentMethod.paymentMethodId ==
-                                selectedPaymentMethodItem.value?.paymentMethodId,
+                        isSelected = paymentMethod.paymentMethodId == selectedPaymentMethodItem.value?.paymentMethodId,
                         paymentMethodItem = paymentMethod
                     )
                 }
-
-                _selectedPaymentMethodItem.update {
-                    selectablePaymentMethodItems.find { it.isSelected }?.paymentMethodItem
-                }
-
-                PaymentMethodListUiState.Success(selectablePaymentMethodItems)
             }
+        }
+    }
+
+    private suspend fun updateSelectedPaymentMethodItem(paymentMethodItems: List<PaymentMethodUiModel>) {
+        val matchedIdItem = paymentMethodItems.find {
+            it.paymentMethodId == selectedPaymentMethodItem.value?.paymentMethodId
+        }
+
+        if (matchedIdItem != selectedPaymentMethodItem.value) {
+            _updateSelectedItemEvent.send(matchedIdItem)
+            selectedPaymentMethodItem.value = matchedIdItem
         }
     }
 }
@@ -88,9 +93,3 @@ data class SelectablePaymentMethodItem(
     val isSelected: Boolean = false,
     val paymentMethodItem: PaymentMethodUiModel
 )
-
-sealed interface PaymentMethodListUiState {
-    data object Loading: PaymentMethodListUiState
-    data class Error(val errorMsg: String?): PaymentMethodListUiState
-    data class Success(val items: List<SelectablePaymentMethodItem>): PaymentMethodListUiState
-}

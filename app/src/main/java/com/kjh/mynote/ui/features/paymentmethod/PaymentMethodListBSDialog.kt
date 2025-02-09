@@ -18,6 +18,7 @@ import com.kjh.mynote.ui.features.paymentmethod.adapter.PaymentMethodListAdapter
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
@@ -54,26 +55,23 @@ class PaymentMethodListBSDialog : BaseBottomSheetDialogFragment<BsdCategoriesOrP
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.uiState.collect { uiState ->
-                        when (uiState) {
-                            is PaymentMethodListUiState.Loading -> {}
-                            is PaymentMethodListUiState.Error -> {
-                                uiState.errorMsg?.let {
-                                    showToast(it)
-                                    viewModel.shownFetchError()
-                                }
-                            }
-                            is PaymentMethodListUiState.Success -> {
-                                listAdapter.submitList(uiState.items)
-                            }
-                        }
+                    viewModel.errorMessage.collectLatest {
+                        showToast(it)
                     }
                 }
 
                 launch {
-                    viewModel.selectedPaymentMethodItem.collect { selectedItem ->
-                        setFragmentResult(REQUEST_KEY,
-                            bundleOf(BUNDLE_KEY_SELECTED_PAYMENT_METHOD to selectedItem))
+                    viewModel.paymentMethodItems.collectLatest {
+                        listAdapter.submitList(it)
+                    }
+                }
+
+                launch {
+                    viewModel.updateSelectedItemEvent.collect {
+                        setFragmentResult(
+                            REQUEST_KEY,
+                            bundleOf(BUNDLE_KEY_SELECTED_PAYMENT_METHOD to it)
+                        )
                     }
                 }
             }
