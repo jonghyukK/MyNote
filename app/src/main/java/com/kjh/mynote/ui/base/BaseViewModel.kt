@@ -14,12 +14,12 @@ import kotlinx.coroutines.launch
 
 abstract class BaseViewModel: ViewModel() {
 
-    private val _showError: Channel<String> = Channel()
-    val showError = _showError.receiveAsFlow()
+    private val _errorMessage: Channel<String> = Channel()
+    val errorMessage = _errorMessage.receiveAsFlow()
 
     fun sendError(errorMsg: String?) {
         viewModelScope.launch {
-            _showError.send(errorMsg ?: "Unexpected Error")
+            _errorMessage.send(errorMsg ?: "Unexpected Error")
         }
     }
 }
