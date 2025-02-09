@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
 import com.example.domain.usecase.DeletePaymentMethodUseCase
-import com.example.domain.usecase.GetPaymentMethodsUseCase
+import com.example.domain.usecase.ObserveAllPaymentMethodsUseCase
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PaymentMethodManageViewModel @Inject constructor(
-    private val getPaymentMethodsUseCase: GetPaymentMethodsUseCase,
+    private val observeAllPaymentMethodsUseCase: ObserveAllPaymentMethodsUseCase,
     private val deletePaymentMethodUseCase: DeletePaymentMethodUseCase
 ): ViewModel() {
 
@@ -36,7 +36,7 @@ class PaymentMethodManageViewModel @Inject constructor(
     val deletePaymentMethodEvent = _deletePaymentMethodEvent.asSharedFlow()
 
     val uiState: StateFlow<PaymentMethodManageUiState> = combine(
-        _shownFetchError, getPaymentMethodsUseCase()
+        _shownFetchError, observeAllPaymentMethodsUseCase()
     ) { shownFetchError, result ->
         when (result) {
             is ApiResult.Loading ->

@@ -21,7 +21,7 @@ class PaymentMethodRepositoryImpl @Inject constructor(
     private val paymentMethodLocalDataSource: PaymentMethodDao
 ): PaymentMethodRepository {
 
-    override fun getAllPaymentMethods(): Flow<ApiResult<List<PaymentMethod>>> =
+    override fun observeAllPaymentMethods(): Flow<ApiResult<List<PaymentMethod>>> =
         paymentMethodLocalDataSource.getAllPaymentMethods()
             .map { it.toDomainModel() }
             .asResult()
