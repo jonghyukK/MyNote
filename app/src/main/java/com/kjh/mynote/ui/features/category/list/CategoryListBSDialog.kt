@@ -19,6 +19,7 @@ import com.kjh.mynote.ui.features.mypage.category.CategoryManageActivity
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -58,23 +59,23 @@ class CategoryListBSDialog :
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.uiState.collect { uiState ->
-                        when (uiState) {
-                            is CategoryListUiState.Loading -> {}
-                            is CategoryListUiState.Error -> {
-                                showToast(uiState.errorMsg)
-                            }
-
-                            is CategoryListUiState.Success -> {
-                                listAdapter.submitList(uiState.categoryItems)
-                            }
-                        }
+                    viewModel.errorMessage.collectLatest {
+                        showToast(it)
                     }
                 }
 
                 launch {
-                    viewModel.selectedCategoryItem.collect {
-                        setFragmentResult(REQUEST_KEY, bundleOf(BUNDLE_KEY_SELECTED_CATEGORY to it))
+                    viewModel.categoryItems.collectLatest {
+                        listAdapter.submitList(it)
+                    }
+                }
+
+                launch {
+                    viewModel.updateSelectedItemEvent.collect {
+                        setFragmentResult(
+                            REQUEST_KEY,
+                            bundleOf(BUNDLE_KEY_SELECTED_CATEGORY to it)
+                        )
                     }
                 }
             }
