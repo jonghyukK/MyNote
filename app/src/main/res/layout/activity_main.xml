@@ -19,7 +19,7 @@
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bnv_main"
         android:layout_width="0dp"
-        android:layout_height="63dp"
+        android:layout_height="@dimen/bottom_nav_height"
         app:backgroundTint="@color/white"
         app:elevation="10dp"
         app:menu="@menu/menu_main_bottom_nav"
