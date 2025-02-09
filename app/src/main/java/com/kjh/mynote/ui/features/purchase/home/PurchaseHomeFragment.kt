@@ -21,13 +21,13 @@ import com.kjh.mynote.ui.features.purchase.detail.PurchaseNoteDetailActivity
 import com.kjh.mynote.ui.features.purchase.filter.PurchaseNoteHomeFilterBSDFragment
 import com.kjh.mynote.ui.features.purchase.home.adapter.PurchaseHomeListAdapter
 import com.kjh.mynote.ui.features.purchase.makeedit.MakeEditPurchaseNoteActivity
+import com.kjh.mynote.ui.features.purchase.makemulti.MakeMultiplePurchaseNoteActivity
 import com.kjh.mynote.ui.features.purchase.search.PurchaseNoteSearchActivity
 import com.kjh.mynote.ui.features.statistics.purchasenote.PurchaseNoteStatisticsActivity
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.parcelable
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
-import com.kjh.mynote.utils.extensions.showToast
 import com.kjh.mynote.utils.extensions.toComma
 import com.kjh.mynote.utils.extensions.toMillis
 import com.kjh.mynote.utils.extensions.toStringWithPattern
@@ -202,7 +202,12 @@ MakePurchaseNoteFabMenuFragment.MakePurchaseNoteFabMenuClickListener {
     }
 
     override fun onMakeMultipleNoteClick() {
-        showToast("여러개 등록하기!")
+        val selectedDay = viewModel.uiState.value.selectedDay.toMillis()
+
+        Intent(requireContext(), MakeMultiplePurchaseNoteActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_PURCHASE_DATE, selectedDay)
+            makeNoteResultLauncher.launch(this)
+        }
     }
 
     companion object {

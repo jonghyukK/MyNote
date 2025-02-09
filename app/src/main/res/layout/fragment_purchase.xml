@@ -140,17 +140,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_make_purchase_note"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_fab_main"
+        android:layout_width="@dimen/fab_button_size"
+        android:layout_height="@dimen/fab_button_size"
+        android:background="@drawable/ripple_shape_s_color_primary_c_999"
+        android:padding="8dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
-        android:src="@drawable/ic_add_24"
+        app:srcCompat="@drawable/ic_add_24"
         app:tint="@color/white"
-        app:fabCustomSize="@dimen/fab_button_size"
-        app:backgroundTint="@color/black_600"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
