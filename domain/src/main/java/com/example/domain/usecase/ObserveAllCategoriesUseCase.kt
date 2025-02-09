@@ -11,9 +11,9 @@ import javax.inject.Inject
  * Created On 2024. 11. 8..
  * Description:
  */
-class GetAllCategoriesUseCase @Inject constructor(
+class ObserveAllCategoriesUseCase @Inject constructor(
     private val categoryRepository: CategoryRepository
 ) {
     operator fun invoke(): Flow<ApiResult<List<Category>>> =
-        categoryRepository.allCategoriesFlow()
+        categoryRepository.observeAllCategories()
 }

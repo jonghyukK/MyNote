@@ -37,6 +37,7 @@
     <string name="format_min_price_until_max_price">%1$s원 ~ %2$s원</string>
     <string name="format_total_count_with_unit">총 %1$d건이고,</string>
     <string name="format_total_price">총 금액은 %1$s원이에요!</string>
+    <string name="format_purchase_note_with_number">구매노트 %1$d</string>
 
     <string name="input_title">제목 입력하기</string>
     <string name="input_contents">내용 입력하기</string>

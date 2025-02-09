@@ -56,6 +56,9 @@
 
         <activity android:name=".ui.features.mypage.category.CategoryManageActivity" />
         <activity android:name=".ui.features.mypage.paymentmethod.manage.PaymentMethodManageActivity" />
+
+        <activity android:name=".ui.features.purchase.makemulti.MakeMultiplePurchaseNoteActivity"
+            android:windowSoftInputMode="adjustNothing"/>
     </application>
 
 </manifest>
