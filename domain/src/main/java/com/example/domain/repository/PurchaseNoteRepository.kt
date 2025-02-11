@@ -39,7 +39,7 @@ interface PurchaseNoteRepository {
         sortType: SortType
     ): Flow<ApiResult<List<PurchaseNote>>>
 
-    suspend fun insertPurchaseNotes(purchaseNotes: List<PurchaseNote>): Flow<ApiResult<Unit>>
+    suspend fun insertPurchaseNotes(purchaseNotes: List<PurchaseNote>)
 
     suspend fun upsertAndGetPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote
 

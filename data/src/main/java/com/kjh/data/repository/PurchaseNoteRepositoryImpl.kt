@@ -89,10 +89,8 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
         ).map { it.toDomainModel() }
             .asResult()
 
-    override suspend fun insertPurchaseNotes(purchaseNotes: List<PurchaseNote>): Flow<ApiResult<Unit>> =
-        safeApiCall {
-            purchaseNoteLocalDataSource.insertPurchaseNotes(purchaseNotes.map { it.toEntity() })
-        }
+    override suspend fun insertPurchaseNotes(purchaseNotes: List<PurchaseNote>) =
+        purchaseNoteLocalDataSource.insertPurchaseNotes(purchaseNotes.map { it.toEntity() })
 
     override suspend fun upsertAndGetPurchaseNote(purchaseNote: PurchaseNote): PurchaseNote {
         val purchaseNoteEntity = purchaseNote.toEntity()

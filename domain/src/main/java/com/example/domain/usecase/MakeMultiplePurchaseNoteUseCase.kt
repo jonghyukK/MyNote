@@ -1,6 +1,7 @@
 package com.example.domain.usecase
 
 import com.example.domain.model.PurchaseNote
+import com.example.domain.model.safeApiCall
 import com.example.domain.repository.PurchaseNoteRepository
 import javax.inject.Inject
 
@@ -13,5 +14,7 @@ class MakeMultiplePurchaseNoteUseCase @Inject constructor(
     private val purchaseNoteRepository: PurchaseNoteRepository
 ) {
     suspend operator fun invoke(purchaseNotes: List<PurchaseNote>) =
-        purchaseNoteRepository.insertPurchaseNotes(purchaseNotes)
+        safeApiCall {
+            purchaseNoteRepository.insertPurchaseNotes(purchaseNotes)
+        }
 }

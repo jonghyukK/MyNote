@@ -280,10 +280,8 @@ class MakeMultiplePurchaseNoteActivity: BaseActivity<ActivityMakeMultiplePurchas
         val selectedPaymentMethodItem =
             data.parcelable<PaymentMethodUiModel>(PaymentMethodListBSDialog.BUNDLE_KEY_SELECTED_PAYMENT_METHOD)
 
-        if (selectedPaymentMethodItem != null) {
-            selectedTempId?.let {
-                viewModel.setPaymentMethod(it, selectedPaymentMethodItem)
-            }
+        selectedTempId?.let {
+            viewModel.setPaymentMethod(it, selectedPaymentMethodItem)
         }
     }
 }
