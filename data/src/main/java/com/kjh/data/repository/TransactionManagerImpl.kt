@@ -2,8 +2,10 @@ package com.kjh.data.repository
 
 import androidx.room.withTransaction
 import com.example.domain.model.PaymentMethod
+import com.example.domain.model.PlaceNote
 import com.example.domain.model.PurchaseNote
 import com.example.domain.repository.PaymentMethodRepository
+import com.example.domain.repository.PlaceNoteRepository
 import com.example.domain.repository.PurchaseNoteRepository
 import com.example.domain.repository.TransactionManager
 import com.kjh.data.db.NoteDataBase
@@ -16,6 +18,7 @@ import javax.inject.Inject
  */
 class TransactionManagerImpl @Inject constructor(
     private val db: NoteDataBase,
+    private val placeNoteRepository: PlaceNoteRepository,
     private val paymentMethodRepository: PaymentMethodRepository,
     private val purchaseNoteRepository: PurchaseNoteRepository
 ): TransactionManager {
@@ -28,6 +31,17 @@ class TransactionManagerImpl @Inject constructor(
         return db.withTransaction {
             paymentMethodRepository.upsertPaymentMethod(paymentMethod)
             purchaseNoteRepository.upsertAndGetPurchaseNote(purchaseNote)
+        }
+    }
+
+    override suspend fun upsertPlaceNoteAndInsertPurchaseNotes(
+        placeNote: PlaceNote,
+        purchaseNotes: List<PurchaseNote>,
+    ): PlaceNote {
+
+        return db.withTransaction {
+            purchaseNoteRepository.insertPurchaseNotes(purchaseNotes)
+            placeNoteRepository.upsertAndGetPlaceNote(placeNote)
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.domain.repository
 
 import com.example.domain.model.PaymentMethod
+import com.example.domain.model.PlaceNote
 import com.example.domain.model.PurchaseNote
 
 /**
@@ -14,4 +15,9 @@ interface TransactionManager {
         paymentMethod: PaymentMethod,
         purchaseNote: PurchaseNote
     ): PurchaseNote
+
+    suspend fun upsertPlaceNoteAndInsertPurchaseNotes(
+        placeNote: PlaceNote,
+        purchaseNotes: List<PurchaseNote>
+    ): PlaceNote
 }
