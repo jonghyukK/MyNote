@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.kjh.data.model.entity.PlaceNoteEntity
 import com.kjh.data.model.entity.SearchPlaceNoteWithCountEntity
 import kotlinx.coroutines.flow.Flow
@@ -20,8 +21,11 @@ interface PlaceNoteDao {
     @Query("SELECT * FROM places ORDER BY visitDate DESC")
     fun getAllPlaceNotes(): Flow<List<PlaceNoteEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(placeNoteEntity: PlaceNoteEntity): Long
+
+    @Update
+    suspend fun update(placeNoteEntity: PlaceNoteEntity)
 
     @Query("SELECT * FROM places WHERE id = :id")
     suspend fun getPlaceNoteById(id: Int): PlaceNoteEntity?

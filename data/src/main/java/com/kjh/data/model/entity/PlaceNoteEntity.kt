@@ -50,6 +50,7 @@ fun List<PlaceNoteEntity>.toDomainModel() = map(PlaceNoteEntity::toDomainModel)
  *  PlaceNote(Domain) -> PlaceNoteEntity(Data)
  */
 fun PlaceNote.toEntity() = PlaceNoteEntity(
+    id = if (id == -1) 0 else id,
     placeImages = placeImages,
     placeId = placeInfo.id,
     placeName = placeInfo.name,

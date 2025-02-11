@@ -40,20 +40,19 @@ class PlaceNoteRepositoryImpl @Inject constructor(
      *
      *  return PlaceNote
      */
-    override suspend fun upsertAndGetPlaceNote(
-        placeNote: PlaceNote,
-        noteId: Int
-    ): Flow<ApiResult<PlaceNote>> =
-        safeApiCall {
-            var placeNoteEntity = placeNote.toEntity()
-            if (noteId > 0) {
-                placeNoteEntity = placeNoteEntity.copy(id = noteId)
-            }
+    override suspend fun upsertAndGetPlaceNote(placeNote: PlaceNote): PlaceNote {
+        val placeNoteEntity = placeNote.toEntity()
 
-            noteLocalDataSource.insert(placeNoteEntity).run {
-                noteLocalDataSource.getPlaceNoteById(this.toInt())!!
-            }.toDomainModel()
+        val existingNote = noteLocalDataSource.getPlaceNoteById(placeNoteEntity.id)
+        val newId = if (existingNote == null) {
+            noteLocalDataSource.insert(placeNoteEntity).toInt()
+        } else {
+            noteLocalDataSource.update(placeNoteEntity)
+            placeNote.id
         }
+
+        return noteLocalDataSource.getPlaceNoteById(newId)!!.toDomainModel()
+    }
 
     /**
      *  장소노트 삭제.
