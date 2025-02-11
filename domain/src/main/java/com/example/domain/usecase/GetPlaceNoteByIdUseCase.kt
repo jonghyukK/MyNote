@@ -6,7 +6,6 @@ import com.example.domain.model.safeApiCall
 import com.example.domain.repository.PlaceNoteRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Created by kangjonghyuk.
@@ -14,7 +13,6 @@ import javax.inject.Singleton
  * Description:
  */
 
-@Singleton
 class GetPlaceNoteByIdUseCase @Inject constructor(
     private val placeNoteRepository: PlaceNoteRepository) {
 

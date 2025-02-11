@@ -220,7 +220,7 @@ class PlaceNoteDetailActivity :
         if (uiState is PlaceNoteDetailUiState.Success) {
             uiState.placeNoteItem?.let {
                 Intent(this@PlaceNoteDetailActivity, MakeOrModifyPlaceNoteActivity::class.java).apply {
-                    putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, it)
+                    putExtra(AppConstants.INTENT_PLACE_NOTE_ID, it.id)
                     modifyResultLauncher.launch(this)
                 }
             }

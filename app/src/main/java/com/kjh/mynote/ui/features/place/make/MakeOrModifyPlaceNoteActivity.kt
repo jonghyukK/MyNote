@@ -21,8 +21,8 @@ import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityMakePlaceNoteBinding
 import com.kjh.mynote.model.PlaceInfoUiModel
 import com.kjh.mynote.ui.base.BaseActivity
-import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.ui.features.map.NaverMapSearchActivity
+import com.kjh.mynote.ui.features.place.make.AddPurchaseNoteDialogFragment.Companion.BUNDLE_KEY_ADDED_TEMP_PURCHASE_NOTE
 import com.kjh.mynote.ui.features.place.make.adapter.TempImageListAdapter
 import com.kjh.mynote.ui.features.place.make.adapter.TempPurchaseNoteListAdapter
 import com.kjh.mynote.utils.DatePickerManager
@@ -34,7 +34,9 @@ import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
 import com.kjh.mynote.utils.extensions.toLocalDate
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.ZoneOffset
@@ -43,10 +45,6 @@ import java.time.ZoneOffset
 class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>({ ActivityMakePlaceNoteBinding.inflate(it) }) {
 
     private val viewModel: MakeOrModifyPlaceNoteViewModel by viewModels()
-
-    override fun getViewModel(): BaseViewModel {
-        return viewModel
-    }
 
     private val tempImageListAdapter: TempImageListAdapter by lazy {
         TempImageListAdapter(deleteImageClickAction = deleteTempImageClickAction)
@@ -71,16 +69,18 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
                 adapter = tempPurchaseNoteListAdapter
             }
 
-            clAttachImages.setOnThrottleClickListener(photoAttachClickListener)
+            etNoteContents.addTextChangedListener(contentsTextWatcher)
+
             tvVisitPlace.setTextClickListener(searchMapClickListener)
             tvVisitDate.setTextClickListener(visitDateClickListener)
-            etNoteContents.addTextChangedListener(contentsTextWatcher)
+
+            clAttachImages.setOnThrottleClickListener(photoAttachClickListener)
             clAddPurchaseNote.setOnThrottleClickListener(addPurchaseNoteClickListener)
             btnSave.setOnThrottleClickListener(saveBtnClickListener)
         }
 
         supportFragmentManager.setFragmentResultListener(
-            AddPurchaseNoteDialogFragment.REQUEST_KEY, this, addPurchaseNoteFragmentResultListener
+            AddPurchaseNoteDialogFragment.REQUEST_KEY, this, handleTempPurchaseNoteAddResult
         )
     }
 
@@ -88,12 +88,18 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
+                    viewModel.errorMessage.collectLatest {
+                        showToast(it)
+                    }
+                }
+
+                launch {
                     viewModel.uiState
-                        .map { it.noteId }
+                        .map { it.titleRes to it.bottomBtnTextRes }
                         .distinctUntilChanged()
-                        .collect { noteId ->
-                            binding.btnSave.btnTitle =
-                                if (noteId > 0) getString(R.string.do_modify) else getString(R.string.do_save)
+                        .collect { (titleRes, bottomBtnTextRes) ->
+                            binding.tbToolbar.leftTitle = getString(titleRes)
+                            binding.btnSave.btnTitle = getString(bottomBtnTextRes)
                         }
                 }
 
@@ -163,31 +169,25 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
                 }
 
                 launch {
-                    viewModel.upsertPlaceNoteEvent.collect { event ->
-                        when (event) {
-                            is UpsertPlaceNoteEventState.Loading -> {
-                                binding.btnSave.isLoading = true
-                            }
-                            is UpsertPlaceNoteEventState.Error -> {
-                                binding.btnSave.isLoading = false
-                                showToast(event.errorMsg)
-                            }
-                            is UpsertPlaceNoteEventState.Success -> {
-                                binding.btnSave.isLoading = false
-                                Intent().apply {
-                                    putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, event.placeNote)
-                                    setResult(RESULT_OK, this)
-                                    finish()
-                                }
+                    viewModel.uiState
+                        .map { it.makeOrEditResult }
+                        .filterNotNull()
+                        .collect { newPlaceNoteItem ->
+                            Intent().apply {
+                                putExtra(AppConstants.INTENT_PLACE_NOTE_ITEM, newPlaceNoteItem)
+                                setResult(RESULT_OK, this)
+                                finish()
                             }
                         }
-                    }
                 }
 
                 launch {
-                    viewModel.saveValidateFlow.collect { isValid ->
-                        binding.btnSave.isEnable = isValid
-                    }
+                    viewModel.uiState
+                        .map { it.canSaveOrEdit }
+                        .distinctUntilChanged()
+                        .collectLatest { isValid ->
+                            binding.btnSave.isEnable = isValid
+                        }
                 }
             }
         }
@@ -234,7 +234,9 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
                     tempImages.add(imageUri.toString())
                 }
 
-                viewModel.setTempImages(tempImages)
+                if (tempImages.isNotEmpty()) {
+                    viewModel.setTempImages(tempImages)
+                }
             }
         }
     )
@@ -271,8 +273,8 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
     }
 
     private val visitDateClickListener = OnClickListener {
-        val selection = if (viewModel.getVisitDateTimeMills() > 0) {
-            viewModel.getVisitDateTimeMills().toLocalDate()
+        val selection = if (viewModel.uiState.value.visitDate > 0) {
+            viewModel.uiState.value.visitDate.toLocalDate()
                 .atStartOfDay(ZoneOffset.UTC)
                 .toInstant()
                 .toEpochMilli()
@@ -284,7 +286,7 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
             title = getString(R.string.select_visit_date),
             selection = selection,
             positiveButtonClickAction = { long -> viewModel.setVisitDate(long) }
-        ).show(supportFragmentManager, "DATE_PICKER")
+        ).show(supportFragmentManager, DatePickerManager.TAG)
     }
 
     private val photoAttachClickListener = View.OnClickListener {
@@ -302,13 +304,15 @@ class MakeOrModifyPlaceNoteActivity: BaseActivity<ActivityMakePlaceNoteBinding>(
 
     private val saveBtnClickListener = View.OnClickListener {
         if (binding.btnSave.isEnable) {
-            viewModel.upsertPlaceNote()
+            viewModel.requestUpsertPlaceNote()
         }
     }
 
-    private val addPurchaseNoteFragmentResultListener: (String, Bundle) -> Unit =  { _, data ->
-        val purchaseNoteItem = data.parcelable<TempPurchaseNoteItem>(AppConstants.INTENT_PURCHASE_NOTE_ITEM)
-        purchaseNoteItem?.let {
+    private val handleTempPurchaseNoteAddResult: (String, Bundle) -> Unit =  { _, data ->
+        val tempPurchaseNoteItem = data.parcelable<TempPurchaseNoteItem>(
+            BUNDLE_KEY_ADDED_TEMP_PURCHASE_NOTE
+        )
+        tempPurchaseNoteItem?.let {
             viewModel.addOrUpdatePurchaseNoteItem(it)
         }
     }
