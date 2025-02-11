@@ -3,18 +3,12 @@ package com.kjh.mynote.ui.base
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewbinding.ViewBinding
 import com.kjh.mynote.R
-import com.kjh.mynote.utils.extensions.showToast
 import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMap.OnCameraChangeListener
 import com.naver.maps.map.OnMapReadyCallback
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.
@@ -57,24 +51,6 @@ abstract class BaseNaverMapActivity<B: ViewBinding>(
 
         onInitView()
         onInitUiData()
-
-        setupGlobalErrorHandler()
-    }
-
-    open fun getViewModel(): BaseViewModel? {
-        return null
-    }
-
-    private fun setupGlobalErrorHandler() {
-        getViewModel()?.let { viewModel ->
-            lifecycleScope.launch {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    viewModel.errorEvent.collect { error ->
-                        error?.let { showToast(it) }
-                    }
-                }
-            }
-        }
     }
 
     override fun onDestroy() {
