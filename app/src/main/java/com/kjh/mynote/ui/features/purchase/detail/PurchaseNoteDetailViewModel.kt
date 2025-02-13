@@ -4,19 +4,15 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
-import com.example.domain.model.asResult
 import com.example.domain.usecase.DeletePurchaseNoteByIdUseCase
-import com.example.domain.usecase.ObservePurchaseNoteByIdUseCase
+import com.example.domain.usecase.GetPurchaseNoteByIdUseCase
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.utils.constants.AppConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,73 +24,60 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PurchaseNoteDetailViewModel @Inject constructor(
-    private val observePurchaseNoteByIdUseCase: ObservePurchaseNoteByIdUseCase,
+    private val getPurchaseNoteByIdUseCase: GetPurchaseNoteByIdUseCase,
     private val deletePurchaseNoteByIdUseCase: DeletePurchaseNoteByIdUseCase,
     private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
-    private val purchaseNoteId: Int = savedStateHandle[AppConstants.INTENT_PURCHASE_NOTE_ID] ?: -1
+    val purchaseNoteId: Int = savedStateHandle[AppConstants.INTENT_PURCHASE_NOTE_ID] ?: -1
 
-    private var isDeleted: Boolean = false
+    private val _uiState = MutableStateFlow(PurchaseNoteDetailUiState())
+    val uiState = _uiState.asStateFlow()
 
-    private val _deleteEventState = MutableSharedFlow<DeletePurchaseNoteEvent>()
-    val deleteEventState = _deleteEventState.asSharedFlow()
-
-    val uiState: StateFlow<PurchaseNoteDetailUiState> =
-        observePurchaseNoteByIdUseCase(purchaseNoteId)
-            .asResult()
-            .map { result ->
-                if (isDeleted) return@map PurchaseNoteDetailUiState.Loading
+    fun fetchPurchaseNoteDetail() {
+        viewModelScope.launch {
+            getPurchaseNoteByIdUseCase(purchaseNoteId).collect { result ->
                 when (result) {
                     is ApiResult.Loading -> {
-                        PurchaseNoteDetailUiState.Loading
+                        _uiState.update { it.copy(isLoading = true) }
                     }
-
                     is ApiResult.Error -> {
-                        val errorMsg = result.error.message ?: "구매노트 상세 조회가 실패하였습니다."
-                        PurchaseNoteDetailUiState.Error(errorMsg)
+                        _uiState.update { it.copy(isLoading = false, errorMsg = result.error.message) }
                     }
-
                     is ApiResult.Success -> {
-                        PurchaseNoteDetailUiState.PurchaseNoteDetail(result.data.toUiModel())
+                        _uiState.update { it.copy(isLoading = false, purchaseNoteItem = result.data.toUiModel()) }
                     }
                 }
             }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5000),
-                initialValue = PurchaseNoteDetailUiState.Loading
-            )
+        }
+    }
 
     fun deletePurchaseNote() {
         viewModelScope.launch {
             deletePurchaseNoteByIdUseCase(purchaseNoteId).collect { result ->
                 when (result) {
                     is ApiResult.Loading -> {
-                        _deleteEventState.emit(DeletePurchaseNoteEvent.Loading)
+                        _uiState.update { it.copy(isLoading = true) }
                     }
                     is ApiResult.Error -> {
-                        val errorMsg = result.error.message ?: "구매노트 삭제가 실패하였습니다."
-                        _deleteEventState.emit(DeletePurchaseNoteEvent.Error(errorMsg))
+                        _uiState.update { it.copy(isLoading = false, errorMsg = result.error.message) }
                     }
                     is ApiResult.Success -> {
-                        isDeleted = true
-                        _deleteEventState.emit(DeletePurchaseNoteEvent.Success)
+                        _uiState.update { it.copy(isLoading = false, isSuccessDelete = true) }
                     }
                 }
             }
         }
     }
+
+    fun shownError() {
+        _uiState.update { it.copy(errorMsg = null) }
+    }
 }
 
-sealed interface DeletePurchaseNoteEvent {
-    data object Loading: DeletePurchaseNoteEvent
-    data class Error(val errorMsg: String): DeletePurchaseNoteEvent
-    data object Success: DeletePurchaseNoteEvent
-}
-
-sealed interface PurchaseNoteDetailUiState {
-    data object Loading: PurchaseNoteDetailUiState
-    data class Error(val errorMsg: String): PurchaseNoteDetailUiState
-    data class PurchaseNoteDetail(val item: PurchaseNoteUiModel): PurchaseNoteDetailUiState
-}
+data class PurchaseNoteDetailUiState(
+    val isLoading: Boolean = false,
+    val errorMsg: String? = null,
+    val purchaseNoteItem: PurchaseNoteUiModel? = null,
+    val isSuccessDelete: Boolean = false
+)
