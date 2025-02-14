@@ -4,11 +4,12 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.kjh.mynote.R
-import com.kjh.mynote.databinding.VhPlaceNoteDetailItemBinding
+import com.kjh.mynote.databinding.VhPlaceNoteDetailInfoItemBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.ui.common.listener.OnNestedHorizontalTouchListener
-import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailUi
+import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailUiItemState
+import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.ifNullOrEmpty
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.toStringWithFormat
@@ -20,36 +21,31 @@ import com.kjh.mynote.utils.extensions.toStringWithFormat
  */
 
 
-class PlaceNoteDetailItemViewHolder(
-    private val binding: VhPlaceNoteDetailItemBinding,
+class PlaceNoteDetailInfoItemViewHolder(
+    private val binding: VhPlaceNoteDetailInfoItemBinding,
     private val imageViewerClickAction: (List<String>, String) -> Unit,
     private val addressClickAction: (PlaceNoteUiModel) -> Unit
-): BaseViewHolder<PlaceNoteDetailUi.DetailItem>(binding.root) {
+): BaseViewHolder<PlaceNoteDetailUiItemState.PlaceDetailInfoItem>(binding.root) {
 
-    private var imagePagerAdapter: PlaceNoteDetailPagerAdapter? = null
-
-    private var pageChangeCallback: OnPageChangeCallback = object: OnPageChangeCallback() {
-        override fun onPageSelected(position: Int) {
-            super.onPageSelected(position)
-
-            bindItem?.let { item ->
-                makeIndicator(position, item.placeNoteItem.placeImages.size)
-            }
+    private var imagePagerAdapter = PlaceNoteDetailPagerAdapter(imageClickAction = {
+        bindItem?.let { item ->
+            imageViewerClickAction.invoke(item.placeNoteItem.placeImages, it)
         }
-    }
+    })
 
     init {
-        imagePagerAdapter = PlaceNoteDetailPagerAdapter(imageClickAction = {
-            bindItem?.let { item ->
-                imageViewerClickAction.invoke(item.placeNoteItem.placeImages, it)
-            }
-        })
-
         binding.vpPlaceImages.apply {
             adapter = imagePagerAdapter
             (getChildAt(0) as RecyclerView)
                 .addOnItemTouchListener(OnNestedHorizontalTouchListener())
-            registerOnPageChangeCallback(pageChangeCallback)
+            registerOnPageChangeCallback(object: OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    bindItem?.let { item ->
+                        makeIndicator(position, item.placeNoteItem.placeImages.size)
+                    }
+                }
+            })
         }
 
         binding.tvViewer.onThrottleClick {
@@ -67,25 +63,24 @@ class PlaceNoteDetailItemViewHolder(
         }
     }
 
-    override fun bind(item: PlaceNoteDetailUi.DetailItem) {
+    override fun bind(item: PlaceNoteDetailUiItemState.PlaceDetailInfoItem) {
         super.bind(item)
 
-        val placeNoteItem = item.placeNoteItem
-
-        imagePagerAdapter?.submitList(placeNoteItem.placeImages)
+        imagePagerAdapter.submitList(item.placeNoteItem.placeImages)
 
         with (binding) {
             vpPlaceImages.setCurrentItem(0, false)
 
-            tvPlaceName.text = placeNoteItem.placeInfo.placeName
-            tvAddress.text = placeNoteItem.placeInfo.roadAddress
-                .ifNullOrEmpty(placeNoteItem.placeInfo.address)
+            tvPlaceName.text = item.placeNoteItem.placeInfo.placeName
+            tvAddress.text = item.placeNoteItem.placeInfo.roadAddress
+                .ifNullOrEmpty(item.placeNoteItem.placeInfo.address)
 
-            tvNoteContents.isVisible = placeNoteItem.noteContents.isNotEmpty()
-            tvNoteContents.text = placeNoteItem.noteContents
-            tvVisitDate.text = placeNoteItem.visitDate.toStringWithFormat("yyyy년 M월 d일 (E)")
+            tvNoteContents.isVisible = item.placeNoteItem.noteContents.isNotEmpty()
+            tvNoteContents.text = item.placeNoteItem.noteContents
+            tvVisitDate.text = item.placeNoteItem.visitDate
+                .toStringWithFormat(AppConstants.DATE_FORMAT_YYYY_M_D_E)
 
-            makeIndicator(0, placeNoteItem.placeImages.size)
+            makeIndicator(0, item.placeNoteItem.placeImages.size)
         }
     }
 

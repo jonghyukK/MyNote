@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="50dp"
+    android:paddingBottom="28dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -73,7 +73,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="28dp"
         android:textSize="22sp"
         android:textStyle="bold"
         android:textColor="@color/black_900"
@@ -169,6 +169,6 @@
         android:textColor="@color/black_800"
         app:layout_constraintTop_toBottomOf="@+id/tv_visit_date"
         app:layout_constraintStart_toStartOf="parent"
-        tools:text="안녕하세요, 슈가의 아유미입니다. \ndkssudkg 흇가그이그익" />
+        tools:text="안녕하세요, 슈가의 아유미입니다. \n방가방가 햄토리" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

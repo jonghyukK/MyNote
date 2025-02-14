@@ -3,6 +3,7 @@ package com.kjh.mynote.ui.features.place.detail.adapter.sameplaces
 import com.kjh.mynote.databinding.VhPlaceNoteDetailSamePlaceItemBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
+import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.loadImage
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.toStringWithFormat
@@ -28,7 +29,7 @@ class PlaceNoteDetailSamePlaceItemViewHolder(
 
         with (binding) {
             ivImage.loadImage(item.placeImages[0])
-            tvVisitDate.text = item.visitDate.toStringWithFormat("yyyy년 M월 d일 (E)")
+            tvVisitDate.text = item.visitDate.toStringWithFormat(AppConstants.DATE_FORMAT_YYYY_M_D_E)
         }
     }
 }

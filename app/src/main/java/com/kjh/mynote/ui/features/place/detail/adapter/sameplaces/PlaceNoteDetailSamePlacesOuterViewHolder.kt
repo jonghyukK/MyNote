@@ -4,7 +4,7 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import com.kjh.mynote.databinding.VhPlaceNoteDetailSamePlacesOuterItemBinding
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailUi
+import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailUiItemState
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 
 /**
@@ -15,7 +15,7 @@ import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 class PlaceNoteDetailSamePlacesOuterViewHolder(
     private val binding: VhPlaceNoteDetailSamePlacesOuterItemBinding,
     private val samePlaceItemClickAction: (PlaceNoteUiModel) -> Unit
-): BaseViewHolder<PlaceNoteDetailUi.SamePlaceNameItem>(binding.root) {
+): BaseViewHolder<PlaceNoteDetailUiItemState.SamePlaceNameNotesItem>(binding.root) {
 
     private val listAdapter = PlaceNoteDetailSamePlaceListAdapter(samePlaceItemClickAction)
     private val pagerSnapHelper = PagerSnapHelper()
@@ -27,15 +27,13 @@ class PlaceNoteDetailSamePlacesOuterViewHolder(
                 pagerSnapHelper.attachToRecyclerView(this)
             }
             if (itemDecorationCount == 0) {
-                addItemDecoration(SpacingItemDecoration(left = 12))
+                addItemDecoration(SpacingItemDecoration(right = 12, exceptFirstItem = false))
             }
         }
     }
 
-    override fun bind(item: PlaceNoteDetailUi.SamePlaceNameItem) {
+    override fun bind(item: PlaceNoteDetailUiItemState.SamePlaceNameNotesItem) {
         super.bind(item)
-
-        listAdapter.submitList(null)
         listAdapter.submitList(item.placeNoteItems)
     }
 }

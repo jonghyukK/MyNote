@@ -3,7 +3,7 @@ package com.kjh.mynote.ui.features.place.detail.adapter.purchasenotes
 import com.kjh.mynote.databinding.VhPlaceNoteDetailPurchaseNotesOuterItemBinding
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailUi
+import com.kjh.mynote.ui.features.place.detail.PlaceNoteDetailUiItemState
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 
 /**
@@ -14,7 +14,7 @@ import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 class PlaceNoteDetailPurchaseNotesOuterViewHolder(
     private val binding: VhPlaceNoteDetailPurchaseNotesOuterItemBinding,
     private val purchaseNoteItemClickAction: (PurchaseNoteUiModel) -> Unit
-): BaseViewHolder<PlaceNoteDetailUi.PurchaseNoteItem>(binding.root) {
+): BaseViewHolder<PlaceNoteDetailUiItemState.PurchaseNotesItem>(binding.root) {
 
     private val innerListAdapter = PlaceNoteDetailPurchaseNoteListAdapter(purchaseNoteItemClickAction)
 
@@ -28,9 +28,8 @@ class PlaceNoteDetailPurchaseNotesOuterViewHolder(
         }
     }
 
-    override fun bind(item: PlaceNoteDetailUi.PurchaseNoteItem) {
+    override fun bind(item: PlaceNoteDetailUiItemState.PurchaseNotesItem) {
         super.bind(item)
-
         innerListAdapter.submitList(item.purchaseNoteItems)
     }
 }

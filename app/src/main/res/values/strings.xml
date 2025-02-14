@@ -44,6 +44,7 @@
     <string name="msg_created_place_note">장소 노트 작성이 완료되었어요!</string>
     <string name="empty_my_places_will_you_add">등록된 장소노트가 없어요.\n장소를 추가해보세요!</string>
     <string name="make_place_note">장소노트 작성</string>
+    <string name="edit_place_note">장소노트 수정</string>
     <string name="my_product">내 물건</string>
     <string name="view_all">전체보기</string>
     <string name="do_save">저장하기</string>
@@ -149,4 +150,7 @@
     <string name="default_payment_method">기본 결제수단</string>
     <string name="do_make_multiple">한꺼번에 작성하기</string>
     <string name="do_write">작성하기</string>
+    <string name="will_register_default_payment_method">기본 결제수단으로 등록할래요!</string>
+    <string name="exist_purchase_notes">이 날, 이 장소에 대한 구매노트가 있어요!</string>
+    <string name="visit_other_date">다른 날에도 방문했어요!</string>
 </resources>
