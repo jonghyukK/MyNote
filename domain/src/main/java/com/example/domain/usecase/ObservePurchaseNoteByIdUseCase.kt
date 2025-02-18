@@ -1,5 +1,6 @@
 package com.example.domain.usecase
 
+import com.example.domain.model.ApiResult
 import com.example.domain.model.PurchaseNote
 import com.example.domain.repository.PurchaseNoteRepository
 import kotlinx.coroutines.flow.Flow
@@ -13,6 +14,6 @@ import javax.inject.Inject
 class ObservePurchaseNoteByIdUseCase @Inject constructor(
     private val purchaseNoteRepository: PurchaseNoteRepository
 ) {
-    operator fun invoke(id: Int): Flow<PurchaseNote> =
+    operator fun invoke(id: Int): Flow<ApiResult<PurchaseNote?>> =
         purchaseNoteRepository.observePurchaseNoteById(id)
 }
