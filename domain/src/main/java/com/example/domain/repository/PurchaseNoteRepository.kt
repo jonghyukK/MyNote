@@ -1,7 +1,6 @@
 package com.example.domain.repository
 
 import com.example.domain.model.ApiResult
-import com.example.domain.model.Category
 import com.example.domain.model.CategoryPurchaseNoteStats
 import com.example.domain.model.PurchaseNote
 import com.example.domain.model.PurchaseNoteStatistics
@@ -15,18 +14,14 @@ import kotlinx.coroutines.flow.Flow
  */
 interface PurchaseNoteRepository {
 
-    fun getAllPurchaseNotes(): Flow<ApiResult<List<PurchaseNote>>>
+    fun observePurchaseNoteById(id: Int): Flow<ApiResult<PurchaseNote?>>
 
-    fun getPurchaseNotesByCategories(categories: List<Category>): Flow<List<PurchaseNote>>
-
-    fun observePurchaseNoteById(id: Int): Flow<PurchaseNote>
-
-    suspend fun getPurchaseNoteById(id: Int): PurchaseNote
-
-    suspend fun getPurchaseNotesByPlaceAndDate(
+    fun observePurchaseNotesByPlaceAndDate(
         placeName: String,
         date: Long
-    ): List<PurchaseNote>
+    ): Flow<ApiResult<List<PurchaseNote>>>
+
+    suspend fun getPurchaseNoteById(id: Int): PurchaseNote
 
     fun getFilteredPurchaseNotes(
         queryText: String?,

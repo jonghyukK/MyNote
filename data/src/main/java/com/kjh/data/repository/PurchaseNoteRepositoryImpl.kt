@@ -26,32 +26,21 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
     private val purchaseNoteLocalDataSource: PurchaseNoteDao
 ): PurchaseNoteRepository {
 
-    override fun getAllPurchaseNotes(): Flow<ApiResult<List<PurchaseNote>>> =
-        purchaseNoteLocalDataSource.getAllPurchaseNotes()
-            .map { data -> data.map { it.toDomainModel() } }
+    override fun observePurchaseNoteById(id: Int): Flow<ApiResult<PurchaseNote?>> =
+        purchaseNoteLocalDataSource.getPurchaseNoteFlowById(id)
+            .map { data -> data?.toDomainModel() }
             .asResult()
 
-    override fun getPurchaseNotesByCategories(categories: List<Category>): Flow<List<PurchaseNote>> {
-        val categoryIds = categories.map { it.id }
-        return purchaseNoteLocalDataSource.getPurchaseNotesByCategoryIds(categoryIds)
-            .map { data -> data.map { it.toDomainModel() } }
-    }
-
-    override fun observePurchaseNoteById(id: Int): Flow<PurchaseNote> =
-        purchaseNoteLocalDataSource.getPurchaseNoteFlowById(id)
-            .map { data -> data.toDomainModel() }
+    override fun observePurchaseNotesByPlaceAndDate(
+        placeName: String,
+        date: Long,
+    ): Flow<ApiResult<List<PurchaseNote>>> =
+        purchaseNoteLocalDataSource.getPurchaseNotesByDateAndPlaceNameFlow(date, placeName)
+            .map { it.toDomainModel() }
+            .asResult()
 
     override suspend fun getPurchaseNoteById(id: Int): PurchaseNote =
         purchaseNoteLocalDataSource.getPurchaseNoteById(id).toDomainModel()
-
-    override suspend fun getPurchaseNotesByPlaceAndDate(
-        placeName: String,
-        date: Long,
-    ): List<PurchaseNote> =
-        purchaseNoteLocalDataSource.getPurchaseNotesByDateAndPlaceName(
-            purchaseDate = date,
-            placeName = placeName
-        ).toDomainModel()
 
     /**
      *  조건에 맞는 구매노트 목록 조회.

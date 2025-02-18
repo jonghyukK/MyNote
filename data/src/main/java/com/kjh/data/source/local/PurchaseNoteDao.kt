@@ -24,16 +24,8 @@ import kotlinx.coroutines.flow.Flow
 interface PurchaseNoteDao {
 
     @Transaction
-    @Query("SELECT * FROM purchase")
-    fun getAllPurchaseNotes(): Flow<List<PurchaseNoteModel>>
-
-    @Transaction
-    @Query("SELECT * FROM purchase WHERE categoryId IN (:categoryIds)")
-    fun getPurchaseNotesByCategoryIds(categoryIds: List<Int>): Flow<List<PurchaseNoteModel>>
-
-    @Transaction
     @Query("SELECT * FROM purchase WHERE id = :id")
-    fun getPurchaseNoteFlowById(id: Int): Flow<PurchaseNoteModel>
+    fun getPurchaseNoteFlowById(id: Int): Flow<PurchaseNoteModel?>
 
     @Transaction
     @Query("SELECT * FROM purchase WHERE id = :id")
@@ -44,9 +36,9 @@ interface PurchaseNoteDao {
         SELECT * FROM purchase
         WHERE purchaseDate = :purchaseDate AND placeName = :placeName
         """)
-    suspend fun getPurchaseNotesByDateAndPlaceName(
+    fun getPurchaseNotesByDateAndPlaceNameFlow(
         purchaseDate: Long, placeName: String,
-    ): List<PurchaseNoteModel>
+    ): Flow<List<PurchaseNoteModel>>
 
     @Transaction
     @Query("""
