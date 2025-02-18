@@ -64,6 +64,12 @@ class CategoryAddOrDeleteOrEditDialog :
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
+                    viewModel.errorMessage.collectLatest {
+                        showToast(it)
+                    }
+                }
+
+                launch {
                     viewModel.makeCategoryEventState.collectLatest(::handleEventState)
                 }
 
@@ -154,14 +160,8 @@ class CategoryAddOrDeleteOrEditDialog :
     }
 
     private fun handleEventState(state: CategoryManageEventState) {
-        when (state) {
-            is CategoryManageEventState.Loading -> {}
-            is CategoryManageEventState.Error -> {
-                showToast(state.errorMsg)
-            }
-            is CategoryManageEventState.Success -> {
-                dismiss()
-            }
+        if (state is CategoryManageEventState.Success) {
+            dismiss()
         }
     }
 

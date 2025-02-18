@@ -10,6 +10,7 @@ import com.example.domain.usecase.MakeCategoryUseCase
 import com.example.domain.usecase.UpdateCategoryNameUseCase
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.toDomainModel
+import com.kjh.mynote.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -28,7 +29,7 @@ class CategoryAddOrDeleteOrEditDialogViewModel @Inject constructor(
     private val updateCategoryNameUseCase: UpdateCategoryNameUseCase,
     private val deleteCategoryByIdUseCase: DeleteCategoryByIdUseCase,
     private val savedStateHandle: SavedStateHandle
-): ViewModel() {
+): BaseViewModel() {
 
     private val _makeCategoryEventState = MutableSharedFlow<CategoryManageEventState>()
     val makeCategoryEventState = _makeCategoryEventState.asSharedFlow()
@@ -47,8 +48,8 @@ class CategoryAddOrDeleteOrEditDialogViewModel @Inject constructor(
                         _makeCategoryEventState.emit(CategoryManageEventState.Loading)
                     }
                     is ApiResult.Error -> {
-                        _makeCategoryEventState.emit(CategoryManageEventState.Error(
-                            result.error.message ?: "카테고리 추가가 실패하였습니다."))
+                        sendError(result.error.message)
+                        _makeCategoryEventState.emit(CategoryManageEventState.Error)
                     }
                     is ApiResult.Success -> {
                         _makeCategoryEventState.emit(CategoryManageEventState.Success(result.data))
@@ -66,8 +67,8 @@ class CategoryAddOrDeleteOrEditDialogViewModel @Inject constructor(
                         _updateCategoryNameEventState.emit(CategoryManageEventState.Loading)
                     }
                     is ApiResult.Error -> {
-                        _updateCategoryNameEventState.emit(CategoryManageEventState.Error(
-                            result.error.message ?: "카테고리 수정이 실패하였습니다."))
+                        sendError(result.error.message)
+                        _updateCategoryNameEventState.emit(CategoryManageEventState.Error)
                     }
                     is ApiResult.Success -> {
                         _updateCategoryNameEventState.emit(CategoryManageEventState.Success(result.data))
@@ -85,8 +86,8 @@ class CategoryAddOrDeleteOrEditDialogViewModel @Inject constructor(
                         _deleteCategoryEventState.emit(CategoryManageEventState.Loading)
                     }
                     is ApiResult.Error -> {
-                        _deleteCategoryEventState.emit(CategoryManageEventState.Error(
-                            result.error.message ?: "카테고리 삭제가 실패하였습니다."))
+                        sendError(result.error.message)
+                        _deleteCategoryEventState.emit(CategoryManageEventState.Error)
                     }
                     is ApiResult.Success -> {
                         _deleteCategoryEventState.emit(CategoryManageEventState.Success(categoryId.toLong()))
@@ -99,6 +100,6 @@ class CategoryAddOrDeleteOrEditDialogViewModel @Inject constructor(
 
 sealed interface CategoryManageEventState {
     data object Loading: CategoryManageEventState
-    data class Error(val errorMsg: String): CategoryManageEventState
+    data object Error: CategoryManageEventState
     data class Success(val categoryId: Long): CategoryManageEventState
 }
