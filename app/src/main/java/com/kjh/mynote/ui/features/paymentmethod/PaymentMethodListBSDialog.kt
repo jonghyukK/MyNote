@@ -12,6 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.BsdCategoriesOrPaymentMethodsListBinding
 import com.kjh.mynote.model.PaymentMethodUiModel
+import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
 import com.kjh.mynote.ui.features.mypage.paymentmethod.manage.PaymentMethodManageActivity
 import com.kjh.mynote.ui.features.paymentmethod.adapter.PaymentMethodListAdapter
@@ -55,14 +56,14 @@ class PaymentMethodListBSDialog : BaseBottomSheetDialogFragment<BsdCategoriesOrP
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.errorMessage.collectLatest {
-                        showToast(it)
-                    }
+                    viewModel.errorMessage.collectLatest(::showToast)
                 }
 
                 launch {
-                    viewModel.paymentMethodItems.collectLatest {
-                        listAdapter.submitList(it)
+                    viewModel.uiState.collectLatest { uiState ->
+                        if (uiState is UiState.Success) {
+                            listAdapter.submitList(uiState.data)
+                        }
                     }
                 }
 
