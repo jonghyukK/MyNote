@@ -7,6 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.mynote.databinding.ActivityCategoryManageBinding
 import com.kjh.mynote.model.CategoryUiModel
+import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.common.dialog.categorymanage.CategoryAddOrDeleteOrEditDialog
 import com.kjh.mynote.ui.common.dialog.categorymanage.CategoryDialogType
@@ -53,21 +54,23 @@ class CategoryManageActivity :
     override fun onInitUiData() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collectLatest { uiState ->
-                    when (uiState) {
-                        is CategoryManageUiState.Loading -> {
-                            binding.layoutLoading.root.makeVisible()
-                        }
-                        is CategoryManageUiState.Error -> {
-                            binding.layoutLoading.root.makeGone()
-                            uiState.errorMsg?.let {
-                                showToast(it)
-                                viewModel.shownError()
+                launch {
+                    viewModel.errorMessage.collectLatest(::showToast)
+                }
+
+                launch {
+                    viewModel.uiState.collect { uiState ->
+                        when (uiState) {
+                            UiState.Loading -> {
+                                binding.layoutLoading.root.makeVisible()
                             }
-                        }
-                        is CategoryManageUiState.Success -> {
-                            binding.layoutLoading.root.makeGone()
-                            listAdapter.submitList(uiState.categoryItems)
+                            UiState.Error -> {
+                                binding.layoutLoading.root.makeGone()
+                            }
+                            is UiState.Success -> {
+                                binding.layoutLoading.root.makeGone()
+                                listAdapter.submitList(uiState.data)
+                            }
                         }
                     }
                 }
