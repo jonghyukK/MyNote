@@ -1,7 +1,5 @@
 package com.kjh.mynote.ui.common.dialog
 
-import android.content.Context
-import android.content.DialogInterface
 import android.os.Bundle
 import androidx.annotation.ColorRes
 import androidx.core.view.isVisible
@@ -11,7 +9,6 @@ import com.kjh.mynote.ui.base.BaseDialogFragment
 import com.kjh.mynote.ui.base.DialogType
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.setTextColorRes
-import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.
@@ -21,9 +18,13 @@ import timber.log.Timber
  *  일반 대화상자형 Dialog
  */
 class DefaultDialog
-    : BaseDialogFragment<DialogMyDefaultBinding>({ DialogMyDefaultBinding.inflate(it) }, dialogType = DialogType.DIALOG) {
+    : BaseDialogFragment<DialogMyDefaultBinding>(
+    { DialogMyDefaultBinding.inflate(it) },
+    dialogType = DialogType.DIALOG
+) {
 
-    private var eventListener: MyDefaultDialogEventListener? = null
+    private var positiveClickAction: (() -> Unit)? = null
+    private var negativeClickAction: (() -> Unit)? = null
 
     private var title: String? = null
     private var contents: String? = null
@@ -31,15 +32,6 @@ class DefaultDialog
     private var descColorRes: Int = R.color.black_600
     private var posBtnText: String? = null
     private var negBtnText: String? = null
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        eventListener = when {
-            parentFragment is MyDefaultDialogEventListener -> parentFragment as MyDefaultDialogEventListener
-            context is MyDefaultDialogEventListener -> context
-            else -> throw IllegalStateException("Parent must implement MyDefaultDialogEventListener")
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,8 +72,9 @@ class DefaultDialog
     private fun setupPositiveBtnText() = with (binding) {
         tvPositive.apply {
             text = posBtnText ?: getString(R.string.confirm)
+
             onThrottleClick {
-                eventListener?.onDialogPositiveClick()
+                positiveClickAction?.invoke()
                 dismiss()
             }
         }
@@ -91,8 +84,9 @@ class DefaultDialog
         tvNegative.apply {
             isVisible = !negBtnText.isNullOrEmpty()
             text = negBtnText
+
             onThrottleClick {
-                eventListener?.onDialogNegativeClick()
+                negativeClickAction?.invoke()
                 dismiss()
             }
         }
@@ -100,20 +94,10 @@ class DefaultDialog
 
     override fun onInitData() {}
 
-    override fun onDismiss(dialog: DialogInterface) {
-        super.onDismiss(dialog)
-        eventListener?.onDialogDismiss()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
-        eventListener = null
-    }
-
-    interface MyDefaultDialogEventListener {
-        fun onDialogPositiveClick()
-        fun onDialogNegativeClick()
-        fun onDialogDismiss()
+        positiveClickAction = null
+        negativeClickAction = null
     }
 
     companion object {
@@ -132,7 +116,9 @@ class DefaultDialog
             desc: String? = null,
             @ColorRes descColorRes: Int = R.color.black_600,
             posBtnText: String? = null,
-            negBtnText: String? = null
+            negBtnText: String? = null,
+            positiveClickAction: () -> Unit = {},
+            negativeClickAction: () -> Unit = {}
         ): DefaultDialog = DefaultDialog().apply {
             arguments = Bundle().apply {
                 putString(ARG_STR_TITLE, title)
@@ -142,6 +128,9 @@ class DefaultDialog
                 putString(ARG_POS_BTN_TEXT, posBtnText)
                 putString(ARG_NEG_BTN_TEXT, negBtnText)
             }
+
+            this.positiveClickAction = positiveClickAction
+            this.negativeClickAction = negativeClickAction
         }
     }
 }

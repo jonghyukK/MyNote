@@ -30,10 +30,9 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PaymentMethodManageActivity :
-    BaseActivity<ActivityPaymentMethodManageBinding>({ ActivityPaymentMethodManageBinding.inflate(it) }), DefaultDialog.MyDefaultDialogEventListener {
+    BaseActivity<ActivityPaymentMethodManageBinding>({ ActivityPaymentMethodManageBinding.inflate(it) }) {
 
     private val viewModel: PaymentMethodManageViewModel by viewModels()
-    private var tempDeleteItemId: Int? = null
 
     private val listAdapter: PaymentMethodManageListAdapter by lazy {
         PaymentMethodManageListAdapter(
@@ -64,12 +63,12 @@ class PaymentMethodManageActivity :
                 launch {
                     viewModel.uiState.collect { uiState ->
                         when (uiState) {
-                            UiState.Loading -> {
+                            UiState.Loading ->
                                 binding.layoutLoading.root.makeVisible()
-                            }
-                            UiState.Error -> {
+
+                            UiState.Error ->
                                 binding.layoutLoading.root.makeGone()
-                            }
+
                             is UiState.Success -> {
                                 binding.layoutLoading.root.makeGone()
                                 listAdapter.submitList(uiState.data)
@@ -79,18 +78,16 @@ class PaymentMethodManageActivity :
                 }
 
                 launch {
-                    viewModel.deletePaymentMethodEvent.collect { event ->
+                    viewModel.deletePaymentMethodEvent.collectLatest { event ->
                         when (event) {
-                            is DeletePaymentMethodEventState.Loading -> {
+                            is DeletePaymentMethodEventState.Loading ->
                                 binding.layoutLoading.root.makeVisible()
-                            }
-                            is DeletePaymentMethodEventState.Error -> {
+
+                            is DeletePaymentMethodEventState.Error ->
                                 binding.layoutLoading.root.makeGone()
-                            }
-                            is DeletePaymentMethodEventState.Success -> {
+
+                            is DeletePaymentMethodEventState.Success ->
                                 binding.layoutLoading.root.makeGone()
-                                tempDeleteItemId = null
-                            }
                         }
                     }
                 }
@@ -105,34 +102,18 @@ class PaymentMethodManageActivity :
     }
 
     private val deleteClickAction: (PaymentMethodUiModel) -> Unit = { item ->
-        tempDeleteItemId = item.paymentMethodId
-
         DefaultDialog.newInstance(
             title = getString(R.string.will_you_delete),
             desc = getString(R.string.desc_payment_method_remove),
             descColorRes = R.color.red_500,
             posBtnText = getString(R.string.yes_i_will_delete),
-            negBtnText = getString(R.string.cancel)
-        )
-            .show(supportFragmentManager, DefaultDialog.TAG)
+            negBtnText = getString(R.string.cancel),
+            positiveClickAction = { viewModel.deletePaymentMethod(item.paymentMethodId) }
+        ).show(supportFragmentManager, DefaultDialog.TAG)
     }
 
     private val addClickListener = View.OnClickListener {
         MakePaymentMethodDialogFragment.newInstance()
             .show(supportFragmentManager, MakePaymentMethodDialogFragment.TAG)
-    }
-
-    override fun onDialogPositiveClick() {
-        tempDeleteItemId?.let {
-            viewModel.deletePaymentMethod(it)
-        }
-    }
-
-    override fun onDialogNegativeClick() {
-        tempDeleteItemId = null
-    }
-
-    override fun onDialogDismiss() {
-        tempDeleteItemId = null
     }
 }
