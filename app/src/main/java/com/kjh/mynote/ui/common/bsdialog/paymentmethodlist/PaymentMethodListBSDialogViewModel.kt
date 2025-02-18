@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.paymentmethod
+package com.kjh.mynote.ui.common.bsdialog.paymentmethodlist
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -8,7 +8,7 @@ import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.ui.base.BaseViewModel
-import com.kjh.mynote.ui.features.paymentmethod.PaymentMethodListBSDialog.Companion.ARG_OBJ_SELECTED_PAYMENT_METHOD_ITEM
+import com.kjh.mynote.ui.common.bsdialog.paymentmethodlist.PaymentMethodListBSDialog.Companion.ARG_OBJ_SELECTED_PAYMENT_METHOD_ITEM
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,7 +25,7 @@ import javax.inject.Inject
  */
 
 @HiltViewModel
-class PaymentMethodListViewModel @Inject constructor(
+class PaymentMethodListBSDialogViewModel @Inject constructor(
     private val observeAllPaymentMethodsUseCase: ObserveAllPaymentMethodsUseCase,
     private val savedStateHandle: SavedStateHandle
 ): BaseViewModel() {

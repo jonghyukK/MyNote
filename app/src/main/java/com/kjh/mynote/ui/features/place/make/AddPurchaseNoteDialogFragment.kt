@@ -19,8 +19,8 @@ import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.ui.base.BaseDialogFragment
 import com.kjh.mynote.ui.base.DialogType
-import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog
-import com.kjh.mynote.ui.features.paymentmethod.PaymentMethodListBSDialog
+import com.kjh.mynote.ui.common.bsdialog.categorylist.CategoryListBSDialog
+import com.kjh.mynote.ui.common.bsdialog.paymentmethodlist.PaymentMethodListBSDialog
 import com.kjh.mynote.ui.features.place.make.adapter.TempImageListAdapter
 import com.kjh.mynote.ui.features.purchase.makeedit.adapter.RecentRegisteredPurchaseNameListAdapter
 import com.kjh.mynote.utils.constants.AppConstants

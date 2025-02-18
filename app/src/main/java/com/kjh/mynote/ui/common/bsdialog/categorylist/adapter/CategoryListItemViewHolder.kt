@@ -1,11 +1,11 @@
-package com.kjh.mynote.ui.features.category.list.adapter
+package com.kjh.mynote.ui.common.bsdialog.categorylist.adapter
 
 import androidx.core.view.isVisible
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhCategoryOrPaymentMethodListItemBinding
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.category.list.CategoryListItem
+import com.kjh.mynote.ui.common.bsdialog.categorylist.CategoryListItem
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.setTextColorRes
 

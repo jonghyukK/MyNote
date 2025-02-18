@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.category.list.adapter
+package com.kjh.mynote.ui.common.bsdialog.categorylist.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.kjh.mynote.databinding.VhCategoryOrPaymentMethodListItemBinding
 import com.kjh.mynote.model.CategoryUiModel
-import com.kjh.mynote.ui.features.category.list.CategoryListItem
+import com.kjh.mynote.ui.common.bsdialog.categorylist.CategoryListItem
 
 /**
  * Created by kangjonghyuk.

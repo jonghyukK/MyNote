@@ -1,12 +1,11 @@
-package com.kjh.mynote.ui.features.paymentmethod.adapter
+package com.kjh.mynote.ui.common.bsdialog.paymentmethodlist.adapter
 
 import androidx.core.view.isVisible
 import com.kjh.mynote.R
-import com.kjh.mynote.databinding.VhCategoryOrPaymentMethodListItemBinding
 import com.kjh.mynote.databinding.VhPaymentMethodListItemBinding
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.paymentmethod.SelectablePaymentMethodItem
+import com.kjh.mynote.ui.common.bsdialog.paymentmethodlist.SelectablePaymentMethodItem
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.setTextColorRes
 

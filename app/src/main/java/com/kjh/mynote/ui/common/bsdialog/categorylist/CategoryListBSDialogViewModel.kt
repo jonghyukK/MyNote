@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.category.list
+package com.kjh.mynote.ui.common.bsdialog.categorylist
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -9,10 +9,10 @@ import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.ui.base.BaseViewModel
-import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog.Companion.ARG_BOOL_IS_EDITABLE
-import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog.Companion.ARG_BOOL_SHOW_COUNT
-import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog.Companion.ARG_OBJ_SELECTED_CATEGORY_ITEM
-import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog.Companion.ARG_STR_DATE
+import com.kjh.mynote.ui.common.bsdialog.categorylist.CategoryListBSDialog.Companion.ARG_BOOL_IS_EDITABLE
+import com.kjh.mynote.ui.common.bsdialog.categorylist.CategoryListBSDialog.Companion.ARG_BOOL_SHOW_COUNT
+import com.kjh.mynote.ui.common.bsdialog.categorylist.CategoryListBSDialog.Companion.ARG_OBJ_SELECTED_CATEGORY_ITEM
+import com.kjh.mynote.ui.common.bsdialog.categorylist.CategoryListBSDialog.Companion.ARG_STR_DATE
 import com.kjh.mynote.utils.extensions.getFirstDayOfMonth
 import com.kjh.mynote.utils.extensions.getLastDayOfMonth
 import com.kjh.mynote.utils.extensions.toMillis
@@ -33,7 +33,7 @@ import javax.inject.Inject
  */
 
 @HiltViewModel
-class CategoryListViewModel @Inject constructor(
+class CategoryListBSDialogViewModel @Inject constructor(
     private val observeCategoriesWithNoteCountsUseCase: ObserveCategoriesWithNoteCountsUseCase,
     private val savedStateHandle: SavedStateHandle
 ): BaseViewModel() {

@@ -1,10 +1,9 @@
-package com.kjh.mynote.ui.features.category.list
+package com.kjh.mynote.ui.common.bsdialog.paymentmethodlist
 
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
-import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -12,46 +11,43 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.BsdCategoriesOrPaymentMethodsListBinding
-import com.kjh.mynote.model.CategoryUiModel
+import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
-import com.kjh.mynote.ui.features.category.list.adapter.CategoryListAdapter
-import com.kjh.mynote.ui.features.mypage.category.CategoryManageActivity
+import com.kjh.mynote.ui.features.mypage.paymentmethod.manage.PaymentMethodManageActivity
+import com.kjh.mynote.ui.common.bsdialog.paymentmethodlist.adapter.PaymentMethodListAdapter
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 /**
  * Created by kangjonghyuk.
- * Created On 2024. 11. 8..
+ * Created On 2025. 1. 3..
  * Description:
  */
 
 @AndroidEntryPoint
-class CategoryListBSDialog :
-    BaseBottomSheetDialogFragment<BsdCategoriesOrPaymentMethodsListBinding>({
-        BsdCategoriesOrPaymentMethodsListBinding.inflate(it)
-    }) {
+class PaymentMethodListBSDialog : BaseBottomSheetDialogFragment<BsdCategoriesOrPaymentMethodsListBinding>({
+    BsdCategoriesOrPaymentMethodsListBinding.inflate(it)
+}) {
 
-    private val viewModel: CategoryListViewModel by viewModels()
+    private val viewModel: PaymentMethodListBSDialogViewModel by viewModels()
 
-    private val listAdapter: CategoryListAdapter by lazy {
-        CategoryListAdapter(onCategoryClickAction)
+    private val listAdapter: PaymentMethodListAdapter by lazy {
+        PaymentMethodListAdapter(paymentMethodItemClickAction)
     }
 
     override fun onInitView() {
         with (binding) {
-            tvTitle.text = getString(R.string.category_list)
+            tvTitle.text = getString(R.string.payment_method_list)
 
             rvItems.apply {
                 itemAnimator = null
                 adapter = listAdapter
             }
 
-            tvManage.isVisible = arguments?.getBoolean(ARG_BOOL_IS_EDITABLE) ?: true
             tvManage.setOnThrottleClickListener(manageBtnClickListener)
         }
     }
@@ -64,7 +60,7 @@ class CategoryListBSDialog :
                 }
 
                 launch {
-                    viewModel.uiState.collect { uiState ->
+                    viewModel.uiState.collectLatest { uiState ->
                         if (uiState is UiState.Success) {
                             listAdapter.submitList(uiState.data)
                         }
@@ -75,7 +71,7 @@ class CategoryListBSDialog :
                     viewModel.updateSelectedItemEvent.collect {
                         setFragmentResult(
                             REQUEST_KEY,
-                            bundleOf(BUNDLE_KEY_SELECTED_CATEGORY to it)
+                            bundleOf(BUNDLE_KEY_SELECTED_PAYMENT_METHOD to it)
                         )
                     }
                 }
@@ -83,39 +79,30 @@ class CategoryListBSDialog :
         }
     }
 
-    private val onCategoryClickAction: (CategoryUiModel) -> Unit = { category ->
-        setFragmentResult(REQUEST_KEY, bundleOf(BUNDLE_KEY_SELECTED_CATEGORY to category))
+    private val paymentMethodItemClickAction: (PaymentMethodUiModel) -> Unit = { item ->
+        setFragmentResult(REQUEST_KEY, bundleOf(BUNDLE_KEY_SELECTED_PAYMENT_METHOD to item))
         dismiss()
     }
 
     private val manageBtnClickListener = View.OnClickListener {
-        Intent(requireContext(), CategoryManageActivity::class.java).apply {
+        Intent(requireContext(), PaymentMethodManageActivity::class.java).apply {
             startActivity(this)
         }
     }
 
     companion object {
-        const val TAG = "CategoryListBSDialog"
+        const val TAG = "PaymentMethodListBSDialog"
 
-        const val ARG_STR_DATE = "date"
-        const val ARG_BOOL_IS_EDITABLE = "isEditable"
-        const val ARG_BOOL_SHOW_COUNT = "showCount"
-        const val ARG_OBJ_SELECTED_CATEGORY_ITEM = "selectedCategoryItem"
+        const val ARG_OBJ_SELECTED_PAYMENT_METHOD_ITEM = "selectedPaymentMethodItem"
 
-        const val REQUEST_KEY = "CategoryListBSDialog_request_key"
-        const val BUNDLE_KEY_SELECTED_CATEGORY = "bundle_key_selected_category"
+        const val REQUEST_KEY = "PaymentMethodListBSDialog_request_key"
+        const val BUNDLE_KEY_SELECTED_PAYMENT_METHOD = "bundle_key_selected_payment_method"
 
         fun newInstance(
-            date: LocalDate? = null,
-            isEditable: Boolean = true,
-            showCount: Boolean = false,
-            selectedCategoryItem: CategoryUiModel?
-        ) = CategoryListBSDialog().apply {
+            selectedPaymentMethodItem: PaymentMethodUiModel?
+        ) = PaymentMethodListBSDialog().apply {
             arguments = Bundle().apply {
-                putString(ARG_STR_DATE, date?.toString())
-                putBoolean(ARG_BOOL_IS_EDITABLE, isEditable)
-                putBoolean(ARG_BOOL_SHOW_COUNT, showCount)
-                putParcelable(ARG_OBJ_SELECTED_CATEGORY_ITEM, selectedCategoryItem)
+                putParcelable(ARG_OBJ_SELECTED_PAYMENT_METHOD_ITEM, selectedPaymentMethodItem)
             }
         }
     }
