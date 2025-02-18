@@ -3,6 +3,7 @@ package com.kjh.mynote.ui.common.bsdialog.paymentmethodlist
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
+import com.example.domain.model.PaymentMethod
 import com.example.domain.usecase.ObserveAllPaymentMethodsUseCase
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.UiState
@@ -40,7 +41,7 @@ class PaymentMethodListBSDialogViewModel @Inject constructor(
         observeAllPaymentMethodsUseCase()
             .onEach {
                 if (it is ApiResult.Success) {
-                    updateSelectedPaymentMethodItem(it.data.toUiModel())
+                    checkAndUpdateSelectedItem(it.data)
                 }
             }
             .mapResultToUiState { paymentMethods ->
@@ -57,10 +58,10 @@ class PaymentMethodListBSDialogViewModel @Inject constructor(
                 UiState.Loading
             )
 
-    private suspend fun updateSelectedPaymentMethodItem(paymentMethodItems: List<PaymentMethodUiModel>) {
+    private suspend fun checkAndUpdateSelectedItem(paymentMethodItems: List<PaymentMethod>) {
         val matchedIdItem = paymentMethodItems.find {
             it.paymentMethodId == selectedPaymentMethodItem?.paymentMethodId
-        }
+        }?.toUiModel()
 
         if (matchedIdItem != selectedPaymentMethodItem) {
             _updateSelectedItemEvent.send(matchedIdItem)
