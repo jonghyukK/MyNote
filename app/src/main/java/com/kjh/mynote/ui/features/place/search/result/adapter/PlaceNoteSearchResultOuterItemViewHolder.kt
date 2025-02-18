@@ -4,6 +4,7 @@ import com.kjh.mynote.databinding.VhPlaceNoteSearchResultOuterItemBinding
 import com.kjh.mynote.model.FilteredSearchPlaceNotesUiModel
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
+import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.toStringWithPattern
 
@@ -35,7 +36,7 @@ class PlaceNoteSearchResultOuterItemViewHolder(
         super.bind(item)
 
         with (binding) {
-            tvDate.text = item.date.toStringWithPattern("yyyy년 M월 d일 (E)")
+            tvDate.text = item.date.toStringWithPattern(AppConstants.DATE_FORMAT_YYYY_M_D_E)
 
             innerListAdapter.submitList(item.placeNoteItems)
         }

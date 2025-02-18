@@ -14,6 +14,7 @@ object AppConstants {
 
     const val INTENT_NOTE_ID = "INTENT_NOTE_ID"
     const val INTENT_TEMP_PLACE_ITEM = "INTENT_TEMP_PLACE_ITEM"
+    const val INTENT_PLACE_NOTE_ID = "INTENT_PLACE_NOTE_ID"
     const val INTENT_PLACE_VISIT_DATE = "INTENT_PLACE_VISIT_DATE"
     const val INTENT_PURCHASE_DATE = "INTENT_PURCHASE_DATE"
     const val INTENT_IMAGE_LIST = "INTENT_IMAGE_LIST"
@@ -35,6 +36,8 @@ object AppConstants {
 
     const val PRICE_MIN_LIMIT = 0L
     const val PRICE_MAX_LIMIT = 10000000L
+
+    const val DATE_FORMAT_YYYY_M_D_E = "yyyy년 M월 d일 (E)"
 
     val chartColorList = listOf(
         R.color.pie_color_1,

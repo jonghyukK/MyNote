@@ -205,7 +205,7 @@ class MakeMultiplePurchaseNoteItemViewHolder(
     }
 
     private fun bindDate(purchaseDate: Long?) = with(binding.tvPurchaseDate) {
-        text = purchaseDate?.toStringWithFormat(DATE_FORMAT) ?: context.getString(R.string.select_purchase_date)
+        text = purchaseDate?.toStringWithFormat(AppConstants.DATE_FORMAT_YYYY_M_D_E) ?: context.getString(R.string.select_purchase_date)
         textColor = if (purchaseDate == null) hintColorRes else normalColorRes
     }
 
@@ -280,8 +280,6 @@ class MakeMultiplePurchaseNoteItemViewHolder(
     }
 
     private companion object {
-        private const val DATE_FORMAT = "yyyy년 M월 d일 (E)"
-
         private val hintColorRes = R.color.black_400
         private val normalColorRes = R.color.black_800
     }

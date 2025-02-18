@@ -2,6 +2,7 @@ package com.kjh.mynote.ui.common.vh
 
 import com.kjh.mynote.databinding.VhPurchaseNoteSearchResultDateItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
+import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.toStringWithPattern
 import java.time.LocalDate
 
@@ -23,6 +24,6 @@ class PurchaseNoteDateItemViewHolder(
     override fun bind(item: LocalDate) {
         super.bind(item)
 
-        binding.tvDate.text = item.toStringWithPattern("yyyy년 M월 d일 (E)")
+        binding.tvDate.text = item.toStringWithPattern(AppConstants.DATE_FORMAT_YYYY_M_D_E)
     }
 }

@@ -190,7 +190,7 @@ class MakeEditPurchaseNoteActivity : BaseActivity<ActivityEditOrMakePurchaseNote
                                 binding.tvPurchaseDate.textColor = R.color.black_400
                             } else {
                                 binding.tvPurchaseDate.text =
-                                    purchaseDate.toStringWithFormat("yyyy년 M월 d일 (E)")
+                                    purchaseDate.toStringWithFormat(AppConstants.DATE_FORMAT_YYYY_M_D_E)
                                 binding.tvPurchaseDate.textColor = R.color.black_900
                             }
                         }
