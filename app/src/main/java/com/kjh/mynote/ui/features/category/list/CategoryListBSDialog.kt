@@ -60,9 +60,7 @@ class CategoryListBSDialog :
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.errorMessage.collectLatest {
-                        showToast(it)
-                    }
+                    viewModel.errorMessage.collectLatest(::showToast)
                 }
 
                 launch {

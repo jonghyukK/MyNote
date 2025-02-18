@@ -3,6 +3,7 @@ package com.kjh.mynote.ui.features.category.list
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
+import com.example.domain.model.CategoryWithPurchaseNoteCount
 import com.example.domain.usecase.ObserveCategoriesWithNoteCountsUseCase
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.UiState
@@ -57,9 +58,9 @@ class CategoryListViewModel @Inject constructor(
             queryDate?.getFirstDayOfMonth()?.toMillis(),
             queryDate?.getLastDayOfMonth()?.toMillis()
         )
-            .onEach {
-                if (it is ApiResult.Success) {
-                    updateSelectedCategoryItem(it.data.toUiModel())
+            .onEach { result ->
+                if (result is ApiResult.Success) {
+                    checkAndUpdateSelectedItem(result.data)
                 }
             }
             .mapResultToUiState { categories ->
@@ -78,10 +79,10 @@ class CategoryListViewModel @Inject constructor(
                 UiState.Loading
             )
 
-    private suspend fun updateSelectedCategoryItem(categoryItems: List<CategoryUiModel>) {
+    private suspend fun checkAndUpdateSelectedItem(categoryItems: List<CategoryWithPurchaseNoteCount>) {
         val matchedIdItem = categoryItems.find {
-            it.id == selectedCategoryItem?.id
-        }
+            it.categoryId == selectedCategoryItem?.id
+        }?.toUiModel()
 
         if (matchedIdItem != selectedCategoryItem) {
             _updateSelectedItemEvent.send(matchedIdItem)
