@@ -5,11 +5,8 @@ package com.kjh.mynote.model
  * Created On 2024. 10. 11..
  * Description:
  */
-sealed class UiState<out T: Any> {
-    data object Init: UiState<Nothing>()
-    data object Loading: UiState<Nothing>()
-
-    data class Success<T: Any>(val data: T): UiState<T>()
-
-    data class Error(val errorMsg: String): UiState<Nothing>()
+sealed interface UiState<out T> {
+    data object Loading: UiState<Nothing>
+    data object Error: UiState<Nothing>
+    data class Success<T>(val data: T): UiState<T>
 }

@@ -8,6 +8,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.ActivityPaymentMethodManageBinding
 import com.kjh.mynote.model.PaymentMethodUiModel
+import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.common.dialog.DefaultDialog
 import com.kjh.mynote.ui.features.mypage.paymentmethod.edit.EditPaymentMethodDialogFragment
@@ -18,6 +19,7 @@ import com.kjh.mynote.utils.extensions.makeGone
 import com.kjh.mynote.utils.extensions.makeVisible
 import com.kjh.mynote.utils.extensions.showToast
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
@@ -56,23 +58,21 @@ class PaymentMethodManageActivity :
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
+                    viewModel.errorMessage.collectLatest(::showToast)
+                }
+
+                launch {
                     viewModel.uiState.collect { uiState ->
                         when (uiState) {
-                            is PaymentMethodManageUiState.Loading -> {
+                            UiState.Loading -> {
                                 binding.layoutLoading.root.makeVisible()
                             }
-
-                            is PaymentMethodManageUiState.Error -> {
+                            UiState.Error -> {
                                 binding.layoutLoading.root.makeGone()
-                                uiState.errorMsg?.let {
-                                    showToast(it)
-                                    viewModel.shownFetchError()
-                                }
                             }
-
-                            is PaymentMethodManageUiState.PaymentMethods -> {
+                            is UiState.Success -> {
                                 binding.layoutLoading.root.makeGone()
-                                listAdapter.submitList(uiState.items)
+                                listAdapter.submitList(uiState.data)
                             }
                         }
                     }
@@ -86,7 +86,6 @@ class PaymentMethodManageActivity :
                             }
                             is DeletePaymentMethodEventState.Error -> {
                                 binding.layoutLoading.root.makeGone()
-                                showToast(event.errorMsg)
                             }
                             is DeletePaymentMethodEventState.Success -> {
                                 binding.layoutLoading.root.makeGone()
