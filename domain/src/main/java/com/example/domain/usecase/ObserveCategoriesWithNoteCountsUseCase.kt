@@ -11,12 +11,12 @@ import javax.inject.Inject
  * Created On 2024. 11. 16..
  * Description:
  */
-class GetCategoriesWithNoteCountsUseCase @Inject constructor(
+class ObserveCategoriesWithNoteCountsUseCase @Inject constructor(
     private val categoryRepository: CategoryRepository
 ) {
     operator fun invoke(
         startDate: Long? = null,
         endDate: Long? = null
     ): Flow<ApiResult<List<CategoryWithPurchaseNoteCount>>> =
-        categoryRepository.getCategoriesWithNoteCounts(startDate, endDate)
+        categoryRepository.observeCategoriesWithCount(startDate, endDate)
 }

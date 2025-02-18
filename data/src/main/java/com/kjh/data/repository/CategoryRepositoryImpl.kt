@@ -27,7 +27,7 @@ class CategoryRepositoryImpl @Inject constructor(
             .map { it.toDomainModel() }
             .asResult()
 
-    override fun getCategoriesWithNoteCounts(
+    override fun observeCategoriesWithCount(
         startDate: Long?,
         endDate: Long?
     ): Flow<ApiResult<List<CategoryWithPurchaseNoteCount>>> =

@@ -14,7 +14,7 @@ interface CategoryRepository {
 
     fun observeAllCategories(): Flow<ApiResult<List<Category>>>
 
-    fun getCategoriesWithNoteCounts(
+    fun observeCategoriesWithCount(
         startDate: Long?,
         endDate: Long?
     ): Flow<ApiResult<List<CategoryWithPurchaseNoteCount>>>

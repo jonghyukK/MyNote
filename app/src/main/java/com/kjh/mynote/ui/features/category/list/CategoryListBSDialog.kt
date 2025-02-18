@@ -13,6 +13,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.BsdCategoriesOrPaymentMethodsListBinding
 import com.kjh.mynote.model.CategoryUiModel
+import com.kjh.mynote.model.UiState
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
 import com.kjh.mynote.ui.features.category.list.adapter.CategoryListAdapter
 import com.kjh.mynote.ui.features.mypage.category.CategoryManageActivity
@@ -65,8 +66,10 @@ class CategoryListBSDialog :
                 }
 
                 launch {
-                    viewModel.categoryItems.collectLatest {
-                        listAdapter.submitList(it)
+                    viewModel.uiState.collect { uiState ->
+                        if (uiState is UiState.Success) {
+                            listAdapter.submitList(uiState.data)
+                        }
                     }
                 }
 

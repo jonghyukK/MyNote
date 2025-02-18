@@ -49,3 +49,8 @@ fun CategoryWithPurchaseNoteCount.toUiModel() = CategoryUiModel(
     categoryName = categoryName,
     purchaseNoteCount = purchaseNoteCount
 )
+
+/**
+ *  List<CategoryWithPurchaseNoteCount> (domain) -> List<CategoryUiModel> (presentation)
+ */
+fun List<CategoryWithPurchaseNoteCount>.toUiModel() = map(CategoryWithPurchaseNoteCount::toUiModel)
