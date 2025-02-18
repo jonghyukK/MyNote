@@ -35,6 +35,16 @@ class PlaceNoteRepositoryImpl @Inject constructor(
         noteLocalDataSource.getAllPlaceNotes()
             .map { it.toDomainModel() }
 
+    override fun observePlaceNoteById(noteId: Int): Flow<ApiResult<PlaceNote?>> =
+        noteLocalDataSource.getPlaceNoteByIdFlow(noteId)
+            .map { it?.toDomainModel() }
+            .asResult()
+
+    override fun observePlaceNotesByPlaceName(placeName: String): Flow<ApiResult<List<PlaceNote>>> =
+        noteLocalDataSource.getPlaceNotesByPlaceNameFlow(placeName)
+            .map { it.toDomainModel() }
+            .asResult()
+
     /**
      *  장소노트 Insert Or Update 후, 장소노트 반환.
      *

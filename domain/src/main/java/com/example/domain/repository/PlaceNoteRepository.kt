@@ -15,6 +15,10 @@ interface PlaceNoteRepository {
 
     fun getAllPlaceNotes(): Flow<List<PlaceNote>>
 
+    fun observePlaceNoteById(noteId: Int): Flow<ApiResult<PlaceNote?>>
+
+    fun observePlaceNotesByPlaceName(placeName: String): Flow<ApiResult<List<PlaceNote>>>
+
     suspend fun upsertAndGetPlaceNote(placeNote: PlaceNote): PlaceNote
 
     suspend fun deletePlaceNoteById(noteId: Int): Int

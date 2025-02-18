@@ -30,11 +30,17 @@ interface PlaceNoteDao {
     @Query("SELECT * FROM places WHERE id = :id")
     suspend fun getPlaceNoteById(id: Int): PlaceNoteEntity?
 
+    @Query("SELECT * FROM places WHERE id = :id")
+    fun getPlaceNoteByIdFlow(id: Int): Flow<PlaceNoteEntity?>
+
     @Query("DELETE FROM places WHERE id = :id")
     suspend fun deletePlaceNoteById(id: Int)
 
     @Query("SELECT * FROM places WHERE placeName = :placeName ORDER BY visitDate DESC")
     suspend fun getPlaceNotesByPlaceName(placeName: String): List<PlaceNoteEntity>
+
+    @Query("SELECT * FROM places WHERE placeName = :placeName ORDER BY visitDate DESC")
+    fun getPlaceNotesByPlaceNameFlow(placeName: String): Flow<List<PlaceNoteEntity>>
 
     @Query("""
         SELECT id, placeName, placeAddress, placeRoadAddress, COUNT(placeName) as count
