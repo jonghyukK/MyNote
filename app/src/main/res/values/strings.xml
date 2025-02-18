@@ -153,4 +153,6 @@
     <string name="will_register_default_payment_method">기본 결제수단으로 등록할래요!</string>
     <string name="exist_purchase_notes">이 날, 이 장소에 대한 구매노트가 있어요!</string>
     <string name="visit_other_date">다른 날에도 방문했어요!</string>
+    <string name="nothing_category">카테고리 없음</string>
+    <string name="nothing_payment_method">결제수단 없음</string>
 </resources>

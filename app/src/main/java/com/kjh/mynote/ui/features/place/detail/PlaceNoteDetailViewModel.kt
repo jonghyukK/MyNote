@@ -2,23 +2,24 @@ package com.kjh.mynote.ui.features.place.detail
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.example.domain.model.Result
-import com.example.domain.model.onError
-import com.example.domain.model.onLoading
-import com.example.domain.model.onSuccess
+import com.example.domain.model.ApiResult
 import com.example.domain.usecase.DeletePlaceNoteByIdUseCase
-import com.example.domain.usecase.GetPlaceNoteDetailByIdUseCase
+import com.example.domain.usecase.ObservePlaceNoteByIdUseCase
+import com.example.domain.usecase.ObservePlaceNotesByPlaceNameUseCase
+import com.example.domain.usecase.ObservePurchaseNotesByPlaceAndDateUseCase
 import com.kjh.mynote.model.PlaceNoteUiModel
 import com.kjh.mynote.model.PurchaseNoteUiModel
-import com.kjh.mynote.model.UiState
 import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.utils.constants.AppConstants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,110 +29,124 @@ import javax.inject.Inject
  * Description:
  */
 
-sealed class PlaceNoteDetailUi {
-    data class DetailItem(
-        val placeNoteItem: PlaceNoteUiModel
-    ): PlaceNoteDetailUi()
-
-    data class SectionTitleItem(
-        val sectionTitle: String
-    ): PlaceNoteDetailUi()
-
-    data class SamePlaceNameItem(
-        val placeNoteItems: List<PlaceNoteUiModel>
-    ): PlaceNoteDetailUi()
-
-    data class PurchaseNoteItem(
-        val purchaseNoteItems: List<PurchaseNoteUiModel>
-    ): PlaceNoteDetailUi()
-}
-
-sealed class PlaceNoteDetailUiState {
-    data object Loading: PlaceNoteDetailUiState()
-
-    data object NotExist: PlaceNoteDetailUiState()
-
-    data class Success(
-        val placeNoteItem: PlaceNoteUiModel? = null,
-        val placeNoteDetailUiItems: List<PlaceNoteDetailUi> = emptyList()
-    ): PlaceNoteDetailUiState()
-
-    data class Error(val msg: String): PlaceNoteDetailUiState()
-}
-
 @HiltViewModel
 class PlaceNoteDetailViewModel @Inject constructor(
-    private val getPlaceNoteDetailByIdUseCase: GetPlaceNoteDetailByIdUseCase,
+    private val observePlaceNoteByIdUseCase: ObservePlaceNoteByIdUseCase,
+    private val observePlaceNotesByPlaceNameUseCase: ObservePlaceNotesByPlaceNameUseCase,
+    private val observePurchaseNotesByPlaceAndDateUseCase: ObservePurchaseNotesByPlaceAndDateUseCase,
     private val deletePlaceNoteByIdUseCase: DeletePlaceNoteByIdUseCase,
     private val savedStateHandle: SavedStateHandle
 ): BaseViewModel() {
 
-    val noteId = savedStateHandle.get<Int>(AppConstants.INTENT_NOTE_ID) ?: -1
+    val noteId = savedStateHandle[AppConstants.INTENT_NOTE_ID] ?: -1
 
-    private val _uiState: MutableStateFlow<PlaceNoteDetailUiState> = MutableStateFlow(PlaceNoteDetailUiState.Success())
-    val uiState = _uiState.asStateFlow()
+    private val _deleteEventState = MutableSharedFlow<DeletePlaceNoteEventState>()
+    val deleteEventState = _deleteEventState.asSharedFlow()
 
-    private val _requestDeleteEventState = MutableSharedFlow<UiState<Int>>()
-    val requestDeleteEventState = _requestDeleteEventState.asSharedFlow()
+    val uiState: StateFlow<PlaceNoteDetailUiState> = observePlaceNoteByIdUseCase(noteId)
+        .flatMapLatest { placeNoteResult ->
+            when (placeNoteResult) {
+                is ApiResult.Loading -> flowOf(PlaceNoteDetailUiState.Loading)
+                is ApiResult.Error -> flowOf(PlaceNoteDetailUiState.Error)
+                is ApiResult.Success -> {
+                    val placeNote = placeNoteResult.data?.toUiModel()
+                    if (placeNote == null) {
+                        flowOf(PlaceNoteDetailUiState.NotExist)
+                    } else {
+                        val placeName = placeNote.placeInfo.placeName
+                        val visitDate = placeNote.visitDate
 
-    fun getPlaceNoteDetail() {
-        viewModelScope.launch {
-            getPlaceNoteDetailByIdUseCase(noteId)
-                .collect { result -> result
-                    .onLoading {
-                        _uiState.value = PlaceNoteDetailUiState.Loading
-                    }
-                    .onError { throwable ->
-                        if (throwable is NullPointerException) {
-                            _uiState.value = PlaceNoteDetailUiState.NotExist
-                        } else {
-                            _uiState.value =
-                                PlaceNoteDetailUiState.Error(throwable.message ?: "장소노트 상세정보 조회가 실패하였습니다.")
+                        combineApiResults(
+                            observePlaceNotesByPlaceNameUseCase(placeName),
+                            observePurchaseNotesByPlaceAndDateUseCase(placeName, visitDate),
+                            onLoading = { PlaceNoteDetailUiState.Loading },
+                            onError = { PlaceNoteDetailUiState.Error }
+                        ) { samePlaceNotes, purchaseNotes ->
+                            val filteredSamePlaceNotes = samePlaceNotes
+                                .filter { it.id != noteId }
+                                .map { it.toUiModel() }
+
+                            val uiItems = makeUiItems(
+                                placeNote = placeNote,
+                                samePlaceNameNotes = filteredSamePlaceNotes,
+                                purchaseNotes = purchaseNotes.toUiModel()
+                            )
+
+                            PlaceNoteDetailUiState.Success(uiItems)
                         }
                     }
-                    .onSuccess { data ->
-                        val uiItems: MutableList<PlaceNoteDetailUi> = mutableListOf()
-
-                        uiItems.add(PlaceNoteDetailUi.DetailItem(data.placeNote.toUiModel()))
-
-                        if (data.purchaseNotes.isNotEmpty()) {
-                            uiItems.add(PlaceNoteDetailUi.SectionTitleItem(sectionTitle = "구매노트가 있어요!"))
-                            uiItems.add(PlaceNoteDetailUi.PurchaseNoteItem(purchaseNoteItems = data.purchaseNotes.toUiModel()))
-                        }
-
-                        if (data.samePlaceNameNotes.isNotEmpty()) {
-                            uiItems.add(PlaceNoteDetailUi.SectionTitleItem(sectionTitle = "다른 날에도 방문했어요!"))
-                            uiItems.add(PlaceNoteDetailUi.SamePlaceNameItem(placeNoteItems = data.samePlaceNameNotes.toUiModel()))
-                        }
-
-                        _uiState.value = PlaceNoteDetailUiState.Success(
-                            placeNoteItem = data.placeNote.toUiModel(),
-                            placeNoteDetailUiItems = uiItems
-                        )
-                    }
+                }
             }
         }
-    }
-
-    fun shownGetPlaceNoteDetailError() {
-        _uiState.value = PlaceNoteDetailUiState.Success()
-    }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            PlaceNoteDetailUiState.Loading
+        )
 
     fun deletePlaceNote() {
         viewModelScope.launch {
             deletePlaceNoteByIdUseCase(noteId).collect { result ->
                 when (result) {
-                    is Result.Loading -> {
-                        _requestDeleteEventState.emit(UiState.Loading)
+                    is ApiResult.Loading ->
+                        _deleteEventState.emit(DeletePlaceNoteEventState.Loading)
+
+                    is ApiResult.Error -> {
+                        sendError(result.error.message)
+                        _deleteEventState.emit(DeletePlaceNoteEventState.Error)
                     }
-                    is Result.Error -> {
-                        _requestDeleteEventState.emit(UiState.Error("장소노트 삭제가 실패했어요!"))
-                    }
-                    is Result.Success -> {
-                        _requestDeleteEventState.emit(UiState.Success(result.data!!))
-                    }
+
+                    is ApiResult.Success ->
+                        _deleteEventState.emit(DeletePlaceNoteEventState.Success)
                 }
             }
         }
     }
+
+    private fun makeUiItems(
+        placeNote: PlaceNoteUiModel,
+        samePlaceNameNotes: List<PlaceNoteUiModel>,
+        purchaseNotes: List<PurchaseNoteUiModel>
+    ): List<PlaceNoteDetailUiItemState> {
+        val uiItems: MutableList<PlaceNoteDetailUiItemState> = mutableListOf()
+
+        uiItems.add(PlaceNoteDetailUiItemState.PlaceDetailInfoItem(placeNote))
+
+        if (purchaseNotes.isNotEmpty()) {
+            uiItems.add(PlaceNoteDetailUiItemState.PurchaseNotesItem(purchaseNoteItems = purchaseNotes))
+        }
+
+        if (samePlaceNameNotes.isNotEmpty()) {
+            uiItems.add(PlaceNoteDetailUiItemState.SamePlaceNameNotesItem(placeNoteItems = samePlaceNameNotes))
+        }
+
+        return uiItems
+    }
+}
+
+sealed interface DeletePlaceNoteEventState {
+    data object Loading: DeletePlaceNoteEventState
+    data object Error: DeletePlaceNoteEventState
+    data object Success: DeletePlaceNoteEventState
+}
+
+sealed interface PlaceNoteDetailUiItemState {
+    data class PlaceDetailInfoItem(
+        val placeNoteItem: PlaceNoteUiModel
+    ): PlaceNoteDetailUiItemState
+
+    data class SamePlaceNameNotesItem(
+        val placeNoteItems: List<PlaceNoteUiModel>
+    ): PlaceNoteDetailUiItemState
+
+    data class PurchaseNotesItem(
+        val purchaseNoteItems: List<PurchaseNoteUiModel>
+    ): PlaceNoteDetailUiItemState
+}
+
+sealed interface PlaceNoteDetailUiState {
+    data object Loading: PlaceNoteDetailUiState
+    data object NotExist: PlaceNoteDetailUiState
+    data object Error: PlaceNoteDetailUiState
+    data class Success(val uiItems: List<PlaceNoteDetailUiItemState> = emptyList()): PlaceNoteDetailUiState
 }

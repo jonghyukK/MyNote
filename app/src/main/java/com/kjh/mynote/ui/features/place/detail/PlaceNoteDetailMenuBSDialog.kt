@@ -1,9 +1,9 @@
 package com.kjh.mynote.ui.features.place.detail
 
-import android.content.Context
+import android.view.View
 import com.kjh.mynote.databinding.BsdPlaceDetailMenuDialogBinding
 import com.kjh.mynote.ui.base.BaseBottomSheetDialogFragment
-import com.kjh.mynote.utils.extensions.onThrottleClick
+import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 
 /**
  * Created by kangjonghyuk.
@@ -12,47 +12,46 @@ import com.kjh.mynote.utils.extensions.onThrottleClick
  */
 
 class PlaceNoteDetailMenuBSDialog
-    : BaseBottomSheetDialogFragment<BsdPlaceDetailMenuDialogBinding>({ BsdPlaceDetailMenuDialogBinding.inflate(it) })
-{
-    private var menuClickListener: PlaceNoteDetailMenuClickListener? = null
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        menuClickListener = when {
-            parentFragment is PlaceNoteDetailMenuClickListener -> parentFragment as PlaceNoteDetailMenuClickListener
-            context is PlaceNoteDetailMenuClickListener -> context
-            else -> throw IllegalStateException("Parent must implement PlaceNoteDetailMenuClickListener")
-        }
-    }
+    : BaseBottomSheetDialogFragment<BsdPlaceDetailMenuDialogBinding>({
+    BsdPlaceDetailMenuDialogBinding.inflate(it)
+}) {
+    private var deleteClickAction: (() -> Unit)? = null
+    private var modifyClickAction: (() -> Unit)? = null
 
     override fun onInitView() {
         with(binding) {
-            tvModify.onThrottleClick {
-                menuClickListener?.onClickModifyMenu()
-                dismiss()
-            }
-            tvDelete.onThrottleClick {
-                menuClickListener?.onClickDeleteMenu()
-                dismiss()
-            }
+            tvModify.setOnThrottleClickListener(modifyClickListener)
+            tvDelete.setOnThrottleClickListener(deleteClickListener)
         }
     }
 
     override fun onInitData() {}
 
-    override fun onDetach() {
-        super.onDetach()
-        menuClickListener = null
+    override fun onDestroy() {
+        super.onDestroy()
+        deleteClickAction = null
+        modifyClickAction = null
     }
 
-    interface PlaceNoteDetailMenuClickListener {
-        fun onClickDeleteMenu()
-        fun onClickModifyMenu()
+    private val modifyClickListener = View.OnClickListener {
+        modifyClickAction?.invoke()
+        dismiss()
+    }
+
+    private val deleteClickListener = View.OnClickListener {
+        deleteClickAction?.invoke()
+        dismiss()
     }
 
     companion object {
         const val TAG = "PlaceNoteDetailMenuBSDialog"
 
-        fun newInstance(): PlaceNoteDetailMenuBSDialog = PlaceNoteDetailMenuBSDialog()
+        fun newInstance(
+            deleteClickAction: () -> Unit,
+            modifyClickAction: () -> Unit,
+        ): PlaceNoteDetailMenuBSDialog = PlaceNoteDetailMenuBSDialog().apply {
+            this.deleteClickAction = deleteClickAction
+            this.modifyClickAction = modifyClickAction
+        }
     }
 }
