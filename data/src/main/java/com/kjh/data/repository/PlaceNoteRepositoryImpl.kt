@@ -69,10 +69,11 @@ class PlaceNoteRepositoryImpl @Inject constructor(
      *
      *  return noteId
      */
-    override suspend fun deletePlaceNoteById(noteId: Int): Int {
-        noteLocalDataSource.deletePlaceNoteById(noteId)
-        return noteId
-    }
+    override suspend fun deletePlaceNoteById(noteId: Int): Flow<ApiResult<Int>> =
+        safeApiCall {
+            noteLocalDataSource.deletePlaceNoteById(noteId)
+            noteId
+        }
 
     /**
      *  장소노트 조회 By Id.
