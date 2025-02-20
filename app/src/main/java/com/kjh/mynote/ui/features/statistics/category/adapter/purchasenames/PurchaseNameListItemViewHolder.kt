@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.statistics.category.adapter
+package com.kjh.mynote.ui.features.statistics.category.adapter.purchasenames
 
 import androidx.core.content.ContextCompat
 import com.kjh.mynote.databinding.VhCategoryPurchaseNoteStatsPurchaseNameRankingItemBinding
@@ -11,7 +11,7 @@ import com.kjh.mynote.ui.features.statistics.category.PurchaseNameStatsItem
  * Description:
  */
 
-class PurchaseNameRankingListItemViewHolder(
+class PurchaseNameListItemViewHolder(
     private val binding: VhCategoryPurchaseNoteStatsPurchaseNameRankingItemBinding
 ): BaseViewHolder<PurchaseNameStatsItem>(binding.root) {
 
@@ -19,11 +19,11 @@ class PurchaseNameRankingListItemViewHolder(
         super.bind(item)
 
         with (binding) {
-            tvPurchaseName.text = item.purchaseName
-            tvCount.text = "${item.totalCount}건"
+            tvPurchaseName.text = item.purchaseNameStats.purchaseName
+            tvCount.text = "${item.purchaseNameStats.totalCount}건"
 
             lpiProgressBar.setIndicatorColor(ContextCompat.getColor(context, item.color))
-            val progress = item.totalCount
+            val progress = item.purchaseNameStats.totalCount
             lpiProgressBar.max = item.maxCount
             lpiProgressBar.setProgress(progress, false)
         }

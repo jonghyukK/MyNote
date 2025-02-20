@@ -155,4 +155,5 @@
     <string name="visit_other_date">다른 날에도 방문했어요!</string>
     <string name="nothing_category">카테고리 없음</string>
     <string name="nothing_payment_method">결제수단 없음</string>
+    <string name="nothing_purchase_notes_about_this_category">구매노트가 없어요!</string>
 </resources>

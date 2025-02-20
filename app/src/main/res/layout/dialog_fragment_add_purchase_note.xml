@@ -96,17 +96,48 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_register_default_payment_method"
+            android:layout_width="wrap_content"
+            android:layout_height="28dp"
+            android:background="?attr/selectableItemBackground"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@+id/tv_payment_method"
+            app:layout_constraintStart_toEndOf="@+id/gl_guideline">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_unselected_checkbox"
+                app:tint="@color/colorPrimary"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/will_register_default_payment_method"
+                android:textSize="14sp"
+                android:textColor="@color/black_600"
+                android:layout_marginStart="4dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/iv_checkbox" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
         <!-- 사진 첨부 -->
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_title_attach_images"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            app:layout_goneMarginTop="16dp"
             android:text="@string/attach_image"
             android:textColor="@color/black_800"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_payment_method" />
+            app:layout_constraintTop_toBottomOf="@+id/cl_register_default_payment_method" />
 
         <!-- 사진 첨부 Layout -->
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -169,7 +200,7 @@
         android:id="@+id/btn_bottom"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:btnTitle="@string/do_modify"
+        app:btnTitle="@string/do_add"
         android:background="@color/black_50"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

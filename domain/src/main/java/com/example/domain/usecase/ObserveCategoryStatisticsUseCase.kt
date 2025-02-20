@@ -1,7 +1,7 @@
 package com.example.domain.usecase
 
 import com.example.domain.model.ApiResult
-import com.example.domain.model.CategoryPurchaseNoteStats
+import com.example.domain.model.CategoryStatsDetail
 import com.example.domain.repository.PurchaseNoteRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -12,13 +12,13 @@ import javax.inject.Inject
  * Description:
  */
 
-class GetCategoryStatisticsUseCase @Inject constructor(
+class ObserveCategoryStatisticsUseCase @Inject constructor(
     private val purchaseNoteRepository: PurchaseNoteRepository
 ) {
     operator fun invoke(
         categoryId: Int,
         startDate: Long,
         endDate: Long
-    ): Flow<ApiResult<CategoryPurchaseNoteStats>> =
+    ): Flow<ApiResult<CategoryStatsDetail>> =
         purchaseNoteRepository.getCategoryStatistics(categoryId, startDate, endDate)
 }

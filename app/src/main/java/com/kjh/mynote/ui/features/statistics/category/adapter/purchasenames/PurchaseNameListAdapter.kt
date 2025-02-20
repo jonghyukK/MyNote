@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui.features.statistics.category.adapter
+package com.kjh.mynote.ui.features.statistics.category.adapter.purchasenames
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -13,18 +13,17 @@ import com.kjh.mynote.ui.features.statistics.category.PurchaseNameStatsItem
  * Description:
  */
 
-class PurchaseNameRankingListAdapter(
-
-): ListAdapter<PurchaseNameStatsItem, PurchaseNameRankingListItemViewHolder>(UI_MODEL_COMPARATOR) {
+class PurchaseNameListAdapter
+    : ListAdapter<PurchaseNameStatsItem, PurchaseNameListItemViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        PurchaseNameRankingListItemViewHolder(
+        PurchaseNameListItemViewHolder(
             VhCategoryPurchaseNoteStatsPurchaseNameRankingItemBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false
             )
         )
 
-    override fun onBindViewHolder(holder: PurchaseNameRankingListItemViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: PurchaseNameListItemViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 
@@ -34,7 +33,7 @@ class PurchaseNameRankingListAdapter(
                 override fun areItemsTheSame(
                     oldItem: PurchaseNameStatsItem,
                     newItem: PurchaseNameStatsItem,
-                ): Boolean = oldItem.purchaseName == newItem.purchaseName
+                ): Boolean = oldItem.purchaseNameStats.purchaseName == newItem.purchaseNameStats.purchaseName
 
                 override fun areContentsTheSame(
                     oldItem: PurchaseNameStatsItem,

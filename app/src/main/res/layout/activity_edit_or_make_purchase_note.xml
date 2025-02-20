@@ -129,7 +129,7 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="기본 결제수단으로 등록할래요!"
+                android:text="@string/will_register_default_payment_method"
                 android:textSize="14sp"
                 android:textColor="@color/black_600"
                 android:layout_marginStart="4dp"

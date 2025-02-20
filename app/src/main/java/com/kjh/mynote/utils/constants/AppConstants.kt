@@ -38,6 +38,7 @@ object AppConstants {
     const val PRICE_MAX_LIMIT = 10000000L
 
     const val DATE_FORMAT_YYYY_M_D_E = "yyyy년 M월 d일 (E)"
+    const val DATE_FORMAT_YYYY_M = "yyyy년 M월"
 
     val chartColorList = listOf(
         R.color.pie_color_1,
@@ -53,6 +54,7 @@ object AppConstants {
         R.color.pie_color_2_alpha,
         R.color.pie_color_3_alpha,
         R.color.pie_color_4_alpha,
-        R.color.pie_color_5_alpha
+        R.color.pie_color_5_alpha,
+        R.color.black_400
     )
 }

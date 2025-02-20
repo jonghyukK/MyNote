@@ -1,10 +1,10 @@
-package com.kjh.mynote.ui.features.statistics.category.adapter.decoration
+package com.kjh.mynote.ui.features.statistics.category.decoration
 
 import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.kjh.mynote.ui.features.statistics.category.CategoryPurchaseNoteStatsUiItems
+import com.kjh.mynote.ui.features.statistics.category.CategoryStatisticsUiItem
 import com.kjh.mynote.utils.extensions.dpToPx
 
 /**
@@ -23,18 +23,19 @@ class CategoryStatisticsListItemDecoration: RecyclerView.ItemDecoration() {
         val position = parent.getChildAdapterPosition(view)
         if (position == RecyclerView.NO_POSITION) return
 
-        val adapter = parent.adapter as? ListAdapter<CategoryPurchaseNoteStatsUiItems, *>
+        val adapter = parent.adapter as? ListAdapter<CategoryStatisticsUiItem, *>
         val currentItem = adapter?.currentList?.get(position) ?: return
-        val prevItem = adapter?.currentList?.getOrNull(position - 1)
+        val prevItem = adapter.currentList.getOrNull(position - 1)
 
         when {
-            currentItem is CategoryPurchaseNoteStatsUiItems.PurchaseNoteItem && prevItem is CategoryPurchaseNoteStatsUiItems.PurchaseNoteDateItem -> {
+            currentItem is CategoryStatisticsUiItem.PurchaseNoteContents &&
+                    prevItem is CategoryStatisticsUiItem.PurchaseNoteDate -> {
                 outRect.top = 12.dpToPx()
             }
-            currentItem is CategoryPurchaseNoteStatsUiItems.PurchaseNoteItem -> {
+            currentItem is CategoryStatisticsUiItem.PurchaseNoteContents -> {
                 outRect.top = 8.dpToPx()
             }
-            currentItem is CategoryPurchaseNoteStatsUiItems.PurchaseNoteDateItem -> {
+            currentItem is CategoryStatisticsUiItem.PurchaseNoteDate -> {
                 outRect.top = 20.dpToPx()
             }
             else -> {

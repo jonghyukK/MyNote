@@ -2,6 +2,7 @@ package com.example.domain.repository
 
 import com.example.domain.model.ApiResult
 import com.example.domain.model.CategoryPurchaseNoteStats
+import com.example.domain.model.CategoryStatsDetail
 import com.example.domain.model.PurchaseNote
 import com.example.domain.model.PurchaseNoteStatistics
 import com.example.domain.model.SortType
@@ -51,7 +52,7 @@ interface PurchaseNoteRepository {
         categoryId: Int,
         startDate: Long,
         endDate: Long
-    ): Flow<ApiResult<CategoryPurchaseNoteStats>>
+    ): Flow<ApiResult<CategoryStatsDetail>>
 
     suspend fun getRecentPurchaseNamesByCategory(categoryId: Int?): List<String>
 }

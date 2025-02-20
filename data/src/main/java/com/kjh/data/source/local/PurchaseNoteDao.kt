@@ -106,7 +106,26 @@ interface PurchaseNoteDao {
         GROUP BY
             categories.id, categories.categoryName
     """)
-    fun getCategoryStatsByDate(startDate: Long?, endDate: Long?): Flow<List<CategoryStats>>
+    fun getCategoryStatsListByDate(startDate: Long?, endDate: Long?): Flow<List<CategoryStats>>
+
+    @Query("""
+        SELECT
+        categories.id AS categoryId,
+        categories.categoryName AS categoryName,
+        COUNT(purchase.id) AS purchaseNoteTotalCount,
+        COALESCE(SUM(purchase.purchasePrice), 0) AS purchaseNoteTotalPrice
+    FROM
+        categories
+    LEFT JOIN
+        purchase ON categories.id = purchase.categoryId
+    WHERE
+        categories.id = :categoryId AND
+        (:startDate IS NULL OR purchase.purchaseDate >= :startDate) AND
+        (:endDate IS NULL OR purchase.purchaseDate <= :endDate)
+    GROUP BY
+        categories.id, categories.categoryName
+    """)
+    fun getCategoryStatsByDate(categoryId: Int, startDate: Long?, endDate: Long?): Flow<CategoryStats?>
 
     @Query("""
         SELECT
@@ -124,7 +143,7 @@ interface PurchaseNoteDao {
         GROUP BY
             paymentMethod.paymentMethodId, paymentMethod.paymentMethodName
     """)
-    fun getPaymentMethodStatsByDate(startDate: Long?, endDate: Long?): Flow<List<PaymentMethodStats>>
+    fun getPaymentMethodStatsListByDate(startDate: Long?, endDate: Long?): Flow<List<PaymentMethodStats>>
 
     /**
      * 구매노트 총 갯수, 총 가격 조회.
@@ -175,7 +194,7 @@ interface PurchaseNoteDao {
     ORDER BY 
         totalCount DESC
 """)
-    fun getPurchaseNameStats(
+    fun getPurchaseNameStatsList(
         categoryId: Int?,
         startDate: Long?,
         endDate: Long?

@@ -7,24 +7,26 @@ import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.ConcatAdapter
 import com.kjh.mynote.databinding.ActivityCategoryPurchaseNoteStatsBinding
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.ui.base.BaseActivity
+import com.kjh.mynote.ui.common.bsdialog.categorylist.CategoryListBSDialog
 import com.kjh.mynote.ui.common.dialog.yearmonths.SelectableYearMonthListBSDialog
-import com.kjh.mynote.ui.features.category.list.CategoryListBSDialog
-import com.kjh.mynote.ui.features.statistics.category.adapter.CategoryPurchaseNoteStatsUiListAdapter
 import com.kjh.mynote.ui.features.purchase.detail.PurchaseNoteDetailActivity
-import com.kjh.mynote.ui.features.purchase.make.MakePurchaseNoteActivity
+import com.kjh.mynote.ui.features.purchase.makeedit.MakeEditPurchaseNoteActivity
+import com.kjh.mynote.ui.features.purchase.search.adapter.PurchaseNoteSearchResultListAdapter
+import com.kjh.mynote.ui.features.statistics.category.adapter.CategoryStatisticsListAdapter
+import com.kjh.mynote.ui.features.statistics.category.decoration.CategoryStatisticsListItemDecoration
 import com.kjh.mynote.utils.constants.AppConstants
-import com.kjh.mynote.ui.features.statistics.category.adapter.decoration.CategoryStatisticsListItemDecoration
 import com.kjh.mynote.utils.extensions.makeGone
 import com.kjh.mynote.utils.extensions.makeVisible
 import com.kjh.mynote.utils.extensions.parcelable
-import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
 import com.kjh.mynote.utils.extensions.toStringWithPattern
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -41,11 +43,10 @@ class CategoryStatisticsActivity
 
     private val viewModel: CategoryStatisticsViewModel by viewModels()
 
-    private val listAdapter: CategoryPurchaseNoteStatsUiListAdapter by lazy {
-        CategoryPurchaseNoteStatsUiListAdapter(
+    private val listAdapter: CategoryStatisticsListAdapter by lazy {
+        CategoryStatisticsListAdapter(
             categoryClickAction = categoryClickAction,
-            purchaseNoteItemClickAction = purchaseNoteItemClickAction,
-            makePurchaseNoteClickAction = makePurchaseNoteClickAction
+            purchaseNoteItemClickAction = purchaseNoteItemClickAction
         )
     }
 
@@ -57,8 +58,8 @@ class CategoryStatisticsActivity
                 adapter = listAdapter
             }
 
-            llDateContainer.setOnThrottleClickListener(dateClickListener)
-            ivBack.setOnThrottleClickListener(backButtonClickListener)
+            tbToolbar.setDateClickListener(dateClickListener)
+            tbToolbar.setBackButtonClickListener(backButtonClickListener)
         }
 
         supportFragmentManager.setFragmentResultListener(
@@ -70,9 +71,13 @@ class CategoryStatisticsActivity
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
+                    viewModel.errorMessage.collectLatest(::showToast)
+                }
+
+                launch {
                     viewModel.currentDate.collect { date ->
-                            binding.tvDate.text = date.toStringWithPattern("yyyy년 M월")
-                        }
+                        binding.tbToolbar.date = date.toStringWithPattern(AppConstants.DATE_FORMAT_YYYY_M)
+                    }
                 }
 
                 launch {
@@ -83,13 +88,10 @@ class CategoryStatisticsActivity
                             }
                             is CategoryStatisticsUiState.Error -> {
                                 binding.layoutLoading.root.makeGone()
-                                uiState.error.message?.let {
-                                    showToast(it)
-                                }
                             }
-                            is CategoryStatisticsUiState.CategoryStatistics -> {
+                            is CategoryStatisticsUiState.Success -> {
                                 binding.layoutLoading.root.makeGone()
-                                listAdapter.submitList(uiState.items)
+                                listAdapter.submitList(uiState.uiItems)
                             }
                         }
                     }
@@ -110,12 +112,6 @@ class CategoryStatisticsActivity
     private val purchaseNoteItemClickAction: (PurchaseNoteUiModel) -> Unit = { noteItem ->
         Intent(this, PurchaseNoteDetailActivity::class.java).apply {
             putExtra(AppConstants.INTENT_PURCHASE_NOTE_ID, noteItem.id)
-            startActivity(this)
-        }
-    }
-
-    private val makePurchaseNoteClickAction: () -> Unit = {
-        Intent(this, MakePurchaseNoteActivity::class.java).apply {
             startActivity(this)
         }
     }

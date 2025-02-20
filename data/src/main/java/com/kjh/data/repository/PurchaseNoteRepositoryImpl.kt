@@ -1,8 +1,8 @@
 package com.kjh.data.repository
 
 import com.example.domain.model.ApiResult
-import com.example.domain.model.Category
 import com.example.domain.model.CategoryPurchaseNoteStats
+import com.example.domain.model.CategoryStatsDetail
 import com.example.domain.model.PurchaseNote
 import com.example.domain.model.PurchaseNoteStatistics
 import com.example.domain.model.SortType
@@ -115,9 +115,9 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
         val purchaseNoteTotalStats =
             purchaseNoteLocalDataSource.getPurchaseNoteTotalStats(startDate = startDate, endDate = endDate)
         val categoryStatsList =
-            purchaseNoteLocalDataSource.getCategoryStatsByDate(startDate = startDate, endDate = endDate)
+            purchaseNoteLocalDataSource.getCategoryStatsListByDate(startDate = startDate, endDate = endDate)
         val paymentMethodStatsList =
-            purchaseNoteLocalDataSource.getPaymentMethodStatsByDate(startDate = startDate, endDate = endDate)
+            purchaseNoteLocalDataSource.getPaymentMethodStatsListByDate(startDate = startDate, endDate = endDate)
 
         return combine(
             purchaseNoteTotalStats,
@@ -149,20 +149,19 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
         categoryId: Int,
         startDate: Long,
         endDate: Long,
-    ): Flow<ApiResult<CategoryPurchaseNoteStats>> {
-        val purchaseNameStats =
-            purchaseNoteLocalDataSource.getPurchaseNameStats(categoryId, startDate, endDate)
-        val purchaseNoteTotalStats =
-            purchaseNoteLocalDataSource.getPurchaseNoteTotalStats(categoryId, startDate, endDate)
+    ): Flow<ApiResult<CategoryStatsDetail>> {
+        val categoryStatsResult =
+            purchaseNoteLocalDataSource.getCategoryStatsByDate(categoryId, startDate, endDate)
+        val purchaseNameStatsListResult =
+            purchaseNoteLocalDataSource.getPurchaseNameStatsList(categoryId, startDate, endDate)
 
         return combine(
-            purchaseNoteTotalStats,
-            purchaseNameStats
-        ) { totalStats, purchaseNameStatsList ->
-            CategoryPurchaseNoteStats(
-                categoryTotalCount = totalStats.totalCount,
-                categoryTotalPrice = totalStats.totalPrice,
-                purchaseNameStats = purchaseNameStatsList
+            categoryStatsResult,
+            purchaseNameStatsListResult
+        ) { categoryStats, purchaseNameStatsList ->
+            CategoryStatsDetail(
+                categoryStats = categoryStats,
+                purchaseNameStatsList = purchaseNameStatsList
             )
         }.asResult()
     }

@@ -1,16 +1,17 @@
 package com.kjh.mynote.ui.features.statistics.category
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.domain.model.ApiResult
-import com.example.domain.model.CategoryPurchaseNoteStats
+import com.example.domain.model.CategoryStatsDetail
+import com.example.domain.model.PurchaseNameStats
 import com.example.domain.model.PurchaseNote
-import com.example.domain.usecase.GetCategoryStatisticsUseCase
+import com.example.domain.usecase.ObserveCategoryStatisticsUseCase
 import com.example.domain.usecase.GetFilteredSearchPurchaseNotesUseCase
 import com.kjh.mynote.model.CategoryUiModel
+import com.kjh.mynote.model.PurchaseNameStatsUiModel
 import com.kjh.mynote.model.PurchaseNoteUiModel
 import com.kjh.mynote.model.toUiModel
+import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.getFirstDayOfMonth
 import com.kjh.mynote.utils.extensions.getLastDayOfMonth
@@ -34,46 +35,49 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CategoryStatisticsViewModel @Inject constructor(
-    private val getCategoryStatisticsUseCase: GetCategoryStatisticsUseCase,
+    private val observeCategoryStatisticsUseCase: ObserveCategoryStatisticsUseCase,
     private val getFilteredSearchPurchaseNotesUseCase: GetFilteredSearchPurchaseNotesUseCase,
     private val savedStateHandle: SavedStateHandle
-): ViewModel() {
+): BaseViewModel() {
 
-    private val _currentCategory = MutableStateFlow(
-        savedStateHandle.get<CategoryUiModel>(AppConstants.INTENT_CATEGORY_ITEM)
+    private val _currentCategory = MutableStateFlow<CategoryUiModel>(
+        savedStateHandle[AppConstants.INTENT_CATEGORY_ITEM]
             ?: throw IllegalStateException("CategoryStatisticsViewModel is required in SavedStateHandle")
     )
-    private val _currentDate = MutableStateFlow(
-        savedStateHandle.get<LocalDate>(AppConstants.INTENT_DATE) ?: LocalDate.now())
+    val currentCategory = _currentCategory.asStateFlow()
 
-    val currentCategory: StateFlow<CategoryUiModel> = _currentCategory.asStateFlow()
-    val currentDate: StateFlow<LocalDate> = _currentDate.asStateFlow()
+    private val _currentDate =
+        MutableStateFlow(savedStateHandle[AppConstants.INTENT_DATE] ?: LocalDate.now())
+    val currentDate = _currentDate.asStateFlow()
 
-    private val categoryStatsFlow = getCategoryStatsFlow(
-        _currentCategory, _currentDate, getCategoryStatisticsUseCase
-    ).stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = ApiResult.Loading
-    )
-
-    private val purchaseNotesFlow = getPurchaseNotesFlow(
-        _currentCategory, _currentDate, getFilteredSearchPurchaseNotesUseCase
-    ).stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = ApiResult.Loading
-    )
-
-    val uiState = combine(
-        categoryStatsFlow, purchaseNotesFlow
-    ) { categoryStatsResult, purchaseNotesResult ->
-        handleUiState(categoryStatsResult, purchaseNotesResult)
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = CategoryStatisticsUiState.Loading
-    )
+    val uiState: StateFlow<CategoryStatisticsUiState> =
+        combine(_currentCategory, _currentDate) { currentCategory, currentDate ->
+            currentCategory to currentDate
+        }
+            .flatMapLatest { (category, date) ->
+                combineApiResults(
+                    observeCategoryStatisticsUseCase(
+                        categoryId = category.id,
+                        startDate = date.getFirstDayOfMonth().toMillis(),
+                        endDate = date.getLastDayOfMonth().toMillis()
+                    ),
+                    getFilteredSearchPurchaseNotesUseCase(
+                        categoryIds = listOf(category.id),
+                        startDate = date.getFirstDayOfMonth().toMillis(),
+                        endDate = date.getLastDayOfMonth().toMillis()
+                    ),
+                    onLoading = { CategoryStatisticsUiState.Loading },
+                    onError = { CategoryStatisticsUiState.Error }
+                ) { categoryStatsDetail, purchaseNotes ->
+                    val uiItems = makeUiItems(category, categoryStatsDetail, purchaseNotes)
+                    CategoryStatisticsUiState.Success(uiItems = uiItems)
+                }
+            }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                CategoryStatisticsUiState.Loading
+            )
 
     fun setCategory(newCategory: CategoryUiModel) {
         if (_currentCategory.value == newCategory) return
@@ -87,144 +91,91 @@ class CategoryStatisticsViewModel @Inject constructor(
         _currentDate.value = newDate
     }
 
-    private fun handleUiState(
-        categoryStatsResult: ApiResult<CategoryPurchaseNoteStats>,
-        purchaseNotesResult: ApiResult<List<PurchaseNote>>
-    ): CategoryStatisticsUiState {
-        return when {
-            purchaseNotesResult is ApiResult.Loading
-                    || categoryStatsResult is ApiResult.Loading -> {
-                CategoryStatisticsUiState.Loading
-            }
+    private fun makeUiItems(
+        category: CategoryUiModel,
+        categoryStatsDetail: CategoryStatsDetail,
+        purchaseNotes: List<PurchaseNote>,
+    ): List<CategoryStatisticsUiItem> {
+        val uiItems: MutableList<CategoryStatisticsUiItem> = mutableListOf()
 
-            purchaseNotesResult is ApiResult.Error -> {
-                CategoryStatisticsUiState.Error(purchaseNotesResult.error)
-            }
+        val statsInfoItem = makeStatsInfoUiItem(category, categoryStatsDetail)
+        uiItems.add(statsInfoItem)
 
-            categoryStatsResult is ApiResult.Error -> {
-                CategoryStatisticsUiState.Error(categoryStatsResult.error)
-            }
-
-            purchaseNotesResult is ApiResult.Success
-                    && categoryStatsResult is ApiResult.Success -> {
-                createCategoryStatisticsUiState(categoryStatsResult.data, purchaseNotesResult.data)
-            }
-
-            else -> CategoryStatisticsUiState.Error(IllegalStateException("Unexpected State"))
-        }
-    }
-
-    private fun createCategoryStatisticsUiState(
-        categoryStats: CategoryPurchaseNoteStats,
-        purchaseNotes: List<PurchaseNote>
-    ): CategoryStatisticsUiState.CategoryStatistics {
-        val statsInfoUiItem = makeStatsInfoUiItem(categoryStats, _currentCategory.value)
-        val purchaseNoteUiItems = makePurchaseNoteUiItems(purchaseNotes)
-
-        val uiItems = if (categoryStats.purchaseNameStats.isEmpty()) {
-            listOf(statsInfoUiItem)
+        if (categoryStatsDetail.categoryStats == null) {
+            uiItems.add(CategoryStatisticsUiItem.Empty)
         } else {
-            listOf(statsInfoUiItem) + makePurchaseNameStatsUiItem(categoryStats)
+            val purchaseNameStats =
+                makePurchaseNameStatsUiItem(categoryStatsDetail.purchaseNameStatsList)
+            uiItems.add(purchaseNameStats)
+
+            val purchaseNoteItems = makePurchaseNoteUiItems(purchaseNotes.toUiModel())
+            uiItems.addAll(purchaseNoteItems)
         }
 
-        return CategoryStatisticsUiState.CategoryStatistics(uiItems + purchaseNoteUiItems)
+        return uiItems
     }
 
-    private fun makeStatsInfoUiItem(data: CategoryPurchaseNoteStats, currentCategory: CategoryUiModel) =
-        CategoryPurchaseNoteStatsUiItems.StatsInfoItem(
-            currentCategory = currentCategory,
-            totalNoteCount = data.categoryTotalCount,
-            totalNotePrice = data.categoryTotalPrice
-        )
+    private fun makeStatsInfoUiItem(
+        category: CategoryUiModel,
+        categoryStatsDetail: CategoryStatsDetail
+    ) = CategoryStatisticsUiItem.StatsInfo(
+        currentCategory = category,
+        totalNoteCount = categoryStatsDetail.categoryStats?.purchaseNoteTotalCount ?: 0,
+        totalNotePrice = categoryStatsDetail.categoryStats?.purchaseNoteTotalPrice ?: 0
+    )
 
-    private fun makePurchaseNameStatsUiItem(data: CategoryPurchaseNoteStats) =
-        CategoryPurchaseNoteStatsUiItems.PurchaseNameRankingItem(
-            purchaseNameStatsItems = data.purchaseNameStats.take(5).mapIndexed { index, item ->
+    private fun makePurchaseNameStatsUiItem(purchaseNameStatsList: List<PurchaseNameStats>) =
+        CategoryStatisticsUiItem.PurchaseNameStats(
+            purchaseNameStatsList.mapIndexed { index, item ->
                 PurchaseNameStatsItem(
-                    purchaseName = item.purchaseName,
-                    totalCount = item.totalCount,
-                    totalPrice = item.totalPrice,
-                    maxCount = data.purchaseNameStats.maxOfOrNull { it.totalCount } ?: 0,
-                    color = AppConstants.chartColorAlphaList[index]
+                    purchaseNameStats = item.toUiModel(),
+                    maxCount = purchaseNameStatsList.maxOfOrNull { it.totalCount } ?: 0,
+                    color = AppConstants.chartColorAlphaList.getOrElse(index) {
+                        AppConstants.chartColorAlphaList.last()
+                    }
                 )
             }
         )
 
-    private fun makePurchaseNoteUiItems(purchaseNotes: List<PurchaseNote>) =
-        if (purchaseNotes.isEmpty()) {
-            listOf(CategoryPurchaseNoteStatsUiItems.Empty)
-        } else {
-            purchaseNotes.toUiModel().groupBy { it.localDate }
-                .flatMap { (date, items) ->
-                    listOf(CategoryPurchaseNoteStatsUiItems.PurchaseNoteDateItem(date)) +
-                            items.map {
-                                CategoryPurchaseNoteStatsUiItems.PurchaseNoteItem(it)
-                            }
+    private fun makePurchaseNoteUiItems(purchaseNotes: List<PurchaseNoteUiModel>) =
+        purchaseNotes.groupBy { it.localDate }
+            .flatMap { (date, items) ->
+                listOf(CategoryStatisticsUiItem.PurchaseNoteDate(date)) + items.map {
+                    CategoryStatisticsUiItem.PurchaseNoteContents(it)
                 }
-        }
-}
-
-private fun getPurchaseNotesFlow(
-    currentCategory: StateFlow<CategoryUiModel>,
-    currentDate: StateFlow<LocalDate>,
-    getFilteredSearchPurchaseNotesUseCase: GetFilteredSearchPurchaseNotesUseCase,
-) = combine(currentCategory, currentDate) { category, date ->
-    category to date
-}.flatMapLatest { (category, date) ->
-    getFilteredSearchPurchaseNotesUseCase(
-        categoryIds = listOf(category.id),
-        startDate = date.getFirstDayOfMonth().toMillis(),
-        endDate = date.getLastDayOfMonth().toMillis()
-    )
-}
-
-private fun getCategoryStatsFlow(
-    currentCategory: StateFlow<CategoryUiModel>,
-    currentDate: StateFlow<LocalDate>,
-    getCategoryStatisticsUseCase: GetCategoryStatisticsUseCase,
-) = combine(currentCategory, currentDate) { category, date ->
-    category to date
-}.flatMapLatest { (category, date) ->
-    getCategoryStatisticsUseCase(
-        categoryId = category.id,
-        startDate = date.getFirstDayOfMonth().toMillis(),
-        endDate = date.getLastDayOfMonth().toMillis()
-    )
+            }
 }
 
 data class PurchaseNameStatsItem(
-    val purchaseName: String,
-    val totalCount: Int,
-    val totalPrice: Long,
+    val purchaseNameStats: PurchaseNameStatsUiModel,
     val maxCount: Int,
     val color: Int
 )
 
-sealed class CategoryPurchaseNoteStatsUiItems {
-    data object Empty: CategoryPurchaseNoteStatsUiItems()
+sealed interface CategoryStatisticsUiItem {
+    data class StatsInfo (
+        val currentCategory: CategoryUiModel,
+        val totalNoteCount: Int,
+        val totalNotePrice: Long,
+    ): CategoryStatisticsUiItem
 
-    data class StatsInfoItem(
-        val currentCategory: CategoryUiModel? = null,
-        val totalNoteCount: Int = 0,
-        val totalNotePrice: Long = 0
-    ): CategoryPurchaseNoteStatsUiItems()
-
-    data class PurchaseNameRankingItem(
+    data class PurchaseNameStats(
         val purchaseNameStatsItems: List<PurchaseNameStatsItem>
-    ): CategoryPurchaseNoteStatsUiItems()
+    ): CategoryStatisticsUiItem
 
-    data class PurchaseNoteDateItem(
+    data class PurchaseNoteDate(
         val date: LocalDate
-    ): CategoryPurchaseNoteStatsUiItems()
+    ): CategoryStatisticsUiItem
 
-    data class PurchaseNoteItem(
+    data class PurchaseNoteContents(
         val purchaseNote: PurchaseNoteUiModel
-    ): CategoryPurchaseNoteStatsUiItems()
+    ): CategoryStatisticsUiItem
+
+    data object Empty: CategoryStatisticsUiItem
 }
 
 sealed interface CategoryStatisticsUiState {
     data object Loading: CategoryStatisticsUiState
-    data class Error(val error: Throwable): CategoryStatisticsUiState
-    data class CategoryStatistics(val items: List<CategoryPurchaseNoteStatsUiItems>):
-        CategoryStatisticsUiState
+    data object Error: CategoryStatisticsUiState
+    data class Success(val uiItems: List<CategoryStatisticsUiItem>): CategoryStatisticsUiState
 }
