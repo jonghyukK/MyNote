@@ -1,5 +1,6 @@
 package com.kjh.mynote.ui.features.statistics.purchasenote
 
+import android.os.Parcelable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,19 +8,30 @@ import com.example.domain.model.ApiResult
 import com.example.domain.model.CategoryStats
 import com.example.domain.model.PaymentMethodStats
 import com.example.domain.model.PurchaseNoteStatistics
-import com.example.domain.usecase.GetPurchaseNoteStatisticsUseCase
+import com.example.domain.usecase.ObservePurchaseNoteStatisticsByDateUseCase
 import com.github.mikephil.charting.data.PieEntry
 import com.kjh.mynote.R
+import com.kjh.mynote.model.CategoryStatsUiModel
+import com.kjh.mynote.model.PaymentMethodStatsUiModel
+import com.kjh.mynote.model.UiState
+import com.kjh.mynote.model.toUiModel
+import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.getFirstDayOfMonth
 import com.kjh.mynote.utils.extensions.getLastDayOfMonth
 import com.kjh.mynote.utils.extensions.toMillis
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.parcelize.Parcelize
+import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -31,137 +43,99 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PurchaseNoteStatisticsViewModel @Inject constructor(
-    private val getPurchaseNoteStatisticsUseCase: GetPurchaseNoteStatisticsUseCase,
+    private val observePurchaseNoteStatisticsByDateUseCase: ObservePurchaseNoteStatisticsByDateUseCase,
     private val savedStateHandle: SavedStateHandle
-): ViewModel() {
+): BaseViewModel() {
 
-    private val _currentDate = MutableStateFlow(savedStateHandle[AppConstants.INTENT_DATE] ?: LocalDate.now())
-    val currentDate = _currentDate.asStateFlow()
+    private val _queryDate = MutableStateFlow(savedStateHandle[AppConstants.INTENT_DATE] ?: LocalDate.now())
+    val queryDate = _queryDate.asStateFlow()
 
-    private val _uiState = MutableStateFlow<PurchaseNoteStatisticsUiState>(
-        PurchaseNoteStatisticsUiState.Loading
-    )
+    private val _uiState = MutableStateFlow<PurchaseNoteStatisticsUiState>(PurchaseNoteStatisticsUiState.Loading)
     val uiState = _uiState.asStateFlow()
 
-    fun getPurchaseNoteStatistics() {
+    init {
         viewModelScope.launch {
-            currentDate.flatMapLatest { date ->
-                getPurchaseNoteStatisticsUseCase(
+            _queryDate.flatMapLatest { date ->
+                observePurchaseNoteStatisticsByDateUseCase(
                     startDate = date.getFirstDayOfMonth().toMillis(),
                     endDate =  date.getLastDayOfMonth().toMillis()
-                ).map { result ->
-                    when (result) {
-                        is ApiResult.Loading -> {
-                            PurchaseNoteStatisticsUiState.Loading
-                        }
-                        is ApiResult.Error -> {
-                            PurchaseNoteStatisticsUiState.Error(result.error)
-                        }
-                        is ApiResult.Success -> {
-                            val categoryStatsList = result.data.categoryStatsList
-                            val paymentMethodStatsList = result.data.paymentMethodStatsList
+                ).mapResultToState(
+                    onLoading = { PurchaseNoteStatisticsUiState.Loading },
+                    onError =  { PurchaseNoteStatisticsUiState.Error },
+                    onSuccess = { statistics ->
+                        val categoryStatsList = statistics.categoryStatsList
+                        val paymentMethodStatsList = statistics.paymentMethodStatsList
 
-                            val statsTotalSectionItem = makeStatsTotalSectionItem(date, result.data)
-                            val categoryStatsSectionItem = makeCategoryStatsSectionItem(categoryStatsList)
-                            val paymentMethodStatsSectionItem = makePaymentMethodStatsSectionItem(paymentMethodStatsList)
+                        val statsTotalSectionItem = makeStatsTotalSectionItem(date, statistics)
+                        val categoryStatsSectionItem = makeCategoryStatsSectionItem(categoryStatsList)
+                        val paymentMethodStatsSectionItem = makePaymentMethodStatsSectionItem(paymentMethodStatsList)
 
-                            PurchaseNoteStatisticsUiState.Success(
-                                listOf(
-                                    statsTotalSectionItem,
-                                    categoryStatsSectionItem,
-                                    paymentMethodStatsSectionItem
-                                )
-                            )
-                        }
+                        PurchaseNoteStatisticsUiState.Success(
+                            totalStatsItem = statsTotalSectionItem,
+                            categoryStatsItem = categoryStatsSectionItem,
+                            paymentStatsItem = paymentMethodStatsSectionItem
+                        )
                     }
-                }
-            }.collect {
-                _uiState.value = it
+                )
+            }.collect { newState ->
+                _uiState.value = newState
             }
         }
     }
 
     fun setDate(newDate: LocalDate) {
-        if (newDate == _currentDate.value) return
+        if (newDate == _queryDate.value) return
 
-        _currentDate.value = newDate
+        _queryDate.value = newDate
     }
 
     fun toggleExpandForCategoryStats() {
-        val uiState = _uiState.value as? PurchaseNoteStatisticsUiState.Success ?: return
-        val updatedItems = uiState.uiItems.map { currentUiItem ->
-            if (currentUiItem is PurchaseNoteStatisticsUiItem.CategoryStatsSection) {
-                currentUiItem.copy(
-                    isExpanded = true
-                )
-            } else {
-                currentUiItem
-            }
-        }
+        val uiState = uiState.value as? PurchaseNoteStatisticsUiState.Success ?: return
+        val updatedItem = uiState.categoryStatsItem.copy(isExpanded = true)
 
-        _uiState.value = uiState.copy(uiItems = updatedItems)
+        _uiState.value = uiState.copy(categoryStatsItem = updatedItem)
     }
 
     fun toggleExpandForPaymentMethodStats() {
         val uiState = _uiState.value as? PurchaseNoteStatisticsUiState.Success ?: return
-        val updatedItems = uiState.uiItems.map { currentUiItem ->
-            if (currentUiItem is PurchaseNoteStatisticsUiItem.PaymentMethodStatsSection) {
-                currentUiItem.copy(
-                    isExpanded = true
-                )
-            } else {
-                currentUiItem
-            }
-        }
+        val updatedItem = uiState.paymentStatsItem.copy(isExpanded = true)
 
-        _uiState.value = uiState.copy(uiItems = updatedItems)
+        _uiState.value = uiState.copy(paymentStatsItem = updatedItem)
     }
 
     fun updateHighlightForCategoryPie(pieEntry: PieEntry?) {
         val uiState = _uiState.value as? PurchaseNoteStatisticsUiState.Success ?: return
-        val updateItems = uiState.uiItems.map { currentUiItem ->
-            if (currentUiItem is PurchaseNoteStatisticsUiItem.CategoryStatsSection) {
-                currentUiItem.copy(
-                    pieChartItem = currentUiItem.pieChartItem.copy(
-                        highlightedPieEntry = pieEntry
-                    )
-                )
-            } else {
-                currentUiItem
-            }
-        }
+        val updateItem = uiState.categoryStatsItem.copy(
+            pieChartItem = uiState.categoryStatsItem.pieChartItem.copy(
+                highlightedPieEntry = pieEntry
+            )
+        )
 
-        _uiState.value = uiState.copy(uiItems = updateItems)
+        _uiState.value = uiState.copy(categoryStatsItem = updateItem)
     }
 
     fun updateHighlightForPaymentMethodPie(pieEntry: PieEntry?) {
         val uiState = _uiState.value as? PurchaseNoteStatisticsUiState.Success ?: return
-        val updateItems = uiState.uiItems.map { currentUiItem ->
-            if (currentUiItem is PurchaseNoteStatisticsUiItem.PaymentMethodStatsSection) {
-                currentUiItem.copy(
-                    pieChartItem = currentUiItem.pieChartItem.copy(
-                        highlightedPieEntry = pieEntry
-                    )
-                )
-            } else {
-                currentUiItem
-            }
-        }
+        val updateItem = uiState.paymentStatsItem.copy(
+            pieChartItem = uiState.paymentStatsItem.pieChartItem.copy(
+                highlightedPieEntry = pieEntry
+            )
+        )
 
-        _uiState.value = uiState.copy(uiItems = updateItems)
+        _uiState.value = uiState.copy(paymentStatsItem = updateItem)
     }
 
     private fun makeStatsTotalSectionItem(
         currentDate: LocalDate,
         data: PurchaseNoteStatistics,
-    ) = PurchaseNoteStatisticsUiItem.StatsTotalSection(
+    ) = PurchaseNoteStatisticsUiItemState.StatsTotalSection(
         purchaseNoteTotalCount = data.totalNoteCount,
         purchaseNoteTotalPrice = data.totalPurchasePrice,
         currentDate = currentDate
     )
 
     private fun makeCategoryStatsSectionItem(categoryStatsList: List<CategoryStats>) =
-        PurchaseNoteStatisticsUiItem.CategoryStatsSection(
+        PurchaseNoteStatisticsUiItemState.CategoryStatsSection(
             pieChartItem = PieChartItem(
                 isEmpty = categoryStatsList.isEmpty(),
                 pieEntries = makeCategoryPieEntry(categoryStatsList),
@@ -171,7 +145,7 @@ class PurchaseNoteStatisticsViewModel @Inject constructor(
         )
 
     private fun makePaymentMethodStatsSectionItem(paymentMethodStatsList: List<PaymentMethodStats>) =
-        PurchaseNoteStatisticsUiItem.PaymentMethodStatsSection(
+        PurchaseNoteStatisticsUiItemState.PaymentMethodStatsSection(
             pieChartItem = PieChartItem(
                 isEmpty = paymentMethodStatsList.isEmpty(),
                 pieEntries = makePaymentMethodPieEntry(paymentMethodStatsList),
@@ -180,10 +154,10 @@ class PurchaseNoteStatisticsViewModel @Inject constructor(
             childItems = makePaymentMethodStatsChildItems(paymentMethodStatsList)
         )
 
-    private fun makeCategoryStatsChildItems(categoryStatsList: List<CategoryStats>): List<StatsContentsItem> {
+    private fun makeCategoryStatsChildItems(categoryStatsList: List<CategoryStats>): List<CategoryStatsItem> {
         return categoryStatsList.mapIndexed { index, categoryStats ->
-            StatsContentsItem.CategoryStatsItem(
-                categoryStatsItem = categoryStats,
+            CategoryStatsItem(
+                categoryStatsItem = categoryStats.toUiModel(),
                 color = AppConstants.chartColorList.getOrElse(index) {
                     AppConstants.chartColorList.last()
                 }
@@ -191,10 +165,10 @@ class PurchaseNoteStatisticsViewModel @Inject constructor(
         }
     }
 
-    private fun makePaymentMethodStatsChildItems(paymentMethodStatsList: List<PaymentMethodStats>): List<StatsContentsItem> {
+    private fun makePaymentMethodStatsChildItems(paymentMethodStatsList: List<PaymentMethodStats>): List<PaymentMethodStatsItem> {
         return paymentMethodStatsList.mapIndexed { index, paymentMethodStats ->
-            StatsContentsItem.PaymentMethodStatsItem(
-                paymentMethodStatsItem = paymentMethodStats,
+            PaymentMethodStatsItem(
+                paymentMethodStatsItem = paymentMethodStats.toUiModel(),
                 color = AppConstants.chartColorList.getOrElse(index) {
                     AppConstants.chartColorList.last()
                 }
@@ -267,48 +241,56 @@ class PurchaseNoteStatisticsViewModel @Inject constructor(
     }
 }
 
+@Parcelize
 data class PieChartItem(
     val isEmpty: Boolean = true,
     val pieEntries: List<PieEntry> = emptyList(),
     val pieColors: List<Int> = emptyList(),
     val highlightedPieEntry: PieEntry? = null,
-)
+): Parcelable
 
-sealed class StatsContentsItem {
-    data class CategoryStatsItem(
-        val categoryStatsItem: CategoryStats,
-        val color: Int
-    ): StatsContentsItem()
+@Parcelize
+data class CategoryStatsItem(
+    val categoryStatsItem: CategoryStatsUiModel,
+    val color: Int,
+): Parcelable
 
-    data class PaymentMethodStatsItem(
-        val paymentMethodStatsItem: PaymentMethodStats,
-        val color: Int
-    ): StatsContentsItem()
-}
+@Parcelize
+data class PaymentMethodStatsItem(
+    val paymentMethodStatsItem: PaymentMethodStatsUiModel,
+    val color: Int,
+): Parcelable
 
-sealed class PurchaseNoteStatisticsUiItem {
+sealed class PurchaseNoteStatisticsUiItemState {
     data class StatsTotalSection(
         val purchaseNoteTotalCount: Int,
         val purchaseNoteTotalPrice: Long,
         val currentDate: LocalDate
-    ): PurchaseNoteStatisticsUiItem()
+    ): PurchaseNoteStatisticsUiItemState()
 
     data class CategoryStatsSection(
         val pieChartItem: PieChartItem,
-        val childItems: List<StatsContentsItem>,
+        val childItems: List<CategoryStatsItem>,
         val isExpanded: Boolean = false
-    ): PurchaseNoteStatisticsUiItem()
+    ): PurchaseNoteStatisticsUiItemState() {
+        val isVisibleMoreBtn = !isExpanded && childItems.size > 5
+    }
 
     data class PaymentMethodStatsSection(
         val pieChartItem: PieChartItem,
-        val childItems: List<StatsContentsItem>,
+        val childItems: List<PaymentMethodStatsItem>,
         val isExpanded: Boolean = false
-    ): PurchaseNoteStatisticsUiItem()
+    ): PurchaseNoteStatisticsUiItemState() {
+        val isVisibleMoreBtn = !isExpanded && childItems.size > 5
+    }
 }
 
 sealed interface PurchaseNoteStatisticsUiState {
     data object Loading: PurchaseNoteStatisticsUiState
-    data class Error(val error: Throwable): PurchaseNoteStatisticsUiState
-    data class Success(val uiItems: List<PurchaseNoteStatisticsUiItem>):
-        PurchaseNoteStatisticsUiState
+    data object Error: PurchaseNoteStatisticsUiState
+    data class Success(
+        val totalStatsItem: PurchaseNoteStatisticsUiItemState.StatsTotalSection,
+        val categoryStatsItem: PurchaseNoteStatisticsUiItemState.CategoryStatsSection,
+        val paymentStatsItem: PurchaseNoteStatisticsUiItemState.PaymentMethodStatsSection
+    ): PurchaseNoteStatisticsUiState
 }
