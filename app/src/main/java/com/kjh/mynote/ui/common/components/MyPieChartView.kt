@@ -81,6 +81,7 @@ class MyPieChartView  @JvmOverloads constructor(
             })
 
         setupLegendView(currentPieEntries ?: emptyList(), pieColors)
+        binding.chart.invalidate()
     }
 
     fun setCenterText(text: String) = with (binding.chart) {

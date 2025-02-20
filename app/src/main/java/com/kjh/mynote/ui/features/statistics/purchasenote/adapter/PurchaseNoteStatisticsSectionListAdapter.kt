@@ -1,16 +1,25 @@
-package com.kjh.mynote.ui.features.purchase.statistics.adapter.section
+package com.kjh.mynote.ui.features.statistics.purchasenote.adapter
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.domain.model.CategoryStats
-import com.example.domain.model.PaymentMethodStats
 import com.github.mikephil.charting.data.PieEntry
 import com.kjh.mynote.databinding.VhPurchaseNoteStatsInfoItemBinding
 import com.kjh.mynote.databinding.VhPurchaseNoteStatsPieChartItemBinding
-import com.kjh.mynote.ui.features.statistics.purchasenote.PurchaseNoteStatisticsUiItem
+import com.kjh.mynote.model.CategoryStatsUiModel
+import com.kjh.mynote.model.PaymentMethodStatsUiModel
+import com.kjh.mynote.ui.features.statistics.purchasenote.CategoryStatsItem
+import com.kjh.mynote.ui.features.statistics.purchasenote.PaymentMethodStatsItem
+import com.kjh.mynote.ui.features.statistics.purchasenote.PieChartItem
+import com.kjh.mynote.ui.features.statistics.purchasenote.PurchaseNoteStatisticsUiItemState
+import com.kjh.mynote.ui.features.statistics.purchasenote.adapter.category.CategoryStatsSectionItemViewHolder
+import com.kjh.mynote.ui.features.statistics.purchasenote.adapter.paymentmethod.PaymentMethodStatsSectionItemViewHolder
+import com.kjh.mynote.ui.features.statistics.purchasenote.adapter.total.TotalStatsSectionItemViewHolder
+import com.kjh.mynote.utils.extensions.parcelable
+import com.kjh.mynote.utils.extensions.parcelableArrayList
 
 /**
  * Created by kangjonghyuk.
@@ -21,12 +30,12 @@ import com.kjh.mynote.ui.features.statistics.purchasenote.PurchaseNoteStatistics
 class PurchaseNoteStatisticsSectionListAdapter(
     private val dateClickAction: () -> Unit,
     private val categoryPieSliceClickAction: (PieEntry?) -> Unit,
-    private val paymentMethodPieSliceClickAction: (PieEntry?) -> Unit,
-    private val categoryStatsClickAction: (CategoryStats) -> Unit,
-    private val paymentMethodStatsClickAction: (PaymentMethodStats) -> Unit,
+    private val categoryStatsClickAction: (CategoryStatsUiModel) -> Unit,
     private val categoryStatsMoreClickAction: () -> Unit,
+    private val paymentMethodPieSliceClickAction: (PieEntry?) -> Unit,
+    private val paymentMethodStatsClickAction: (PaymentMethodStatsUiModel) -> Unit,
     private val paymentMethodStatsMoreClickAction: () -> Unit,
-): ListAdapter<PurchaseNoteStatisticsUiItem, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
+): ListAdapter<PurchaseNoteStatisticsUiItemState, RecyclerView.ViewHolder>(UI_MODEL_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         when (viewType) {
@@ -44,7 +53,6 @@ class PurchaseNoteStatisticsSectionListAdapter(
                     ),
                     categoryPieSliceClickAction,
                     categoryStatsClickAction,
-                    paymentMethodStatsClickAction,
                     categoryStatsMoreClickAction
                 )
             }
@@ -54,7 +62,6 @@ class PurchaseNoteStatisticsSectionListAdapter(
                         LayoutInflater.from(parent.context), parent, false
                     ),
                     paymentMethodPieSliceClickAction,
-                    categoryStatsClickAction,
                     paymentMethodStatsClickAction,
                     paymentMethodStatsMoreClickAction
                 )
@@ -64,22 +71,80 @@ class PurchaseNoteStatisticsSectionListAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = getItem(position)) {
-            is PurchaseNoteStatisticsUiItem.StatsTotalSection -> {
+            is PurchaseNoteStatisticsUiItemState.StatsTotalSection -> {
                 (holder as TotalStatsSectionItemViewHolder).bind(item)
             }
-            is PurchaseNoteStatisticsUiItem.CategoryStatsSection -> {
+            is PurchaseNoteStatisticsUiItemState.CategoryStatsSection -> {
                 (holder as CategoryStatsSectionItemViewHolder).bind(item)
             }
-            is PurchaseNoteStatisticsUiItem.PaymentMethodStatsSection -> {
+            is PurchaseNoteStatisticsUiItemState.PaymentMethodStatsSection -> {
                 (holder as PaymentMethodStatsSectionItemViewHolder).bind(item)
             }
         }
     }
 
+    override fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int,
+        payloads: MutableList<Any>,
+    ) {
+        if (payloads.isNotEmpty()) {
+            val bundle = payloads[0] as Bundle
+
+            if (bundle.containsKey(BUNDLE_KEY_CATEGORY_PIE_CHART)) {
+                bundle.parcelable<PieChartItem>(BUNDLE_KEY_CATEGORY_PIE_CHART)?.let {
+                    (holder as CategoryStatsSectionItemViewHolder).updatePieChartData(it)
+                }
+            }
+
+            if (bundle.containsKey(BUNDLE_KEY_CATEGORY_PIE_HIGH_LIGHTS)) {
+                bundle.parcelable<PieChartItem>(BUNDLE_KEY_CATEGORY_PIE_HIGH_LIGHTS)?.let {
+                    (holder as CategoryStatsSectionItemViewHolder).updateHighlightedEntry(it)
+                }
+            }
+
+            if (bundle.containsKey(BUNDLE_KEY_CATEGORY_EXPANDED) ||
+                bundle.containsKey(BUNDLE_KEY_CATEGORY_STATS_ITEMS)
+            ) {
+                (holder as CategoryStatsSectionItemViewHolder).updateCategoryStatsList(
+                    isExpanded = bundle.getBoolean(BUNDLE_KEY_CATEGORY_EXPANDED),
+                    categoryStatsList = bundle.parcelableArrayList<CategoryStatsItem>(
+                        BUNDLE_KEY_CATEGORY_STATS_ITEMS
+                    )?.toList() ?: emptyList()
+                )
+            }
+
+            if (bundle.containsKey(BUNDLE_KEY_PAYMENT_PIE_CHART)) {
+                bundle.parcelable<PieChartItem>(BUNDLE_KEY_PAYMENT_PIE_CHART)?.let {
+                    (holder as PaymentMethodStatsSectionItemViewHolder).updatePieChartData(it)
+                }
+            }
+
+            if (bundle.containsKey(BUNDLE_KEY_PAYMENT_PIE_HIGH_LIGHTS)) {
+                bundle.parcelable<PieChartItem>(BUNDLE_KEY_PAYMENT_PIE_HIGH_LIGHTS)?.let {
+                    (holder as PaymentMethodStatsSectionItemViewHolder).updateHighlightedEntry(it)
+                }
+            }
+
+            if (bundle.containsKey(BUNDLE_KEY_PAYMENT_EXPANDED) ||
+                bundle.containsKey(BUNDLE_KEY_PAYMENT_STATS_ITEMS)
+            ) {
+                (holder as PaymentMethodStatsSectionItemViewHolder).updatePaymentMethodStatsList(
+                    isExpanded = bundle.getBoolean(BUNDLE_KEY_PAYMENT_EXPANDED),
+                    statsList = bundle.parcelableArrayList<PaymentMethodStatsItem>(
+                        BUNDLE_KEY_PAYMENT_STATS_ITEMS
+                    )?.toList() ?: emptyList()
+                )
+            }
+        } else {
+            super.onBindViewHolder(holder, position, payloads)
+        }
+    }
+
     override fun getItemViewType(position: Int) = when (getItem(position)) {
-        is PurchaseNoteStatisticsUiItem.StatsTotalSection -> VIEW_TYPE_STATS_TOTAL
-        is PurchaseNoteStatisticsUiItem.CategoryStatsSection -> VIEW_TYPE_STATS_CATEGORY_SECTION
-        is PurchaseNoteStatisticsUiItem.PaymentMethodStatsSection -> VIEW_TYPE_STATS_PAYMENT_METHOD_SECTION
+        is PurchaseNoteStatisticsUiItemState.StatsTotalSection -> VIEW_TYPE_STATS_TOTAL
+        is PurchaseNoteStatisticsUiItemState.CategoryStatsSection -> VIEW_TYPE_STATS_CATEGORY_SECTION
+        is PurchaseNoteStatisticsUiItemState.PaymentMethodStatsSection -> VIEW_TYPE_STATS_PAYMENT_METHOD_SECTION
     }
 
     companion object {
@@ -87,32 +152,74 @@ class PurchaseNoteStatisticsSectionListAdapter(
         private const val VIEW_TYPE_STATS_CATEGORY_SECTION = 2
         private const val VIEW_TYPE_STATS_PAYMENT_METHOD_SECTION = 3
 
-        private val UI_MODEL_COMPARATOR =
-            object : DiffUtil.ItemCallback<PurchaseNoteStatisticsUiItem>() {
-                override fun areItemsTheSame(
-                    oldItem: PurchaseNoteStatisticsUiItem,
-                    newItem: PurchaseNoteStatisticsUiItem,
-                ): Boolean = when {
-                    oldItem is PurchaseNoteStatisticsUiItem.StatsTotalSection &&
-                            newItem is PurchaseNoteStatisticsUiItem.StatsTotalSection -> {
-                                true
+        private const val BUNDLE_KEY_CATEGORY_PIE_CHART = "categoryPieChart"
+        private const val BUNDLE_KEY_CATEGORY_STATS_ITEMS = "categoryStatsItems"
+        private const val BUNDLE_KEY_CATEGORY_PIE_HIGH_LIGHTS = "categoryHighlight"
+        private const val BUNDLE_KEY_CATEGORY_EXPANDED = "categoryStatsExpanded"
+
+        private const val BUNDLE_KEY_PAYMENT_PIE_CHART = "paymentPieChart"
+        private const val BUNDLE_KEY_PAYMENT_STATS_ITEMS = "paymentStatsItems"
+        private const val BUNDLE_KEY_PAYMENT_PIE_HIGH_LIGHTS = "paymentHighlight"
+        private const val BUNDLE_KEY_PAYMENT_EXPANDED = "paymentStatsExpanded"
+
+        private val UI_MODEL_COMPARATOR = object : DiffUtil.ItemCallback<PurchaseNoteStatisticsUiItemState>() {
+            override fun areItemsTheSame(
+                oldItem: PurchaseNoteStatisticsUiItemState,
+                newItem: PurchaseNoteStatisticsUiItemState,
+            ): Boolean = oldItem::class == newItem::class
+
+            override fun areContentsTheSame(
+                oldItem: PurchaseNoteStatisticsUiItemState,
+                newItem: PurchaseNoteStatisticsUiItemState,
+            ): Boolean = oldItem == newItem
+
+            override fun getChangePayload(
+                oldItem: PurchaseNoteStatisticsUiItemState,
+                newItem: PurchaseNoteStatisticsUiItemState,
+            ): Any? {
+                val diffBundle = Bundle()
+
+                when {
+                    oldItem is PurchaseNoteStatisticsUiItemState.CategoryStatsSection &&
+                            newItem is PurchaseNoteStatisticsUiItemState.CategoryStatsSection -> {
+
+                        if (oldItem.pieChartItem != newItem.pieChartItem) {
+                            when {
+                                oldItem.pieChartItem.pieEntries != newItem.pieChartItem.pieEntries ->
+                                    diffBundle.putParcelable(BUNDLE_KEY_CATEGORY_PIE_CHART, newItem.pieChartItem)
+
+                                oldItem.pieChartItem.highlightedPieEntry != newItem.pieChartItem.highlightedPieEntry ->
+                                    diffBundle.putParcelable(BUNDLE_KEY_CATEGORY_PIE_HIGH_LIGHTS, newItem.pieChartItem)
                             }
-                    oldItem is PurchaseNoteStatisticsUiItem.CategoryStatsSection &&
-                            newItem is PurchaseNoteStatisticsUiItem.CategoryStatsSection -> {
-                                oldItem.pieChartItem.pieEntries == newItem.pieChartItem.pieEntries
+                        }
+
+                        if (oldItem.isExpanded != newItem.isExpanded || oldItem.childItems != newItem.childItems) {
+                            diffBundle.putBoolean(BUNDLE_KEY_CATEGORY_EXPANDED, newItem.isExpanded)
+                            diffBundle.putParcelableArrayList(BUNDLE_KEY_CATEGORY_STATS_ITEMS, ArrayList(newItem.childItems))
+                        }
+                    }
+
+                    oldItem is PurchaseNoteStatisticsUiItemState.PaymentMethodStatsSection &&
+                            newItem is PurchaseNoteStatisticsUiItemState.PaymentMethodStatsSection -> {
+                        if (oldItem.pieChartItem != newItem.pieChartItem) {
+                            when {
+                                oldItem.pieChartItem.pieEntries != newItem.pieChartItem.pieEntries ->
+                                    diffBundle.putParcelable(BUNDLE_KEY_PAYMENT_PIE_CHART, newItem.pieChartItem)
+
+                                oldItem.pieChartItem.highlightedPieEntry != newItem.pieChartItem.highlightedPieEntry ->
+                                    diffBundle.putParcelable(BUNDLE_KEY_PAYMENT_PIE_HIGH_LIGHTS, newItem.pieChartItem)
                             }
-                    oldItem is PurchaseNoteStatisticsUiItem.PaymentMethodStatsSection &&
-                            newItem is PurchaseNoteStatisticsUiItem.PaymentMethodStatsSection -> {
-                                oldItem.pieChartItem.pieEntries == newItem.pieChartItem.pieEntries
-                            }
-                    else -> false
+                        }
+
+                        if (oldItem.isExpanded != newItem.isExpanded || oldItem.childItems != newItem.childItems) {
+                            diffBundle.putBoolean(BUNDLE_KEY_PAYMENT_EXPANDED, newItem.isExpanded)
+                            diffBundle.putParcelableArrayList(BUNDLE_KEY_PAYMENT_STATS_ITEMS, ArrayList(newItem.childItems))
+                        }
+                    }
                 }
 
-                override fun areContentsTheSame(
-                    oldItem: PurchaseNoteStatisticsUiItem,
-                    newItem: PurchaseNoteStatisticsUiItem,
-                ): Boolean = oldItem == newItem
+                return if (diffBundle.size() == 0) null else diffBundle
             }
+        }
     }
 }
-

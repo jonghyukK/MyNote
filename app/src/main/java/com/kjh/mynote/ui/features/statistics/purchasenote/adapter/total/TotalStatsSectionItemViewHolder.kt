@@ -1,8 +1,8 @@
-package com.kjh.mynote.ui.features.purchase.statistics.adapter.section
+package com.kjh.mynote.ui.features.statistics.purchasenote.adapter.total
 
 import com.kjh.mynote.databinding.VhPurchaseNoteStatsInfoItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.statistics.purchasenote.PurchaseNoteStatisticsUiItem
+import com.kjh.mynote.ui.features.statistics.purchasenote.PurchaseNoteStatisticsUiItemState
 import com.kjh.mynote.utils.extensions.highlightText
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.toComma
@@ -23,7 +23,7 @@ import com.kjh.mynote.utils.extensions.toStringWithPattern
 class TotalStatsSectionItemViewHolder(
     private val binding: VhPurchaseNoteStatsInfoItemBinding,
     private val dateClickAction: () -> Unit
-): BaseViewHolder<PurchaseNoteStatisticsUiItem.StatsTotalSection>(binding.root) {
+): BaseViewHolder<PurchaseNoteStatisticsUiItemState.StatsTotalSection>(binding.root) {
 
     init {
         binding.clDate.onThrottleClick {
@@ -31,7 +31,7 @@ class TotalStatsSectionItemViewHolder(
         }
     }
 
-    override fun bind(item: PurchaseNoteStatisticsUiItem.StatsTotalSection) {
+    override fun bind(item: PurchaseNoteStatisticsUiItemState.StatsTotalSection) {
         super.bind(item)
 
         with (binding) {

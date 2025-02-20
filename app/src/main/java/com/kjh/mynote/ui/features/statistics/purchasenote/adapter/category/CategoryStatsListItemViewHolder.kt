@@ -1,12 +1,12 @@
-package com.kjh.mynote.ui.features.purchase.statistics.adapter.section.contents
+package com.kjh.mynote.ui.features.statistics.purchasenote.adapter.category
 
 import android.graphics.drawable.GradientDrawable
 import androidx.core.content.ContextCompat
-import com.example.domain.model.CategoryStats
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhHomeCategoryPutchaseStatsItemBinding
+import com.kjh.mynote.model.CategoryStatsUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.statistics.purchasenote.StatsContentsItem
+import com.kjh.mynote.ui.features.statistics.purchasenote.CategoryStatsItem
 import com.kjh.mynote.utils.extensions.addClickAnimation
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.toComma
@@ -22,10 +22,10 @@ import com.kjh.mynote.utils.extensions.toComma
  *
  * @property binding
  */
-class CategoryStatsItemViewHolder(
+class CategoryStatsListItemViewHolder(
     private val binding: VhHomeCategoryPutchaseStatsItemBinding,
-    private val categoryStatsClickAction: (CategoryStats) -> Unit,
-) : BaseViewHolder<StatsContentsItem.CategoryStatsItem>(binding.root) {
+    private val categoryStatsClickAction: (CategoryStatsUiModel) -> Unit,
+) : BaseViewHolder<CategoryStatsItem>(binding.root) {
 
     init {
         itemView.addClickAnimation()
@@ -34,7 +34,7 @@ class CategoryStatsItemViewHolder(
         }
     }
 
-    override fun bind(item: StatsContentsItem.CategoryStatsItem) {
+    override fun bind(item: CategoryStatsItem) {
         super.bind(item)
 
         with(binding) {

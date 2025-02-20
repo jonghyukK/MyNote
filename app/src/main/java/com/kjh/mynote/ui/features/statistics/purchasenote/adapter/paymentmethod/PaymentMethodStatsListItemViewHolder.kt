@@ -1,12 +1,12 @@
-package com.kjh.mynote.ui.features.purchase.statistics.adapter.section.contents
+package com.kjh.mynote.ui.features.statistics.purchasenote.adapter.paymentmethod
 
 import android.graphics.drawable.GradientDrawable
 import androidx.core.content.ContextCompat
-import com.example.domain.model.PaymentMethodStats
 import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhHomeCategoryPutchaseStatsItemBinding
+import com.kjh.mynote.model.PaymentMethodStatsUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
-import com.kjh.mynote.ui.features.statistics.purchasenote.StatsContentsItem
+import com.kjh.mynote.ui.features.statistics.purchasenote.PaymentMethodStatsItem
 import com.kjh.mynote.utils.extensions.addClickAnimation
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.toComma
@@ -22,10 +22,10 @@ import com.kjh.mynote.utils.extensions.toComma
  *
  * @property binding
  */
-class PaymentMethodStatsItemViewHolder(
+class PaymentMethodStatsListItemViewHolder(
     private val binding: VhHomeCategoryPutchaseStatsItemBinding,
-    private val paymentMethodStatsClickAction: (PaymentMethodStats) -> Unit,
-) : BaseViewHolder<StatsContentsItem.PaymentMethodStatsItem>(binding.root) {
+    private val paymentMethodStatsClickAction: (PaymentMethodStatsUiModel) -> Unit,
+) : BaseViewHolder<PaymentMethodStatsItem>(binding.root) {
 
     init {
         itemView.addClickAnimation()
@@ -34,7 +34,7 @@ class PaymentMethodStatsItemViewHolder(
         }
     }
 
-    override fun bind(item: StatsContentsItem.PaymentMethodStatsItem) {
+    override fun bind(item: PaymentMethodStatsItem) {
         super.bind(item)
 
         with(binding) {
