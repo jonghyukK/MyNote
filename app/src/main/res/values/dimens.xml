@@ -8,6 +8,7 @@
     <dimen name="home_place_note_empty_height">120dp</dimen>
     <dimen name="purchase_note_empty_view_height">300dp</dimen>
 
+    <dimen name="dimen_44">44dp</dimen>
     <dimen name="toolbar_icon_width">44dp</dimen>
     <dimen name="toolbar_icon_height">44dp</dimen>
     <dimen name="fab_button_size">50dp</dimen>

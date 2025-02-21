@@ -3,6 +3,7 @@ package com.kjh.mynote.ui.features.statistics.purchasenote.adapter.total
 import com.kjh.mynote.databinding.VhPurchaseNoteStatsInfoItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.ui.features.statistics.purchasenote.PurchaseNoteStatisticsUiItemState
+import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.highlightText
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.toComma
@@ -35,17 +36,9 @@ class TotalStatsSectionItemViewHolder(
         super.bind(item)
 
         with (binding) {
-            tvDate.text = item.currentDate.toStringWithPattern("yyyy년 M월")
-            tvTotalNoteCount.highlightText(
-                fullText = "총 ${item.purchaseNoteTotalCount}건이고",
-                wordToHighlight = item.purchaseNoteTotalCount.toString(),
-                isBold = true
-            )
-            tvTotalNotePrice.highlightText(
-                fullText = "총 금액은 ${item.purchaseNoteTotalPrice.toComma()}원이에요!",
-                wordToHighlight = item.purchaseNoteTotalPrice.toComma(),
-                isBold = true
-            )
+            tvDate.text = item.currentDate.toStringWithPattern(AppConstants.DATE_FORMAT_YYYY_M)
+            tvTotalPrice.text = "${item.purchaseNoteTotalPrice.toComma()}원"
+            tvTotalCount.text = " / ${item.purchaseNoteTotalCount}건"
         }
     }
 }
