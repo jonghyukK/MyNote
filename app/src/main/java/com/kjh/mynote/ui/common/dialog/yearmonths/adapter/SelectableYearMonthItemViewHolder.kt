@@ -5,6 +5,7 @@ import com.kjh.mynote.R
 import com.kjh.mynote.databinding.VhSelectableYearMonthListItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.ui.common.dialog.yearmonths.SelectableYearMonthItem
+import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.setTextColorRes
 import com.kjh.mynote.utils.extensions.toStringWithPattern
@@ -33,7 +34,7 @@ class SelectableYearMonthItemViewHolder(
         val textColor = if (item.isSelected) R.color.purple else R.color.black_800
 
         with (binding) {
-            tvYearMonth.text = item.date.toStringWithPattern("yyyy년 M월")
+            tvYearMonth.text = item.date.toStringWithPattern(AppConstants.DATE_FORMAT_YYYY_M)
             tvYearMonth.setTextColorRes(textColor)
 
             ivCheck.isVisible = item.isSelected

@@ -1,11 +1,12 @@
 package com.kjh.data.repository
 
 import com.example.domain.model.ApiResult
-import com.example.domain.model.CategoryPurchaseNoteStats
 import com.example.domain.model.CategoryStatsDetail
+import com.example.domain.model.MonthlyWeekInfo
 import com.example.domain.model.PurchaseNote
 import com.example.domain.model.PurchaseNoteStatistics
 import com.example.domain.model.SortType
+import com.example.domain.model.WeeklyPurchaseNoteStatistics
 import com.example.domain.model.asResult
 import com.example.domain.model.safeApiCall
 import com.example.domain.repository.PurchaseNoteRepository
@@ -109,8 +110,9 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
      * @return
      */
     override fun getPurchaseNotesStatistics(
-        startDate: Long?,
-        endDate: Long?,
+        startDate: Long,
+        endDate: Long,
+        monthlyWeekInfoList: List<MonthlyWeekInfo>
     ): Flow<ApiResult<PurchaseNoteStatistics>> {
         val purchaseNoteTotalStats =
             purchaseNoteLocalDataSource.getPurchaseNoteTotalStats(startDate = startDate, endDate = endDate)
@@ -118,15 +120,30 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
             purchaseNoteLocalDataSource.getCategoryStatsListByDate(startDate = startDate, endDate = endDate)
         val paymentMethodStatsList =
             purchaseNoteLocalDataSource.getPaymentMethodStatsListByDate(startDate = startDate, endDate = endDate)
+        val weeklyStatsList = combine(
+            monthlyWeekInfoList.map { weekItem ->
+                purchaseNoteLocalDataSource.getPurchaseNoteTotalStats(
+                    startDate = weekItem.weekStartDate,
+                    endDate = weekItem.weekEndDate
+                ).map { totalStats ->
+                    WeeklyPurchaseNoteStatistics(
+                        monthlyWeekInfo = weekItem,
+                        weeklyTotalPrice = totalStats.totalPrice,
+                        weeklyTotalCount = totalStats.totalCount
+                    )
+                }
+            }) { it.toList() }
 
         return combine(
             purchaseNoteTotalStats,
             categoryStatsList,
-            paymentMethodStatsList
-        ) { totalStats, categoryStats, paymentStats ->
+            paymentMethodStatsList,
+            weeklyStatsList
+        ) { totalStats, categoryStats, paymentStats, weeklyStats ->
             PurchaseNoteStatistics(
                 totalNoteCount = totalStats.totalCount,
                 totalPurchasePrice = totalStats.totalPrice,
+                weeklyStatsList = weeklyStats,
                 categoryStatsList = categoryStats
                     .filter { it.purchaseNoteTotalCount > 0 }
                     .sortedByDescending { it.purchaseNoteTotalPrice },
@@ -168,5 +185,4 @@ class PurchaseNoteRepositoryImpl @Inject constructor(
 
     override suspend fun getRecentPurchaseNamesByCategory(categoryId: Int?): List<String> =
         purchaseNoteLocalDataSource.getRecentPurchaseNamesByCategory(categoryId)
-
 }

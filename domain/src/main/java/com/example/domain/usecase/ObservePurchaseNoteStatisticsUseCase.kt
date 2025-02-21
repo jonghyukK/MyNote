@@ -11,9 +11,14 @@ import javax.inject.Inject
  * Created On 2024. 12. 20..
  * Description:
  */
-class ObservePurchaseNoteStatisticsByDateUseCase @Inject constructor(
-    private val purchaseNoteRepository: PurchaseNoteRepository
+class ObservePurchaseNoteStatisticsUseCase @Inject constructor(
+    private val purchaseNoteRepository: PurchaseNoteRepository,
+    private val circulateMonthWeeksUseCase: CirculateMonthWeeksUseCase
 ) {
     operator fun invoke(startDate: Long, endDate: Long): Flow<ApiResult<PurchaseNoteStatistics>> =
-        purchaseNoteRepository.getPurchaseNotesStatistics(startDate, endDate)
+        purchaseNoteRepository.getPurchaseNotesStatistics(
+            startDate = startDate,
+            endDate = endDate,
+            monthlyWeekInfoList = circulateMonthWeeksUseCase(startDate)
+            )
 }

@@ -1,7 +1,6 @@
 package com.kjh.mynote.ui.features.statistics.purchasenote
 
 import android.content.Intent
-import android.util.TypedValue
 import android.view.View
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
@@ -23,18 +22,17 @@ import com.kjh.mynote.ui.features.statistics.category.CategoryStatisticsActivity
 import com.kjh.mynote.ui.features.statistics.purchasenote.adapter.category.CategoryStatsSectionAdapter
 import com.kjh.mynote.ui.features.statistics.purchasenote.adapter.paymentmethod.PaymentMethodStatsSectionAdapter
 import com.kjh.mynote.ui.features.statistics.purchasenote.adapter.total.TotalStatsSectionAdapter
+import com.kjh.mynote.ui.features.statistics.purchasenote.adapter.weekly.WeeklyStatsSectionAdapter
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.makeGone
 import com.kjh.mynote.utils.extensions.makeVisible
-import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.setOnThrottleClickListener
 import com.kjh.mynote.utils.extensions.showToast
 import com.kjh.mynote.utils.extensions.toStringWithPattern
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.time.LocalDate
 
 /**
@@ -54,6 +52,10 @@ class PurchaseNoteStatisticsActivity:
         TotalStatsSectionAdapter(dateClickAction)
     }
 
+    private val weeklyStatsAdapter: WeeklyStatsSectionAdapter by lazy {
+        WeeklyStatsSectionAdapter()
+    }
+
     private val categoryStatsSectionAdapter: CategoryStatsSectionAdapter by lazy {
         CategoryStatsSectionAdapter(
             categoryPieSliceClickAction = categoryPieSliceClickAction,
@@ -66,7 +68,7 @@ class PurchaseNoteStatisticsActivity:
         PaymentMethodStatsSectionAdapter(
             paymentMethodPieSliceClickAction = paymentMethodPieSliceClickAction,
             paymentMethodStatsClickAction = paymentMethodStatsClickAction,
-            paymentMethodStatsMoreClickAction =paymentMethodStatsMoreClickAction
+            paymentMethodStatsMoreClickAction = paymentMethodStatsMoreClickAction
         )
     }
 
@@ -86,7 +88,7 @@ class PurchaseNoteStatisticsActivity:
                         switchToolbarDateTitle(offset > targetPos)
                     }
                 })
-                adapter = ConcatAdapter(totalStatsAdapter, categoryStatsSectionAdapter, paymentMethodStatsSectionAdapter)
+                adapter = ConcatAdapter(totalStatsAdapter, weeklyStatsAdapter, categoryStatsSectionAdapter, paymentMethodStatsSectionAdapter)
             }
 
             clSelectableDate.setOnThrottleClickListener(dateClickListener)
@@ -120,6 +122,7 @@ class PurchaseNoteStatisticsActivity:
                                 binding.layoutLoading.root.makeGone()
 
                                 totalStatsAdapter.submitList(listOf(uiState.totalStatsItem))
+                                weeklyStatsAdapter.submitList(listOf(uiState.weeklyStatsItem))
                                 categoryStatsSectionAdapter.submitList(listOf(uiState.categoryStatsItem))
                                 paymentMethodStatsSectionAdapter.submitList(listOf(uiState.paymentStatsItem))
                             }
