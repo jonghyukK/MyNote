@@ -2,36 +2,29 @@ package com.kjh.mynote.ui.features.statistics.purchasenote
 
 import android.os.Parcelable
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.domain.model.ApiResult
-import com.example.domain.model.CategoryStats
-import com.example.domain.model.PaymentMethodStats
 import com.example.domain.model.PurchaseNoteStatistics
-import com.example.domain.usecase.ObservePurchaseNoteStatisticsByDateUseCase
+import com.example.domain.usecase.ObservePurchaseNoteStatisticsUseCase
 import com.github.mikephil.charting.data.PieEntry
 import com.kjh.mynote.R
 import com.kjh.mynote.model.CategoryStatsUiModel
 import com.kjh.mynote.model.PaymentMethodStatsUiModel
-import com.kjh.mynote.model.UiState
+import com.kjh.mynote.model.WeeklyPurchaseNoteStatsUiModel
 import com.kjh.mynote.model.toUiModel
 import com.kjh.mynote.ui.base.BaseViewModel
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.extensions.getFirstDayOfMonth
 import com.kjh.mynote.utils.extensions.getLastDayOfMonth
+import com.kjh.mynote.utils.extensions.isThisMonth
+import com.kjh.mynote.utils.extensions.isThisYear
 import com.kjh.mynote.utils.extensions.toMillis
+import com.kjh.mynote.utils.extensions.toStringWithPattern
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
-import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -43,7 +36,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PurchaseNoteStatisticsViewModel @Inject constructor(
-    private val observePurchaseNoteStatisticsByDateUseCase: ObservePurchaseNoteStatisticsByDateUseCase,
+    private val observePurchaseNoteStatisticsUseCase: ObservePurchaseNoteStatisticsUseCase,
     private val savedStateHandle: SavedStateHandle
 ): BaseViewModel() {
 
@@ -56,24 +49,23 @@ class PurchaseNoteStatisticsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             _queryDate.flatMapLatest { date ->
-                observePurchaseNoteStatisticsByDateUseCase(
+                observePurchaseNoteStatisticsUseCase(
                     startDate = date.getFirstDayOfMonth().toMillis(),
                     endDate =  date.getLastDayOfMonth().toMillis()
                 ).mapResultToState(
                     onLoading = { PurchaseNoteStatisticsUiState.Loading },
                     onError =  { PurchaseNoteStatisticsUiState.Error },
                     onSuccess = { statistics ->
-                        val categoryStatsList = statistics.categoryStatsList
-                        val paymentMethodStatsList = statistics.paymentMethodStatsList
-
-                        val statsTotalSectionItem = makeStatsTotalSectionItem(date, statistics)
-                        val categoryStatsSectionItem = makeCategoryStatsSectionItem(categoryStatsList)
-                        val paymentMethodStatsSectionItem = makePaymentMethodStatsSectionItem(paymentMethodStatsList)
+                        val categoryStatsList = statistics.categoryStatsList.toUiModel()
+                        val paymentMethodStatsList = statistics.paymentMethodStatsList.toUiModel()
+                        val weeklyStatsList = statistics.weeklyStatsList.toUiModel()
 
                         PurchaseNoteStatisticsUiState.Success(
-                            totalStatsItem = statsTotalSectionItem,
-                            categoryStatsItem = categoryStatsSectionItem,
-                            paymentStatsItem = paymentMethodStatsSectionItem
+                            totalStatsItem = makeStatsTotalSectionItem(date, statistics),
+                            weeklyStatsItem = makeWeeklyStatsSectionItem(
+                                statistics.totalPurchasePrice, statistics.totalNoteCount, weeklyStatsList),
+                            categoryStatsItem = makeCategoryStatsSectionItem(categoryStatsList),
+                            paymentStatsItem = makePaymentMethodStatsSectionItem(paymentMethodStatsList)
                         )
                     }
                 )
@@ -131,10 +123,26 @@ class PurchaseNoteStatisticsViewModel @Inject constructor(
     ) = PurchaseNoteStatisticsUiItemState.StatsTotalSection(
         purchaseNoteTotalCount = data.totalNoteCount,
         purchaseNoteTotalPrice = data.totalPurchasePrice,
-        currentDate = currentDate
+        currentDate = currentDate,
+        currentDateUiText = if (currentDate.isThisYear()) {
+            currentDate.toStringWithPattern(AppConstants.DATE_FORMAT_M)
+        } else {
+            currentDate.toStringWithPattern(AppConstants.DATE_FORMAT_YYYY_M)
+        },
+        showNextMonthBtn = !currentDate.isThisMonth()
     )
 
-    private fun makeCategoryStatsSectionItem(categoryStatsList: List<CategoryStats>) =
+    private fun makeWeeklyStatsSectionItem(
+        totalPrice: Long,
+        totalCount: Int,
+        weeklyStatsList: List<WeeklyPurchaseNoteStatsUiModel>
+    ) = PurchaseNoteStatisticsUiItemState.WeeklyStatsSection(
+        childItems = weeklyStatsList,
+        totalPrice = totalPrice,
+        totalCount = totalCount
+    )
+
+    private fun makeCategoryStatsSectionItem(categoryStatsList: List<CategoryStatsUiModel>) =
         PurchaseNoteStatisticsUiItemState.CategoryStatsSection(
             pieChartItem = PieChartItem(
                 isEmpty = categoryStatsList.isEmpty(),
@@ -144,7 +152,7 @@ class PurchaseNoteStatisticsViewModel @Inject constructor(
             childItems = makeCategoryStatsChildItems(categoryStatsList)
         )
 
-    private fun makePaymentMethodStatsSectionItem(paymentMethodStatsList: List<PaymentMethodStats>) =
+    private fun makePaymentMethodStatsSectionItem(paymentMethodStatsList: List<PaymentMethodStatsUiModel>) =
         PurchaseNoteStatisticsUiItemState.PaymentMethodStatsSection(
             pieChartItem = PieChartItem(
                 isEmpty = paymentMethodStatsList.isEmpty(),
@@ -154,10 +162,10 @@ class PurchaseNoteStatisticsViewModel @Inject constructor(
             childItems = makePaymentMethodStatsChildItems(paymentMethodStatsList)
         )
 
-    private fun makeCategoryStatsChildItems(categoryStatsList: List<CategoryStats>): List<CategoryStatsItem> {
+    private fun makeCategoryStatsChildItems(categoryStatsList: List<CategoryStatsUiModel>): List<CategoryStatsItem> {
         return categoryStatsList.mapIndexed { index, categoryStats ->
             CategoryStatsItem(
-                categoryStatsItem = categoryStats.toUiModel(),
+                categoryStatsItem = categoryStats,
                 color = AppConstants.chartColorList.getOrElse(index) {
                     AppConstants.chartColorList.last()
                 }
@@ -165,10 +173,10 @@ class PurchaseNoteStatisticsViewModel @Inject constructor(
         }
     }
 
-    private fun makePaymentMethodStatsChildItems(paymentMethodStatsList: List<PaymentMethodStats>): List<PaymentMethodStatsItem> {
+    private fun makePaymentMethodStatsChildItems(paymentMethodStatsList: List<PaymentMethodStatsUiModel>): List<PaymentMethodStatsItem> {
         return paymentMethodStatsList.mapIndexed { index, paymentMethodStats ->
             PaymentMethodStatsItem(
-                paymentMethodStatsItem = paymentMethodStats.toUiModel(),
+                paymentMethodStatsItem = paymentMethodStats,
                 color = AppConstants.chartColorList.getOrElse(index) {
                     AppConstants.chartColorList.last()
                 }
@@ -176,7 +184,7 @@ class PurchaseNoteStatisticsViewModel @Inject constructor(
         }
     }
 
-    private fun makeCategoryPieEntry(items: List<CategoryStats>): List<PieEntry> {
+    private fun makeCategoryPieEntry(items: List<CategoryStatsUiModel>): List<PieEntry> {
         if (items.isEmpty()) return listOf(PieEntry(1f, "없음"))
 
         val totalPrice = items.sumOf { it.purchaseNoteTotalPrice }
@@ -199,7 +207,7 @@ class PurchaseNoteStatisticsViewModel @Inject constructor(
         return pieEntries
     }
 
-    private fun makePaymentMethodPieEntry(items: List<PaymentMethodStats>): List<PieEntry> {
+    private fun makePaymentMethodPieEntry(items: List<PaymentMethodStatsUiModel>): List<PieEntry> {
         if (items.isEmpty()) return listOf(PieEntry(1f, "없음"))
 
         val totalPrice = items.sumOf { it.purchaseNoteTotalPrice }
@@ -265,7 +273,15 @@ sealed class PurchaseNoteStatisticsUiItemState {
     data class StatsTotalSection(
         val purchaseNoteTotalCount: Int,
         val purchaseNoteTotalPrice: Long,
-        val currentDate: LocalDate
+        val currentDate: LocalDate,
+        val currentDateUiText: String,
+        val showNextMonthBtn: Boolean
+    ): PurchaseNoteStatisticsUiItemState()
+
+    data class WeeklyStatsSection(
+        val childItems: List<WeeklyPurchaseNoteStatsUiModel>,
+        val totalPrice: Long,
+        val totalCount: Int
     ): PurchaseNoteStatisticsUiItemState()
 
     data class CategoryStatsSection(
@@ -290,6 +306,7 @@ sealed interface PurchaseNoteStatisticsUiState {
     data object Error: PurchaseNoteStatisticsUiState
     data class Success(
         val totalStatsItem: PurchaseNoteStatisticsUiItemState.StatsTotalSection,
+        val weeklyStatsItem: PurchaseNoteStatisticsUiItemState.WeeklyStatsSection,
         val categoryStatsItem: PurchaseNoteStatisticsUiItemState.CategoryStatsSection,
         val paymentStatsItem: PurchaseNoteStatisticsUiItemState.PaymentMethodStatsSection
     ): PurchaseNoteStatisticsUiState

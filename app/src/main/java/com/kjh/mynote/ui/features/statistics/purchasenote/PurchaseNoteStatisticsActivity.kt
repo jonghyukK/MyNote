@@ -16,6 +16,7 @@ import com.kjh.mynote.databinding.ActivityPurchaseNoteStatisticsBinding
 import com.kjh.mynote.model.CategoryStatsUiModel
 import com.kjh.mynote.model.CategoryUiModel
 import com.kjh.mynote.model.PaymentMethodStatsUiModel
+import com.kjh.mynote.model.WeeklyPurchaseNoteStatsUiModel
 import com.kjh.mynote.ui.base.BaseActivity
 import com.kjh.mynote.ui.common.dialog.yearmonths.SelectableYearMonthListBSDialog
 import com.kjh.mynote.ui.features.statistics.category.CategoryStatisticsActivity
@@ -23,6 +24,7 @@ import com.kjh.mynote.ui.features.statistics.purchasenote.adapter.category.Categ
 import com.kjh.mynote.ui.features.statistics.purchasenote.adapter.paymentmethod.PaymentMethodStatsSectionAdapter
 import com.kjh.mynote.ui.features.statistics.purchasenote.adapter.total.TotalStatsSectionAdapter
 import com.kjh.mynote.ui.features.statistics.purchasenote.adapter.weekly.WeeklyStatsSectionAdapter
+import com.kjh.mynote.ui.features.statistics.weekly.WeeklyStatisticsDetailActivity
 import com.kjh.mynote.utils.constants.AppConstants
 import com.kjh.mynote.utils.decorations.SpacingItemDecoration
 import com.kjh.mynote.utils.extensions.makeGone
@@ -49,11 +51,15 @@ class PurchaseNoteStatisticsActivity:
     private val viewModel: PurchaseNoteStatisticsViewModel by viewModels()
 
     private val totalStatsAdapter: TotalStatsSectionAdapter by lazy {
-        TotalStatsSectionAdapter(dateClickAction)
+        TotalStatsSectionAdapter(
+            dateClickAction = dateClickAction,
+            prevMonthClickAction = prevMonthClickAction,
+            nextMonthClickAction = nextMonthClickAction
+        )
     }
 
     private val weeklyStatsAdapter: WeeklyStatsSectionAdapter by lazy {
-        WeeklyStatsSectionAdapter()
+        WeeklyStatsSectionAdapter(weekStatsClickAction)
     }
 
     private val categoryStatsSectionAdapter: CategoryStatsSectionAdapter by lazy {
@@ -83,7 +89,7 @@ class PurchaseNoteStatisticsActivity:
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                         super.onScrolled(recyclerView, dx, dy)
                         val offset = recyclerView.computeVerticalScrollOffset()
-                        val targetPos = resources.getDimensionPixelSize(R.dimen.dimen_44)
+                        val targetPos = resources.getDimensionPixelSize(R.dimen.dimen_52)
 
                         switchToolbarDateTitle(offset > targetPos)
                     }
@@ -138,19 +144,27 @@ class PurchaseNoteStatisticsActivity:
         clSelectableDate.isVisible = isScrolled
     }
 
+    private val dateClickAction: () -> Unit = {
+        SelectableYearMonthListBSDialog.newInstance(
+            selectedDate = viewModel.queryDate.value,
+            yearsRange = 1
+        ).show(supportFragmentManager, SelectableYearMonthListBSDialog.TAG)
+    }
+
+    private val prevMonthClickAction: (LocalDate) -> Unit = { prevMonth ->
+        viewModel.setDate(prevMonth)
+    }
+
+    private val nextMonthClickAction: (LocalDate) -> Unit = { nextMonth ->
+        viewModel.setDate(nextMonth)
+    }
+
     private val categoryPieSliceClickAction: (PieEntry?) -> Unit = { pieEntry ->
         viewModel.updateHighlightForCategoryPie(pieEntry)
     }
 
     private val paymentMethodPieSliceClickAction: (PieEntry?) -> Unit = { pieEntry ->
         viewModel.updateHighlightForPaymentMethodPie(pieEntry)
-    }
-
-    private val dateClickAction: () -> Unit = {
-        SelectableYearMonthListBSDialog.newInstance(
-            selectedDate = viewModel.queryDate.value,
-            yearsRange = 1
-        ).show(supportFragmentManager, SelectableYearMonthListBSDialog.TAG)
     }
 
     private val categoryStatsClickAction: (CategoryStatsUiModel) -> Unit = { item ->
@@ -163,6 +177,15 @@ class PurchaseNoteStatisticsActivity:
 
     private val paymentMethodStatsClickAction: (PaymentMethodStatsUiModel) -> Unit = { item ->
 
+    }
+
+    private val weekStatsClickAction: (WeeklyPurchaseNoteStatsUiModel) -> Unit = {
+        Intent(this, WeeklyStatisticsDetailActivity::class.java).apply {
+            putExtra(AppConstants.INTENT_START_DATE, it.weekStartDate)
+            putExtra(AppConstants.INTENT_END_DATE, it.weekEndDate)
+            putExtra(AppConstants.INTENT_WEEK, it.week)
+            startActivity(this)
+        }
     }
 
     private val categoryStatsMoreClickAction: () -> Unit = {

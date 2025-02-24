@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.kjh.mynote.databinding.VhPurchaseNoteStatsWeeklySectionItemBinding
+import com.kjh.mynote.model.WeeklyPurchaseNoteStatsUiModel
 import com.kjh.mynote.ui.features.statistics.purchasenote.PurchaseNoteStatisticsUiItemState
 
 /**
@@ -12,8 +13,9 @@ import com.kjh.mynote.ui.features.statistics.purchasenote.PurchaseNoteStatistics
  * Created On 2025. 2. 21..
  * Description:
  */
-class WeeklyStatsSectionAdapter
-    : ListAdapter<PurchaseNoteStatisticsUiItemState.WeeklyStatsSection, WeeklyStatsSectionItemViewHolder>(
+class WeeklyStatsSectionAdapter(
+    private val weekStatsClickAction: (WeeklyPurchaseNoteStatsUiModel) -> Unit
+) : ListAdapter<PurchaseNoteStatisticsUiItemState.WeeklyStatsSection, WeeklyStatsSectionItemViewHolder>(
         UI_MODEL_COMPARATOR
     ) {
 
@@ -21,7 +23,7 @@ class WeeklyStatsSectionAdapter
         WeeklyStatsSectionItemViewHolder(
             VhPurchaseNoteStatsWeeklySectionItemBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false
-            )
+            ), weekStatsClickAction
         )
 
     override fun onBindViewHolder(holder: WeeklyStatsSectionItemViewHolder, position: Int) {

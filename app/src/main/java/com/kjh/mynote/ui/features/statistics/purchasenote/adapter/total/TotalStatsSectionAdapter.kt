@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.kjh.mynote.databinding.VhPurchaseNoteStatsInfoItemBinding
 import com.kjh.mynote.ui.features.statistics.purchasenote.PurchaseNoteStatisticsUiItemState
+import java.time.LocalDate
 
 /**
  * Created by kangjonghyuk.
@@ -14,6 +15,8 @@ import com.kjh.mynote.ui.features.statistics.purchasenote.PurchaseNoteStatistics
  */
 class TotalStatsSectionAdapter(
     private val dateClickAction: () -> Unit,
+    private val prevMonthClickAction: (LocalDate) -> Unit,
+    private val nextMonthClickAction: (LocalDate) -> Unit
 ) : ListAdapter<PurchaseNoteStatisticsUiItemState.StatsTotalSection, TotalStatsSectionItemViewHolder>(
     UI_MODEL_COMPARATOR
 ) {
@@ -22,7 +25,7 @@ class TotalStatsSectionAdapter(
         TotalStatsSectionItemViewHolder(
             VhPurchaseNoteStatsInfoItemBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false
-            ), dateClickAction
+            ), dateClickAction, prevMonthClickAction, nextMonthClickAction
         )
 
     override fun onBindViewHolder(holder: TotalStatsSectionItemViewHolder, position: Int) {

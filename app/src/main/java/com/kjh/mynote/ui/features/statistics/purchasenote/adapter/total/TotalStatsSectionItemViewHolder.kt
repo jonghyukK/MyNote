@@ -1,13 +1,12 @@
 package com.kjh.mynote.ui.features.statistics.purchasenote.adapter.total
 
+import androidx.core.view.isVisible
 import com.kjh.mynote.databinding.VhPurchaseNoteStatsInfoItemBinding
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.ui.features.statistics.purchasenote.PurchaseNoteStatisticsUiItemState
-import com.kjh.mynote.utils.constants.AppConstants
-import com.kjh.mynote.utils.extensions.highlightText
 import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.toComma
-import com.kjh.mynote.utils.extensions.toStringWithPattern
+import java.time.LocalDate
 
 /**
  * Created by kangjonghyuk.
@@ -23,12 +22,28 @@ import com.kjh.mynote.utils.extensions.toStringWithPattern
  */
 class TotalStatsSectionItemViewHolder(
     private val binding: VhPurchaseNoteStatsInfoItemBinding,
-    private val dateClickAction: () -> Unit
+    private val dateClickAction: () -> Unit,
+    private val prevMonthClickAction: (LocalDate) -> Unit,
+    private val nextMonthClickAction: (LocalDate) -> Unit
 ): BaseViewHolder<PurchaseNoteStatisticsUiItemState.StatsTotalSection>(binding.root) {
 
     init {
-        binding.clDate.onThrottleClick {
+        binding.tvDate.onThrottleClick {
             bindItem?.let { dateClickAction() }
+        }
+
+        binding.ivPrevMonth.onThrottleClick {
+            bindItem?.let {
+                val prevMonth = it.currentDate.minusMonths(1)
+                prevMonthClickAction(prevMonth)
+            }
+        }
+
+        binding.ivNextMonth.onThrottleClick {
+            bindItem?.let {
+                val nextMonth = it.currentDate.plusMonths(1)
+                nextMonthClickAction(nextMonth)
+            }
         }
     }
 
@@ -36,9 +51,10 @@ class TotalStatsSectionItemViewHolder(
         super.bind(item)
 
         with (binding) {
-            tvDate.text = item.currentDate.toStringWithPattern(AppConstants.DATE_FORMAT_YYYY_M)
+            tvDate.text = item.currentDateUiText
+            ivNextMonth.isVisible = item.showNextMonthBtn
             tvTotalPrice.text = "${item.purchaseNoteTotalPrice.toComma()}원"
-            tvTotalCount.text = " / ${item.purchaseNoteTotalCount}건"
+            tvTotalCount.text = "${item.purchaseNoteTotalCount}건"
         }
     }
 }

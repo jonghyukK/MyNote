@@ -28,6 +28,9 @@ object AppConstants {
     const val INTENT_DATE = "INTENT_DATE"
     const val INTENT_DATE_LIST = "INTENT_DATE_LIST"
     const val INTENT_PAYMENT_METHOD_ITEM = "INTENT_PAYMENT_METHOD_ITEM"
+    const val INTENT_START_DATE = "INTENT_START_DATE"
+    const val INTENT_END_DATE = "INTENT_END_DATE"
+    const val INTENT_WEEK = "INTENT_WEEK"
 
     const val DEFAULT_ZOOM_LEVEL = 13.0
     const val MAX_SELECTABLE_IMAGE_COUNT = 10
@@ -39,6 +42,7 @@ object AppConstants {
 
     const val DATE_FORMAT_YYYY_M_D_E = "yyyy년 M월 d일 (E)"
     const val DATE_FORMAT_YYYY_M = "yyyy년 M월"
+    const val DATE_FORMAT_M = "M월"
 
     val chartColorList = listOf(
         R.color.pie_color_1,

@@ -12,14 +12,15 @@ import com.kjh.mynote.model.WeeklyPurchaseNoteStatsUiModel
  * Created On 2025. 2. 21..
  * Description:
  */
-class WeeklyStatsListAdapter
-    : ListAdapter<WeeklyPurchaseNoteStatsUiModel, WeeklyStatsListItemViewHolder>(UI_MODEL_COMPARATOR) {
+class WeeklyStatsListAdapter(
+    private val weekStatsClickAction: (WeeklyPurchaseNoteStatsUiModel) -> Unit
+): ListAdapter<WeeklyPurchaseNoteStatsUiModel, WeeklyStatsListItemViewHolder>(UI_MODEL_COMPARATOR) {
         
     override fun onCreateViewHolder(parent: ViewGroup, p1: Int) =
         WeeklyStatsListItemViewHolder(
             VhPurchaseNoteStatsWeeklyListItemBinding.inflate(
                 LayoutInflater.from(parent.context), parent, false
-            )
+            ), weekStatsClickAction
         )
 
     override fun onBindViewHolder(holder: WeeklyStatsListItemViewHolder, position: Int) {

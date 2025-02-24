@@ -80,3 +80,11 @@ fun LocalDate.getWeekStartAndEndDates(): Pair<LocalDate, LocalDate> {
 
     return startOfWeek to endOfWeek
 }
+
+fun LocalDate.isThisYear(): Boolean =
+    this.year == LocalDate.now().year
+
+fun LocalDate.isThisMonth(): Boolean {
+    val now = LocalDate.now()
+    return this.year == now.year && this.month == now.month
+}

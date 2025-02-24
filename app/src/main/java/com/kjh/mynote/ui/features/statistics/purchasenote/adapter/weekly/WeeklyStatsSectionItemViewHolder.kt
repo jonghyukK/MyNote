@@ -1,8 +1,10 @@
 package com.kjh.mynote.ui.features.statistics.purchasenote.adapter.weekly
 
 import com.kjh.mynote.databinding.VhPurchaseNoteStatsWeeklySectionItemBinding
+import com.kjh.mynote.model.WeeklyPurchaseNoteStatsUiModel
 import com.kjh.mynote.ui.base.BaseViewHolder
 import com.kjh.mynote.ui.features.statistics.purchasenote.PurchaseNoteStatisticsUiItemState
+import com.kjh.mynote.utils.extensions.onThrottleClick
 import com.kjh.mynote.utils.extensions.toComma
 
 /**
@@ -11,10 +13,11 @@ import com.kjh.mynote.utils.extensions.toComma
  * Description:
  */
 class WeeklyStatsSectionItemViewHolder(
-    private val binding: VhPurchaseNoteStatsWeeklySectionItemBinding
+    private val binding: VhPurchaseNoteStatsWeeklySectionItemBinding,
+    private val weekStatsClickAction: (WeeklyPurchaseNoteStatsUiModel) -> Unit
 ): BaseViewHolder<PurchaseNoteStatisticsUiItemState.WeeklyStatsSection>(binding.root) {
 
-    private val innerListAdapter: WeeklyStatsListAdapter = WeeklyStatsListAdapter()
+    private val innerListAdapter: WeeklyStatsListAdapter = WeeklyStatsListAdapter(weekStatsClickAction)
 
     init {
         binding.rvWeeklyList.apply {
