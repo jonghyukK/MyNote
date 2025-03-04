@@ -34,7 +34,7 @@ import com.kjh.mynote.R
 fun MyTextField(
     value: String,
     onValueChanged: (String) -> Unit,
-    placeHolder: String = ""
+    placeHolder: String? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
@@ -63,7 +63,7 @@ fun MyTextField(
                     .padding(horizontal = 12.dp), // 내부 수평 패딩 적용 (세로 패딩은 height에 맞추어 조절)
                 contentAlignment = Alignment.CenterStart
             ) {
-                if (value.isEmpty()) {
+                if (value.isEmpty() && placeHolder != null) {
                     Text(
                         text = placeHolder,
                         fontSize = 16.sp,
