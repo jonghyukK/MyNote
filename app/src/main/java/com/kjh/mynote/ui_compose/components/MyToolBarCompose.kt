@@ -1,0 +1,117 @@
+package com.kjh.mynote.ui_compose.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.kjh.mynote.R
+import com.kjh.mynote.ui_compose.theme.MyNoteTheme
+import com.kjh.mynote.ui_compose.theme.spoqaSansFamily
+
+/**
+ * Created by kangjonghyuk.
+ * Created On 2025. 2. 26..
+ * Description:
+ */
+@Composable
+fun MyToolBarCompose(
+    modifier: Modifier = Modifier,
+    showBackButton: Boolean = true,
+    onBackButtonClick: () -> Unit = {},
+    title: String = "",
+    rightFirstImageRes: Int? = null,
+    rightFirstImageDesc: String = "",
+    rightFirstImageClick: () -> Unit = {},
+    rightSecondImageRes: Int? = null,
+    rightSecondImageDesc: String = "",
+    rightSecondImageClick: () -> Unit = {}
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(color = colorResource(R.color.white))
+            .padding(start = 12.dp, end = 12.dp)
+            .height(dimensionResource(id = R.dimen.actionbar_size)),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (showBackButton) {
+            ToolBarIcon(
+                imageRes = R.drawable.ic_chevron_left_24_white,
+                contentDesc = "backButton",
+                clickAction = onBackButtonClick
+            )
+        }
+
+        Text(
+            text = title,
+            fontSize = 20.sp,
+            fontFamily = spoqaSansFamily,
+            fontWeight = FontWeight.Normal,
+            letterSpacing = (-0.03).sp,
+            color = colorResource(id = R.color.black_900),
+            modifier = Modifier.padding(start = 10.dp)
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        if (rightSecondImageRes != null) {
+            ToolBarIcon(
+                imageRes = rightSecondImageRes,
+                contentDesc = rightSecondImageDesc,
+                clickAction = rightSecondImageClick
+            )
+        }
+
+        if (rightFirstImageRes != null) {
+            ToolBarIcon(
+                imageRes = rightFirstImageRes,
+                contentDesc = rightFirstImageDesc,
+                clickAction = rightFirstImageClick
+            )
+        }
+    }
+}
+
+@Composable
+fun ToolBarIcon(
+    modifier: Modifier = Modifier,
+    imageRes: Int,
+    contentDesc: String,
+    clickAction: () -> Unit
+) {
+    IconButton(
+        onClick = clickAction,
+        modifier = Modifier.size(44.dp)
+    ) {
+        Icon(
+            painter = painterResource(id = imageRes),
+            contentDescription = contentDesc,
+            tint = colorResource(id = R.color.black_900),
+            modifier = Modifier.size(40.dp)
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MyToolBarPreview() {
+    MyNoteTheme {
+        MyToolBarCompose()
+    }
+}
