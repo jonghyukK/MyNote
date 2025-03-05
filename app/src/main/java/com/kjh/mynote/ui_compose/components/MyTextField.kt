@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kjh.mynote.R
@@ -32,6 +33,7 @@ import com.kjh.mynote.R
 
 @Composable
 fun MyTextField(
+    modifier: Modifier = Modifier,
     value: String,
     onValueChanged: (String) -> Unit,
     placeHolder: String? = null
@@ -46,10 +48,10 @@ fun MyTextField(
         onValueChange = onValueChanged,
         singleLine = true,
         interactionSource = interactionSource,
-        textStyle = TextStyle(fontSize = 16.sp, color = colorResource(id = R.color.black_900)),
+        textStyle = TextStyle(fontSize = 14.sp, color = colorResource(id = R.color.black_900)),
         modifier = Modifier
             .fillMaxWidth()
-            .height(44.dp) // 원하는 높이 지정
+            .height(44.dp)
             .background(Color.White, shape = RoundedCornerShape(8.dp)),
         decorationBox = { innerTextField ->
             Box(
@@ -66,12 +68,22 @@ fun MyTextField(
                 if (value.isEmpty() && placeHolder != null) {
                     Text(
                         text = placeHolder,
-                        fontSize = 16.sp,
+                        fontSize = 14.sp,
                         color = colorResource(id = R.color.black_600)
                     )
                 }
                 innerTextField()
             }
         }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MyTextFieldPreview() {
+    MyTextField(
+        value = "",
+        onValueChanged = {},
+        placeHolder = "결제수단명 혹은 별명을 입력해주세요."
     )
 }
