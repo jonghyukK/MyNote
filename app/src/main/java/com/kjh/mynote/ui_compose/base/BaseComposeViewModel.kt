@@ -3,12 +3,8 @@ package com.kjh.mynote.ui_compose.base
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
@@ -26,15 +22,16 @@ interface UiEvent
 
 interface UiSideEffect
 
-abstract class BaseComposeViewModel<E: UiEvent, S: UiState, SE: UiSideEffect>(defaultState: S): ViewModel() {
+abstract class BaseComposeViewModel<E: UiEvent, S: UiState, SE: UiSideEffect>: ViewModel() {
+
+    private val initialState: S by lazy { createInitialState() }
+    abstract fun createInitialState(): S
 
     private val event = Channel<E>()
 
     val state: StateFlow<S> = event.receiveAsFlow()
-        .runningFold(defaultState, ::reduceState)
-        .stateIn(viewModelScope, SharingStarted.Eagerly, defaultState)
-
-    protected abstract suspend fun reduceState(current: S, event: E): S
+        .runningFold(initialState, ::reduceState)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialState)
 
     private val _effect: Channel<SE> = Channel()
     val effect = _effect.receiveAsFlow()
@@ -42,6 +39,10 @@ abstract class BaseComposeViewModel<E: UiEvent, S: UiState, SE: UiSideEffect>(de
     fun setEvent(event: E) {
         viewModelScope.launch { this@BaseComposeViewModel.event.send(event) }
     }
+
+    protected abstract suspend fun reduceState(current: S, event: E): S
+
+    abstract fun handleEvent(event: E)
 
     protected fun setEffect(builder: () -> SE) {
         val effectValue = builder()

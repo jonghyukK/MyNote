@@ -1,21 +1,17 @@
 package com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.add
 
-import android.provider.CalendarContract.Colors
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
@@ -32,7 +28,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -46,8 +41,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kjh.mynote.R
 import com.kjh.mynote.ui_compose.components.MyBottomButton
+import com.kjh.mynote.ui_compose.components.MyCircularProgressIndicator
 import com.kjh.mynote.ui_compose.components.MyTextField
 import com.kjh.mynote.ui_compose.components.MyToolBarCompose
+import com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.PaymentMethodManageUiState
 
 /**
  * Created by kangjonghyuk.
@@ -56,57 +53,59 @@ import com.kjh.mynote.ui_compose.components.MyToolBarCompose
  */
 
 @Composable
-fun PaymentMethodAddRoute(
-    viewModel: PaymentMethodAddViewModel = hiltViewModel(),
-    onBackClicked: () -> Unit
+fun PaymentMethodAddEditRoute(
+    viewModel: PaymentMethodAddEditViewModel = hiltViewModel(),
+    onNavigateUp: () -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     LaunchedEffect(viewModel.effect) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                PaymentMethodAddSideEffect.NavigateBack -> {
-                    onBackClicked()
+                PaymentMethodAddEditSideEffect.NavigateUp -> {
+                    onNavigateUp()
                 }
-                is PaymentMethodAddSideEffect.ShowErrorToast -> {
+                is PaymentMethodAddEditSideEffect.ShowErrorToast -> {
                     Toast.makeText(context, effect.msg, Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
     
-    PaymentMethodAddScreen(
+    PaymentMethodAddEditScreen(
         uiState = uiState,
         onEvent = viewModel::handleEvent,
-        onBackClicked = onBackClicked,
-        bottomBtnText = stringResource(R.string.do_register)
+        onBackClicked = onNavigateUp,
     )
 }
 
 @Composable
-fun PaymentMethodAddScreen(
-    uiState: PaymentMethodAddUiState,
-    onEvent: (PaymentMethodAddEvent) -> Unit,
+fun PaymentMethodAddEditScreen(
+    uiState: PaymentMethodAddEditUiState,
+    onEvent: (PaymentMethodAddEditEvent) -> Unit,
     onBackClicked: () -> Unit,
-    bottomBtnText: String,
 ) {
     Scaffold(
         topBar = {
             MyToolBarCompose(
-                title = "결제수단 등록",
+                title = stringResource(uiState.viewType.pageTitleRes),
                 onBackButtonClick = onBackClicked
             )
         },
         bottomBar = {
             MyBottomButton(
                 modifier = Modifier.imePadding(),
-                onClick = { onEvent(PaymentMethodAddEvent.AddPaymentMethod) },
-                text = bottomBtnText,
+                onClick = { onEvent(PaymentMethodAddEditEvent.AddEditPaymentMethod) },
+                text = stringResource(uiState.viewType.bottomButtonTextRes),
                 enabled = uiState.isValidName
             )
         }
     ) { innerPadding ->
+        if (uiState.isLoading) {
+            MyCircularProgressIndicator()
+        }
+
         PaymentMethodAddContent(
             modifier = Modifier
                 .fillMaxSize()
@@ -116,13 +115,9 @@ fun PaymentMethodAddScreen(
             paymentMethodName = uiState.paymentMethodName,
             isCheckedDefaultPayment = uiState.isCheckedDefaultPayment,
             onPaymentMethodNameChanged = { value ->
-                onEvent(
-                    PaymentMethodAddEvent.UpdatePaymentMethodName(
-                        value
-                    )
-                )
+                onEvent(PaymentMethodAddEditEvent.UpdatePaymentMethodName(value))
             },
-            onCheckBoxClicked = { onEvent(PaymentMethodAddEvent.UpdateDefaultPaymentChecked) }
+            onCheckBoxClicked = { onEvent(PaymentMethodAddEditEvent.UpdateDefaultPaymentChecked) }
         )
     }
 }
@@ -306,11 +301,10 @@ fun InfoBox() {
 
 @Preview(showBackground = true)
 @Composable
-fun PaymehtMethodAddScreenPreview() {
-    PaymentMethodAddScreen(
-        uiState = PaymentMethodAddUiState(),
+fun PaymentMethodAddScreenPreview() {
+    PaymentMethodAddEditScreen(
+        uiState = PaymentMethodAddEditUiState(),
         onEvent = {},
         onBackClicked = {},
-        bottomBtnText = "등록하기"
     )
 }
