@@ -1,4 +1,4 @@
-package com.kjh.mynote.ui_compose.feature.mypage
+package com.kjh.mynote.ui_compose.feature.mypage.navigation
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
@@ -6,9 +6,11 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import com.kjh.mynote.ui_compose.feature.mypage.MyPageScreen
 import com.kjh.mynote.ui_compose.feature.mypage.manage.category.CategoryManageRoute
 import com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.PaymentMethodManageRoute
-import com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.add.PaymentMethodAddEditRoute
+import com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.addedit.PaymentMethodAddEditRoute
+import com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.navigation.PaymentMethodManageRoute
 import kotlinx.serialization.Serializable
 
 /**
@@ -46,8 +48,9 @@ fun NavGraphBuilder.myPageNavGraph(
 
     composable<PaymentMethodManageRoute> {
         PaymentMethodManageRoute(
+            modifier = Modifier.fillMaxSize(),
             navigateUp = navigateUp,
-             navigateToPaymentMethodAddEdit = navigateToPaymentMethodAddEdit
+            navigateToPaymentMethodAddEdit = navigateToPaymentMethodAddEdit
         )
     }
 

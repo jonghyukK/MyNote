@@ -2,6 +2,7 @@ package com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -51,10 +52,10 @@ import com.kjh.mynote.ui_compose.components.MyToolBarCompose
 
 @Composable
 fun PaymentMethodManageRoute(
+    modifier: Modifier = Modifier,
     viewModel: PaymentMethodManageViewModel = hiltViewModel(),
-    onBackClicked: () -> Unit,
-    onAddClicked: () -> Unit,
-    onEditClicked: (Int) -> Unit
+    navigateUp: () -> Unit,
+    navigateToPaymentMethodAddEdit: (Int) -> Unit
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -69,23 +70,6 @@ fun PaymentMethodManageRoute(
         }
     }
 
-    PaymentMethodManageScreen(
-        uiState = uiState,
-        onBackClicked = onBackClicked,
-        onAddClicked = onAddClicked,
-        onEditClicked = onEditClicked,
-        onDeleteClicked = { paymentMethodId ->
-            viewModel.setEvent(
-                PaymentMethodManageEvent.UpdateDeleteDialogState(
-                    DeleteDialogState(
-                        true,
-                        paymentMethodId
-                    )
-                )
-            )
-        }
-    )
-
     if (uiState.deleteDialogState.show) {
         MyDefaultDialog(
             title = stringResource(R.string.will_you_delete),
@@ -94,73 +78,82 @@ fun PaymentMethodManageRoute(
             confirmButtonText = stringResource(R.string.yes_i_will_delete),
             cancelButtonText = stringResource(R.string.cancel),
             onClickConfirm = {
-                viewModel.deletePaymentMethod(uiState.deleteDialogState.paymentMethodId)
+                viewModel.handleEvent(PaymentMethodManageEvent.DeletePaymentMethod(uiState.deleteDialogState.paymentMethodId))
             },
             onClickCancel = {
-                viewModel.setEvent(
-                    PaymentMethodManageEvent.UpdateDeleteDialogState(
-                        DeleteDialogState(false)
-                    )
+                viewModel.handleEvent(
+                    PaymentMethodManageEvent.UpdateDeleteDialogState(DeleteDialogState(false))
                 )
             }
         )
     }
+
+    PaymentMethodManageScreen(
+        modifier = modifier,
+        uiState = uiState,
+        onBackClicked = navigateUp,
+        onAddClicked = navigateToPaymentMethodAddEdit,
+        onEditClicked = navigateToPaymentMethodAddEdit,
+        onDeleteClicked = { paymentMethodId ->
+            viewModel.handleEvent(PaymentMethodManageEvent.UpdateDeleteDialogState(DeleteDialogState(true, paymentMethodId)))
+        }
+    )
 }
 
 @Composable
 fun PaymentMethodManageScreen(
+    modifier: Modifier = Modifier,
     uiState: PaymentMethodManageUiState,
     onBackClicked: () -> Unit,
-    onAddClicked: () -> Unit,
-    onEditClicked: (Int) -> Unit,
-    onDeleteClicked: (Int) -> Unit
+    onAddClicked: (paymentMethodId: Int) -> Unit,
+    onEditClicked: (paymentMethodId: Int) -> Unit,
+    onDeleteClicked: (paymentMethodId: Int) -> Unit
 ) {
     Scaffold(
+        modifier = modifier,
         topBar = {
             MyToolBarCompose(
                 title = stringResource(R.string.manage_payment_method),
                 onBackButtonClick = onBackClicked,
                 rightFirstImageRes = R.drawable.ic_add_24,
                 rightFirstImageDesc = "Add PaymentMethod",
-                rightFirstImageClick = onAddClicked
+                rightFirstImageClick = { onAddClicked(-1) }
             )
         }
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-        ) {
-            PaymentMethodList(
-                paymentMethodItems = uiState.paymentMethods,
-                onClickEdit = onEditClicked,
-                onClickDelete = onDeleteClicked
-            )
-
+        Box(modifier = modifier.padding(innerPadding)) {
             if (uiState.isLoading) {
                 MyCircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
+
+            PaymentMethodList(
+                modifier = modifier,
+                paymentMethodItems = uiState.paymentMethods,
+                onClickEdit = onEditClicked,
+                onClickDelete = onDeleteClicked
+            )
         }
     }
 }
 
 @Composable
 fun PaymentMethodList(
+    modifier: Modifier = Modifier,
     paymentMethodItems: List<PaymentMethodUiModel>,
     onClickEdit: (Int) -> Unit,
     onClickDelete: (Int) -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier,
         contentPadding = PaddingValues(vertical = 20.dp)
     ) {
         items(paymentMethodItems, key = { it.paymentMethodId }) { item ->
             PaymentMethodItem(
                 item = item,
-                onEditClicked = onClickEdit,
-                onDeleteClicked = onClickDelete
+                onEditClicked = { onClickEdit(item.paymentMethodId) },
+                onDeleteClicked = { onClickDelete(item.paymentMethodId) }
             )
         }
     }
@@ -170,8 +163,8 @@ fun PaymentMethodList(
 fun PaymentMethodItem(
     modifier: Modifier = Modifier,
     item: PaymentMethodUiModel,
-    onEditClicked: (Int) -> Unit,
-    onDeleteClicked: (Int) -> Unit
+    onEditClicked: () -> Unit,
+    onDeleteClicked: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -203,10 +196,9 @@ fun PaymentMethodItem(
         }
 
         Spacer(Modifier.weight(1f))
-
         IconButton(
             modifier = Modifier.size(36.dp),
-            onClick = { onEditClicked(item.paymentMethodId) }
+            onClick = onEditClicked
         ) {
             Icon(
                 imageVector = Icons.Outlined.Edit,
@@ -216,7 +208,7 @@ fun PaymentMethodItem(
 
         IconButton(
             modifier = Modifier.size(36.dp),
-            onClick = { onDeleteClicked(item.paymentMethodId) }
+            onClick = onDeleteClicked
         ) {
             Icon(
                 imageVector = Icons.Outlined.Delete,
