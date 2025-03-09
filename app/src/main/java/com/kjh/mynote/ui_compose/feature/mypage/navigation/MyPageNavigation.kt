@@ -10,6 +10,7 @@ import com.kjh.mynote.ui_compose.feature.mypage.MyPageScreen
 import com.kjh.mynote.ui_compose.feature.mypage.manage.category.CategoryManageRoute
 import com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.PaymentMethodManageRoute
 import com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.addedit.PaymentMethodAddEditRoute
+import com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.addedit.navigation.PaymentMethodAddEditRoute
 import com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.navigation.PaymentMethodManageRoute
 import kotlinx.serialization.Serializable
 
@@ -56,6 +57,7 @@ fun NavGraphBuilder.myPageNavGraph(
 
     composable<PaymentMethodAddEditRoute> {
         PaymentMethodAddEditRoute(
+            modifier = Modifier.fillMaxSize(),
             onNavigateUp = navigateUp
         )
     }

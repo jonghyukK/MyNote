@@ -8,7 +8,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.kjh.mynote.R
 import com.kjh.mynote.ui_compose.feature.home.HomeRoute
-import com.kjh.mynote.ui_compose.feature.mypage.MyPageRoute
+import com.kjh.mynote.ui_compose.feature.mypage.navigation.MyPageRoute
 import com.kjh.mynote.ui_compose.feature.placenote.PlaceNoteRoute
 import com.kjh.mynote.ui_compose.feature.purchasenote.PurchaseNoteRoute
 import kotlin.reflect.KClass

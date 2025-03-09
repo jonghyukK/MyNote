@@ -8,9 +8,9 @@ import androidx.navigation.compose.NavHost
 import com.kjh.mynote.ui_compose.feature.home.HomeRoute
 import com.kjh.mynote.ui_compose.feature.home.homeNavGraph
 import com.kjh.mynote.ui_compose.feature.mypage.manage.category.navigateToCategoryManage
-import com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.add.navigateToPaymentMethodAddEdit
-import com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.navigateToPaymentMethodManage
-import com.kjh.mynote.ui_compose.feature.mypage.myPageNavGraph
+import com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.addedit.navigation.navigateToPaymentMethodAddEdit
+import com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.navigation.navigateToPaymentMethodManage
+import com.kjh.mynote.ui_compose.feature.mypage.navigation.myPageNavGraph
 import com.kjh.mynote.ui_compose.feature.placenote.placeNoteNavGraph
 import com.kjh.mynote.ui_compose.feature.purchasenote.purchaseNoteNavGraph
 import com.kjh.mynote.ui_compose.main.ui.MyNoteAppState

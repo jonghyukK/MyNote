@@ -12,7 +12,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.kjh.mynote.ui_compose.feature.home.navigateToHome
-import com.kjh.mynote.ui_compose.feature.mypage.navigateToMyPage
+import com.kjh.mynote.ui_compose.feature.mypage.navigation.navigateToMyPage
 import com.kjh.mynote.ui_compose.feature.placenote.navigateToPlaceNote
 import com.kjh.mynote.ui_compose.feature.purchasenote.navigateToPurchaseNote
 import com.kjh.mynote.ui_compose.main.navigation.TopLevelRoute
