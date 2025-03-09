@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.jetbrains.kotlin.serialization)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -108,6 +110,10 @@ dependencies {
 
     // Feature module support for Fragments
     implementation(libs.androidx.navigation.dynamic.features.fragment)
+
+    implementation(libs.kotlinx.serialization.json)
+
+
 
     // Hilt..
     implementation(libs.hilt.android)
