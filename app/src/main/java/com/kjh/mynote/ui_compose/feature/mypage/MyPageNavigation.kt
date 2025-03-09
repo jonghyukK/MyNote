@@ -1,5 +1,7 @@
 package com.kjh.mynote.ui_compose.feature.mypage
 
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -30,8 +32,9 @@ fun NavGraphBuilder.myPageNavGraph(
 ) {
     composable<MyPageRoute> {
         MyPageScreen(
-            onCategoryManageClick = navigateToCategoryManage,
-            onPaymentMethodManageClick = navigateToPaymentMethodManage
+            modifier = Modifier.fillMaxSize(),
+            navigateToCategoryManage = navigateToCategoryManage,
+            navigateToPaymentMethodManage = navigateToPaymentMethodManage
         )
     }
 

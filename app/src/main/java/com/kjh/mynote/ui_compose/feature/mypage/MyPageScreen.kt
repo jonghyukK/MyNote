@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,6 +34,29 @@ import com.kjh.mynote.ui_compose.components.MyToolBarCompose
 @Composable
 fun MyPageScreen(
     modifier: Modifier = Modifier,
+    navigateToCategoryManage: () -> Unit = {},
+    navigateToPaymentMethodManage: () -> Unit = {}
+) {
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            MyToolBarCompose(
+                title = stringResource(R.string.my_page),
+                showBackButton = false
+            )
+        }
+    ) { innerPadding ->
+        MyPageContent(
+            modifier = modifier.padding(innerPadding),
+            onCategoryManageClick = navigateToCategoryManage,
+            onPaymentMethodManageClick = navigateToPaymentMethodManage
+        )
+    }
+}
+
+@Composable
+fun MyPageContent(
+    modifier: Modifier = Modifier,
     onCategoryManageClick: () -> Unit = {},
     onPaymentMethodManageClick: () -> Unit = {}
 ) {
@@ -40,22 +64,16 @@ fun MyPageScreen(
         modifier = modifier
             .background(color = colorResource(R.color.black_50))
     ) {
-        MyToolBarCompose(
-            modifier = modifier,
-            title = stringResource(R.string.my_page),
-            showBackButton = false
-        )
-
         SectionTitle(title = stringResource(R.string.title_manage_category))
         SectionContents(
             title = stringResource(R.string.title_manage_category),
-            onClick = { onCategoryManageClick() }
+            onClick = onCategoryManageClick
         )
 
         SectionTitle(title = stringResource(R.string.manage_payment_method))
         SectionContents(
             title = stringResource(R.string.manage_payment_method),
-            onClick = { onPaymentMethodManageClick() }
+            onClick = onPaymentMethodManageClick
         )
     }
 }
@@ -84,7 +102,7 @@ fun SectionContents(
                 color = colorResource(R.color.white),
                 shape = RoundedCornerShape(12.dp)
             )
-            .clickable { onClick() },
+            .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
