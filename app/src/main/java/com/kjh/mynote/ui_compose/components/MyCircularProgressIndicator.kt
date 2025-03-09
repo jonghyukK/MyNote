@@ -4,9 +4,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
-import com.kjh.mynote.R
+import com.kjh.mynote.ui_compose.theme.ColorPrimary
 
 /**
  * Created by kangjonghyuk.
@@ -20,6 +19,6 @@ fun MyCircularProgressIndicator(
 ) {
     CircularProgressIndicator(
         modifier = modifier.width(46.dp),
-        color = colorResource(R.color.colorPrimary)
+        color = ColorPrimary
     )
 }

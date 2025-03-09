@@ -8,6 +8,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.kjh.mynote.ui_compose.feature.mypage.MyPageScreen
 import com.kjh.mynote.ui_compose.feature.mypage.manage.category.CategoryManageRoute
+import com.kjh.mynote.ui_compose.feature.mypage.manage.category.navigation.CategoryManageRoute
 import com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.PaymentMethodManageRoute
 import com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.addedit.PaymentMethodAddEditRoute
 import com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.addedit.navigation.PaymentMethodAddEditRoute
@@ -43,7 +44,8 @@ fun NavGraphBuilder.myPageNavGraph(
 
     composable<CategoryManageRoute> {
         CategoryManageRoute(
-            onBackClick = navigateUp
+            modifier = Modifier.fillMaxSize(),
+            navigateUp = navigateUp
         )
     }
 

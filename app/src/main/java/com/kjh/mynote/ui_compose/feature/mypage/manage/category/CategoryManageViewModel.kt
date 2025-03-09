@@ -1,5 +1,6 @@
 package com.kjh.mynote.ui_compose.feature.mypage.manage.category
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
 import com.example.domain.model.Category
@@ -56,14 +57,28 @@ class CategoryManageComposeViewModel @Inject constructor(
     private val makeCategoryUseCase: MakeCategoryUseCase,
     private val updateCategoryNameUseCase: UpdateCategoryNameUseCase,
     private val deleteCategoryByIdUseCase: DeleteCategoryByIdUseCase,
-): BaseComposeViewModel<CategoryManageEvent, CategoryManageUiState, CategoryManageSideEffect>() {
-
-    override fun createInitialState(): CategoryManageUiState {
-        return CategoryManageUiState()
-    }
+): BaseComposeViewModel<CategoryManageEvent, CategoryManageUiState, CategoryManageSideEffect>({CategoryManageUiState()}) {
 
     init {
         fetchCategories()
+    }
+
+    override fun reduceState(
+        current: CategoryManageUiState,
+        event: CategoryManageEvent,
+    ): CategoryManageUiState {
+        return when (event) {
+            is CategoryManageEvent.LoadingCategories -> {
+                current.copy(isLoading = true)
+            }
+            is CategoryManageEvent.LoadedCategories -> {
+                current.copy(isLoading = false, categories = event.categories)
+            }
+            is CategoryManageEvent.UpdateDialogState -> {
+                current.copy(dialogState = event.dialogState)
+            }
+            else -> current
+        }
     }
 
     override fun handleEvent(event: CategoryManageEvent) {
@@ -73,23 +88,15 @@ class CategoryManageComposeViewModel @Inject constructor(
                     requestAddCategory(event.newCategoryName)
                 }
             }
-            is CategoryManageEvent.DeleteCategory -> {
-                requestDeleteCategory(event.categoryId)
-            }
             is CategoryManageEvent.EditCategory -> {
                 if (isValidCategoryName(event.category.categoryName)) {
                     requestEditCategory(event.category)
                 }
             }
-            is CategoryManageEvent.LoadedCategories -> {
-                setState { copy(isLoading = false, categories = event.categories) }
+            is CategoryManageEvent.DeleteCategory -> {
+                requestDeleteCategory(event.categoryId)
             }
-            CategoryManageEvent.LoadingCategories -> {
-                setState { copy(isLoading = true) }
-            }
-            is CategoryManageEvent.UpdateDialogState -> {
-                setState { copy(dialogState = event.dialogState) }
-            }
+            else -> setEvent(event)
         }
     }
 
@@ -102,7 +109,7 @@ class CategoryManageComposeViewModel @Inject constructor(
                     }
                     is ApiResult.Error -> {
                         setEvent(CategoryManageEvent.LoadedCategories(emptyList()))
-                        setEffect { CategoryManageSideEffect.ShowErrorToast(result.error.message) }
+                        setEffect(CategoryManageSideEffect.ShowErrorToast(result.error.message))
                     }
                     is ApiResult.Success -> {
                         setEvent(CategoryManageEvent.LoadedCategories(result.data.toUiModel()))
@@ -112,22 +119,13 @@ class CategoryManageComposeViewModel @Inject constructor(
         }
     }
 
-    private fun isValidCategoryName(categoryName: String): Boolean {
-        if (categoryName.isBlank()) {
-            setEffect { CategoryManageSideEffect.ShowErrorToast("카테고리명을 입력해주세요.") }
-            return false
-        } else {
-            return true
-        }
-    }
-
     private fun requestAddCategory(newCategoryName: String) {
         viewModelScope.launch {
             makeCategoryUseCase(Category(categoryName = newCategoryName)).collect { result ->
                 when (result) {
                     is ApiResult.Loading -> {}
                     is ApiResult.Error -> {
-                        setEffect { CategoryManageSideEffect.ShowErrorToast(result.error.message) }
+                        setEffect(CategoryManageSideEffect.ShowErrorToast(result.error.message))
                     }
                     is ApiResult.Success -> {
                         setEvent(CategoryManageEvent.UpdateDialogState(DialogState.Hidden))
@@ -143,7 +141,7 @@ class CategoryManageComposeViewModel @Inject constructor(
                 when (result) {
                     ApiResult.Loading -> {}
                     is ApiResult.Error -> {
-                        setEffect { CategoryManageSideEffect.ShowErrorToast(result.error.message) }
+                        setEffect(CategoryManageSideEffect.ShowErrorToast(result.error.message))
                     }
                     is ApiResult.Success -> {
                         setEvent(CategoryManageEvent.UpdateDialogState(DialogState.Hidden))
@@ -159,13 +157,22 @@ class CategoryManageComposeViewModel @Inject constructor(
                 when (result) {
                     ApiResult.Loading -> {}
                     is ApiResult.Error -> {
-                        setEffect { CategoryManageSideEffect.ShowErrorToast(result.error.message) }
+                        setEffect(CategoryManageSideEffect.ShowErrorToast(result.error.message))
                     }
                     is ApiResult.Success -> {
                         setEvent(CategoryManageEvent.UpdateDialogState(DialogState.Hidden))
                     }
                 }
             }
+        }
+    }
+
+    private fun isValidCategoryName(categoryName: String): Boolean {
+        if (categoryName.isBlank()) {
+            setEffect(CategoryManageSideEffect.ShowErrorToast("카테고리명을 입력해주세요."))
+            return false
+        } else {
+            return true
         }
     }
 }

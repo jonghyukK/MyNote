@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import com.kjh.mynote.ui_compose.feature.home.HomeRoute
 import com.kjh.mynote.ui_compose.feature.home.homeNavGraph
-import com.kjh.mynote.ui_compose.feature.mypage.manage.category.navigateToCategoryManage
+import com.kjh.mynote.ui_compose.feature.mypage.manage.category.navigation.navigateToCategoryManage
 import com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.addedit.navigation.navigateToPaymentMethodAddEdit
 import com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.navigation.navigateToPaymentMethodManage
 import com.kjh.mynote.ui_compose.feature.mypage.navigation.myPageNavGraph

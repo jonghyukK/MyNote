@@ -1,5 +1,6 @@
 package com.kjh.mynote.ui_compose.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,9 +18,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
@@ -27,6 +28,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.kjh.mynote.R
+import com.kjh.mynote.ui_compose.theme.Black500
+import com.kjh.mynote.ui_compose.theme.Black700
+import com.kjh.mynote.ui_compose.theme.Black900
 
 /**
  * Created by kangjonghyuk.
@@ -36,14 +40,14 @@ import com.kjh.mynote.R
 
 @Composable
 fun MyTextFieldDialog(
-    title: String,
-    desc: String? = null,
-    descFontColor: Color = colorResource(R.color.black_500),
-    placeHolder: String? = null,
+    @StringRes titleRes: Int,
+    @StringRes descRes: Int? = null,
+    @StringRes placeHolderRes: Int? = null,
+    @StringRes confirmBtnTextRes: Int = R.string.confirm,
+    @StringRes cancelBtnTextRes: Int = R.string.cancel,
+    descFontColor: Color = Black500,
     value: String,
     onValueChanged: (String) -> Unit,
-    confirmBtnText: String = stringResource(R.string.confirm),
-    cancelBtnText: String = stringResource(R.string.cancel),
     onClickConfirm: () -> Unit,
     onClickCancel: () -> Unit
 ) {
@@ -59,7 +63,7 @@ fun MyTextFieldDialog(
                 .fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(
-                containerColor = colorResource(R.color.white)
+                containerColor = Color.White
             )
         ) {
             Column(
@@ -68,20 +72,20 @@ fun MyTextFieldDialog(
                     .padding(horizontal = 24.dp, vertical = 28.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Title(title = title)
+                Title(titleRes = titleRes)
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 MyTextField(
                     value = value,
                     onValueChanged = onValueChanged,
-                    placeHolder = placeHolder
+                    placeHolderRes = placeHolderRes
                 )
 
-                if (!desc.isNullOrBlank()) {
+                if (descRes != null) {
                     Spacer(modifier = Modifier.height(12.dp))
                     Description(
-                        desc = desc,
+                        descRes = descRes,
                         fontColor = descFontColor
                     )
                 }
@@ -89,14 +93,14 @@ fun MyTextFieldDialog(
                 Spacer(modifier = Modifier.height(28.dp))
 
                 PositiveButton(
-                    btnText = confirmBtnText,
+                    btnTextRes = confirmBtnTextRes,
                     onClick = onClickConfirm
                 )
 
                 Spacer(modifier = Modifier.height(6.dp))
 
                 NegativeButton(
-                    btnText = cancelBtnText,
+                    btnTextRes = cancelBtnTextRes,
                     onClick = onClickCancel
                 )
             }
@@ -105,24 +109,24 @@ fun MyTextFieldDialog(
 }
 
 @Composable
-private fun Title(
-    title: String
-) {
+private fun Title(@StringRes titleRes: Int) {
     Text(
-        text = title,
+        text = stringResource(titleRes),
         fontSize = 18.sp,
         fontWeight = FontWeight.Medium,
-        color = colorResource(R.color.black_900)
+        color = Black900
     )
 }
 
 @Composable
 private fun Description(
-    desc: String,
+    @StringRes descRes: Int,
     fontColor: Color
 ) {
     Text(
-        text = desc,
+        modifier = Modifier.fillMaxWidth(),
+        textAlign = TextAlign.Center,
+        text = stringResource(descRes),
         fontSize = 12.sp,
         fontWeight = FontWeight.Normal,
         letterSpacing = (-0.01).em,
@@ -133,7 +137,7 @@ private fun Description(
 
 @Composable
 private fun NegativeButton(
-    btnText: String,
+    @StringRes btnTextRes: Int,
     onClick: () -> Unit
 ) {
     OutlinedButton(
@@ -141,13 +145,13 @@ private fun NegativeButton(
             .fillMaxWidth()
             .height(44.dp),
         shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, color = colorResource(R.color.black_700)),
+        border = BorderStroke(1.dp, color = Black700),
         onClick = onClick
     ) {
         Text(
-            text = btnText,
+            text = stringResource(btnTextRes),
             fontSize = 15.sp,
-            color = colorResource(R.color.black_700)
+            color = Black700
         )
     }
 }
@@ -155,7 +159,7 @@ private fun NegativeButton(
 
 @Composable
 private fun PositiveButton(
-    btnText: String,
+    @StringRes btnTextRes: Int,
     onClick: () -> Unit
 ) {
     Button(
@@ -165,14 +169,14 @@ private fun PositiveButton(
         shape = RoundedCornerShape(12.dp),
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = colorResource(R.color.black_700)
+            containerColor = Black700
         )
     ) {
         Text(
-            text = btnText,
+            text = stringResource(btnTextRes),
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
-            color = colorResource(R.color.white)
+            color = Color.White
         )
     }
 }
@@ -183,13 +187,13 @@ private fun PositiveButton(
 @Composable
 fun MyTextFieldDialogPreview() {
     MyTextFieldDialog(
-        title = "추가할 카테고리를 입력하세요",
-        desc = "카테고리명을 수정할 경우 해당 카테고리의 구매노트 카테고리가 전부 변경됩니다.",
-        placeHolder = "카테고리를 입력해주세요.",
+        titleRes = R.string.input_category_name,
+        descRes = R.string.desc_when_edit_category_name_change_same_category_notes,
+        placeHolderRes = R.string.input_category_name,
         value = "",
         onValueChanged = {},
-        confirmBtnText = "추가하기",
-        cancelBtnText = "취소하기",
+        confirmBtnTextRes = R.string.confirm,
+        cancelBtnTextRes = R.string.cancel,
         onClickConfirm = {},
         onClickCancel = {}
     )

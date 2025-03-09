@@ -6,16 +6,11 @@ import com.example.domain.usecase.DeletePaymentMethodUseCase
 import com.example.domain.usecase.ObserveAllPaymentMethodsUseCase
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.toUiModel
-import com.kjh.mynote.ui_compose.base.BaseComposeViewModel1
+import com.kjh.mynote.ui_compose.base.BaseComposeViewModel
 import com.kjh.mynote.ui_compose.base.UiEvent
 import com.kjh.mynote.ui_compose.base.UiSideEffect
 import com.kjh.mynote.ui_compose.base.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.runningFold
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,15 +24,9 @@ import javax.inject.Inject
 class PaymentMethodManageViewModel @Inject constructor(
     private val observeAllPaymentMethodsUseCase: ObserveAllPaymentMethodsUseCase,
     private val deletePaymentMethodUseCase: DeletePaymentMethodUseCase
-): BaseComposeViewModel1<PaymentMethodManageEvent, PaymentMethodManageUiState, PaymentMethodManageSideEffect>() {
-
-    override val initialState: PaymentMethodManageUiState
-        get() = PaymentMethodManageUiState()
-
-    val state: StateFlow<PaymentMethodManageUiState> = event.receiveAsFlow()
-        .runningFold(initialState, ::reduceState)
-        .stateIn(viewModelScope, SharingStarted.Eagerly, initialState)
-
+): BaseComposeViewModel<PaymentMethodManageEvent, PaymentMethodManageUiState, PaymentMethodManageSideEffect>(
+    defaultStateBuilder = { PaymentMethodManageUiState() }
+) {
     init {
         fetchPaymentMethods()
     }

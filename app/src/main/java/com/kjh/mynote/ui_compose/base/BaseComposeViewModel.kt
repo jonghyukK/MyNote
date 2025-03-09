@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
@@ -22,34 +21,42 @@ interface UiEvent
 
 interface UiSideEffect
 
-abstract class BaseComposeViewModel<E: UiEvent, S: UiState, SE: UiSideEffect>: ViewModel() {
+abstract class BaseComposeViewModel<E : UiEvent, S: UiState, SE : UiSideEffect>(defaultStateBuilder: () -> S) : ViewModel() {
 
-    private val initialState: S by lazy { createInitialState() }
-    abstract fun createInitialState(): S
+    /**
+     *  Event ..
+     */
+    val event = Channel<E>()
 
-    private val event = Channel<E>()
-
-    val state: StateFlow<S> = event.receiveAsFlow()
-        .runningFold(initialState, ::reduceState)
-        .stateIn(viewModelScope, SharingStarted.Eagerly, initialState)
-
-    private val _effect: Channel<SE> = Channel()
-    val effect = _effect.receiveAsFlow()
-
-    fun setEvent(event: E) {
-        viewModelScope.launch { this@BaseComposeViewModel.event.send(event) }
+    protected fun setEvent(event: E) {
+        viewModelScope.launch {
+            this@BaseComposeViewModel.event.send(event)
+        }
     }
-
-    protected abstract suspend fun reduceState(current: S, event: E): S
 
     abstract fun handleEvent(event: E)
 
-    protected fun setEffect(builder: () -> SE) {
-        val effectValue = builder()
-        viewModelScope.launch { _effect.send(effectValue) }
-    }
-}
+    /**
+     *  Side Effect ..
+     */
+    private val _effect = Channel<SE>()
+    val effect = _effect.receiveAsFlow()
 
+    protected fun setEffect(effect: SE) {
+        viewModelScope.launch { _effect.send(effect) }
+    }
+
+    /**
+     *  State ..
+     */
+    private val defaultState: S = defaultStateBuilder()
+
+    val state = event.receiveAsFlow()
+        .runningFold(defaultState, ::reduceState)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, defaultState)
+
+    protected abstract fun reduceState(current: S, event: E): S
+}
 
 //interface UiState
 //

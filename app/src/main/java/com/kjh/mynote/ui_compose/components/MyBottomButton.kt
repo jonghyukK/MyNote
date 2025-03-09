@@ -1,6 +1,6 @@
 package com.kjh.mynote.ui_compose.components
 
-import androidx.compose.foundation.background
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,12 +12,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kjh.mynote.R
+import com.kjh.mynote.ui_compose.theme.Black500
+import com.kjh.mynote.ui_compose.theme.ColorPrimary
 
 /**
  * Created by kangjonghyuk.
@@ -29,7 +31,7 @@ import com.kjh.mynote.R
 fun MyBottomButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
-    text: String,
+    @StringRes btnTextRes: Int,
     enabled: Boolean = true,
 ) {
     Box(
@@ -44,13 +46,13 @@ fun MyBottomButton(
             enabled = enabled,
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = colorResource(R.color.colorPrimary),
-                disabledContainerColor = colorResource(R.color.black_500)
+                containerColor = ColorPrimary,
+                disabledContainerColor = Black500
             ),
             onClick = onClick
         ) {
             Text(
-                text = text,
+                text = stringResource(btnTextRes),
                 fontSize = 17.sp,
                 color = Color.White,
                 fontWeight = FontWeight.Bold
@@ -64,6 +66,6 @@ fun MyBottomButton(
 fun MyBottomButtonPreview() {
     MyBottomButton(
         onClick = {},
-        text = "등록하기"
+        btnTextRes = R.string.do_register
     )
 }

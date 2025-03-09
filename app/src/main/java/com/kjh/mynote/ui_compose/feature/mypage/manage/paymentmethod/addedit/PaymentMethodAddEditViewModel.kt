@@ -10,16 +10,12 @@ import com.example.domain.usecase.UpsertPaymentMethodUseCase
 import com.kjh.mynote.R
 import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.model.toUiModel
-import com.kjh.mynote.ui_compose.base.BaseComposeViewModel1
+import com.kjh.mynote.ui_compose.base.BaseComposeViewModel
 import com.kjh.mynote.ui_compose.base.UiEvent
 import com.kjh.mynote.ui_compose.base.UiSideEffect
 import com.kjh.mynote.ui_compose.base.UiState
 import com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.addedit.navigation.PaymentMethodAddEditRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.runningFold
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,18 +30,16 @@ class PaymentMethodAddEditViewModel @Inject constructor(
     private val getPaymentMethodByIdUseCase: GetPaymentMethodByIdUseCase,
     private val upsertPaymentMethodUseCase: UpsertPaymentMethodUseCase,
     private val savedStateHandle: SavedStateHandle,
-): BaseComposeViewModel1<PaymentMethodAddEditEvent, PaymentMethodAddEditUiState, PaymentMethodAddEditSideEffect>() {
-
-    private val paymentMethodId: Int = savedStateHandle.toRoute<PaymentMethodAddEditRoute>().paymentMethodId
-
-    override val initialState: PaymentMethodAddEditUiState
-        get() = PaymentMethodAddEditUiState(
+): BaseComposeViewModel<PaymentMethodAddEditEvent, PaymentMethodAddEditUiState, PaymentMethodAddEditSideEffect>(
+    defaultStateBuilder = {
+        val paymentMethodId = savedStateHandle.toRoute<PaymentMethodAddEditRoute>().paymentMethodId
+        PaymentMethodAddEditUiState(
             viewType = if (paymentMethodId == -1) ViewType.Add else ViewType.Edit
         )
+    }
+) {
 
-    val state = event.receiveAsFlow()
-        .runningFold(initialState, ::reduceState)
-        .stateIn(viewModelScope, SharingStarted.Eagerly, initialState)
+    val paymentMethodId = savedStateHandle.toRoute<PaymentMethodAddEditRoute>().paymentMethodId
 
     init {
         if (paymentMethodId != -1) {

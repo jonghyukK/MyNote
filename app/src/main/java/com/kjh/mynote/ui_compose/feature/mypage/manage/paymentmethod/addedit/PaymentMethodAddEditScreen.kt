@@ -104,7 +104,7 @@ fun PaymentMethodAddEditScreen(
         bottomBar = {
             MyBottomButton(
                 onClick = { onEvent(PaymentMethodAddEditEvent.AddEditPaymentMethod) },
-                text = stringResource(uiState.viewType.bottomButtonTextRes),
+                btnTextRes = uiState.viewType.bottomButtonTextRes,
                 enabled = uiState.isValidName
             )
         }
@@ -150,7 +150,7 @@ fun PaymentMethodAddContent(
         MyTextField(
             value = paymentMethodName,
             onValueChanged = onPaymentMethodNameChanged,
-            placeHolder = stringResource(R.string.hint_input_payment_method_name)
+            placeHolderRes = R.string.hint_input_payment_method_name
         )
 
         Text(

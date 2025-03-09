@@ -1,8 +1,6 @@
 package com.kjh.mynote.ui_compose.main.ui
 
 import androidx.annotation.ColorRes
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -13,10 +11,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
-import com.kjh.mynote.R
 import com.kjh.mynote.ui_compose.main.navigation.MyNoteAppNavHost
+import com.kjh.mynote.ui_compose.theme.Black500
+import com.kjh.mynote.ui_compose.theme.Black900
 
 /**
  * Created by kangjonghyuk.
@@ -48,10 +46,10 @@ fun MyNoteApp(
                             selected = currentTopLevelRoute == topLevelRoute,
                             onClick = { myNoteAppState.navigateToTopLevelRoute(topLevelRoute) },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = colorResource(id = selectedColor),
-                                selectedTextColor = colorResource(id = selectedColor),
-                                unselectedIconColor = colorResource(id = unselectedColor),
-                                unselectedTextColor = colorResource(id = unselectedColor)
+                                selectedIconColor = selectedColor,
+                                selectedTextColor = selectedColor,
+                                unselectedIconColor = unselectedColor,
+                                unselectedTextColor = unselectedColor
                             )
                         )
                     }
@@ -67,7 +65,7 @@ fun MyNoteApp(
 }
 
 @ColorRes
-private val selectedColor = R.color.black_900
+private val selectedColor = Black900
 
 @ColorRes
-private val unselectedColor = R.color.black_500
+private val unselectedColor = Black500

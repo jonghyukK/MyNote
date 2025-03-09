@@ -2,12 +2,10 @@ package com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod
 
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,6 +39,10 @@ import com.kjh.mynote.model.PaymentMethodUiModel
 import com.kjh.mynote.ui_compose.components.MyCircularProgressIndicator
 import com.kjh.mynote.ui_compose.components.MyDefaultDialog
 import com.kjh.mynote.ui_compose.components.MyToolBarCompose
+import com.kjh.mynote.ui_compose.theme.Black50
+import com.kjh.mynote.ui_compose.theme.Black900
+import com.kjh.mynote.ui_compose.theme.ColorPrimary
+import com.kjh.mynote.ui_compose.theme.Red500
 
 /**
  * Created by kangjonghyuk.
@@ -72,11 +73,11 @@ fun PaymentMethodManageRoute(
 
     if (uiState.deleteDialogState.show) {
         MyDefaultDialog(
-            title = stringResource(R.string.will_you_delete),
-            desc = stringResource(R.string.desc_payment_method_remove),
-            descFontColor = R.color.red_500,
-            confirmButtonText = stringResource(R.string.yes_i_will_delete),
-            cancelButtonText = stringResource(R.string.cancel),
+            titleRes = R.string.will_you_delete,
+            descRes =  R.string.desc_payment_method_remove,
+            descFontColor = Red500,
+            confirmButtonTextRes = R.string.yes_i_will_delete,
+            cancelButtonTextRes = R.string.cancel,
             onClickConfirm = {
                 viewModel.handleEvent(PaymentMethodManageEvent.DeletePaymentMethod(uiState.deleteDialogState.paymentMethodId))
             },
@@ -161,7 +162,6 @@ fun PaymentMethodList(
 
 @Composable
 fun PaymentMethodItem(
-    modifier: Modifier = Modifier,
     item: PaymentMethodUiModel,
     onEditClicked: () -> Unit,
     onDeleteClicked: () -> Unit
@@ -177,7 +177,7 @@ fun PaymentMethodItem(
             modifier = Modifier.padding(end = 6.dp),
             text = item.paymentMethodName,
             fontSize = 16.sp,
-            color = colorResource(R.color.black_900)
+            color = Black900
         )
 
         if (item.isDefault) {
@@ -185,7 +185,7 @@ fun PaymentMethodItem(
                 text = "기본 결제수단",
                 modifier = Modifier
                     .background(
-                        color = colorResource(R.color.colorPrimary),
+                        color = ColorPrimary,
                         shape = RoundedCornerShape(50.dp)
                     )
                     .padding(horizontal = 6.dp, vertical = 2.dp),
@@ -219,7 +219,7 @@ fun PaymentMethodItem(
 
     HorizontalDivider(
         thickness = 1.dp,
-        color = colorResource(R.color.black_50)
+        color = Black50
     )
 }
 

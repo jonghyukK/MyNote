@@ -16,7 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,6 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kjh.mynote.R
 import com.kjh.mynote.ui_compose.components.MyToolBarCompose
+import com.kjh.mynote.ui_compose.theme.Black50
+import com.kjh.mynote.ui_compose.theme.Black600
+import com.kjh.mynote.ui_compose.theme.Black900
 
 /**
  * Created by kangjonghyuk.
@@ -62,7 +65,7 @@ fun MyPageContent(
 ) {
     Column(
         modifier = modifier
-            .background(color = colorResource(R.color.black_50))
+            .background(color = Black50)
     ) {
         SectionTitle(title = stringResource(R.string.title_manage_category))
         SectionContents(
@@ -83,7 +86,7 @@ fun SectionTitle(title: String) {
     Text(
         text = title,
         fontSize = 17.sp,
-        color = colorResource(R.color.black_600),
+        color = Black600,
         modifier = Modifier.padding(start = 20.dp, top = 20.dp, bottom = 12.dp)
     )
 }
@@ -99,7 +102,7 @@ fun SectionContents(
             .padding(horizontal = 20.dp)
             .height(50.dp)
             .background(
-                color = colorResource(R.color.white),
+                color = Color.White,
                 shape = RoundedCornerShape(12.dp)
             )
             .clickable(onClick = onClick),
@@ -109,7 +112,7 @@ fun SectionContents(
             modifier = Modifier.padding(start = 12.dp),
             text = title,
             fontSize = 16.sp,
-            color = colorResource(R.color.black_900)
+            color = Black900
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -118,7 +121,7 @@ fun SectionContents(
             modifier = Modifier
                 .size(44.dp)
                 .padding(8.dp),
-            tint = colorResource(R.color.black_600),
+            tint = Black600,
             painter = painterResource(R.drawable.ic_chevron_right_24_purple),
             contentDescription = null
         )

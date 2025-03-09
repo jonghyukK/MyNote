@@ -1,5 +1,6 @@
 package com.kjh.mynote.ui_compose.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,9 +17,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
@@ -26,6 +28,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.kjh.mynote.R
+import com.kjh.mynote.ui_compose.theme.Black500
+import com.kjh.mynote.ui_compose.theme.Black700
+import com.kjh.mynote.ui_compose.theme.Black900
 
 /**
  * Created by kangjonghyuk.
@@ -35,11 +40,11 @@ import com.kjh.mynote.R
 
 @Composable
 fun MyDefaultDialog(
-    title: String,
-    desc: String? = null,
-    descFontColor: Int = R.color.black_500,
-    confirmButtonText: String = stringResource(R.string.confirm),
-    cancelButtonText: String = stringResource(R.string.cancel),
+    @StringRes titleRes: Int,
+    @StringRes descRes: Int? = null,
+    @StringRes confirmButtonTextRes: Int = R.string.confirm,
+    @StringRes cancelButtonTextRes: Int = R.string.cancel,
+    descFontColor: Color = Black500,
     onClickConfirm: () -> Unit,
     onClickCancel: () -> Unit
 ) {
@@ -54,7 +59,7 @@ fun MyDefaultDialog(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(
-                containerColor = colorResource(R.color.white)
+                containerColor = Color.White
             )
         ) {
             Column(
@@ -63,12 +68,12 @@ fun MyDefaultDialog(
                     .padding(horizontal = 24.dp, vertical = 28.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Title(title = title)
+                Title(titleRes = titleRes)
 
-                if (!desc.isNullOrBlank()) {
+                if (descRes != null) {
                     Spacer(Modifier.height(20.dp))
                     Description(
-                        desc = desc,
+                        descRes = descRes,
                         fontColor = descFontColor
                     )
                 }
@@ -76,14 +81,14 @@ fun MyDefaultDialog(
                 Spacer(Modifier.height(24.dp))
 
                 PositiveButton(
-                    btnText = confirmButtonText,
+                    btnTextRes = confirmButtonTextRes,
                     onClick = onClickConfirm
                 )
 
                 Spacer(modifier = Modifier.height(6.dp))
 
                 NegativeButton(
-                    btnText = cancelButtonText,
+                    btnTextRes = cancelButtonTextRes,
                     onClick = onClickCancel
                 )
             }
@@ -93,7 +98,7 @@ fun MyDefaultDialog(
 
 @Composable
 private fun NegativeButton(
-    btnText: String,
+    @StringRes btnTextRes: Int,
     onClick: () -> Unit
 ) {
     OutlinedButton(
@@ -101,13 +106,13 @@ private fun NegativeButton(
             .fillMaxWidth()
             .height(44.dp),
         shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, color = colorResource(R.color.black_700)),
+        border = BorderStroke(1.dp, color = Black700),
         onClick = onClick
     ) {
         Text(
-            text = btnText,
+            text = stringResource(btnTextRes),
             fontSize = 15.sp,
-            color = colorResource(R.color.black_700)
+            color = Black700
         )
     }
 }
@@ -115,7 +120,7 @@ private fun NegativeButton(
 
 @Composable
 private fun PositiveButton(
-    btnText: String,
+    @StringRes btnTextRes: Int,
     onClick: () -> Unit
 ) {
     Button(
@@ -125,43 +130,42 @@ private fun PositiveButton(
         shape = RoundedCornerShape(12.dp),
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = colorResource(R.color.black_700)
+            containerColor = Black700
         )
     ) {
         Text(
-            text = btnText,
+            text = stringResource(btnTextRes),
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
-            color = colorResource(R.color.white)
+            color = Color.White
         )
     }
 }
 
 
 @Composable
-private fun Title(
-    title: String
-) {
+private fun Title(@StringRes titleRes: Int) {
     Text(
-        text = title,
+        text = stringResource(titleRes),
         fontSize = 18.sp,
         fontWeight = FontWeight.Medium,
-        color = colorResource(R.color.black_900)
+        color = Black900
     )
 }
 
 @Composable
 private fun Description(
-    desc: String,
-    fontColor: Int
+    @StringRes descRes: Int,
+    fontColor: Color
 ) {
     Text(
-        text = desc,
+        textAlign = TextAlign.Center,
+        text = stringResource(descRes),
         fontSize = 13.sp,
         fontWeight = FontWeight.Normal,
         letterSpacing = (-0.01).em,
         lineHeight = 15.sp,
-        color = colorResource(fontColor)
+        color = fontColor
     )
 }
 
@@ -169,8 +173,8 @@ private fun Description(
 @Composable
 fun MyDefaultDialogPreview() {
     MyDefaultDialog(
-        title = "정말 삭제하시겠어요?",
-        desc = stringResource(R.string.desc_when_delete_category_change_same_category_notes),
+        titleRes = R.string.will_you_delete,
+        descRes = R.string.desc_when_delete_category_change_same_category_notes,
         onClickConfirm = {},
         onClickCancel = {}
     )

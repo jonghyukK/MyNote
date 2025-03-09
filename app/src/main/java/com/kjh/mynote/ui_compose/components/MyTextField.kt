@@ -1,5 +1,6 @@
 package com.kjh.mynote.ui_compose.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -18,12 +19,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kjh.mynote.R
+import com.kjh.mynote.ui_compose.theme.Black600
+import com.kjh.mynote.ui_compose.theme.Black900
+import com.kjh.mynote.ui_compose.theme.ColorPrimary
 
 /**
  * Created by kangjonghyuk.
@@ -36,19 +40,19 @@ fun MyTextField(
     modifier: Modifier = Modifier,
     value: String,
     onValueChanged: (String) -> Unit,
-    placeHolder: String? = null
+    @StringRes placeHolderRes: Int? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
 
-    val borderColor = if (isFocused) R.color.colorPrimary else R.color.black_600
+    val borderColor = if (isFocused) ColorPrimary else Black600
 
     BasicTextField(
         value = value,
         onValueChange = onValueChanged,
         singleLine = true,
         interactionSource = interactionSource,
-        textStyle = TextStyle(fontSize = 14.sp, color = colorResource(id = R.color.black_900)),
+        textStyle = TextStyle(fontSize = 14.sp, color = Black900),
         modifier = Modifier
             .fillMaxWidth()
             .height(44.dp)
@@ -59,17 +63,17 @@ fun MyTextField(
                     .fillMaxSize()
                     .border(
                         width = 1.dp,
-                        color = colorResource(id = borderColor),
+                        color = borderColor,
                         shape = RoundedCornerShape(8.dp)
                     )
                     .padding(horizontal = 12.dp), // 내부 수평 패딩 적용 (세로 패딩은 height에 맞추어 조절)
                 contentAlignment = Alignment.CenterStart
             ) {
-                if (value.isEmpty() && placeHolder != null) {
+                if (value.isEmpty() && placeHolderRes != null) {
                     Text(
-                        text = placeHolder,
+                        text = stringResource(placeHolderRes),
                         fontSize = 14.sp,
-                        color = colorResource(id = R.color.black_600)
+                        color = Black600
                     )
                 }
                 innerTextField()
@@ -84,6 +88,6 @@ fun MyTextFieldPreview() {
     MyTextField(
         value = "",
         onValueChanged = {},
-        placeHolder = "결제수단명 혹은 별명을 입력해주세요."
+        placeHolderRes = R.string.input_category_name
     )
 }

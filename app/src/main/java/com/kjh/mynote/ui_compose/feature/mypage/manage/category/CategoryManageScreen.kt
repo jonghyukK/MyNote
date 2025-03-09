@@ -2,30 +2,29 @@ package com.kjh.mynote.ui_compose.feature.mypage.manage.category
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,6 +36,9 @@ import com.kjh.mynote.ui_compose.components.MyCircularProgressIndicator
 import com.kjh.mynote.ui_compose.components.MyDefaultDialog
 import com.kjh.mynote.ui_compose.components.MyTextFieldDialog
 import com.kjh.mynote.ui_compose.components.MyToolBarCompose
+import com.kjh.mynote.ui_compose.theme.Black50
+import com.kjh.mynote.ui_compose.theme.Black900
+import com.kjh.mynote.ui_compose.theme.Red500
 
 /**
  * Created by kangjonghyuk.
@@ -46,10 +48,11 @@ import com.kjh.mynote.ui_compose.components.MyToolBarCompose
 
 @Composable
 fun CategoryManageRoute(
+    modifier: Modifier = Modifier,
     viewModel: CategoryManageComposeViewModel = hiltViewModel(),
-    onBackClick: () -> Unit
+    navigateUp: () -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     LaunchedEffect(viewModel.effect) {
@@ -62,83 +65,119 @@ fun CategoryManageRoute(
         }
     }
 
-    CategoryManageScreen(
-        uiState = uiState,
-        onBackClick = onBackClick,
-        onEvent = viewModel::handleEvent
-    )
-
     when (val state = uiState.dialogState) {
         is DialogState.Add -> {
-            AddCategoryDialog(
-                dialogState = state,
-                onEvent = viewModel::handleEvent
+            MyTextFieldDialog(
+                titleRes = R.string.title_add_category,
+                value = state.categoryName,
+                placeHolderRes = R.string.title_input_category_for_add,
+                onValueChanged = { categoryName ->
+                    val updatedDialogState = state.copy(categoryName = categoryName)
+                    viewModel.handleEvent(CategoryManageEvent.UpdateDialogState(updatedDialogState))
+                },
+                confirmBtnTextRes = R.string.do_add,
+                cancelBtnTextRes = R.string.do_cancel,
+                onClickConfirm = { viewModel.handleEvent(CategoryManageEvent.AddCategory(state.categoryName)) },
+                onClickCancel = { viewModel.handleEvent(CategoryManageEvent.UpdateDialogState(DialogState.Hidden)) }
             )
         }
         is DialogState.Edit -> {
-            EditCategoryDialog(
-                dialogState = state,
-                onEvent = viewModel::handleEvent
+            MyTextFieldDialog(
+                titleRes = R.string.title_edit_category,
+                value = state.category.categoryName,
+                descRes = R.string.desc_when_edit_category_name_change_same_category_notes,
+                descFontColor = Red500,
+                placeHolderRes = R.string.title_input_category_for_add,
+                onValueChanged = { categoryName ->
+                    val updatedDialogState = state.copy(category = state.category.copy(categoryName = categoryName))
+                    viewModel.handleEvent(CategoryManageEvent.UpdateDialogState(updatedDialogState))
+                },
+                confirmBtnTextRes = R.string.do_modify,
+                cancelBtnTextRes = R.string.do_cancel,
+                onClickConfirm = { viewModel.handleEvent(CategoryManageEvent.EditCategory(state.category)) },
+                onClickCancel = { viewModel.handleEvent(CategoryManageEvent.UpdateDialogState(DialogState.Hidden)) }
             )
         }
         is DialogState.Delete -> {
-            DeleteCategoryDialog(
-                dialogState = state,
-                onEvent = viewModel::handleEvent
+            MyDefaultDialog(
+                titleRes = R.string.title_will_you_delete_category,
+                descRes = R.string.desc_when_delete_category_change_same_category_notes,
+                descFontColor = Red500,
+                confirmButtonTextRes = R.string.yes_i_will_delete,
+                cancelButtonTextRes = R.string.cancel,
+                onClickConfirm = { viewModel.handleEvent(CategoryManageEvent.DeleteCategory(state.category.id)) },
+                onClickCancel = { viewModel.handleEvent(CategoryManageEvent.UpdateDialogState(DialogState.Hidden)) }
             )
         }
         DialogState.Hidden -> {}
     }
+
+    CategoryManageScreen(
+        modifier = modifier,
+        isLoading = uiState.isLoading,
+        categoryItems = uiState.categories,
+        onBackClick = navigateUp,
+        onAddClick = { viewModel.handleEvent(CategoryManageEvent.UpdateDialogState(DialogState.Add(""))) },
+        onEditClick = { categoryItem -> viewModel.handleEvent(CategoryManageEvent.UpdateDialogState(DialogState.Edit(categoryItem))) },
+        onDeleteClick = { categoryItem -> viewModel.handleEvent(CategoryManageEvent.UpdateDialogState(DialogState.Delete(categoryItem))) }
+    )
 }
+
 @Composable
 fun CategoryManageScreen(
     modifier: Modifier = Modifier,
-    uiState: CategoryManageUiState,
+    isLoading: Boolean,
+    categoryItems: List<CategoryUiModel>,
     onBackClick: () -> Unit,
-    onEvent: (CategoryManageEvent) -> Unit
+    onAddClick: () -> Unit,
+    onEditClick: (CategoryUiModel) -> Unit,
+    onDeleteClick: (CategoryUiModel) -> Unit
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column {
+    Scaffold(
+        modifier = modifier,
+        topBar = {
             MyToolBarCompose(
                 title = stringResource(R.string.title_manage_category),
                 onBackButtonClick = onBackClick,
                 rightFirstImageRes = R.drawable.ic_add_24,
                 rightFirstImageDesc = "Add Category",
-                rightFirstImageClick = { onEvent(CategoryManageEvent.UpdateDialogState(DialogState.Add(""))) }
-            )
-
-            CategoryList(
-                list = uiState.categories,
-                onClickEdit = { categoryItem ->
-                    onEvent(CategoryManageEvent.UpdateDialogState(DialogState.Edit(categoryItem))) },
-                onClickDelete = { categoryItem ->
-                    onEvent(CategoryManageEvent.UpdateDialogState(DialogState.Delete(categoryItem)))
-                }
+                rightFirstImageClick = onAddClick
             )
         }
+    ) { innerPadding ->
+        Box(modifier = modifier.padding(innerPadding)) {
+            if (isLoading) {
+                MyCircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            }
 
-        if (uiState.isLoading) {
-            MyCircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
+            CategoryList(
+                modifier = modifier,
+                categoryItems = categoryItems,
+                onClickEdit = onEditClick,
+                onClickDelete = onDeleteClick
             )
         }
     }
 }
 
-
 @Composable
 fun CategoryList(
     modifier: Modifier = Modifier,
-    list: List<CategoryUiModel>,
+    categoryItems: List<CategoryUiModel>,
     onClickEdit: (CategoryUiModel) -> Unit,
     onClickDelete: (CategoryUiModel) -> Unit
 ) {
-    LazyColumn(modifier = modifier.padding(top = 20.dp)) {
-        items(list, key = { it.id }) { item ->
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(vertical = 20.dp)
+    ) {
+        items(categoryItems, key = { it.id }) { item ->
             CategoryListItem(
                 item = item,
-                onClickEdit = onClickEdit,
-                onClickDelete = onClickDelete
+                onClickEdit = { onClickEdit(item) },
+                onClickDelete = { onClickDelete(item) }
             )
         }
     }
@@ -147,8 +186,8 @@ fun CategoryList(
 @Composable
 fun CategoryListItem(
     item: CategoryUiModel,
-    onClickEdit: (CategoryUiModel) -> Unit,
-    onClickDelete: (CategoryUiModel) -> Unit
+    onClickEdit: () -> Unit,
+    onClickDelete: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -160,14 +199,14 @@ fun CategoryListItem(
         Text(
             text = item.categoryName,
             fontSize = 16.sp,
-            color = colorResource(R.color.black_900)
+            color = Black900
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
         IconButton(
             modifier = Modifier.size(36.dp),
-            onClick = { onClickEdit(item) }
+            onClick = onClickEdit
         ) {
             Icon(
                 imageVector = Icons.Outlined.Edit,
@@ -176,7 +215,7 @@ fun CategoryListItem(
         }
         IconButton(
             modifier = Modifier.size(36.dp),
-            onClick = { onClickDelete(item) }
+            onClick = onClickDelete
         ) {
             Icon(
                 imageVector = Icons.Outlined.Delete,
@@ -187,65 +226,6 @@ fun CategoryListItem(
 
     HorizontalDivider(
         thickness = 1.dp,
-        color = colorResource(R.color.black_50)
-    )
-}
-
-
-@Composable
-fun AddCategoryDialog(
-    dialogState: DialogState.Add,
-    onEvent: (CategoryManageEvent) -> Unit
-) {
-    MyTextFieldDialog(
-        title = stringResource(R.string.title_add_category),
-        value = dialogState.categoryName,
-        placeHolder = stringResource(R.string.title_input_category_for_add),
-        onValueChanged = {
-            onEvent(CategoryManageEvent.UpdateDialogState(dialogState.copy(categoryName = it))) },
-        confirmBtnText = stringResource(R.string.do_add),
-        cancelBtnText = stringResource(R.string.do_cancel),
-        onClickConfirm = { onEvent(CategoryManageEvent.AddCategory(dialogState.categoryName)) },
-        onClickCancel = { onEvent(CategoryManageEvent.UpdateDialogState(DialogState.Hidden)) }
-    )
-}
-
-@Composable
-fun EditCategoryDialog(
-    dialogState: DialogState.Edit,
-    onEvent: (CategoryManageEvent) -> Unit
-) {
-    MyTextFieldDialog(
-        title = stringResource(R.string.title_edit_category),
-        value = dialogState.category.categoryName,
-        desc = stringResource(R.string.desc_when_edit_category_name_change_same_category_notes),
-        descFontColor = colorResource(R.color.red_500),
-        placeHolder = stringResource(R.string.title_input_category_for_add),
-        onValueChanged = {
-            val updatedDialogState = dialogState.copy(
-                category = dialogState.category.copy(categoryName = it)
-            )
-            onEvent(CategoryManageEvent.UpdateDialogState(updatedDialogState))
-        },
-        confirmBtnText = stringResource(R.string.do_modify),
-        cancelBtnText = stringResource(R.string.do_cancel),
-        onClickConfirm = { onEvent(CategoryManageEvent.EditCategory(dialogState.category)) },
-        onClickCancel = { onEvent(CategoryManageEvent.UpdateDialogState(DialogState.Hidden)) }
-    )
-}
-
-@Composable
-fun DeleteCategoryDialog(
-    dialogState: DialogState.Delete,
-    onEvent: (CategoryManageEvent) -> Unit
-) {
-    MyDefaultDialog(
-        title = stringResource(R.string.title_will_you_delete_category),
-        desc = stringResource(R.string.desc_when_delete_category_change_same_category_notes),
-        descFontColor = R.color.red_500,
-        confirmButtonText = stringResource(R.string.yes_i_will_delete),
-        cancelButtonText = stringResource(R.string.cancel),
-        onClickConfirm = { onEvent(CategoryManageEvent.DeleteCategory(dialogState.category.id)) },
-        onClickCancel = { onEvent(CategoryManageEvent.UpdateDialogState(DialogState.Hidden)) }
+        color = Black50
     )
 }
