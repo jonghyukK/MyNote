@@ -2,13 +2,11 @@ package com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.addedit
 
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
@@ -29,10 +27,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -43,6 +44,11 @@ import com.kjh.mynote.ui_compose.components.MyBottomButton
 import com.kjh.mynote.ui_compose.components.MyCircularProgressIndicator
 import com.kjh.mynote.ui_compose.components.MyTextField
 import com.kjh.mynote.ui_compose.components.MyToolBarCompose
+import com.kjh.mynote.ui_compose.theme.Black500
+import com.kjh.mynote.ui_compose.theme.Black600
+import com.kjh.mynote.ui_compose.theme.Black700
+import com.kjh.mynote.ui_compose.theme.Black900
+import com.kjh.mynote.ui_compose.theme.ColorPrimary
 
 /**
  * Created by kangjonghyuk.
@@ -138,7 +144,7 @@ fun PaymentMethodAddContent(
             text = stringResource(R.string.payment_method_name),
             fontSize = 16.sp,
             fontWeight = FontWeight.Normal,
-            color = colorResource(R.color.black_900)
+            color = Black900
         )
 
         MyTextField(
@@ -153,7 +159,7 @@ fun PaymentMethodAddContent(
             fontSize = 12.sp,
             fontWeight = FontWeight.Normal,
             letterSpacing = (-0.01).em,
-            color = colorResource(R.color.black_600)
+            color = Black600
         )
 
         Row(
@@ -177,13 +183,13 @@ fun PaymentMethodAddContent(
                 Icon(
                     painter = checkBoxIcon,
                     contentDescription = "Default Payment CheckBox",
-                    tint = colorResource(R.color.colorPrimary)
+                    tint = ColorPrimary
                 )
 
                 Text(
                     text = stringResource(R.string.i_will_register_default_payment_method),
                     fontSize = 14.sp,
-                    color = colorResource(R.color.black_500),
+                    color = Black500,
                     fontWeight = FontWeight.Normal
                 )
             }
@@ -203,7 +209,7 @@ fun InfoBox() {
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
-        border = BorderStroke(1.dp, color = colorResource(R.color.colorPrimary)),
+        border = BorderStroke(1.dp, color = ColorPrimary),
         shape = RoundedCornerShape(20.dp),
     ) {
         Spacer(Modifier.height(20.dp))
@@ -215,13 +221,13 @@ fun InfoBox() {
             Icon(
                 painterResource(R.drawable.ic_lightbulb),
                 contentDescription = null,
-                tint = colorResource(R.color.colorPrimary)
+                tint = ColorPrimary
             )
 
             Text(
                 modifier = Modifier.padding(start = 4.dp),
                 fontSize = 18.sp,
-                color = colorResource(R.color.black_900),
+                color = Black900,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = (-0.01).em,
                 text = stringResource(R.string.desc_recommend_payment_method_name)
@@ -238,27 +244,24 @@ fun InfoBox() {
             Icon(
                 painterResource(R.drawable.ic_info),
                 contentDescription = null,
-                tint = colorResource(R.color.colorPrimary)
+                tint = ColorPrimary
             )
 
             Text(
                 text = stringResource(R.string.desc_payment_method_name_example1_title),
                 modifier = Modifier.padding(start = 4.dp),
                 fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
                 letterSpacing = (-0.01).em,
-                color = colorResource(R.color.black_700)
+                color = Black700
             )
         }
 
-        Text(
-            modifier = Modifier
-                .padding(top = 4.dp)
-                .align(alignment = Alignment.CenterHorizontally),
-            text = stringResource(R.string.desc_payment_method_name_example1),
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Normal,
-            letterSpacing = (-0.01).em,
-            color = colorResource(R.color.black_600)
+        Spacer(Modifier.height(4.dp))
+
+        HighlightedText(
+            fullText = stringResource(R.string.desc_payment_method_name_example1),
+            targetText = stringResource(R.string.payment_method_name_example1_highlight_text)
         )
 
         Spacer(Modifier.height(20.dp))
@@ -271,39 +274,71 @@ fun InfoBox() {
             Icon(
                 painterResource(R.drawable.ic_info),
                 contentDescription = null,
-                tint = colorResource(R.color.colorPrimary)
+                tint = ColorPrimary
             )
 
             Text(
                 text = stringResource(R.string.desc_payment_method_name_example2_title),
                 modifier = Modifier.padding(start = 4.dp),
                 fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
                 letterSpacing = (-0.01).em,
-                color = colorResource(R.color.black_700)
+                color = Black700
             )
         }
 
-        Text(
-            modifier = Modifier
-                .padding(top = 4.dp)
-                .align(alignment = Alignment.CenterHorizontally),
-            text = stringResource(R.string.desc_payment_method_name_example2),
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Normal,
-            letterSpacing = (-0.01).em,
-            color = colorResource(R.color.black_600)
+        Spacer(Modifier.height(4.dp))
+
+        HighlightedText(
+            fullText = stringResource(R.string.desc_payment_method_name_example2),
+            targetText = stringResource(R.string.payment_method_name_example2_highlight_text)
         )
 
         Spacer(Modifier.height(28.dp))
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun PaymentMethodAddScreenPreview() {
-//    PaymentMethodAddEditScreen(
-//        uiState = PaymentMethodAddEditUiState(),
-//        onEvent = {},
-//        onBackClicked = {},
-//    )
-//}
+@Composable
+fun HighlightedText(
+    fullText: String,
+    targetText: String
+) {
+    val startIndex = fullText.indexOf(targetText)
+    val endIndex = startIndex + targetText.length
+
+    val annotatedText = buildAnnotatedString {
+        if (startIndex == -1) {
+            append(fullText)
+        } else {
+            append(fullText.substring(0, startIndex))
+            pushStyle(
+                SpanStyle(
+                    color = ColorPrimary,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+            append(fullText.substring(startIndex, endIndex))
+            pop()
+        }
+    }
+
+    Text(
+        modifier = Modifier.fillMaxWidth(),
+        textAlign = TextAlign.Center,
+        text = annotatedText,
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Normal,
+        letterSpacing = (-0.01).em,
+        color = Black600
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PaymentMethodAddScreenPreview() {
+    PaymentMethodAddEditScreen(
+        uiState = PaymentMethodAddEditUiState(),
+        onEvent = {},
+        onBackClicked = {},
+    )
+}
