@@ -14,13 +14,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,6 +36,7 @@ import com.kjh.mynote.R
 import com.kjh.mynote.ui_compose.theme.Black600
 import com.kjh.mynote.ui_compose.theme.Black900
 import com.kjh.mynote.ui_compose.theme.ColorPrimary
+import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.
@@ -40,23 +49,43 @@ fun MyTextField(
     modifier: Modifier = Modifier,
     value: String,
     onValueChanged: (String) -> Unit,
-    @StringRes placeHolderRes: Int? = null
+    @StringRes placeHolderRes: Int? = null,
+    focusRequester: FocusRequester = remember { FocusRequester() }
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
-
     val borderColor = if (isFocused) ColorPrimary else Black600
 
+    var textFieldValue by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = value,
+                selection = TextRange(value.length)
+            )
+        )
+    }
+
+    LaunchedEffect(value != textFieldValue.text) {
+        textFieldValue = TextFieldValue(
+            text = value,
+            selection = TextRange(value.length)
+        )
+    }
+
     BasicTextField(
-        value = value,
-        onValueChange = onValueChanged,
+        value = textFieldValue,
+        onValueChange = { newValue ->
+            textFieldValue = newValue
+            onValueChanged(newValue.text)
+        },
         singleLine = true,
         interactionSource = interactionSource,
         textStyle = TextStyle(fontSize = 14.sp, color = Black900),
         modifier = Modifier
             .fillMaxWidth()
             .height(44.dp)
-            .background(Color.White, shape = RoundedCornerShape(8.dp)),
+            .background(Color.White, shape = RoundedCornerShape(8.dp))
+            .focusRequester(focusRequester),
         decorationBox = { innerTextField ->
             Box(
                 modifier = Modifier
@@ -66,7 +95,7 @@ fun MyTextField(
                         color = borderColor,
                         shape = RoundedCornerShape(8.dp)
                     )
-                    .padding(horizontal = 12.dp), // 내부 수평 패딩 적용 (세로 패딩은 height에 맞추어 조절)
+                    .padding(horizontal = 12.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
                 if (value.isEmpty() && placeHolderRes != null) {

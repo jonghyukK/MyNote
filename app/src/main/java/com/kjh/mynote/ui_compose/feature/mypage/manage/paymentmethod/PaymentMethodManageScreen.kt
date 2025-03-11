@@ -71,6 +71,15 @@ fun PaymentMethodManageRoute(
         }
     }
 
+    PaymentMethodManageScreen(
+        modifier = modifier,
+        uiState = uiState,
+        onBackClicked = navigateUp,
+        onAddClicked = navigateToPaymentMethodAddEdit,
+        onEditClicked = navigateToPaymentMethodAddEdit,
+        onDeleteClicked = viewModel::handleEvent
+    )
+
     if (uiState.deleteDialogState.show) {
         MyDefaultDialog(
             titleRes = R.string.will_you_delete,
@@ -88,17 +97,6 @@ fun PaymentMethodManageRoute(
             }
         )
     }
-
-    PaymentMethodManageScreen(
-        modifier = modifier,
-        uiState = uiState,
-        onBackClicked = navigateUp,
-        onAddClicked = navigateToPaymentMethodAddEdit,
-        onEditClicked = navigateToPaymentMethodAddEdit,
-        onDeleteClicked = { paymentMethodId ->
-            viewModel.handleEvent(PaymentMethodManageEvent.UpdateDeleteDialogState(DeleteDialogState(true, paymentMethodId)))
-        }
-    )
 }
 
 @Composable
@@ -108,13 +106,13 @@ fun PaymentMethodManageScreen(
     onBackClicked: () -> Unit,
     onAddClicked: (paymentMethodId: Int) -> Unit,
     onEditClicked: (paymentMethodId: Int) -> Unit,
-    onDeleteClicked: (paymentMethodId: Int) -> Unit
+    onDeleteClicked: (PaymentMethodManageEvent.UpdateDeleteDialogState) -> Unit
 ) {
     Scaffold(
         modifier = modifier,
         topBar = {
             MyToolBarCompose(
-                title = stringResource(R.string.manage_payment_method),
+                titleRes = R.string.manage_payment_method,
                 onBackButtonClick = onBackClicked,
                 rightFirstImageRes = R.drawable.ic_add_24,
                 rightFirstImageDesc = "Add PaymentMethod",
@@ -123,18 +121,19 @@ fun PaymentMethodManageScreen(
         }
     ) { innerPadding ->
         Box(modifier = modifier.padding(innerPadding)) {
+            PaymentMethodList(
+                modifier = modifier,
+                paymentMethodItems = uiState.paymentMethods,
+                onClickEdit = onEditClicked,
+                onClickDelete = { paymentMethodId ->
+                    onDeleteClicked(PaymentMethodManageEvent.UpdateDeleteDialogState(DeleteDialogState(true, paymentMethodId))) }
+            )
+
             if (uiState.isLoading) {
                 MyCircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
-
-            PaymentMethodList(
-                modifier = modifier,
-                paymentMethodItems = uiState.paymentMethods,
-                onClickEdit = onEditClicked,
-                onClickDelete = onDeleteClicked
-            )
         }
     }
 }
@@ -181,45 +180,52 @@ fun PaymentMethodItem(
         )
 
         if (item.isDefault) {
-            Text(
-                text = "기본 결제수단",
-                modifier = Modifier
-                    .background(
-                        color = ColorPrimary,
-                        shape = RoundedCornerShape(50.dp)
-                    )
-                    .padding(horizontal = 6.dp, vertical = 2.dp),
-                fontSize = 11.sp,
-                lineHeight = 13.sp,
-                color = Color.White
-            )
+            DefaultPaymentMethodBadge()
         }
 
-        Spacer(Modifier.weight(1f))
-        IconButton(
-            modifier = Modifier.size(36.dp),
-            onClick = onEditClicked
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Edit,
-                contentDescription = "Edit PaymentMethod"
-            )
-        }
+        if (!item.isCash()) {
+            Spacer(Modifier.weight(1f))
+            IconButton(
+                modifier = Modifier.size(36.dp),
+                onClick = onEditClicked
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Edit,
+                    contentDescription = "Edit PaymentMethod"
+                )
+            }
 
-        IconButton(
-            modifier = Modifier.size(36.dp),
-            onClick = onDeleteClicked
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Delete,
-                contentDescription = "Delete PaymentMethod"
-            )
+            IconButton(
+                modifier = Modifier.size(36.dp),
+                onClick = onDeleteClicked
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = "Delete PaymentMethod"
+                )
+            }
         }
     }
 
     HorizontalDivider(
         thickness = 1.dp,
         color = Black50
+    )
+}
+
+@Composable
+fun DefaultPaymentMethodBadge() {
+    Text(
+        text = "기본 결제수단",
+        modifier = Modifier
+            .background(
+                color = ColorPrimary,
+                shape = RoundedCornerShape(50.dp)
+            )
+            .padding(horizontal = 6.dp, vertical = 2.dp),
+        fontSize = 11.sp,
+        lineHeight = 13.sp,
+        color = Color.White
     )
 }
 

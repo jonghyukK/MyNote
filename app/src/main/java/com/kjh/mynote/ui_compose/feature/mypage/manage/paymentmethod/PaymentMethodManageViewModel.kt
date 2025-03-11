@@ -11,6 +11,7 @@ import com.kjh.mynote.ui_compose.base.UiEvent
 import com.kjh.mynote.ui_compose.base.UiSideEffect
 import com.kjh.mynote.ui_compose.base.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

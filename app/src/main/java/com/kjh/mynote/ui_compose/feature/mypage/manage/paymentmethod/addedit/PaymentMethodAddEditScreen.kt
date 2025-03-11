@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,8 +24,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -33,7 +36,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -64,25 +66,32 @@ fun PaymentMethodAddEditRoute(
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(viewModel.effect) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                PaymentMethodAddEditSideEffect.NavigateUp -> {
+                is PaymentMethodAddEditSideEffect.NavigateUp -> {
                     onNavigateUp()
                 }
                 is PaymentMethodAddEditSideEffect.ShowErrorToast -> {
                     Toast.makeText(context, effect.msg, Toast.LENGTH_SHORT).show()
                 }
+                is PaymentMethodAddEditSideEffect.ShowKeyBoard -> {
+                    focusRequester.requestFocus()
+                }
             }
         }
     }
-    
+
     PaymentMethodAddEditScreen(
         modifier = modifier,
         uiState = uiState,
-        onEvent = viewModel::handleEvent,
+        onAddEditClick = viewModel::handleEvent,
+        onValueChanged = viewModel::handleEvent,
+        onToggleDefaultPaymentChecked = viewModel::handleEvent,
         onBackClicked = onNavigateUp,
+        focusRequester = focusRequester
     )
 }
 
@@ -90,54 +99,66 @@ fun PaymentMethodAddEditRoute(
 fun PaymentMethodAddEditScreen(
     modifier: Modifier = Modifier,
     uiState: PaymentMethodAddEditUiState,
-    onEvent: (PaymentMethodAddEditEvent) -> Unit,
+    onAddEditClick: (PaymentMethodAddEditEvent.AddEditPaymentMethod) -> Unit,
+    onValueChanged: (PaymentMethodAddEditEvent.UpdatePaymentMethodName) -> Unit,
+    onToggleDefaultPaymentChecked: (PaymentMethodAddEditEvent.ToggleDefaultPaymentChecked) -> Unit,
     onBackClicked: () -> Unit,
+    focusRequester: FocusRequester
 ) {
     Scaffold(
-        modifier = modifier.imePadding(),
         topBar = {
             MyToolBarCompose(
-                title = stringResource(uiState.viewType.pageTitleRes),
+                titleRes = uiState.viewType.pageTitleRes,
                 onBackButtonClick = onBackClicked
             )
         },
         bottomBar = {
             MyBottomButton(
-                onClick = { onEvent(PaymentMethodAddEditEvent.AddEditPaymentMethod) },
+                onClick = { onAddEditClick(PaymentMethodAddEditEvent.AddEditPaymentMethod) },
                 btnTextRes = uiState.viewType.bottomButtonTextRes,
                 enabled = uiState.isValidName
             )
         }
     ) { innerPadding ->
-        if (uiState.isLoading) {
-            MyCircularProgressIndicator()
-        }
-
-        PaymentMethodAddContent(
-            modifier = modifier
+        Box(
+            modifier = Modifier
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState()),
-            paymentMethodName = uiState.paymentMethodName,
-            isCheckedDefaultPayment = uiState.isCheckedDefaultPayment,
-            onPaymentMethodNameChanged = { value ->
-                onEvent(PaymentMethodAddEditEvent.UpdatePaymentMethodName(value))
-            },
-            onCheckBoxClicked = { onEvent(PaymentMethodAddEditEvent.UpdateDefaultPaymentChecked) }
-        )
+                .imePadding()
+                .verticalScroll(rememberScrollState())
+        ) {
+            PaymentMethodAddEditContent(
+                paymentMethodTextField = {
+                    MyTextField(
+                        value = uiState.paymentMethodName,
+                        onValueChanged = { name -> onValueChanged(PaymentMethodAddEditEvent.UpdatePaymentMethodName(name)) },
+                        placeHolderRes = R.string.hint_input_payment_method_name,
+                        focusRequester = focusRequester
+                    )
+                },
+                defaultPaymentCheckBox = {
+                    DefaultPaymentMethodCheckBox(
+                        isCheckedDefaultPayment = uiState.isCheckedDefaultPayment,
+                        onCheckBoxClicked = { onToggleDefaultPaymentChecked(PaymentMethodAddEditEvent.ToggleDefaultPaymentChecked) }
+                    )
+                }
+            )
+
+            if (uiState.isLoading) {
+                MyCircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        }
     }
 }
 
 @Composable
-fun PaymentMethodAddContent(
-    modifier: Modifier = Modifier,
-    paymentMethodName: String,
-    isCheckedDefaultPayment: Boolean,
-    onPaymentMethodNameChanged: (String) -> Unit,
-    onCheckBoxClicked: () -> Unit
+fun PaymentMethodAddEditContent(
+    paymentMethodTextField: @Composable () -> Unit,
+    defaultPaymentCheckBox: @Composable () -> Unit,
 ) {
     Column(
-        modifier = modifier
-            .padding(20.dp)
+        modifier = Modifier.padding(20.dp)
     ) {
         Text(
             modifier = Modifier.padding(bottom = 12.dp),
@@ -147,11 +168,7 @@ fun PaymentMethodAddContent(
             color = Black900
         )
 
-        MyTextField(
-            value = paymentMethodName,
-            onValueChanged = onPaymentMethodNameChanged,
-            placeHolderRes = R.string.hint_input_payment_method_name
-        )
+        paymentMethodTextField()
 
         Text(
             modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
@@ -162,41 +179,50 @@ fun PaymentMethodAddContent(
             color = Black600
         )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.End
-        ) {
-            Row(
-                modifier = Modifier
-                    .clickable(onClick = onCheckBoxClicked)
-                    .padding(vertical = 5.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                val checkBoxIcon = if (isCheckedDefaultPayment) {
-                    painterResource(R.drawable.ic_selected_checkbox)
-                } else {
-                    painterResource(R.drawable.ic_unselected_checkbox)
-                }
-
-                Icon(
-                    painter = checkBoxIcon,
-                    contentDescription = "Default Payment CheckBox",
-                    tint = ColorPrimary
-                )
-
-                Text(
-                    text = stringResource(R.string.i_will_register_default_payment_method),
-                    fontSize = 14.sp,
-                    color = Black500,
-                    fontWeight = FontWeight.Normal
-                )
-            }
-        }
+        defaultPaymentCheckBox()
 
         Spacer(Modifier.height(50.dp))
+
         InfoBox()
+    }
+}
+
+@Composable
+fun DefaultPaymentMethodCheckBox(
+    isCheckedDefaultPayment: Boolean,
+    onCheckBoxClicked: () -> Unit,
+) {
+    val checkBoxIcon = if (isCheckedDefaultPayment) {
+        R.drawable.ic_selected_checkbox
+    } else {
+        R.drawable.ic_unselected_checkbox
+    }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.End
+    ) {
+        Row(
+            modifier = Modifier
+                .clickable(onClick = onCheckBoxClicked)
+                .padding(vertical = 5.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Icon(
+                painter = painterResource(checkBoxIcon),
+                contentDescription = "Default Payment CheckBox",
+                tint = ColorPrimary
+            )
+
+            Text(
+                text = stringResource(R.string.i_will_register_default_payment_method),
+                fontSize = 14.sp,
+                color = Black500,
+                fontWeight = FontWeight.Normal
+            )
+        }
     }
 }
 
@@ -333,12 +359,13 @@ fun HighlightedText(
     )
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PaymentMethodAddScreenPreview() {
-    PaymentMethodAddEditScreen(
-        uiState = PaymentMethodAddEditUiState(),
-        onEvent = {},
-        onBackClicked = {},
-    )
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PaymentMethodAddScreenPreview() {
+//    PaymentMethodAddEditScreen(
+//        uiState = PaymentMethodAddEditUiState(),
+//        onEvent = {},
+//        onBackClicked = {},
+//        focusRequester = remember { FocusRequester() }
+//    )
+//}

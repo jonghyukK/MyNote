@@ -1,5 +1,7 @@
 package com.kjh.mynote.ui_compose.feature.mypage.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -49,7 +51,14 @@ fun NavGraphBuilder.myPageNavGraph(
         )
     }
 
-    composable<PaymentMethodManageRoute> {
+    composable<PaymentMethodManageRoute>(
+        enterTransition = {
+            slideIntoContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                animationSpec = tween(300)
+            )
+        }
+    ) {
         PaymentMethodManageRoute(
             modifier = Modifier.fillMaxSize(),
             navigateUp = navigateUp,
@@ -57,7 +66,14 @@ fun NavGraphBuilder.myPageNavGraph(
         )
     }
 
-    composable<PaymentMethodAddEditRoute> {
+    composable<PaymentMethodAddEditRoute>(
+        enterTransition = {
+            slideIntoContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                animationSpec = tween(300)
+            )
+        }
+    ) {
         PaymentMethodAddEditRoute(
             modifier = Modifier.fillMaxSize(),
             onNavigateUp = navigateUp

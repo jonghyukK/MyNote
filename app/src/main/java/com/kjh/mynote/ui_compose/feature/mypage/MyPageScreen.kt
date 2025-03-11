@@ -44,7 +44,7 @@ fun MyPageScreen(
         modifier = modifier,
         topBar = {
             MyToolBarCompose(
-                title = stringResource(R.string.my_page),
+                titleRes = R.string.my_page,
                 showBackButton = false
             )
         }

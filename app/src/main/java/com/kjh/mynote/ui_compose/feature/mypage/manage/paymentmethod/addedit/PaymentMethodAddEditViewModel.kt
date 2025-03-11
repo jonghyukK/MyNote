@@ -38,12 +38,13 @@ class PaymentMethodAddEditViewModel @Inject constructor(
         )
     }
 ) {
-
     val paymentMethodId = savedStateHandle.toRoute<PaymentMethodAddEditRoute>().paymentMethodId
 
     init {
         if (paymentMethodId != -1) {
             fetchPaymentMethod(paymentMethodId)
+        } else {
+            setEffect(PaymentMethodAddEditSideEffect.ShowKeyBoard)
         }
     }
 
@@ -63,7 +64,7 @@ class PaymentMethodAddEditViewModel @Inject constructor(
                     isValidName = event.paymentMethodItem?.paymentMethodName?.isNotEmpty() ?: false
                 )
             }
-            is PaymentMethodAddEditEvent.UpdateDefaultPaymentChecked -> {
+            is PaymentMethodAddEditEvent.ToggleDefaultPaymentChecked -> {
                 current.copy(isCheckedDefaultPayment = !current.isCheckedDefaultPayment)
             }
             is PaymentMethodAddEditEvent.UpdatePaymentMethodName -> {
@@ -103,6 +104,7 @@ class PaymentMethodAddEditViewModel @Inject constructor(
                     is ApiResult.Success -> {
                         val paymentMethodItem = result.data?.toUiModel()
                         setEvent(PaymentMethodAddEditEvent.LoadedPaymentMethod(paymentMethodItem))
+                        setEffect(PaymentMethodAddEditSideEffect.ShowKeyBoard)
                     }
                 }
             }
@@ -118,7 +120,9 @@ class PaymentMethodAddEditViewModel @Inject constructor(
                 )
             ).collect { result ->
                 when (result) {
-                    is ApiResult.Loading -> {}
+                    is ApiResult.Loading -> {
+                        setEvent(PaymentMethodAddEditEvent.LoadingPaymentMethod)
+                    }
                     is ApiResult.Error -> {
                         setEffect(PaymentMethodAddEditSideEffect.ShowErrorToast(result.error.message))
                     }
@@ -140,7 +144,9 @@ class PaymentMethodAddEditViewModel @Inject constructor(
 
             upsertPaymentMethodUseCase(paymentMethod).collect { result ->
                 when (result) {
-                    is ApiResult.Loading -> {}
+                    is ApiResult.Loading -> {
+                        setEvent(PaymentMethodAddEditEvent.LoadingPaymentMethod)
+                    }
                     is ApiResult.Error -> {
                         setEffect(PaymentMethodAddEditSideEffect.ShowErrorToast(result.error.message))
                     }
@@ -156,12 +162,13 @@ class PaymentMethodAddEditViewModel @Inject constructor(
 sealed interface PaymentMethodAddEditSideEffect: UiSideEffect {
     data class ShowErrorToast(val msg: String?): PaymentMethodAddEditSideEffect
     data object NavigateUp: PaymentMethodAddEditSideEffect
+    data object ShowKeyBoard: PaymentMethodAddEditSideEffect
 }
 
 sealed interface PaymentMethodAddEditEvent: UiEvent {
     data object LoadingPaymentMethod: PaymentMethodAddEditEvent
     data class LoadedPaymentMethod(val paymentMethodItem: PaymentMethodUiModel?): PaymentMethodAddEditEvent
-    data object UpdateDefaultPaymentChecked: PaymentMethodAddEditEvent
+    data object ToggleDefaultPaymentChecked: PaymentMethodAddEditEvent
     data class UpdatePaymentMethodName(val name: String): PaymentMethodAddEditEvent
     data object AddEditPaymentMethod: PaymentMethodAddEditEvent
 }
