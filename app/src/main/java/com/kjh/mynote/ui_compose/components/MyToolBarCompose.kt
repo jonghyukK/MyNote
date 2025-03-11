@@ -1,5 +1,6 @@
 package com.kjh.mynote.ui_compose.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,7 +39,7 @@ fun MyToolBarCompose(
     modifier: Modifier = Modifier,
     showBackButton: Boolean = true,
     onBackButtonClick: () -> Unit = {},
-    title: String = "",
+    @StringRes titleRes: Int,
     rightFirstImageRes: Int? = null,
     rightFirstImageDesc: String = "",
     rightFirstImageClick: () -> Unit = {},
@@ -65,7 +67,7 @@ fun MyToolBarCompose(
             }
 
             Text(
-                text = title,
+                text = stringResource(titleRes),
                 fontSize = 20.sp,
                 fontFamily = spoqaSansFamily,
                 fontWeight = FontWeight.Normal,
@@ -121,6 +123,6 @@ fun ToolBarIcon(
 @Composable
 fun MyToolBarPreview() {
     MyNoteTheme {
-        MyToolBarCompose()
+        MyToolBarCompose(titleRes = R.string.title_edit_category)
     }
 }
