@@ -1,9 +1,10 @@
-package com.kjh.mynote.ui_compose.feature.purchasenote
+package com.kjh.mynote.ui_compose.feature.purchasenote.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import com.kjh.mynote.ui_compose.feature.purchasenote.PurchaseNoteRoute
 import kotlinx.serialization.Serializable
 
 /**
@@ -22,6 +23,6 @@ fun NavController.navigateToPurchaseNote(
 
 fun NavGraphBuilder.purchaseNoteNavGraph() {
     composable<PurchaseNoteRoute> {
-        PurchaseNoteScreen()
+        PurchaseNoteRoute()
     }
 }
