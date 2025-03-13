@@ -14,6 +14,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +32,7 @@ import com.kjh.mynote.R
 import com.kjh.mynote.ui_compose.theme.Black500
 import com.kjh.mynote.ui_compose.theme.Black700
 import com.kjh.mynote.ui_compose.theme.Black900
+import timber.log.Timber
 
 /**
  * Created by kangjonghyuk.

@@ -25,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -65,62 +64,113 @@ fun CategoryManageRoute(
         }
     }
 
-    when (val state = uiState.dialogState) {
-        is DialogState.Add -> {
-            MyTextFieldDialog(
-                titleRes = R.string.title_add_category,
-                value = state.categoryName,
-                placeHolderRes = R.string.title_input_category_for_add,
-                onValueChanged = { categoryName ->
-                    val updatedDialogState = state.copy(categoryName = categoryName)
-                    viewModel.handleEvent(CategoryManageEvent.UpdateDialogState(updatedDialogState))
-                },
-                confirmBtnTextRes = R.string.do_add,
-                cancelBtnTextRes = R.string.do_cancel,
-                onClickConfirm = { viewModel.handleEvent(CategoryManageEvent.AddCategory(state.categoryName)) },
-                onClickCancel = { viewModel.handleEvent(CategoryManageEvent.UpdateDialogState(DialogState.Hidden)) }
+    CategoryManageScreen(
+        modifier = modifier,
+        isLoading = uiState.isLoading,
+        categoryItems = uiState.categories,
+        onBackClick = navigateUp,
+        onAddClick = {
+            viewModel.handleEvent(
+                CategoryManageEvent.UpdateDialogState(
+                    CategoryManageDialogState.Add()
+                )
+            )
+        },
+        onEditClick = { categoryItem ->
+            viewModel.handleEvent(
+                CategoryManageEvent.UpdateDialogState(
+                    CategoryManageDialogState.Edit(categoryItem)
+                )
+            )
+        },
+        onDeleteClick = { categoryId ->
+            viewModel.handleEvent(
+                CategoryManageEvent.UpdateDialogState(
+                    CategoryManageDialogState.Delete(categoryId)
+                )
             )
         }
-        is DialogState.Edit -> {
+    )
+
+    when (val dialogState = uiState.manageDialogState) {
+        is CategoryManageDialogState.Add -> {
+            MyTextFieldDialog(
+                titleRes = R.string.title_add_category,
+                value = dialogState.categoryName,
+                placeHolderRes = R.string.title_input_category_for_add,
+                confirmBtnTextRes = R.string.do_add,
+                cancelBtnTextRes = R.string.do_cancel,
+                onValueChanged = { newValue ->
+                    viewModel.handleEvent(
+                        CategoryManageEvent.UpdateDialogState(
+                            CategoryManageDialogState.Add(newValue)
+                        )
+                    )
+                },
+                onClickConfirm = {
+                    viewModel.handleEvent(CategoryManageEvent.AddCategory(dialogState.categoryName))
+                },
+                onClickCancel = {
+                    viewModel.handleEvent(
+                        CategoryManageEvent.UpdateDialogState(
+                            CategoryManageDialogState.Hidden
+                        )
+                    )
+                }
+            )
+        }
+        is CategoryManageDialogState.Edit -> {
             MyTextFieldDialog(
                 titleRes = R.string.title_edit_category,
-                value = state.category.categoryName,
+                value = dialogState.categoryItem.categoryName,
                 descRes = R.string.desc_when_edit_category_name_change_same_category_notes,
                 descFontColor = Red500,
                 placeHolderRes = R.string.title_input_category_for_add,
-                onValueChanged = { categoryName ->
-                    val updatedDialogState = state.copy(category = state.category.copy(categoryName = categoryName))
-                    viewModel.handleEvent(CategoryManageEvent.UpdateDialogState(updatedDialogState))
-                },
                 confirmBtnTextRes = R.string.do_modify,
                 cancelBtnTextRes = R.string.do_cancel,
-                onClickConfirm = { viewModel.handleEvent(CategoryManageEvent.EditCategory(state.category)) },
-                onClickCancel = { viewModel.handleEvent(CategoryManageEvent.UpdateDialogState(DialogState.Hidden)) }
+                onValueChanged = {
+                    val updatedCategoryItem = dialogState.categoryItem.copy(categoryName = it)
+                    viewModel.handleEvent(
+                        CategoryManageEvent.UpdateDialogState(
+                            CategoryManageDialogState.Edit(updatedCategoryItem)
+                        )
+                    )
+                },
+                onClickConfirm = {
+                    viewModel.handleEvent(CategoryManageEvent.EditCategory(dialogState.categoryItem))
+                },
+                onClickCancel = {
+                    viewModel.handleEvent(
+                        CategoryManageEvent.UpdateDialogState(
+                            CategoryManageDialogState.Hidden
+                        )
+                    )
+                }
             )
         }
-        is DialogState.Delete -> {
+        is CategoryManageDialogState.Delete -> {
             MyDefaultDialog(
                 titleRes = R.string.title_will_you_delete_category,
                 descRes = R.string.desc_when_delete_category_change_same_category_notes,
                 descFontColor = Red500,
                 confirmButtonTextRes = R.string.yes_i_will_delete,
                 cancelButtonTextRes = R.string.cancel,
-                onClickConfirm = { viewModel.handleEvent(CategoryManageEvent.DeleteCategory(state.category.id)) },
-                onClickCancel = { viewModel.handleEvent(CategoryManageEvent.UpdateDialogState(DialogState.Hidden)) }
+                onClickConfirm = {
+                    viewModel.handleEvent(
+                        CategoryManageEvent.DeleteCategory(dialogState.categoryId)
+                    )
+                },
+                onClickCancel = {
+                    viewModel.handleEvent(
+                        CategoryManageEvent.UpdateDialogState(
+                            CategoryManageDialogState.Hidden
+                        )
+                    )
+                }
             )
         }
-        DialogState.Hidden -> {}
+        is CategoryManageDialogState.Hidden -> {}
     }
-
-    CategoryManageScreen(
-        modifier = modifier,
-        isLoading = uiState.isLoading,
-        categoryItems = uiState.categories,
-        onBackClick = navigateUp,
-        onAddClick = { viewModel.handleEvent(CategoryManageEvent.UpdateDialogState(DialogState.Add(""))) },
-        onEditClick = { categoryItem -> viewModel.handleEvent(CategoryManageEvent.UpdateDialogState(DialogState.Edit(categoryItem))) },
-        onDeleteClick = { categoryItem -> viewModel.handleEvent(CategoryManageEvent.UpdateDialogState(DialogState.Delete(categoryItem))) }
-    )
 }
 
 @Composable
@@ -131,13 +181,13 @@ fun CategoryManageScreen(
     onBackClick: () -> Unit,
     onAddClick: () -> Unit,
     onEditClick: (CategoryUiModel) -> Unit,
-    onDeleteClick: (CategoryUiModel) -> Unit
+    onDeleteClick: (Int) -> Unit,
 ) {
     Scaffold(
         modifier = modifier,
         topBar = {
             MyToolBarCompose(
-                title = stringResource(R.string.title_manage_category),
+                titleRes = R.string.title_manage_category,
                 onBackButtonClick = onBackClick,
                 rightFirstImageRes = R.drawable.ic_add_24,
                 rightFirstImageDesc = "Add Category",
@@ -146,18 +196,18 @@ fun CategoryManageScreen(
         }
     ) { innerPadding ->
         Box(modifier = modifier.padding(innerPadding)) {
-            if (isLoading) {
-                MyCircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                )
-            }
-
             CategoryList(
                 modifier = modifier,
                 categoryItems = categoryItems,
                 onClickEdit = onEditClick,
                 onClickDelete = onDeleteClick
             )
+
+            if (isLoading) {
+                MyCircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            }
         }
     }
 }
@@ -167,7 +217,7 @@ fun CategoryList(
     modifier: Modifier = Modifier,
     categoryItems: List<CategoryUiModel>,
     onClickEdit: (CategoryUiModel) -> Unit,
-    onClickDelete: (CategoryUiModel) -> Unit
+    onClickDelete: (Int) -> Unit
 ) {
     LazyColumn(
         modifier = modifier,
@@ -177,7 +227,7 @@ fun CategoryList(
             CategoryListItem(
                 item = item,
                 onClickEdit = { onClickEdit(item) },
-                onClickDelete = { onClickDelete(item) }
+                onClickDelete = { onClickDelete(item.id) }
             )
         }
     }
@@ -202,25 +252,26 @@ fun CategoryListItem(
             color = Black900
         )
 
-        Spacer(modifier = Modifier.weight(1f))
-
-        IconButton(
-            modifier = Modifier.size(36.dp),
-            onClick = onClickEdit
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Edit,
-                contentDescription = "Edit"
-            )
-        }
-        IconButton(
-            modifier = Modifier.size(36.dp),
-            onClick = onClickDelete
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Delete,
-                contentDescription = "Delete"
-            )
+        if (!item.isDefaultCategory()) {
+            Spacer(modifier = Modifier.weight(1f))
+            IconButton(
+                modifier = Modifier.size(36.dp),
+                onClick = onClickEdit
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Edit,
+                    contentDescription = "Edit"
+                )
+            }
+            IconButton(
+                modifier = Modifier.size(36.dp),
+                onClick = onClickDelete
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = "Delete"
+                )
+            }
         }
     }
 

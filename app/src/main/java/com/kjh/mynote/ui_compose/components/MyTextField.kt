@@ -12,12 +12,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,43 +52,22 @@ fun MyTextField(
     modifier: Modifier = Modifier,
     value: String,
     onValueChanged: (String) -> Unit,
-    @StringRes placeHolderRes: Int? = null,
-    focusRequester: FocusRequester = remember { FocusRequester() }
+    @StringRes placeHolderRes: Int? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
     val borderColor = if (isFocused) ColorPrimary else Black600
 
-    var textFieldValue by remember {
-        mutableStateOf(
-            TextFieldValue(
-                text = value,
-                selection = TextRange(value.length)
-            )
-        )
-    }
-
-    LaunchedEffect(value != textFieldValue.text) {
-        textFieldValue = TextFieldValue(
-            text = value,
-            selection = TextRange(value.length)
-        )
-    }
-
     BasicTextField(
-        value = textFieldValue,
-        onValueChange = { newValue ->
-            textFieldValue = newValue
-            onValueChanged(newValue.text)
-        },
+        value = value,
+        onValueChange = onValueChanged,
         singleLine = true,
         interactionSource = interactionSource,
         textStyle = TextStyle(fontSize = 14.sp, color = Black900),
         modifier = Modifier
             .fillMaxWidth()
             .height(44.dp)
-            .background(Color.White, shape = RoundedCornerShape(8.dp))
-            .focusRequester(focusRequester),
+            .background(Color.White, shape = RoundedCornerShape(8.dp)),
         decorationBox = { innerTextField ->
             Box(
                 modifier = Modifier

@@ -1,6 +1,5 @@
 package com.kjh.mynote.ui_compose.feature.mypage.manage.category
 
-import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.ApiResult
 import com.example.domain.model.Category
@@ -16,6 +15,7 @@ import com.kjh.mynote.ui_compose.base.UiEvent
 import com.kjh.mynote.ui_compose.base.UiSideEffect
 import com.kjh.mynote.ui_compose.base.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,23 +32,23 @@ sealed class CategoryManageSideEffect: UiSideEffect {
 sealed interface CategoryManageEvent: UiEvent {
     data object LoadingCategories: CategoryManageEvent
     data class LoadedCategories(val categories: List<CategoryUiModel>): CategoryManageEvent
-    data class UpdateDialogState(val dialogState: DialogState): CategoryManageEvent
+    data class UpdateDialogState(val dialogState: CategoryManageDialogState): CategoryManageEvent
     data class AddCategory(val newCategoryName: String): CategoryManageEvent
     data class EditCategory(val category: CategoryUiModel): CategoryManageEvent
     data class DeleteCategory(val categoryId: Int): CategoryManageEvent
 }
 
-sealed class DialogState {
-    data object Hidden: DialogState()
-    data class Add(val categoryName: String): DialogState()
-    data class Edit(val category: CategoryUiModel): DialogState()
-    data class Delete(val category: CategoryUiModel): DialogState()
+sealed class CategoryManageDialogState {
+    data object Hidden: CategoryManageDialogState()
+    data class Add(val categoryName: String = ""): CategoryManageDialogState()
+    data class Edit(val categoryItem: CategoryUiModel): CategoryManageDialogState()
+    data class Delete(val categoryId: Int): CategoryManageDialogState()
 }
 
 data class CategoryManageUiState(
     val isLoading: Boolean = false,
     val categories: List<CategoryUiModel> = emptyList(),
-    val dialogState: DialogState = DialogState.Hidden
+    val manageDialogState: CategoryManageDialogState = CategoryManageDialogState.Hidden
 ): UiState
 
 @HiltViewModel
@@ -75,9 +75,11 @@ class CategoryManageComposeViewModel @Inject constructor(
                 current.copy(isLoading = false, categories = event.categories)
             }
             is CategoryManageEvent.UpdateDialogState -> {
-                current.copy(dialogState = event.dialogState)
+                current.copy(manageDialogState = event.dialogState)
             }
-            else -> current
+            else -> {
+                current
+            }
         }
     }
 
@@ -96,7 +98,9 @@ class CategoryManageComposeViewModel @Inject constructor(
             is CategoryManageEvent.DeleteCategory -> {
                 requestDeleteCategory(event.categoryId)
             }
-            else -> setEvent(event)
+            else -> {
+                setEvent(event)
+            }
         }
     }
 
@@ -127,8 +131,9 @@ class CategoryManageComposeViewModel @Inject constructor(
                     is ApiResult.Error -> {
                         setEffect(CategoryManageSideEffect.ShowErrorToast(result.error.message))
                     }
+
                     is ApiResult.Success -> {
-                        setEvent(CategoryManageEvent.UpdateDialogState(DialogState.Hidden))
+                        setEvent(CategoryManageEvent.UpdateDialogState(CategoryManageDialogState.Hidden))
                     }
                 }
             }
@@ -139,12 +144,12 @@ class CategoryManageComposeViewModel @Inject constructor(
         viewModelScope.launch {
             deleteCategoryByIdUseCase(categoryId).collect { result ->
                 when (result) {
-                    ApiResult.Loading -> {}
+                    is ApiResult.Loading -> {}
                     is ApiResult.Error -> {
                         setEffect(CategoryManageSideEffect.ShowErrorToast(result.error.message))
                     }
                     is ApiResult.Success -> {
-                        setEvent(CategoryManageEvent.UpdateDialogState(DialogState.Hidden))
+                        setEvent(CategoryManageEvent.UpdateDialogState(CategoryManageDialogState.Hidden))
                     }
                 }
             }
@@ -155,12 +160,12 @@ class CategoryManageComposeViewModel @Inject constructor(
         viewModelScope.launch {
             updateCategoryNameUseCase(category.toDomainModel()).collect { result ->
                 when (result) {
-                    ApiResult.Loading -> {}
+                    is ApiResult.Loading -> {}
                     is ApiResult.Error -> {
                         setEffect(CategoryManageSideEffect.ShowErrorToast(result.error.message))
                     }
                     is ApiResult.Success -> {
-                        setEvent(CategoryManageEvent.UpdateDialogState(DialogState.Hidden))
+                        setEvent(CategoryManageEvent.UpdateDialogState(CategoryManageDialogState.Hidden))
                     }
                 }
             }

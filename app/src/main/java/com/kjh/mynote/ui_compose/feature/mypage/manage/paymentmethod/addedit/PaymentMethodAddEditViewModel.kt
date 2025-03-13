@@ -1,5 +1,7 @@
 package com.kjh.mynote.ui_compose.feature.mypage.manage.paymentmethod.addedit
 
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
@@ -43,8 +45,6 @@ class PaymentMethodAddEditViewModel @Inject constructor(
     init {
         if (paymentMethodId != -1) {
             fetchPaymentMethod(paymentMethodId)
-        } else {
-            setEffect(PaymentMethodAddEditSideEffect.ShowKeyBoard)
         }
     }
 
@@ -59,7 +59,7 @@ class PaymentMethodAddEditViewModel @Inject constructor(
             is PaymentMethodAddEditEvent.LoadedPaymentMethod -> {
                 current.copy(
                     isLoading = false,
-                    paymentMethodName = event.paymentMethodItem?.paymentMethodName ?: "",
+                    inputPaymentMethodName = event.paymentMethodItem?.paymentMethodName ?: "",
                     isCheckedDefaultPayment = event.paymentMethodItem?.isDefault ?: false,
                     isValidName = event.paymentMethodItem?.paymentMethodName?.isNotEmpty() ?: false
                 )
@@ -69,11 +69,11 @@ class PaymentMethodAddEditViewModel @Inject constructor(
             }
             is PaymentMethodAddEditEvent.UpdatePaymentMethodName -> {
                 current.copy(
-                    paymentMethodName = event.name,
+                    inputPaymentMethodName = event.name,
                     isValidName = event.name.isNotBlank()
                 )
             }
-            is PaymentMethodAddEditEvent.AddEditPaymentMethod -> current
+            else -> current
         }
     }
 
@@ -104,7 +104,6 @@ class PaymentMethodAddEditViewModel @Inject constructor(
                     is ApiResult.Success -> {
                         val paymentMethodItem = result.data?.toUiModel()
                         setEvent(PaymentMethodAddEditEvent.LoadedPaymentMethod(paymentMethodItem))
-                        setEffect(PaymentMethodAddEditSideEffect.ShowKeyBoard)
                     }
                 }
             }
@@ -115,7 +114,7 @@ class PaymentMethodAddEditViewModel @Inject constructor(
         viewModelScope.launch {
             upsertPaymentMethodUseCase(
                 PaymentMethod(
-                    paymentMethodName = state.value.paymentMethodName,
+                    paymentMethodName = state.value.inputPaymentMethodName,
                     isDefault = state.value.isCheckedDefaultPayment
                 )
             ).collect { result ->
@@ -138,7 +137,7 @@ class PaymentMethodAddEditViewModel @Inject constructor(
         viewModelScope.launch {
             val paymentMethod = PaymentMethod(
                 paymentMethodId = paymentMethodId,
-                paymentMethodName = state.value.paymentMethodName,
+                paymentMethodName = state.value.inputPaymentMethodName,
                 isDefault = state.value.isCheckedDefaultPayment
             )
 
@@ -162,7 +161,6 @@ class PaymentMethodAddEditViewModel @Inject constructor(
 sealed interface PaymentMethodAddEditSideEffect: UiSideEffect {
     data class ShowErrorToast(val msg: String?): PaymentMethodAddEditSideEffect
     data object NavigateUp: PaymentMethodAddEditSideEffect
-    data object ShowKeyBoard: PaymentMethodAddEditSideEffect
 }
 
 sealed interface PaymentMethodAddEditEvent: UiEvent {
@@ -175,7 +173,7 @@ sealed interface PaymentMethodAddEditEvent: UiEvent {
 
 data class PaymentMethodAddEditUiState(
     val isLoading: Boolean = false,
-    val paymentMethodName: String = "",
+    val inputPaymentMethodName: String = "",
     val isCheckedDefaultPayment: Boolean = false,
     val isValidName: Boolean = false,
     val viewType: ViewType = ViewType.Add

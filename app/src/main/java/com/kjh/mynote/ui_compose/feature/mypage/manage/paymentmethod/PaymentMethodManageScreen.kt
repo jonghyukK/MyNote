@@ -73,14 +73,22 @@ fun PaymentMethodManageRoute(
 
     PaymentMethodManageScreen(
         modifier = modifier,
-        uiState = uiState,
+        isLoading = uiState.isLoading,
+        paymentMethodItems = uiState.paymentMethods,
         onBackClicked = navigateUp,
         onAddClicked = navigateToPaymentMethodAddEdit,
         onEditClicked = navigateToPaymentMethodAddEdit,
-        onDeleteClicked = viewModel::handleEvent
+        onDeleteClicked = { paymentMethodId ->
+            viewModel.handleEvent(
+                PaymentMethodManageEvent.UpdateDeleteDialogVisibility(
+                    isVisible = true,
+                    tempDeleteId = paymentMethodId
+                )
+            )
+        }
     )
 
-    if (uiState.deleteDialogState.show) {
+    if (uiState.isVisibleDeleteDialog) {
         MyDefaultDialog(
             titleRes = R.string.will_you_delete,
             descRes =  R.string.desc_payment_method_remove,
@@ -88,11 +96,13 @@ fun PaymentMethodManageRoute(
             confirmButtonTextRes = R.string.yes_i_will_delete,
             cancelButtonTextRes = R.string.cancel,
             onClickConfirm = {
-                viewModel.handleEvent(PaymentMethodManageEvent.DeletePaymentMethod(uiState.deleteDialogState.paymentMethodId))
+                viewModel.handleEvent(
+                    PaymentMethodManageEvent.DeletePaymentMethod(uiState.tempDeleteId)
+                )
             },
             onClickCancel = {
                 viewModel.handleEvent(
-                    PaymentMethodManageEvent.UpdateDeleteDialogState(DeleteDialogState(false))
+                    PaymentMethodManageEvent.UpdateDeleteDialogVisibility(isVisible = false)
                 )
             }
         )
@@ -102,11 +112,12 @@ fun PaymentMethodManageRoute(
 @Composable
 fun PaymentMethodManageScreen(
     modifier: Modifier = Modifier,
-    uiState: PaymentMethodManageUiState,
+    isLoading: Boolean,
+    paymentMethodItems: List<PaymentMethodUiModel>,
     onBackClicked: () -> Unit,
     onAddClicked: (paymentMethodId: Int) -> Unit,
     onEditClicked: (paymentMethodId: Int) -> Unit,
-    onDeleteClicked: (PaymentMethodManageEvent.UpdateDeleteDialogState) -> Unit
+    onDeleteClicked: (Int) -> Unit
 ) {
     Scaffold(
         modifier = modifier,
@@ -120,16 +131,17 @@ fun PaymentMethodManageScreen(
             )
         }
     ) { innerPadding ->
-        Box(modifier = modifier.padding(innerPadding)) {
+        Box(modifier = Modifier.padding(innerPadding)) {
             PaymentMethodList(
                 modifier = modifier,
-                paymentMethodItems = uiState.paymentMethods,
+                paymentMethodItems = paymentMethodItems,
                 onClickEdit = onEditClicked,
                 onClickDelete = { paymentMethodId ->
-                    onDeleteClicked(PaymentMethodManageEvent.UpdateDeleteDialogState(DeleteDialogState(true, paymentMethodId))) }
+                    onDeleteClicked(paymentMethodId)
+                }
             )
 
-            if (uiState.isLoading) {
+            if (isLoading) {
                 MyCircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center)
                 )

@@ -32,17 +32,6 @@ class PaymentMethodManageViewModel @Inject constructor(
         fetchPaymentMethods()
     }
 
-    override fun handleEvent(event: PaymentMethodManageEvent) {
-        when (event) {
-            is PaymentMethodManageEvent.DeletePaymentMethod -> {
-                deletePaymentMethod(event.paymentMethodId)
-            }
-            else -> {
-                setEvent(event)
-            }
-        }
-    }
-
     override fun reduceState(
         current: PaymentMethodManageUiState,
         event: PaymentMethodManageEvent,
@@ -54,10 +43,21 @@ class PaymentMethodManageViewModel @Inject constructor(
             is PaymentMethodManageEvent.LoadedPaymentMethods -> {
                 current.copy(isLoading = false, paymentMethods = event.paymentMethods)
             }
-            is PaymentMethodManageEvent.UpdateDeleteDialogState -> {
-                current.copy(deleteDialogState = event.dialogState)
+            is PaymentMethodManageEvent.UpdateDeleteDialogVisibility -> {
+                current.copy(isVisibleDeleteDialog = event.isVisible, tempDeleteId = event.tempDeleteId)
             }
             else -> current
+        }
+    }
+
+    override fun handleEvent(event: PaymentMethodManageEvent) {
+        when (event) {
+            is PaymentMethodManageEvent.DeletePaymentMethod -> {
+                deletePaymentMethod(event.paymentMethodId)
+            }
+            else -> {
+                setEvent(event)
+            }
         }
     }
 
@@ -90,7 +90,10 @@ class PaymentMethodManageViewModel @Inject constructor(
                     }
                     is ApiResult.Success -> {
                         setEvent(
-                            PaymentMethodManageEvent.UpdateDeleteDialogState(DeleteDialogState(show = false))
+                            PaymentMethodManageEvent.UpdateDeleteDialogVisibility(
+                                isVisible = false,
+                                tempDeleteId = -1
+                            )
                         )
                     }
                 }
@@ -107,17 +110,16 @@ sealed interface PaymentMethodManageSideEffect: UiSideEffect {
 sealed interface PaymentMethodManageEvent: UiEvent {
     data object LoadingPaymentMethods: PaymentMethodManageEvent
     data class LoadedPaymentMethods(val paymentMethods: List<PaymentMethodUiModel>): PaymentMethodManageEvent
-    data class UpdateDeleteDialogState(val dialogState: DeleteDialogState): PaymentMethodManageEvent
+    data class UpdateDeleteDialogVisibility(
+        val isVisible: Boolean,
+        val tempDeleteId: Int = -1
+    ): PaymentMethodManageEvent
     data class DeletePaymentMethod(val paymentMethodId: Int): PaymentMethodManageEvent
 }
 
 data class PaymentMethodManageUiState(
     val isLoading: Boolean = false,
     val paymentMethods: List<PaymentMethodUiModel> = emptyList(),
-    val deleteDialogState: DeleteDialogState = DeleteDialogState()
+    val isVisibleDeleteDialog: Boolean = false,
+    val tempDeleteId: Int = -1
 ): UiState
-
-data class DeleteDialogState(
-    val show: Boolean = false,
-    val paymentMethodId: Int = -1
-)

@@ -24,10 +24,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -66,7 +64,6 @@ fun PaymentMethodAddEditRoute(
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(viewModel.effect) {
         viewModel.effect.collect { effect ->
@@ -76,9 +73,6 @@ fun PaymentMethodAddEditRoute(
                 }
                 is PaymentMethodAddEditSideEffect.ShowErrorToast -> {
                     Toast.makeText(context, effect.msg, Toast.LENGTH_SHORT).show()
-                }
-                is PaymentMethodAddEditSideEffect.ShowKeyBoard -> {
-                    focusRequester.requestFocus()
                 }
             }
         }
@@ -90,8 +84,7 @@ fun PaymentMethodAddEditRoute(
         onAddEditClick = viewModel::handleEvent,
         onValueChanged = viewModel::handleEvent,
         onToggleDefaultPaymentChecked = viewModel::handleEvent,
-        onBackClicked = onNavigateUp,
-        focusRequester = focusRequester
+        onBackClicked = onNavigateUp
     )
 }
 
@@ -102,8 +95,7 @@ fun PaymentMethodAddEditScreen(
     onAddEditClick: (PaymentMethodAddEditEvent.AddEditPaymentMethod) -> Unit,
     onValueChanged: (PaymentMethodAddEditEvent.UpdatePaymentMethodName) -> Unit,
     onToggleDefaultPaymentChecked: (PaymentMethodAddEditEvent.ToggleDefaultPaymentChecked) -> Unit,
-    onBackClicked: () -> Unit,
-    focusRequester: FocusRequester
+    onBackClicked: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -129,10 +121,11 @@ fun PaymentMethodAddEditScreen(
             PaymentMethodAddEditContent(
                 paymentMethodTextField = {
                     MyTextField(
-                        value = uiState.paymentMethodName,
-                        onValueChanged = { name -> onValueChanged(PaymentMethodAddEditEvent.UpdatePaymentMethodName(name)) },
-                        placeHolderRes = R.string.hint_input_payment_method_name,
-                        focusRequester = focusRequester
+                        value = uiState.inputPaymentMethodName,
+                        onValueChanged = { name ->
+                            onValueChanged(PaymentMethodAddEditEvent.UpdatePaymentMethodName(name))
+                        },
+                        placeHolderRes = R.string.hint_input_payment_method_name
                     )
                 },
                 defaultPaymentCheckBox = {

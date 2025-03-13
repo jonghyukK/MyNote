@@ -2,6 +2,7 @@ package com.kjh.mynote.ui_compose.feature.mypage.navigation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -44,7 +45,8 @@ fun NavGraphBuilder.myPageNavGraph(
         )
     }
 
-    composable<CategoryManageRoute> {
+    composable<CategoryManageRoute>(
+    ) {
         CategoryManageRoute(
             modifier = Modifier.fillMaxSize(),
             navigateUp = navigateUp
@@ -54,7 +56,17 @@ fun NavGraphBuilder.myPageNavGraph(
     composable<PaymentMethodManageRoute>(
         enterTransition = {
             slideIntoContainer(
-                towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                towards = AnimatedContentTransitionScope.SlideDirection.Left, // 오른쪽에서 등장
+                animationSpec = tween(300)
+            )
+        },
+        exitTransition = { null },
+        popEnterTransition = {
+            fadeIn(animationSpec = tween(300))
+        },
+        popExitTransition = {
+            slideOutOfContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Right, // 뒤로 가기 시 오른쪽으로 사라짐
                 animationSpec = tween(300)
             )
         }
@@ -70,6 +82,12 @@ fun NavGraphBuilder.myPageNavGraph(
         enterTransition = {
             slideIntoContainer(
                 towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                animationSpec = tween(300)
+            )
+        },
+        exitTransition = {
+            slideOutOfContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Right,
                 animationSpec = tween(300)
             )
         }
